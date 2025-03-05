@@ -59,7 +59,7 @@ MOCK_REASONING_RESPONSE = {
     "model": "accounts/fireworks/models/deepseek-r1",
     "choices": [
         {
-            "text": "I'll solve this step by step. First, I need to understand the problem...",
+            "text": "<think>I'll solve this step by step. First, I need to understand the problem...</think>\n<answer>Therefore, the answer is \\boxed{42}</answer>",
             "index": 0,
             "logprobs": None,
             "finish_reason": "length"

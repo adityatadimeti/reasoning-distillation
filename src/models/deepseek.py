@@ -259,6 +259,9 @@ class DeepSeekModel(Model):
         else:
             final_answer = ""
         
+        # Calculate the final token count before returning
+        current_token_count = self.estimate_tokens(full_reasoning)
+        
         # Construct and return the final output
         return {
             "question": question,
