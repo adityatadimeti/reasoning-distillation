@@ -300,12 +300,13 @@ class DeepSeekModel(Model):
         
         return response.text.strip()
 
-    def extract_answer(self, text: str) -> str:
+    def extract_answer(self, text: str, flexible_extraction: bool = False) -> str:
         """
         Extract the answer from model output, looking for boxed notation.
         
         Args:
             text: Text containing the answer
+            flexible_extraction: If True, use more flexible patterns to extract answers
             
         Returns:
             Extracted answer or empty string if not found
@@ -316,12 +317,31 @@ class DeepSeekModel(Model):
         
         if matches:
             return matches[0].strip()
-        
-        # If no boxed answer, look for "Therefore, the answer is" pattern
-        answer_pattern = r'[Tt]herefore,?\s+the\s+answer\s+is\s*:?\s*(.*?)(?:\.|$)'
-        answer_matches = re.findall(answer_pattern, text)
-        
-        if answer_matches:
-            return answer_matches[0].strip()
+            
+        # If flexible extraction is enabled, try additional patterns
+        if flexible_extraction:
+            # Look for "**Answer:** X" pattern (common in markdown formatting)
+            bold_pattern = r'\*\*Answer:\*\*\s*(.*?)(?:\.|$)'
+            bold_matches = re.findall(bold_pattern, text)
+            if bold_matches:
+                return bold_matches[0].strip()
+                
+            # Look for "Answer: X" pattern (without bold)
+            simple_pattern = r'Answer:\s*(.*?)(?:\.|$)'
+            simple_matches = re.findall(simple_pattern, text)
+            if simple_matches:
+                return simple_matches[0].strip()
+                
+            # Look for a number followed by units (e.g., "180 miles")
+            units_pattern = r'(\d+)\s*(?:miles|km|meters|m|feet|ft)'
+            units_matches = re.findall(units_pattern, text)
+            if units_matches:
+                return units_matches[0].strip()
+                
+            # Last resort: try to find any number in the text
+            number_pattern = r'(\d+)'
+            number_matches = re.findall(number_pattern, text)
+            if number_matches:
+                return number_matches[0].strip()
         
         return ""

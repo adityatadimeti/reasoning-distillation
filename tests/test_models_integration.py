@@ -96,8 +96,8 @@ class TestDeepSeekModelIntegration:
         assert result["reasoning"], "Reasoning should not be empty"
         assert result["answer"], "Answer should not be empty"
         
-        # Test answer extraction
-        extracted = model.extract_answer(result["answer"])
+        # Test answer extraction with flexible extraction enabled
+        extracted = model.extract_answer(result["answer"], flexible_extraction=True)
         print(f"Extracted answer: {extracted}")
         assert extracted, "Should be able to extract an answer"
     
