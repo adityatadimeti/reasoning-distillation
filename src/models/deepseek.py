@@ -74,6 +74,13 @@ class DeepSeekModel(Model):
         Raises:
             Exception: If API call fails after all retries
         """
+        # Check for API calls safeguard
+        if os.environ.get("ENABLE_API_CALLS") != "1":
+            raise EnvironmentError(
+                "API calls are disabled. Set ENABLE_API_CALLS=1 to enable real API calls. "
+                "This safeguard prevents accidental usage of paid API services during testing."
+            )
+
         for attempt in range(self.retries):
             try:
                 response = requests.post(
