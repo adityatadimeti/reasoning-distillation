@@ -1,0 +1,73 @@
+# Self-summarization experiment configuration
+
+name: self_summarization
+description: "Experiment using the model to summarize its own reasoning"
+
+# Inherit from baseline config
+defaults:
+  - baseline
+
+# Override specific settings
+experiment:
+  name: self_summarization
+  description: "Experiment using DeepSeek R1 to summarize its own reasoning"
+  seed: 42
+  output_dir: ${results_dir}/${experiment.name}
+
+# Model settings
+model:
+  name: deepseek_r1
+  config: models/deepseek_r1.yaml
+
+# Summarizer settings (same as reasoning model in this case)
+summarizer:
+  name: deepseek_r1
+  config: models/deepseek_r1.yaml
+  temperature: 0.3
+  max_tokens: 1024
+
+# Pipeline settings
+pipeline:
+  type: summary
+  batch_size: 4
+  save_reasoning_traces: true
+  save_summaries: true
+  save_final_answers: true
+  summarization_strategy: self
+
+# Summarization settings
+summarization:
+  prompt_template: |
+    [INST]
+    You are DeepSeek Math, an AI assistant that specializes in solving mathematical problems.
+    
+    Please analyze your own reasoning for the following problem and provide a concise summary that captures the key insights and strategies.
+    
+    Problem: {problem}
+    
+    Your reasoning:
+    {reasoning_trace}
+    
+    Provide a concise summary (no more than 150 words) that captures the key insights and strategies from your reasoning.
+    [/INST]
+  max_summary_length: 150
+  focus_on_errors: true
+  include_in_final_prompt: true
+
+# Evaluation settings
+evaluation:
+  metrics:
+    - accuracy
+    - token_efficiency
+    - reasoning_quality
+    - step_count
+    - summary_quality
+    - improvement_rate
+  save_evaluation_results: true
+
+# Logging settings
+logging:
+  use_wandb: false
+  wandb_project: reasoning-distillation
+  wandb_run_name: self_summarization
+  log_frequency: 1

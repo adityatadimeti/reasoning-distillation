@@ -1,0 +1,75 @@
+# External summarization experiment configuration
+
+name: external_summarization
+description: "Experiment using GPT-4o to summarize DeepSeek R1's reasoning"
+
+# Inherit from baseline config
+defaults:
+  - baseline
+
+# Override specific settings
+experiment:
+  name: external_summarization
+  description: "Experiment using GPT-4o to summarize DeepSeek R1's reasoning"
+  seed: 42
+  output_dir: ${results_dir}/${experiment.name}
+
+# Model settings (reasoning model)
+model:
+  name: deepseek_r1
+  config: models/deepseek_r1.yaml
+
+# Summarizer settings (external model)
+summarizer:
+  name: gpt4o
+  config: models/gpt4o.yaml
+  temperature: 0.7
+  max_tokens: 1024
+
+# Pipeline settings
+pipeline:
+  type: summary
+  batch_size: 4
+  save_reasoning_traces: true
+  save_summaries: true
+  save_final_answers: true
+  summarization_strategy: external
+
+# Summarization settings
+summarization:
+  prompt_template: |
+    I need you to analyze the following mathematical reasoning and provide a concise summary that captures the key insights, strategies, and potential errors.
+    
+    Original problem: {problem}
+    
+    Reasoning trace:
+    {reasoning_trace}
+    
+    Please provide a concise summary (no more than 150 words) that:
+    1. Identifies the main approach used
+    2. Highlights key insights or clever steps
+    3. Points out any errors or inefficiencies
+    4. Suggests potential improvements
+    
+    Your summary should be clear and focused on the most important aspects of the reasoning.
+  max_summary_length: 150
+  focus_on_errors: true
+  include_in_final_prompt: true
+
+# Evaluation settings
+evaluation:
+  metrics:
+    - accuracy
+    - token_efficiency
+    - reasoning_quality
+    - step_count
+    - summary_quality
+    - improvement_rate
+  save_evaluation_results: true
+
+# Logging settings
+logging:
+  use_wandb: false
+  wandb_project: reasoning-distillation
+  wandb_run_name: external_summarization
+  log_frequency: 1

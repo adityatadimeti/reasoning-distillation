@@ -1,0 +1,95 @@
+# Recursive refinement experiment configuration
+
+name: recursive_refinement
+description: "Experiment using iterative refinement through summarization"
+
+# Inherit from external summarization config
+defaults:
+  - external_summarization
+
+# Override specific settings
+experiment:
+  name: recursive_refinement
+  description: "Experiment using iterative refinement through GPT-4o summarization"
+  seed: 42
+  output_dir: ${results_dir}/${experiment.name}
+
+# Pipeline settings
+pipeline:
+  type: recursive
+  batch_size: 4
+  save_reasoning_traces: true
+  save_summaries: true
+  save_final_answers: true
+  summarization_strategy: external
+  max_iterations: 3
+  convergence_threshold: 0.05  # Stop if improvement is less than this between iterations
+
+# Recursive settings
+recursive:
+  iteration_prompt_template: |
+    [INST]
+    You are DeepSeek Math, an AI assistant that specializes in solving mathematical problems step by step with clear reasoning.
+    
+    Problem: {problem}
+    
+    Previous reasoning summary: {summary}
+    
+    Key insights from previous attempt:
+    {insights}
+    
+    Areas to improve:
+    {improvements}
+    
+    Please solve this problem again, step by step, taking into account the feedback from your previous attempt.
+    [/INST]
+  
+  track_improvements: true
+  save_all_iterations: true
+  adaptive_stopping: true  # Stop early if solution converges or gets worse
+
+# Summarization settings
+summarization:
+  prompt_template: |
+    I need you to analyze the following mathematical reasoning and provide a concise summary that captures the key insights, strategies, and potential errors.
+    
+    Original problem: {problem}
+    
+    Reasoning trace (iteration {iteration}):
+    {reasoning_trace}
+    
+    Please provide:
+    
+    1. A concise summary (no more than 100 words) that captures the key insights and strategies.
+    
+    2. A list of 2-3 key insights from this reasoning attempt.
+    
+    3. A list of 2-3 specific areas that could be improved in the next iteration.
+    
+    Your feedback should be clear, specific, and actionable for improving the next reasoning attempt.
+  
+  extract_insights: true
+  extract_improvements: true
+  max_summary_length: 100
+  focus_on_errors: true
+  include_in_final_prompt: true
+
+# Evaluation settings
+evaluation:
+  metrics:
+    - accuracy
+    - token_efficiency
+    - reasoning_quality
+    - step_count
+    - summary_quality
+    - improvement_rate
+    - convergence_rate
+  save_evaluation_results: true
+  compare_iterations: true
+
+# Logging settings
+logging:
+  use_wandb: false
+  wandb_project: reasoning-distillation
+  wandb_run_name: recursive_refinement
+  log_frequency: 1

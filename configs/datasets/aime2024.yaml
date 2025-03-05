@@ -1,0 +1,40 @@
+# AIME 2024 dataset configuration
+
+name: aime2024
+description: "American Invitational Mathematics Examination 2024 problems"
+
+# Data paths
+data_path: ${data_dir}/raw/aime2024.json
+processed_path: ${data_dir}/processed/aime2024_processed.json
+reasoning_traces_path: ${data_dir}/reasoning_traces/aime2024_traces.json
+summaries_path: ${data_dir}/summaries/aime2024_summaries.json
+
+# Dataset properties
+num_problems: 15
+difficulty: advanced
+domain: mathematics
+problem_types:
+  - algebra
+  - geometry
+  - number_theory
+  - combinatorics
+  - probability
+
+# Processing options
+preprocessing:
+  clean_text: true
+  normalize_math: true
+  add_context: false
+
+# Evaluation metrics
+metrics:
+  - accuracy
+  - reasoning_quality
+  - step_count
+  - token_efficiency
+
+# Splits
+splits:
+  train: null  # No training split for this dataset
+  validation: null  # No validation split for this dataset
+  test: 1.0  # Use all problems for testing

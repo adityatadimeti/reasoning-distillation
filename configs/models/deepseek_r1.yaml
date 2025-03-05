@@ -1,0 +1,44 @@
+# DeepSeek R1 model configuration
+
+name: deepseek_r1
+model_id: deepseek-ai/deepseek-math-7b-r1
+api_type: huggingface  # or "api" if using DeepSeek's API
+local_model_path: null  # Set if using a local copy
+
+# Generation parameters
+temperature: 0.2
+max_tokens: 4096
+top_p: 0.95
+frequency_penalty: 0.0
+presence_penalty: 0.0
+stop_sequences: []
+
+# System prompt
+system_prompt: "You are DeepSeek Math, an AI assistant that specializes in solving mathematical problems step by step with clear reasoning."
+
+# Prompt templates
+prompt_templates:
+  default: |
+    [INST] 
+    {system_prompt}
+    
+    Problem: {problem}
+    
+    Solve this step by step.
+    [/INST]
+  
+  with_summary: |
+    [INST]
+    {system_prompt}
+    
+    Problem: {problem}
+    
+    Previous reasoning summary: {summary}
+    
+    Solve this step by step, taking into account the summary of previous reasoning.
+    [/INST]
+
+# Model-specific settings
+batch_size: 1
+use_flash_attention: true
+quantization: null  # Options: null, "int8", "int4"

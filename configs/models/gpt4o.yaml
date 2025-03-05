@@ -1,0 +1,55 @@
+# GPT-4o model configuration
+
+name: gpt4o
+model_id: gpt-4o
+api_type: openai
+
+# Generation parameters
+temperature: 0.7
+max_tokens: 4096
+top_p: 1.0
+frequency_penalty: 0.0
+presence_penalty: 0.0
+stop_sequences: []
+
+# System prompt
+system_prompt: "You are a helpful AI assistant that specializes in analyzing mathematical reasoning and providing concise summaries."
+
+# Prompt templates
+prompt_templates:
+  summarize: |
+    I need you to analyze the following mathematical reasoning and provide a concise summary that captures the key insights, strategies, and potential errors.
+    
+    Original problem: {problem}
+    
+    Reasoning trace:
+    {reasoning_trace}
+    
+    Please provide a concise summary (no more than 200 words) that:
+    1. Identifies the main approach used
+    2. Highlights key insights or clever steps
+    3. Points out any errors or inefficiencies
+    4. Suggests potential improvements
+    
+    Your summary should be clear and focused on the most important aspects of the reasoning.
+  
+  evaluate: |
+    Please evaluate the following mathematical reasoning trace for a problem.
+    
+    Problem: {problem}
+    
+    Reasoning trace:
+    {reasoning_trace}
+    
+    Provide a detailed evaluation focusing on:
+    1. Correctness of the approach and solution
+    2. Clarity and structure of the reasoning
+    3. Efficiency of the solution method
+    4. Any errors or misconceptions
+    
+    Rate the overall quality on a scale of 1-10 and explain your rating.
+
+# API settings
+api_base: https://api.openai.com/v1
+api_version: null
+organization_id: null
