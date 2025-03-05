@@ -1,75 +1,69 @@
-# External summarization experiment configuration
+# Configuration for external summarization pipeline experiment
 
-name: external_summarization
-description: "Experiment using GPT-4o to summarize DeepSeek R1's reasoning"
+# Base configuration (will be merged with this config)
+base_config: configs/experiments/baseline.yaml
 
-# Inherit from baseline config
-defaults:
-  - baseline
-
-# Override specific settings
-experiment:
-  name: external_summarization
-  description: "Experiment using GPT-4o to summarize DeepSeek R1's reasoning"
-  seed: 42
-  output_dir: ${results_dir}/${experiment.name}
-
-# Model settings (reasoning model)
-model:
-  name: deepseek_r1
-  config: models/deepseek_r1.yaml
-
-# Summarizer settings (external model)
-summarizer:
-  name: gpt4o
-  config: models/gpt4o.yaml
-  temperature: 0.7
-  max_tokens: 1024
-
-# Pipeline settings
+# Pipeline configuration
 pipeline:
+  name: external_summary
   type: summary
   batch_size: 4
-  save_reasoning_traces: true
-  save_summaries: true
-  save_final_answers: true
-  summarization_strategy: external
+  save_intermediates: true
+  max_iterations: 2
+  continuation_prompt: "Based on the summary of your previous reasoning, continue solving the problem. Try to correct any errors identified in the summary."
 
-# Summarization settings
+# Model configuration (import from files)
+imports:
+  - configs/models/fireworks.yaml
+  - configs/summarization/default.yaml
+
+# Summarization configuration
 summarization:
-  prompt_template: |
-    I need you to analyze the following mathematical reasoning and provide a concise summary that captures the key insights, strategies, and potential errors.
-    
-    Original problem: {problem}
-    
-    Reasoning trace:
-    {reasoning_trace}
-    
-    Please provide a concise summary (no more than 150 words) that:
-    1. Identifies the main approach used
-    2. Highlights key insights or clever steps
-    3. Points out any errors or inefficiencies
-    4. Suggests potential improvements
-    
-    Your summary should be clear and focused on the most important aspects of the reasoning.
-  max_summary_length: 150
-  focus_on_errors: true
-  include_in_final_prompt: true
+  method: external
+  strategy: error_focused
+  prompt: error_focused
+  max_tokens: 1000
+  temperature: 0.5
+  
+  # External summarization specific settings
+  external_summary:
+    strategy: error_focused
+    prompt: error_focused
+    max_tokens: 1000
+    temperature: 0.5
 
-# Evaluation settings
+# Reasoning model (can be overridden to use different models)
+reasoning_model:
+  name: deepseek-r1-distill-qwen-7b
+  model_id: accounts/fireworks/models/deepseek-r1-distill-qwen-7b
+
+# Summarization model (main DeepSeek R1 for summarization)
+summarization_model:
+  name: deepseek-r1
+  model_id: accounts/fireworks/models/deepseek-r1
+
+# Reasoning configuration overrides
+reasoning:
+  think_tag: true
+  max_extensions: 5
+  target_token_count: 2000
+
+# Evaluation configuration
 evaluation:
   metrics:
     - accuracy
-    - token_efficiency
-    - reasoning_quality
-    - step_count
-    - summary_quality
     - improvement_rate
-  save_evaluation_results: true
+  tolerance: 0.01  # Numerical tolerance for answer comparison
 
-# Logging settings
+# Output configuration
+output:
+  results_path: results/external_summary
+  save_format: json
+  visualizations: true
+
+# Logging configuration
 logging:
-  use_wandb: false
-  wandb_project: reasoning-distillation
-  wandb_run_name: external_summarization
-  log_frequency: 1
+  level: INFO
+  save_path: logs
+  console_output: true
+  log_file: true

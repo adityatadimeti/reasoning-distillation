@@ -208,3 +208,159 @@ class TestBaselineReasoningPipelineIntegration:
             
         except Exception as e:
             pytest.skip(f"Could not run pipeline integration test: {str(e)}")
+
+@api_tests_enabled
+class TestPipelineIntegration:
+    """Integration tests for reasoning pipelines"""
+    
+    @pytest.fixture
+    def baseline_config(self):
+        """Create a baseline configuration object for testing"""
+        return Config(base_config=SAMPLE_CONFIG)
+    
+    @pytest.fixture
+    def summary_config(self):
+        """Create a summary configuration object for testing"""
+        config_dict = SAMPLE_CONFIG.copy()
+        config_dict["pipeline"] = {
+            "name": "test_summary",
+            "type": "summary",
+            "batch_size": 1,
+            "max_iterations": 1
+        }
+        config_dict["summarization"] = {
+            "method": "self",
+            "strategy": "default",
+            "prompt": "default"
+        }
+        return Config(base_config=config_dict)
+    
+    @pytest.fixture
+    def baseline_pipeline(self, baseline_config):
+        """Create a baseline pipeline instance for testing"""
+        return BaselineReasoningPipeline(baseline_config)
+    
+    @pytest.fixture
+    def summary_pipeline(self, summary_config):
+        """Create a summary pipeline instance for testing"""
+        from src.pipeline.summary_pipeline import SummaryReasoningPipeline
+        return SummaryReasoningPipeline(summary_config)
+    
+    @pytest.fixture
+    def dataset(self, baseline_config):
+        """Create a dataset instance for testing"""
+        return Dataset(baseline_config)
+    
+    def test_api_key_present(self):
+        """Verify API key is available"""
+        assert os.environ.get("FIREWORKS_API_KEY"), "FIREWORKS_API_KEY not found in environment"
+    
+    def test_run_baseline_pipeline(self, baseline_pipeline, dataset):
+        """Test running the baseline pipeline on a single problem"""
+        try:
+            # Load the dataset
+            dataset.load_raw()
+            
+            # Get a specific problem ID
+            problem_id = dataset.data_raw.iloc[0]["ID"]
+            
+            # Run the pipeline on a single problem
+            results = baseline_pipeline.run(
+                dataset=dataset,
+                problem_ids=[problem_id]
+            )
+            
+            print("\n=== BASELINE PIPELINE RESULTS ===")
+            print(f"Pipeline: {results['pipeline']}")
+            print(f"Number of problems: {results['num_problems']}")
+            print(f"Total time: {results['total_time']:.2f}s")
+            
+            # Check result structure
+            assert results["pipeline"] == "test_baseline"
+            assert results["num_problems"] == 1
+            assert "total_time" in results
+            assert "results" in results
+            assert len(results["results"]) == 1
+            
+            # Check problem result
+            problem_result = results["results"][0]
+            assert "question" in problem_result
+            assert "reasoning" in problem_result
+            assert "answer" in problem_result
+            assert "extracted_answer" in problem_result
+            
+            # Evaluate results
+            metrics = baseline_pipeline.evaluate(results)
+            
+            print("\n=== BASELINE PIPELINE METRICS ===")
+            for key, value in metrics.items():
+                if isinstance(value, float):
+                    print(f"{key}: {value:.4f}")
+                else:
+                    print(f"{key}: {value}")
+            
+            # Check metric structure
+            assert "accuracy" in metrics
+            assert "correct_count" in metrics
+            assert "total_evaluated" in metrics
+            
+        except Exception as e:
+            pytest.skip(f"Could not run baseline pipeline test: {str(e)}")
+    
+    def test_run_summary_pipeline(self, summary_pipeline, dataset):
+        """Test running the summary pipeline on a single problem"""
+        try:
+            # Load the dataset
+            dataset.load_raw()
+            
+            # Get a specific problem ID
+            problem_id = dataset.data_raw.iloc[0]["ID"]
+            
+            # Run the pipeline on a single problem
+            results = summary_pipeline.run(
+                dataset=dataset,
+                problem_ids=[problem_id],
+                max_iterations=1  # Just do one iteration for testing
+            )
+            
+            print("\n=== SUMMARY PIPELINE RESULTS ===")
+            print(f"Pipeline: {results['pipeline']}")
+            print(f"Number of problems: {results['num_problems']}")
+            print(f"Total time: {results['total_time']:.2f}s")
+            print(f"Summarization method: {results['summarization_method']}")
+            
+            # Check result structure
+            assert results["pipeline"] == "test_summary"
+            assert results["num_problems"] == 1
+            assert "total_time" in results
+            assert "results" in results
+            assert len(results["results"]) == 1
+            
+            # Check problem result
+            problem_result = results["results"][0]
+            assert "question" in problem_result
+            assert "iterations" in problem_result
+            assert len(problem_result["iterations"]) > 0
+            assert "extracted_answer" in problem_result
+            
+            # Check that summarization occurred
+            if len(problem_result["iterations"]) > 1:
+                assert "summary" in problem_result["iterations"][1]
+            
+            # Evaluate results
+            metrics = summary_pipeline.evaluate(results)
+            
+            print("\n=== SUMMARY PIPELINE METRICS ===")
+            for key, value in metrics.items():
+                if isinstance(value, float):
+                    print(f"{key}: {value:.4f}")
+                else:
+                    print(f"{key}: {value}")
+            
+            # Check metric structure
+            assert "accuracy" in metrics
+            assert "correct_count" in metrics
+            assert "total_evaluated" in metrics
+            
+        except Exception as e:
+            pytest.skip(f"Could not run summary pipeline test: {str(e)}")

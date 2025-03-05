@@ -1,9 +1,9 @@
-# Configuration for Fireworks AI models
+# Configuration for Fireworks AI distilled models
 
-# Default reasoning model configuration
+# DeepSeek R1 Distill Qwen 7B
 reasoning_model:
-  name: deepseek-r1
-  model_id: accounts/fireworks/models/deepseek-r1
+  name: deepseek-r1-distill-qwen-7b
+  model_id: accounts/fireworks/models/deepseek-r1-distill-qwen-7b
   api_type: fireworks
   api_base: https://api.fireworks.ai/inference/v1
   # API key should be in environment variable FIREWORKS_API_KEY
@@ -21,14 +21,14 @@ reasoning_model:
   retries: 3   # Number of retries for API calls
   retry_delay: 2  # Delay between retries in seconds
 
-# Summarization model configuration (used when summarization.method = "external")
+# Summarization model configuration (using the original DeepSeek R1 for summarization)
 summarization_model:
   name: deepseek-r1
   model_id: accounts/fireworks/models/deepseek-r1
   api_type: fireworks
   api_base: https://api.fireworks.ai/inference/v1
   
-  # Model parameters
+  # Model parameters - lower temperature for more focused summaries
   max_tokens: 1000
   temperature: 0.5
   top_p: 1.0

@@ -1,73 +1,58 @@
-# Self-summarization experiment configuration
+# Configuration for self-summarization pipeline experiment
 
-name: self_summarization
-description: "Experiment using the model to summarize its own reasoning"
+# Base configuration (will be merged with this config)
+base_config: configs/experiments/baseline.yaml
 
-# Inherit from baseline config
-defaults:
-  - baseline
-
-# Override specific settings
-experiment:
-  name: self_summarization
-  description: "Experiment using DeepSeek R1 to summarize its own reasoning"
-  seed: 42
-  output_dir: ${results_dir}/${experiment.name}
-
-# Model settings
-model:
-  name: deepseek_r1
-  config: models/deepseek_r1.yaml
-
-# Summarizer settings (same as reasoning model in this case)
-summarizer:
-  name: deepseek_r1
-  config: models/deepseek_r1.yaml
-  temperature: 0.3
-  max_tokens: 1024
-
-# Pipeline settings
+# Pipeline configuration
 pipeline:
+  name: self_summary
   type: summary
   batch_size: 4
-  save_reasoning_traces: true
-  save_summaries: true
-  save_final_answers: true
-  summarization_strategy: self
+  save_intermediates: true
+  max_iterations: 2
+  continuation_prompt: "Based on the summary of your previous reasoning, continue solving the problem. Try to correct any errors identified in the summary."
 
-# Summarization settings
+# Model configuration (import from files)
+imports:
+  - configs/models/fireworks.yaml
+  - configs/summarization/default.yaml
+
+# Summarization configuration
 summarization:
-  prompt_template: |
-    [INST]
-    You are DeepSeek Math, an AI assistant that specializes in solving mathematical problems.
-    
-    Please analyze your own reasoning for the following problem and provide a concise summary that captures the key insights and strategies.
-    
-    Problem: {problem}
-    
-    Your reasoning:
-    {reasoning_trace}
-    
-    Provide a concise summary (no more than 150 words) that captures the key insights and strategies from your reasoning.
-    [/INST]
-  max_summary_length: 150
-  focus_on_errors: true
-  include_in_final_prompt: true
+  method: self
+  strategy: error_focused
+  prompt: error_focused
+  max_tokens: 1000
+  temperature: 0.7
+  
+  # Self-summarization specific settings
+  self_summary:
+    strategy: error_focused
+    prompt: error_focused
+    temperature: 0.7
 
-# Evaluation settings
+# Reasoning configuration overrides
+reasoning:
+  think_tag: true
+  max_extensions: 5
+  target_token_count: 2000
+
+# Evaluation configuration
 evaluation:
   metrics:
     - accuracy
-    - token_efficiency
-    - reasoning_quality
-    - step_count
-    - summary_quality
     - improvement_rate
-  save_evaluation_results: true
+  tolerance: 0.01  # Numerical tolerance for answer comparison
 
-# Logging settings
+# Output configuration
+output:
+  results_path: results/self_summary
+  save_format: json
+  visualizations: true
+
+# Logging configuration
 logging:
-  use_wandb: false
-  wandb_project: reasoning-distillation
-  wandb_run_name: self_summarization
-  log_frequency: 1
+  level: INFO
+  save_path: logs
+  console_output: true
+  log_file: true

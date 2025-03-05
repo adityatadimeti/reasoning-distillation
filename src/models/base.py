@@ -4,22 +4,23 @@ Base classes for model interaction.
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Union, Any
 from src.utils.config import Config
-import tiktoken
 
 class Model(ABC):
     """
     Abstract base class for all model interactions.
     """
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, model_config_key: str = "model"):
         """
         Initialize the model with configuration.
         
         Args:
             config: Configuration object
+            model_config_key: Key to access model-specific config (default: "model")
         """
         self.config = config
-        self.model_config = config.get("model", {})
+        self.model_config = config.get(model_config_key, {})
         self.model_name = self.model_config.get("name", "")
+        self.model_id = self.model_config.get("model_id", "")
         
         # Default model parameters
         self.max_tokens = self.model_config.get("max_tokens", 1000)
@@ -88,10 +89,31 @@ class Model(ABC):
             Summarized reasoning trace
         """
         pass
+        
+    @abstractmethod
+    def chat_completion(self,
+                       messages: List[Dict[str, str]],
+                       max_tokens: Optional[int] = None,
+                       temperature: Optional[float] = None,
+                       **kwargs) -> Dict[str, Any]:
+        """
+        Generate a chat completion.
+        
+        Args:
+            messages: List of message dictionaries with 'role' and 'content' keys
+            max_tokens: Maximum number of tokens to generate
+            temperature: Temperature for generation
+            **kwargs: Additional model-specific parameters
+            
+        Returns:
+            Dictionary containing the generated text and metadata
+        """
+        pass
     
     def estimate_tokens(self, text: str) -> int:
         """
-        Estimate the number of tokens in a text using tiktoken.
+        Estimate the number of tokens in a text.
+        Very rough approximation based on whitespace splitting.
         
         Args:
             text: Text to estimate tokens for
@@ -99,20 +121,8 @@ class Model(ABC):
         Returns:
             Estimated token count
         """
-        # print(f"Estimating tokens with tiktoken (inaccurate for DeepSeek)")
-        try:
-            # Get the encoding based on the model name if possible
-            # Default to cl100k_base which is used for newer models like GPT-4
-            encoding_name = "cl100k_base"
-            
-            # Get the encoding and count tokens
-            encoding = tiktoken.get_encoding(encoding_name)
-            tokens = encoding.encode(text)
-            return len(tokens)
-            
-        except ImportError:
-            # Fallback to a simple approximation if tiktoken is not installed
-            return len(text.split())
+        # A very rough approximation
+        return len(text.split())
 
 
 class ModelResponse:
@@ -121,7 +131,7 @@ class ModelResponse:
     """
     def __init__(self, 
                 text: str, 
-                prompt: str,
+                prompt: str = "",
                 tokens_used: Optional[int] = None,
                 model_name: Optional[str] = None,
                 raw_response: Any = None):

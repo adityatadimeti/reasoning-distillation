@@ -1,11 +1,10 @@
-# Configuration for Fireworks AI models
+# Configuration for DeepSeek R1 model
 
-# Default reasoning model configuration
-reasoning_model:
-  name: deepseek-r1
+model:
+  name: deepseek_r1
   model_id: accounts/fireworks/models/deepseek-r1
   api_type: fireworks
-  api_base: https://api.fireworks.ai/inference/v1
+  api_url: https://api.fireworks.ai/inference/v1/completions
   # API key should be in environment variable FIREWORKS_API_KEY
   
   # Model parameters
@@ -21,27 +20,7 @@ reasoning_model:
   retries: 3   # Number of retries for API calls
   retry_delay: 2  # Delay between retries in seconds
 
-# Summarization model configuration (used when summarization.method = "external")
-summarization_model:
-  name: deepseek-r1
-  model_id: accounts/fireworks/models/deepseek-r1
-  api_type: fireworks
-  api_base: https://api.fireworks.ai/inference/v1
-  
-  # Model parameters
-  max_tokens: 1000
-  temperature: 0.5
-  top_p: 1.0
-  top_k: 40
-  frequency_penalty: 0.0
-  presence_penalty: 0.0
-  
-  # API settings
-  timeout: 30
-  retries: 3
-  retry_delay: 2
-
-# Reasoning settings
+# Reasoning settings specific to DeepSeek R1
 reasoning:
   think_tag: true   # Whether to use <think> tags
   max_extensions: 10  # Maximum number of reasoning extensions
