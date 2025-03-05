@@ -1,50 +1,53 @@
-# Baseline experiment configuration
+# Configuration for baseline reasoning pipeline experiment
 
-name: baseline
-description: "Baseline experiment without reasoning enhancement"
-
-# Inherit from default config
-defaults:
-  - default
-
-# Override specific settings
-experiment:
-  name: baseline
-  description: "Baseline experiment using standard reasoning without enhancement"
-  seed: 42
-  output_dir: ${results_dir}/${experiment.name}
-
-# Model settings
-model:
-  name: deepseek_r1
-  config: models/deepseek_r1.yaml
-  temperature: 0.2  # Lower temperature for more deterministic reasoning
-
-# Dataset settings
-dataset:
-  name: aime2024
-  config: datasets/aime2024.yaml
-  max_samples: null  # Use all samples
-
-# Pipeline settings
+# Pipeline configuration
 pipeline:
+  name: baseline
   type: baseline
   batch_size: 4
-  save_reasoning_traces: true
-  save_final_answers: true
+  save_intermediates: true
 
-# Evaluation settings
+# Model configuration (reference the specific model config)
+model:
+  name: deepseek_r1
+  
+# Reasoning configuration
+reasoning:
+  think_tag: true
+  max_extensions: 5
+  target_token_count: 2000
+
+# Dataset configuration
+dataset:
+  name: aime2024
+  base_path: archive/data
+  raw_file: aime_2024_completions_updated.csv
+  
+  # Column mappings
+  columns:
+    id: "ID"
+    problem: "Problem"
+    solution: "Solution"
+    answer: "Answer"
+    reasoning_trace: "model_completion"
+    extracted_answer: "extracted_answer"
+
+# Evaluation configuration
 evaluation:
   metrics:
     - accuracy
     - token_efficiency
-    - reasoning_quality
-    - step_count
-  save_evaluation_results: true
+  tolerance: 0.01  # Numerical tolerance for answer comparison
 
-# Logging settings
+# Output configuration
+output:
+  results_path: results/baseline
+  save_format: json
+  visualizations: true
+
+# Logging configuration
 logging:
-  use_wandb: false
-  wandb_project: reasoning-distillation
-  wandb_run_name: baseline
-  log_frequency: 1
+  level: INFO
+  save_path: logs
+  console_output: true
+  log_file: true

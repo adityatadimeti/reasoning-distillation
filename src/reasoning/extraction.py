@@ -4,6 +4,7 @@ Functions for extracting answers and key information from reasoning traces.
 import re
 from typing import Dict, Optional, List, Union
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -119,12 +120,13 @@ def normalize_answer(answer: Optional[str]) -> Optional[str]:
     
     return answer
 
-def extract_answer_from_reasoning_result(reasoning_result: Dict) -> str:
+def extract_answer_from_reasoning_result(reasoning_result: Dict, problem_type: str = "general") -> str:
     """
     Extract the answer from a reasoning generation result.
     
     Args:
         reasoning_result: Dictionary containing reasoning generation results
+        problem_type: Type of problem ("general" or "aime")
     
     Returns:
         Extracted answer or empty string if not found
@@ -155,5 +157,112 @@ def extract_answer_from_reasoning_result(reasoning_result: Dict) -> str:
             logger.debug(f"Found answer in full_reasoning_with_tags field: {answer}")
             return answer
     
+    # If all extraction methods fail and GPT-4o fallback is enabled, try that
+    if os.environ.get("ENABLE_GPT4O_EXTRACTION") == "1":
+        logger.info("Regular extraction failed, trying GPT-4o extraction")
+        
+        # Try GPT-4o on the answer field first
+        if "answer" in reasoning_result and reasoning_result["answer"]:
+            answer = extract_with_gpt4o(reasoning_result["answer"], problem_type)
+            if answer:
+                logger.info(f"GPT-4o extracted answer from answer field: {answer}")
+                return answer
+        
+        # Then try on the reasoning field
+        if "reasoning" in reasoning_result and reasoning_result["reasoning"]:
+            answer = extract_with_gpt4o(reasoning_result["reasoning"], problem_type)
+            if answer:
+                logger.info(f"GPT-4o extracted answer from reasoning field: {answer}")
+                return answer
+    
     logger.warning("Could not extract answer from reasoning result")
     return ""
+
+def extract_with_gpt4o(text: str, problem_type: str = "general") -> Optional[str]:
+    """
+    Use GPT-4o to extract the answer when regex methods fail.
+    
+    Args:
+        text: Text containing the answer
+        problem_type: Type of problem ("general" or "aime")
+    
+    Returns:
+        Extracted answer or None if not found
+    """
+    try:
+        # Check if OpenAI is available
+        import openai
+        from openai import OpenAI
+    except ImportError:
+        logger.warning("OpenAI package not installed, cannot use GPT-4o extraction")
+        return None
+    
+    # Check for API key
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        logger.warning("OPENAI_API_KEY not found in environment, cannot use GPT-4o extraction")
+        return None
+    
+    # Initialize client
+    client = OpenAI(api_key=api_key)
+    
+    # Prepare prompt based on problem type
+    if problem_type.lower() == "aime":
+        prompt = f"""
+        Extract the final numerical answer from this AIME problem solution.
+        AIME answers are always integers between 0 and 999.
+        
+        Important AIME answer patterns:
+        1. If the answer is expressed as a fraction m/n in lowest form, the answer is often m+n.
+        2. If the answer involves absolute value |x|, return the value without the bars.
+        3. For logarithmic expressions, compute the final value.
+        
+        Return ONLY the integer answer, with no explanation.
+        If no clear answer is found, return "NO_ANSWER_FOUND".
+        
+        TEXT:
+        {text}
+        """
+        system_content = "You are a helpful assistant that extracts AIME competition answers from mathematical solutions."
+    else:
+        prompt = f"""
+        Extract the numerical answer or mathematical expression from the following text. 
+        Return ONLY the number, fraction, or mathematical expression, with no explanation.
+        
+        Guidelines:
+        - If there are multiple possible answers, return the final one
+        - For equations like "x = 3/4", return just "3/4"
+        - For AIME problems, the answer should be an integer between 0 and 999
+        - If the answer is a fraction like m/n, return it in simplified form
+        - If no clear answer is found, return "NO_ANSWER_FOUND"
+        
+        TEXT:
+        {text}
+        """
+        system_content = "You are a helpful assistant that extracts numerical answers and mathematical expressions from text."
+    
+    try:
+        # Call GPT-4o
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": system_content},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0
+        )
+        
+        # Extract answer
+        extracted = response.choices[0].message.content.strip()
+        
+        # If GPT-4o couldn't find an answer
+        if extracted == "NO_ANSWER_FOUND":
+            logger.warning("GPT-4o could not find an answer")
+            return None
+            
+        logger.info(f"GPT-4o extracted: {extracted}")
+        return extracted
+        
+    except Exception as e:
+        logger.error(f"Error using GPT-4o for extraction: {e}")
+        return None
