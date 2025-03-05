@@ -1,85 +1,174 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """
-Main experiment runner script.
+Main experiment runner for reasoning enhancement project.
 """
-
 import os
 import sys
 import argparse
 import logging
-from datetime import datetime
+from pathlib import Path
+from typing import Dict, Optional, Any
+import importlib
+import time
+from src.utils.config import Config, PROJECT_ROOT
+from src.data.dataset import Dataset
+from src.pipeline.base_pipeline import BasePipeline
 
-# Add the src directory to the path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+logger = logging.getLogger(__name__)
 
-from src.utils.config import load_config
-from src.utils.logging import setup_logger
-from src.pipeline.baseline_pipeline import BaselinePipeline
-from src.pipeline.summary_pipeline import SummaryPipeline
-from src.pipeline.recursive_pipeline import RecursivePipeline
+def setup_logging(config: Config) -> None:
+    """
+    Set up logging based on configuration.
+    
+    Args:
+        config: Configuration object
+    """
+    log_config = config.get("logging", {})
+    log_level = getattr(logging, log_config.get("level", "INFO"))
+    
+    log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    
+    # Configure root logger
+    logging.basicConfig(
+        level=log_level,
+        format=log_format
+    )
+    
+    # Set up file logging if configured
+    if log_config.get("log_file", False):
+        log_path = Path(log_config.get("save_path", "logs"))
+        if not log_path.is_absolute():
+            log_path = PROJECT_ROOT / log_path
+        
+        os.makedirs(log_path, exist_ok=True)
+        
+        # Create a timestamped log file
+        log_file = log_path / f"experiment_{int(time.time())}.log"
+        
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(logging.Formatter(log_format))
+        logging.getLogger().addHandler(file_handler)
+        
+        logger.info(f"Logging to {log_file}")
 
-
-def parse_args():
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description='Run an experiment with the specified configuration.')
-    parser.add_argument('--config', type=str, required=True, help='Path to the configuration file.')
-    parser.add_argument('--debug', action='store_true', help='Enable debug mode.')
-    return parser.parse_args()
-
-
-def get_pipeline_class(pipeline_type):
-    """Get the pipeline class based on the pipeline type."""
-    pipeline_classes = {
-        'baseline': BaselinePipeline,
-        'summary': SummaryPipeline,
-        'recursive': RecursivePipeline,
+def get_pipeline_class(pipeline_type: str) -> type:
+    """
+    Get the pipeline class for a given pipeline type.
+    
+    Args:
+        pipeline_type: Type of pipeline (e.g., 'baseline', 'summary', 'recursive')
+        
+    Returns:
+        Pipeline class
+        
+    Raises:
+        ValueError: If pipeline type is not supported
+    """
+    pipeline_mapping = {
+        "baseline": "src.pipeline.baseline_pipeline.BaselineReasoningPipeline",
+        "summary": "src.pipeline.summary_pipeline.SummaryReasoningPipeline",
+        "recursive": "src.pipeline.recursive_pipeline.RecursiveReasoningPipeline"
     }
-    return pipeline_classes.get(pipeline_type)
+    
+    if pipeline_type not in pipeline_mapping:
+        raise ValueError(f"Unsupported pipeline type: {pipeline_type}")
+    
+    # Import the module and get the class
+    module_path, class_name = pipeline_mapping[pipeline_type].rsplit('.', 1)
+    module = importlib.import_module(module_path)
+    pipeline_class = getattr(module, class_name)
+    
+    return pipeline_class
 
-
-def run_experiment(config_path, debug=False):
-    """Run an experiment using the specified config."""
+def run_experiment(config_path: str, **kwargs) -> Dict[str, Any]:
+    """
+    Run an experiment using the specified configuration.
+    
+    Args:
+        config_path: Path to configuration file
+        **kwargs: Additional arguments to override configuration
+        
+    Returns:
+        Dictionary with experiment results
+    """
     # Load configuration
-    config = load_config(config_path)
+    config = Config(config_path)
+    
+    # Override configuration with kwargs
+    for key, value in kwargs.items():
+        if key == "split" and value:
+            config._merge_config({"pipeline": {"split": value}})
+        elif key == "max_problems" and value:
+            config._merge_config({"pipeline": {"max_problems": int(value)}})
+        elif key == "problem_ids" and value:
+            config._merge_config({"pipeline": {"problem_ids": value.split(",")}})
     
     # Set up logging
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    log_file = os.path.join(config.logs_dir, f"{config.experiment.name}_{timestamp}.log")
-    log_level = logging.DEBUG if debug else getattr(logging, config.experiment.log_level)
-    logger = setup_logger(config.experiment.name, log_file, log_level)
+    setup_logging(config)
     
-    logger.info(f"Starting experiment: {config.experiment.name}")
-    logger.info(f"Configuration: {config_path}")
+    # Log configuration
+    logger.info(f"Running experiment with configuration from {config_path}")
     
-    # Create output directory
-    os.makedirs(config.experiment.output_dir, exist_ok=True)
+    # Create dataset
+    dataset_config = config.get("dataset", {})
+    logger.info(f"Loading dataset: {dataset_config.get('name', 'unknown')}")
+    dataset = Dataset(config)
     
-    # Initialize pipeline
-    pipeline_class = get_pipeline_class(config.pipeline.type)
-    if pipeline_class is None:
-        logger.error(f"Unknown pipeline type: {config.pipeline.type}")
-        return
+    # Process raw data if needed
+    logger.info("Processing dataset")
+    dataset.load_processed()
     
+    # Get the pipeline class and create instance
+    pipeline_type = config.get("pipeline.type", "baseline")
+    logger.info(f"Creating pipeline of type: {pipeline_type}")
+    pipeline_class = get_pipeline_class(pipeline_type)
     pipeline = pipeline_class(config)
     
-    # Run experiment
-    try:
-        results = pipeline.run()
-        
-        # Evaluate and log results
-        metrics = pipeline.evaluate(results)
-        pipeline.log_results(results, metrics)
-        
-        logger.info(f"Experiment completed successfully. Results saved to {config.experiment.output_dir}")
-        return results, metrics
+    # Run the pipeline
+    logger.info("Running pipeline")
+    results = pipeline.run(
+        dataset=dataset,
+        split=config.get("pipeline.split", "test"),
+        max_problems=config.get("pipeline.max_problems", None),
+        problem_ids=config.get("pipeline.problem_ids", None)
+    )
     
-    except Exception as e:
-        logger.exception(f"Error running experiment: {e}")
-        raise
+    # Evaluate the results
+    logger.info("Evaluating results")
+    metrics = pipeline.evaluate(results)
+    
+    # Save the results
+    logger.info("Saving results")
+    pipeline.save_results(results, metrics)
+    
+    return {
+        "results": results,
+        "metrics": metrics
+    }
 
+def main():
+    """Main entry point for the experiment runner."""
+    parser = argparse.ArgumentParser(description="Run a reasoning enhancement experiment")
+    parser.add_argument("config", help="Path to configuration file")
+    parser.add_argument("--split", help="Data split to use (train, test, all)")
+    parser.add_argument("--max-problems", help="Maximum number of problems to process")
+    parser.add_argument("--problem-ids", help="Comma-separated list of problem IDs to process")
+    
+    args = parser.parse_args()
+    
+    try:
+        run_experiment(
+            args.config,
+            split=args.split,
+            max_problems=args.max_problems,
+            problem_ids=args.problem_ids
+        )
+    except Exception as e:
+        logger.error(f"Experiment failed: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        sys.exit(1)
+    
+    logger.info("Experiment completed successfully")
 
 if __name__ == "__main__":
-    args = parse_args()
-    run_experiment(args.config, args.debug)
+    main()

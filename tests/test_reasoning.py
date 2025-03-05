@@ -57,7 +57,6 @@ class TestExtractionFunctions:
         
         # Test with no clear answer format
         result = extraction.extract_answer_from_text("This text doesn't contain an answer")
-        print(f"Result type: {type(result)}, value: '{result}'")
         assert result is None
     
     def test_extract_with_gpt4o(self):
