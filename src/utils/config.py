@@ -3,11 +3,14 @@ Configuration handling for the reasoning enhancement project.
 """
 import os
 import yaml
-from typing import Any, Dict, Optional, Union
+import logging
+from typing import Any, Dict, Optional, Union, List
 from pathlib import Path
 
 # Set project root to be used for resolving relative paths
 PROJECT_ROOT = Path(__file__).absolute().parents[2]
+
+logger = logging.getLogger(__name__)
 
 class Config:
     """
@@ -22,19 +25,37 @@ class Config:
             base_config: Optional dictionary to use as base configuration
         """
         self.config_dict = base_config or {}
+        logger.info(f"Initializing Config with path: {config_path}")
         
         if config_path:
             config_file = self._resolve_path(config_path)
+            logger.info(f"Resolved config path to: {config_file}")
             loaded_config = self._load_yaml(config_file)
+            logger.info(f"Loaded config: {loaded_config}")
             
             # If this config extends another config, load it first
             if 'base_config' in loaded_config:
                 base_config_path = loaded_config.pop('base_config')
+                logger.info(f"Loading base config from: {base_config_path}")
                 base_config = Config(base_config_path)
                 self.config_dict = base_config.config_dict
+                logger.info(f"Base config loaded: {self.config_dict}")
+            
+            # Handle imports if present
+            if 'imports' in loaded_config:
+                imports = loaded_config.pop('imports')
+                logger.info(f"Processing imports: {imports}")
+                for import_path in imports:
+                    logger.info(f"Loading imported config from: {import_path}")
+                    imported_config = Config(import_path)
+                    logger.info(f"Imported config: {imported_config.config_dict}")
+                    self._merge_config(imported_config.config_dict)
+                    logger.info(f"Config after merging import: {self.config_dict}")
             
             # Merge the loaded config with the base config
+            logger.info(f"Merging loaded config: {loaded_config}")
             self._merge_config(loaded_config)
+            logger.info(f"Final config after merging: {self.config_dict}")
     
     def _resolve_path(self, path: Union[str, Path]) -> Path:
         """
@@ -54,9 +75,12 @@ class Config:
         if not str(path_obj).startswith('configs/') and not os.path.exists(PROJECT_ROOT / path_obj):
             config_path = PROJECT_ROOT / 'configs' / path_obj
             if os.path.exists(config_path):
+                logger.info(f"Found config in configs/ directory: {config_path}")
                 return config_path
         
-        return PROJECT_ROOT / path_obj
+        resolved_path = PROJECT_ROOT / path_obj
+        logger.info(f"Resolved config path to: {resolved_path}")
+        return resolved_path
     
     def _load_yaml(self, file_path: Path) -> Dict:
         """
@@ -74,8 +98,11 @@ class Config:
         if not file_path.exists():
             raise FileNotFoundError(f"Config file not found: {file_path}")
         
+        logger.info(f"Loading YAML from: {file_path}")
         with open(file_path, 'r') as f:
-            return yaml.safe_load(f) or {}
+            config = yaml.safe_load(f) or {}
+            logger.info(f"Loaded YAML content: {config}")
+            return config
     
     def _merge_config(self, config: Dict) -> None:
         """
@@ -84,14 +111,17 @@ class Config:
         Args:
             config: Dictionary to merge into current config
         """
+        logger.info(f"Merging config: {config}")
         for key, value in config.items():
             if (key in self.config_dict and 
                 isinstance(self.config_dict[key], dict) and 
                 isinstance(value, dict)):
                 # Recursively merge dictionaries
+                logger.info(f"Recursively merging key: {key}")
                 self._merge_dict(self.config_dict[key], value)
             else:
                 # Otherwise just update the value
+                logger.info(f"Updating key: {key} with value: {value}")
                 self.config_dict[key] = value
     
     def _merge_dict(self, base_dict: Dict, new_dict: Dict) -> None:

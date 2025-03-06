@@ -1,0 +1,29 @@
+# Default summarization configuration
+
+# Summarization settings
+summarization:
+  method: self
+  strategy: error_focused
+  prompt: error_focused
+  max_tokens: 1000
+  temperature: 0.7
+  
+  # Self-summarization specific settings
+  self_summary:
+    strategy: error_focused
+    prompt: error_focused
+    temperature: 0.7
+    
+  # Error-focused summarization settings
+  error_focused:
+    prompt: |
+      Review your previous reasoning and identify:
+      1. Any mathematical errors or incorrect assumptions
+      2. Missing steps or incomplete explanations
+      3. Areas where the reasoning could be more precise
+      4. Alternative approaches that might be better
+      
+      Provide a concise summary focusing on these aspects.
+    
+    max_tokens: 500
+    temperature: 0.5 

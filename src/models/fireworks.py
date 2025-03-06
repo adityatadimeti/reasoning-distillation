@@ -33,6 +33,11 @@ class FireworksModel(Model):
         """
         super().__init__(config, model_config_key)
         
+        # Debug logging
+        logger.info(f"Model config: {self.model_config}")
+        logger.info(f"Model name: {self.model_name}")
+        logger.info(f"Model ID: {self.model_id}")
+        
         # Load API key from environment or config
         self.api_key = os.environ.get("FIREWORKS_API_KEY") or self.model_config.get("api_key")
         if not self.api_key:
@@ -47,6 +52,7 @@ class FireworksModel(Model):
         if not self.model_id and self.model_name:
             # For convenience, allow specifying just the model name
             self.model_id = f"accounts/fireworks/models/{self.model_name}"
+            logger.info(f"Constructed model ID from name: {self.model_id}")
         elif not self.model_id:
             raise ValueError("Model ID not found in config")
         
@@ -376,16 +382,33 @@ class FireworksModel(Model):
         Args:
             reasoning_trace: The reasoning trace to summarize
             **kwargs: Additional model-specific parameters
+                - mode: Summarization mode ('append' or 'prepend')
+                - use_think_tags: Whether to wrap summary in <think> tags
             
         Returns:
             Summarized reasoning trace
         """
+        # Get summarization mode and think tag settings
+        mode = kwargs.get("mode", "append")
+        use_think_tags = kwargs.get("use_think_tags", True)
+        
         # Try chat completion first if supported
         try:
-            # Use chat completion for summarization (better for instruction following)
+            # Prepare system message based on mode
+            if mode == "append":
+                system_msg = "You are an expert at summarizing mathematical reasoning traces. Provide a concise summary that preserves key steps and calculations."
+            else:  # prepend
+                system_msg = "You are an expert at summarizing mathematical reasoning traces. Provide a high-level overview of the solution approach before the detailed reasoning."
+            
+            # Prepare user message based on mode
+            if mode == "append":
+                user_msg = f"Summarize the following reasoning trace into a concise form that preserves all key steps and important calculations:\n\n{reasoning_trace}"
+            else:  # prepend
+                user_msg = f"Provide a high-level overview of how to solve this problem, focusing on the key steps and strategy:\n\n{reasoning_trace}"
+            
             messages = [
-                {"role": "system", "content": "You are an expert at summarizing mathematical reasoning traces."},
-                {"role": "user", "content": f"Summarize the following reasoning trace into a concise form that preserves all key steps and important calculations:\n\n{reasoning_trace}"}
+                {"role": "system", "content": system_msg},
+                {"role": "user", "content": user_msg}
             ]
             
             response = self.chat_completion(
@@ -394,18 +417,32 @@ class FireworksModel(Model):
                 temperature=kwargs.get("temperature", 0.5)  # Lower temperature for more focused summary
             )
             
-            return response.text.strip()
+            summary = response.text.strip()
+            
+            # Add think tags if requested
+            if use_think_tags:
+                summary = f"<think>\n{summary}\n</think>"
+            
+            return summary
             
         except Exception as e:
             logger.warning(f"Chat completion failed for summarization, falling back to completion API: {str(e)}")
             
             # Fall back to completion API
-            summarization_prompt = (
-                "Summarize the following reasoning trace into a concise form that preserves "
-                "all key steps and important calculations:\n\n"
-                f"{reasoning_trace}\n\n"
-                "Summary:"
-            )
+            if mode == "append":
+                summarization_prompt = (
+                    "Summarize the following reasoning trace into a concise form that preserves "
+                    "all key steps and important calculations:\n\n"
+                    f"{reasoning_trace}\n\n"
+                    "Summary:"
+                )
+            else:  # prepend
+                summarization_prompt = (
+                    "Provide a high-level overview of how to solve this problem, focusing on "
+                    "the key steps and strategy:\n\n"
+                    f"{reasoning_trace}\n\n"
+                    "Overview:"
+                )
             
             # Generate summary
             response = self.generate(
@@ -414,7 +451,13 @@ class FireworksModel(Model):
                 temperature=kwargs.get("temperature", 0.5)  # Lower temperature for more focused summary
             )
             
-            return response.text.strip()
+            summary = response.text.strip()
+            
+            # Add think tags if requested
+            if use_think_tags:
+                summary = f"<think>\n{summary}\n</think>"
+            
+            return summary
 
     def extract_answer(self, text: str, flexible_extraction: bool = True) -> str:
         """

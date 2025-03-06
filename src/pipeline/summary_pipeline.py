@@ -26,12 +26,13 @@ class SummaryReasoningPipeline(BasePipeline):
     """
     Pipeline that enhances reasoning through summarization.
     """
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, method: str = "self"):
         """
         Initialize the summary pipeline.
         
         Args:
             config: Configuration object
+            method: Summarization method ('self' or 'external')
         """
         super().__init__(config)
         
@@ -50,21 +51,37 @@ class SummaryReasoningPipeline(BasePipeline):
         pipeline_config = config.get("pipeline", {})
         self.batch_size = pipeline_config.get("batch_size", 4)
         self.max_iterations = pipeline_config.get("max_iterations", 2)
-        self.continuation_prompt = pipeline_config.get("continuation_prompt", 
-            "Based on the summary of your previous reasoning, continue solving the problem."
-        )
         
         # Summarization parameters
-        summarization_config = config.get("summarization", {})
-        self.method = summarization_config.get("method", "self")
+        self.method = method
+        self.summarization_mode = pipeline_config.get("summarization_mode", "append")  # 'append' or 'prompt'
         
         logger.info(f"Initialized {self.name} pipeline with reasoning model {self.reasoning_model.model_name}")
         logger.info(f"Summarization method: {self.method}")
+        logger.info(f"Summarization mode: {self.summarization_mode}")
         
         if self.summarization_model:
             logger.info(f"Using external summarization model: {self.summarization_model.model_name}")
         else:
             logger.info("Using self-summarization")
+    
+    def _create_continuation_prompt(self, question: str, summary: str) -> str:
+        """
+        Create the continuation prompt based on the summarization mode.
+        
+        Args:
+            question: The original question
+            summary: The summarized reasoning trace
+            
+        Returns:
+            The formatted prompt for continuation
+        """
+        if self.summarization_mode == "append":
+            # Mode 1: Append summary after <think> token
+            return f"{question}\n\n<think>\n{summary}\n"
+        else:
+            # Mode 2: Include summary in prompt with preamble
+            return f"{question}\n\nHere is a summary of previous reasoning that led to a solution we suspect is incorrect. Build upon this reasoning to find the correct solution:\n\n{summary}\n\n<think>\n"
     
     def run(self, dataset: Dataset, **kwargs) -> Dict[str, Any]:
         """
@@ -112,7 +129,8 @@ class SummaryReasoningPipeline(BasePipeline):
                 # Process the problem with summary-based reasoning
                 problem_result = self._process_problem(
                     problem["question"],
-                    max_iterations=max_iterations
+                    max_iterations=max_iterations,
+                    reasoning_trace=problem.get("reasoning_trace", None)
                 )
                 
                 # Add problem metadata
@@ -151,18 +169,20 @@ class SummaryReasoningPipeline(BasePipeline):
             "average_time_per_problem": total_time / len(problems) if problems else 0,
             "max_iterations": max_iterations,
             "summarization_method": self.method,
+            "summarization_mode": self.summarization_mode,
             "results": results
         }
         
         return pipeline_results
     
-    def _process_problem(self, question: str, max_iterations: int) -> Dict[str, Any]:
+    def _process_problem(self, question: str, max_iterations: int, reasoning_trace: Optional[str] = None) -> Dict[str, Any]:
         """
         Process a single problem using summary-based reasoning.
         
         Args:
             question: The question to solve
             max_iterations: Maximum number of reasoning iterations
+            reasoning_trace: Optional initial reasoning trace to use
             
         Returns:
             Dictionary with problem results
@@ -171,7 +191,15 @@ class SummaryReasoningPipeline(BasePipeline):
         
         # Initial reasoning generation
         logger.info("Generating initial reasoning")
-        initial_result = self.reasoning_model.generate_reasoning(question=question)
+        if reasoning_trace:
+            # Use provided reasoning trace
+            initial_result = {
+                "reasoning": reasoning_trace,
+                "completion": reasoning_trace  # For compatibility
+            }
+        else:
+            # Generate new reasoning
+            initial_result = self.reasoning_model.generate_reasoning(question=question)
         
         # Extract initial answer
         initial_answer = extraction.extract_answer_from_reasoning_result(initial_result)
@@ -201,7 +229,7 @@ class SummaryReasoningPipeline(BasePipeline):
             summary = self.summarizer.summarize(current_reasoning)
             
             # Create prompt with the summary for continuation
-            continuation_prompt = f"{question}\n\nHere is a summary of your previous reasoning:\n{summary}\n\n{self.continuation_prompt}"
+            continuation_prompt = self._create_continuation_prompt(question, summary)
             
             logger.info(f"Iteration {i+1}: Generating new reasoning based on summary")
             
@@ -228,7 +256,6 @@ class SummaryReasoningPipeline(BasePipeline):
             current_normalized = new_normalized
         
         # Determine the final answer from all iterations
-        # For now, just use the answer from the last iteration
         final_answer = current_answer
         
         # Build and return the result
@@ -241,7 +268,8 @@ class SummaryReasoningPipeline(BasePipeline):
             "final_reasoning": current_reasoning,
             "extracted_answer": final_answer,
             "processing_time": processing_time,
-            "iteration_count": max_iterations
+            "iteration_count": max_iterations,
+            "summarization_mode": self.summarization_mode
         }
     
     def evaluate(self, results: Dict[str, Any]) -> Dict[str, Any]:
@@ -325,6 +353,7 @@ class SummaryReasoningPipeline(BasePipeline):
             "average_time_per_problem": results.get("average_time_per_problem", 0),
             "max_iterations": results.get("max_iterations", 0),
             "summarization_method": results.get("summarization_method", self.method),
+            "summarization_mode": results.get("summarization_mode", self.summarization_mode),
             **iteration_accuracy,
             **improvement
         }

@@ -7,10 +7,11 @@ import os
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 import pandas as pd
+from datetime import datetime
 
 from src.utils.config import Config
 from src.models.base import Model
-from src.models.deepseek import DeepSeekModel
+from src.models.fireworks import FireworksModel
 from src.data.dataset import Dataset
 from src.pipeline.base_pipeline import BasePipeline
 import src.reasoning.generation as generation
@@ -40,7 +41,7 @@ class BaselineReasoningPipeline(BasePipeline):
         model_type = model_config.get("api_type", "fireworks")
         
         if model_type == "fireworks":
-            self.model = DeepSeekModel(config)
+            self.model = FireworksModel(config)
         else:
             raise ValueError(f"Unsupported model type: {model_type}")
         
@@ -179,3 +180,59 @@ class BaselineReasoningPipeline(BasePipeline):
         self.log_results(metrics)
         
         return metrics
+
+class BaselinePipeline:
+    def __init__(self, config: Dict[str, Any]):
+        """
+        Initialize the baseline pipeline.
+        
+        Args:
+            config: Configuration dictionary
+        """
+        self.config = config
+        self.model = FireworksModel(config)
+        
+    def run(
+        self,
+        problem_id: str,
+        reasoning_trace: str,
+        summarization_mode: str = "append",
+        **kwargs
+    ) -> Dict[str, Any]:
+        """
+        Run the pipeline on a reasoning trace.
+        
+        Args:
+            problem_id: ID of the problem
+            reasoning_trace: The reasoning trace to process
+            summarization_mode: Mode of summarization ('append' or 'prepend')
+            **kwargs: Additional arguments
+            
+        Returns:
+            Dictionary containing pipeline output
+        """
+        # Generate summary
+        summary = self.model.summarize_reasoning(
+            reasoning_trace,
+            mode=summarization_mode,
+            **kwargs
+        )
+        
+        # Combine reasoning and summary based on mode
+        if summarization_mode == "append":
+            combined_reasoning = f"{reasoning_trace}\n\n{summary}"
+        else:  # prepend
+            combined_reasoning = f"{summary}\n\n{reasoning_trace}"
+        
+        # Extract answer from combined reasoning
+        answer = self.model.extract_answer(combined_reasoning)
+        
+        return {
+            "problem_id": problem_id,
+            "original_reasoning": reasoning_trace,
+            "summary": summary,
+            "combined_reasoning": combined_reasoning,
+            "answer": answer,
+            "summarization_mode": summarization_mode,
+            "timestamp": datetime.now().isoformat()
+        }

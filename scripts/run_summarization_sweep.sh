@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script to run the summary reasoning experiment
+# Script to run summarization sweep on existing reasoning traces
 
 # Set the Python path to include the project root
 export PYTHONPATH="$PYTHONPATH:$(pwd)"
@@ -22,9 +22,9 @@ fi
 # Default values
 CONFIG=""
 METHOD="self"
-SPLIT="test"
-MAX_PROBLEMS=5  # Limit to 5 problems by default for quicker testing
-MAX_ITERATIONS=2  # Default to 2 iterations
+MAX_ITERATIONS=2
+PROBLEM_IDS=""
+SUMMARIZATION_MODE="append"
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -40,13 +40,8 @@ while [[ $# -gt 0 ]]; do
             shift
             shift
             ;;
-        --split)
-            SPLIT="$2"
-            shift
-            shift
-            ;;
-        --max-problems)
-            MAX_PROBLEMS="$2"
+        --max-iterations)
+            MAX_ITERATIONS="$2"
             shift
             shift
             ;;
@@ -55,13 +50,9 @@ while [[ $# -gt 0 ]]; do
             shift
             shift
             ;;
-        --max-iterations)
-            MAX_ITERATIONS="$2"
+        --summarization-mode)
+            SUMMARIZATION_MODE="$2"
             shift
-            shift
-            ;;
-        --all)
-            MAX_PROBLEMS=""  # Process all problems
             shift
             ;;
         *)
@@ -80,40 +71,34 @@ if [ -z "$CONFIG" ]; then
     fi
 fi
 
-echo "Running summary experiment with configuration:"
+echo "Running summarization sweep with configuration:"
 echo "  Config file: $CONFIG"
 echo "  Method: $METHOD"
-echo "  Data split: $SPLIT"
 echo "  Max iterations: $MAX_ITERATIONS"
-if [ -n "$MAX_PROBLEMS" ]; then
-    echo "  Max problems: $MAX_PROBLEMS"
-else
-    echo "  Processing all problems"
-fi
+echo "  Summarization mode: $SUMMARIZATION_MODE"
 if [ -n "$PROBLEM_IDS" ]; then
     echo "  Problem IDs: $PROBLEM_IDS"
 fi
 
 # Create output directories if they don't exist
-mkdir -p results
+mkdir -p results/summarization_sweep
 mkdir -p logs
 
 # Enable API calls for this run
 export ENABLE_API_CALLS=1
 
-# Run the experiment
-python experiments/summary_experiment.py \
+# Run the summarization sweep
+python experiments/summarization_sweep.py \
     --config "$CONFIG" \
     --method "$METHOD" \
-    --split "$SPLIT" \
     --max-iterations "$MAX_ITERATIONS" \
-    ${MAX_PROBLEMS:+--max-problems "$MAX_PROBLEMS"} \
+    --summarization-mode "$SUMMARIZATION_MODE" \
     ${PROBLEM_IDS:+--problem-ids "$PROBLEM_IDS"}
 
 # Check if the experiment was successful
 if [ $? -eq 0 ]; then
-    echo "Summary experiment completed successfully"
+    echo "Summarization sweep completed successfully"
 else
-    echo "Summary experiment failed"
+    echo "Summarization sweep failed"
     exit 1
-fi
+fi 

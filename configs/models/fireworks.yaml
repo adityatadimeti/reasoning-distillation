@@ -1,0 +1,33 @@
+# Fireworks AI model configuration
+
+# Model settings
+model:
+  name: "deepseek-r1"
+  model_id: "accounts/fireworks/models/deepseek-r1"
+  api_type: "fireworks"
+  api_base: "https://api.fireworks.ai/inference/v1"
+  
+  # Generation parameters
+  max_tokens: 2000
+  temperature: 0.7
+  top_p: 0.95
+  top_k: 40
+  presence_penalty: 0.0
+  frequency_penalty: 0.0
+  
+  # Retry settings
+  retries: 3
+  retry_delay: 1.0
+  timeout: 30
+
+# Reasoning settings
+reasoning:
+  think_tag: true
+  max_extensions: 5
+  target_token_count: 2000
+  continuation_phrases:
+    - "Let me think more about this."
+    - "Actually, I should reconsider my approach."
+    - "Let me analyze this further."
+    - "Let me double-check this calculation."
+    - "I need to think about this from another angle." 

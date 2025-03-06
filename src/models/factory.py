@@ -29,14 +29,20 @@ def create_model(config: Config, model_config_key: str = "model") -> Model:
     Raises:
         ValueError: If model type is not supported
     """
+    logger.info(f"Creating model with config key: {model_config_key}")
+    logger.info(f"Full config: {config.config_dict}")
+    
     model_config = config.get(model_config_key, {})
+    logger.info(f"Model config: {model_config}")
+    
     api_type = model_config.get("api_type", "fireworks").lower()
+    logger.info(f"API type: {api_type}")
     
     if api_type not in MODEL_TYPES:
         raise ValueError(f"Unsupported model API type: {api_type}")
     
     model_class = MODEL_TYPES[api_type]
-    logger.info(f"Creating {api_type} model: {model_config.get('name', 'unknown')}")
+    logger.info(f"Using model class: {model_class.__name__}")
     
     return model_class(config, model_config_key)
 
@@ -50,7 +56,8 @@ def create_reasoning_model(config: Config) -> Model:
     Returns:
         Model instance for reasoning
     """
-    return create_model(config, "reasoning_model")
+    logger.info("Creating reasoning model")
+    return create_model(config, "model")
 
 def create_summarization_model(config: Config) -> Optional[Model]:
     """
@@ -62,12 +69,16 @@ def create_summarization_model(config: Config) -> Optional[Model]:
     Returns:
         Model instance for summarization, or None if using the same model for reasoning
     """
+    logger.info("Creating summarization model")
     summarization_config = config.get("summarization", {})
     method = summarization_config.get("method", "self")
+    logger.info(f"Summarization method: {method}")
     
     if method == "self":
         # Use the reasoning model for summarization
+        logger.info("Using reasoning model for summarization")
         return None
     else:
         # Create a separate model for summarization
+        logger.info("Creating separate model for summarization")
         return create_model(config, "summarization_model")

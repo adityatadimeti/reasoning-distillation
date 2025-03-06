@@ -7,7 +7,7 @@ import logging
 
 from src.utils.config import Config
 from src.models.base import Model, ModelResponse
-from src.models.deepseek import DeepSeekModel
+from src.models.fireworks import FireworksModel
 
 logger = logging.getLogger(__name__)
 

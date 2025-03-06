@@ -10,6 +10,8 @@ pipeline:
 # Model configuration (reference the specific model config)
 model:
   name: deepseek_r1
+  model_id: "accounts/fireworks/models/deepseek-r1"
+  api_type: "fireworks"
   
 # Reasoning configuration
 reasoning:
