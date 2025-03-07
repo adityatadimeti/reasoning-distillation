@@ -152,8 +152,11 @@ class RecursiveReasoningPipeline(BasePipeline):
             # Initialize the monitor with experiment info
             initialize_monitor(self.name, len(problems), max_iterations)
             # Start the monitor server
-            start_monitor_server(port=monitor_port)
-            logger.info(f"Experiment monitor started at http://localhost:{monitor_port}")
+            monitor_started = start_monitor_server(port=monitor_port)
+            if monitor_started:
+                logger.info(f"Experiment monitor started at http://localhost:{monitor_port}")
+            else:
+                logger.warning("Failed to start experiment monitor. Continuing without monitoring.")
         
         # Process each problem
         start_time = time.time()
@@ -228,101 +231,141 @@ class RecursiveReasoningPipeline(BasePipeline):
         Returns:
             Dictionary with problem results
         """
-        start_time = time.time()
-        
-        # Extract problem ID from the question if possible
-        problem_id = None
-        id_match = re.search(r'(\d{4}-[I|II]-\d+)', question)
-        if id_match:
-            problem_id = id_match.group(1)
-        else:
-            # Generate a timestamp-based ID if no ID found
-            problem_id = f"problem_{int(time.time())}"
-        
-        # Update monitor with current problem
-        if MONITOR_AVAILABLE:
-            update_problem_status(problem_id, question, 0)
-        
-        # Initial reasoning generation
-        logger.info("Generating initial reasoning")
-        initial_result = self.reasoning_model.generate_reasoning(
-            question=question,
-            problem_id=problem_id
-        )
-        
-        # Extract initial answer
-        initial_answer = extraction.extract_answer_from_reasoning_result(initial_result)
-        initial_normalized = extraction.normalize_answer(initial_answer)
-        
-        # Store all iterations
-        iterations = [
-            {
-                "iteration": 0,
-                "reasoning": initial_result["reasoning"],
-                "answer": initial_answer,
-                "extracted_answer": initial_answer,
-                "normalized_answer": initial_normalized,
-                "confidence": None,
-                "errors_detected": None,
-                "should_continue": None
-            }
-        ]
-        
-        # Add reasoning trace to monitor
-        if MONITOR_AVAILABLE:
-            add_reasoning_trace(
-                problem_id=problem_id,
-                iteration=0,
-                reasoning=initial_result["reasoning"],
-                answer=initial_answer,
-                confidence=None,
-                errors_detected=None,
-                should_continue=None
+        try:
+            start_time = time.time()
+            
+            # Extract problem ID from the question if possible
+            problem_id = None
+            id_match = re.search(r'(\d{4}-[I|II]-\d+)', question)
+            if id_match:
+                problem_id = id_match.group(1)
+            else:
+                # Generate a timestamp-based ID if no ID found
+                problem_id = f"problem_{int(time.time())}"
+            
+            # Update monitor with current problem
+            if MONITOR_AVAILABLE:
+                update_problem_status(problem_id, question, 0)
+            
+            # Initial reasoning generation
+            logger.info("Generating initial reasoning")
+            initial_result = self.reasoning_model.generate_reasoning(
+                question=question,
+                problem_id=problem_id
             )
-        
-        # Track the current reasoning and answer
-        current_reasoning = initial_result["reasoning"]
-        current_answer = initial_answer
-        current_normalized = initial_normalized
-        
-        # Track if we should stop early
-        should_stop = False
-        
-        # Continue iterating with summarized reasoning
-        for i in range(max_iterations):
-            if should_stop:
-                logger.info(f"Early stopping at iteration {i}")
-                break
+            
+            # Extract initial answer
+            initial_answer = extraction.extract_answer_from_reasoning_result(initial_result)
+            initial_normalized = extraction.normalize_answer(initial_answer)
+            
+            # Store all iterations
+            iterations = [
+                {
+                    "iteration": 0,
+                    "reasoning": initial_result["reasoning"],
+                    "answer": initial_answer,
+                    "extracted_answer": initial_answer,
+                    "normalized_answer": initial_normalized,
+                    "confidence": None,
+                    "errors_detected": None,
+                    "should_continue": None
+                }
+            ]
+            
+            # Add reasoning trace to monitor
+            if MONITOR_AVAILABLE:
+                add_reasoning_trace(
+                    problem_id=problem_id,
+                    iteration=0,
+                    reasoning=initial_result["reasoning"],
+                    answer=initial_answer,
+                    confidence=None,
+                    errors_detected=None,
+                    should_continue=None
+                )
+            
+            # Track the current reasoning and answer
+            current_reasoning = initial_result["reasoning"]
+            current_answer = initial_answer
+            current_normalized = initial_normalized
+            
+            # Track if we should stop early
+            should_stop = False
+            
+            # Continue iterating with summarized reasoning
+            for i in range(max_iterations):
+                if should_stop:
+                    logger.info(f"Early stopping at iteration {i}")
+                    break
+                    
+                logger.info(f"Iteration {i+1}: Evaluating reasoning")
                 
-            logger.info(f"Iteration {i+1}: Evaluating reasoning")
-            
-            # Evaluate the current reasoning and answer
-            evaluation_result = self._evaluate_reasoning(question, current_reasoning, current_answer)
-            
-            # Extract evaluation metrics
-            confidence = evaluation_result.get("confidence", 0.0)
-            errors_detected = evaluation_result.get("errors_detected", True)
-            should_continue = evaluation_result.get("should_continue", True)
-            
-            # Check if we should stop refining
-            if self.early_stopping and (confidence >= self.confidence_threshold or not should_continue):
-                should_stop = True
-                logger.info(f"Early stopping triggered: confidence={confidence}, should_continue={should_continue}")
-                # Still summarize the reasoning to provide a final summary
-            
-            # Summarize the current reasoning with focus on errors
-            logger.info(f"Iteration {i+1}: Summarizing reasoning")
-            summary = self.summarizer.summarize(current_reasoning, strategy="error_focused")
-            
-            # If no errors and refine_errors_only is True, skip to next iteration
-            if not errors_detected and self.refine_errors_only and not should_stop:
-                logger.info(f"No errors detected, skipping iteration {i+1}")
+                # Evaluate the current reasoning and answer
+                evaluation_result = self._evaluate_reasoning(question, current_reasoning, current_answer)
                 
-                # Store this iteration but don't generate new reasoning
+                # Extract evaluation metrics
+                confidence = evaluation_result.get("confidence", 0.0)
+                errors_detected = evaluation_result.get("errors_detected", True)
+                should_continue = evaluation_result.get("should_continue", True)
+                
+                # Check if we should stop refining
+                if self.early_stopping and (confidence >= self.confidence_threshold or not should_continue):
+                    should_stop = True
+                    logger.info(f"Early stopping triggered: confidence={confidence}, should_continue={should_continue}")
+                    # Still summarize the reasoning to provide a final summary
+                
+                # Summarize the current reasoning with focus on errors
+                logger.info(f"Iteration {i+1}: Summarizing reasoning")
+                summary = self.summarizer.summarize(current_reasoning, strategy="error_focused")
+                
+                # If no errors and refine_errors_only is True, skip to next iteration
+                if not errors_detected and self.refine_errors_only and not should_stop:
+                    logger.info(f"No errors detected, skipping iteration {i+1}")
+                    
+                    # Store this iteration but don't generate new reasoning
+                    iterations.append({
+                        "iteration": i + 1,
+                        "summary": summary,
+                        "reasoning": current_reasoning,  # Same as previous
+                        "answer": current_answer,
+                        "extracted_answer": current_answer,
+                        "normalized_answer": current_normalized,
+                        "confidence": confidence,
+                        "errors_detected": errors_detected,
+                        "should_continue": should_continue
+                    })
+                    continue
+                
+                # If should_stop is True, we've already decided to stop iterating
+                if not should_stop:
+                    # Generate new reasoning based on the summary and evaluation
+                    logger.info(f"Iteration {i+1}: Generating new reasoning based on summary")
+                    
+                    # Format the question with summary for continuation
+                    if self.use_summarize_tags:
+                        # Use experimental summarize tags
+                        continuation_prompt = f"{question}\n\n<think>\n{current_reasoning}\n\n<summarize>{summary}</summarize>\n\n{self.prompts['continuation']}"
+                    else:
+                        # Use standard format
+                        continuation_prompt = f"{question}\n\nHere is a summary of your previous reasoning:\n{summary}\n\n{self.prompts['continuation']}"
+                    
+                    # Generate new reasoning based on the summary
+                    new_result = self.reasoning_model.generate_reasoning(question=continuation_prompt)
+                    
+                    # Extract new answer
+                    new_answer = extraction.extract_answer_from_reasoning_result(new_result)
+                    new_normalized = extraction.normalize_answer(new_answer)
+                    
+                    # Update current reasoning and answer
+                    current_reasoning = new_result["reasoning"]
+                    current_answer = new_answer
+                    current_normalized = new_normalized
+                
+                # Store this iteration
                 iterations.append({
                     "iteration": i + 1,
                     "summary": summary,
-                    "reasoning": current_reasoning,  # Same as previous
+                    "reasoning": current_reasoning,
                     "answer": current_answer,
                     "extracted_answer": current_answer,
                     "normalized_answer": current_normalized,
@@ -330,88 +373,64 @@ class RecursiveReasoningPipeline(BasePipeline):
                     "errors_detected": errors_detected,
                     "should_continue": should_continue
                 })
-                continue
+                
+                # Update monitor with iteration data
+                if MONITOR_AVAILABLE:
+                    add_reasoning_trace(
+                        problem_id=problem_id,
+                        iteration=i + 1,
+                        reasoning=current_reasoning,
+                        answer=current_answer,
+                        confidence=confidence,
+                        errors_detected=errors_detected,
+                        should_continue=should_continue
+                    )
             
-            # If should_stop is True, we've already decided to stop iterating
-            if not should_stop:
-                # Generate new reasoning based on the summary and evaluation
-                logger.info(f"Iteration {i+1}: Generating new reasoning based on summary")
-                
-                # Format the question with summary for continuation
-                if self.use_summarize_tags:
-                    # Use experimental summarize tags
-                    continuation_prompt = f"{question}\n\n<think>\n{current_reasoning}\n\n<summarize>{summary}</summarize>\n\n{self.prompts['continuation']}"
-                else:
-                    # Use standard format
-                    continuation_prompt = f"{question}\n\nHere is a summary of your previous reasoning:\n{summary}\n\n{self.prompts['continuation']}"
-                
-                # Generate new reasoning based on the summary
-                new_result = self.reasoning_model.generate_reasoning(question=continuation_prompt)
-                
-                # Extract new answer
-                new_answer = extraction.extract_answer_from_reasoning_result(new_result)
-                new_normalized = extraction.normalize_answer(new_answer)
-                
-                # Update current reasoning and answer
-                current_reasoning = new_result["reasoning"]
-                current_answer = new_answer
-                current_normalized = new_normalized
+            # Final synthesis to determine best answer
+            logger.info("Synthesizing final answer")
+            final_result = self._synthesize_final_answer(question, iterations)
             
-            # Store this iteration
-            iterations.append({
-                "iteration": i + 1,
-                "summary": summary,
-                "reasoning": current_reasoning,
-                "answer": current_answer,
-                "extracted_answer": current_answer,
-                "normalized_answer": current_normalized,
-                "confidence": confidence,
-                "errors_detected": errors_detected,
-                "should_continue": should_continue
-            })
+            # Use synthesized answer if available, otherwise use the last iteration's answer
+            final_answer = final_result.get("answer") or current_answer
             
-            # Update monitor with iteration data
+            # Build and return the result
+            processing_time = time.time() - start_time
+            
+            result = {
+                "question": question,
+                "iterations": iterations,
+                "final_reasoning": final_result.get("reasoning", current_reasoning),
+                "synthesized_answer": final_result.get("answer"),
+                "extracted_answer": final_answer,
+                "processing_time": processing_time,
+                "iteration_count": len(iterations) - 1  # Exclude initial iteration
+            }
+            
+            # Mark problem as complete in the monitor
             if MONITOR_AVAILABLE:
-                add_reasoning_trace(
+                complete_problem(
                     problem_id=problem_id,
-                    iteration=i + 1,
-                    reasoning=current_reasoning,
-                    answer=current_answer,
-                    confidence=confidence,
-                    errors_detected=errors_detected,
-                    should_continue=should_continue
+                    final_answer=final_answer,
+                    processing_time=processing_time,
+                    iteration_count=len(iterations) - 1
                 )
-        
-        # Final synthesis to determine best answer
-        logger.info("Synthesizing final answer")
-        final_result = self._synthesize_final_answer(question, iterations)
-        
-        # Use synthesized answer if available, otherwise use the last iteration's answer
-        final_answer = final_result.get("answer") or current_answer
-        
-        # Build and return the result
-        processing_time = time.time() - start_time
-        
-        result = {
-            "question": question,
-            "iterations": iterations,
-            "final_reasoning": final_result.get("reasoning", current_reasoning),
-            "synthesized_answer": final_result.get("answer"),
-            "extracted_answer": final_answer,
-            "processing_time": processing_time,
-            "iteration_count": len(iterations) - 1  # Exclude initial iteration
-        }
-        
-        # Mark problem as complete in the monitor
-        if MONITOR_AVAILABLE:
-            complete_problem(
-                problem_id=problem_id,
-                final_answer=final_answer,
-                processing_time=processing_time,
-                iteration_count=len(iterations) - 1
-            )
             
-        return result
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error processing problem: {str(e)}")
+            import traceback
+            logger.error(traceback.format_exc())
+            
+            # Return a minimal result with error information
+            return {
+                "question": question,
+                "error": str(e),
+                "traceback": traceback.format_exc(),
+                "extracted_answer": "ERROR",
+                "processing_time": 0,
+                "iteration_count": 0
+            }
     
     def _evaluate_reasoning(self, question: str, reasoning: str, answer: str) -> Dict[str, Any]:
         """

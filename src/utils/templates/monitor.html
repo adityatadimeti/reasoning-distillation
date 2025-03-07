@@ -185,6 +185,7 @@
         let currentProblemId = null;
         let currentIteration = 0;
         let maxIterations = 0;
+        let currentExperimentData = null;
         
         // Format time in seconds to a readable format
         function formatTime(seconds) {
@@ -197,6 +198,9 @@
         
         // Update the status panel with current experiment state
         function updateStatusPanel(data) {
+            // Store the current experiment data
+            currentExperimentData = data;
+            
             document.getElementById('experiment-status').textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
             document.getElementById('pipeline-name').textContent = data.pipeline || '-';
             document.getElementById('elapsed-time').textContent = formatTime(data.elapsed_time);
@@ -240,7 +244,19 @@
                 return;
             }
             
-            for (let i = 0; i <= maxIter; i++) {
+            // Use available_iterations if present, otherwise fall back to maxIter
+            const iterations = currentExperimentData && currentExperimentData.available_iterations && 
+                              currentExperimentData.available_iterations.length > 0 ? 
+                              currentExperimentData.available_iterations : 
+                              [...Array(maxIter + 1).keys()];
+            
+            if (iterations.length === 0) {
+                iterationButtons.innerHTML = '<button type="button" class="btn btn-outline-primary" disabled>No iterations</button>';
+                apiIterationButtons.innerHTML = '<button type="button" class="btn btn-outline-primary" disabled>No iterations</button>';
+                return;
+            }
+            
+            for (const i of iterations) {
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.className = `btn btn-outline-primary ${i === currentIteration ? 'active' : ''}`;
@@ -346,7 +362,12 @@
                     updateStatusPanel(data);
                     updateIterationButtons(currentProblemId, maxIterations);
                     
-                    if (currentProblemId && currentIteration >= 0) {
+                    if (currentProblemId && data.available_iterations && data.available_iterations.length > 0) {
+                        // Get the latest iteration
+                        const latestIteration = Math.max(...data.available_iterations);
+                        // Load the reasoning trace for the latest iteration
+                        loadReasoningTrace(currentProblemId, latestIteration);
+                    } else if (currentProblemId && currentIteration >= 0) {
                         loadReasoningTrace(currentProblemId, currentIteration);
                     }
                 })

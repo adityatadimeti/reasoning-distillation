@@ -130,7 +130,9 @@ def run_experiment(config_path: str, **kwargs) -> Dict[str, Any]:
         dataset=dataset,
         split=config.get("pipeline.split", "test"),
         max_problems=config.get("pipeline.max_problems", None),
-        problem_ids=config.get("pipeline.problem_ids", None)
+        problem_ids=config.get("pipeline.problem_ids", None),
+        start_monitor=True,
+        monitor_port=config.get("pipeline.monitor_port", 5000)
     )
     
     # Evaluate the results

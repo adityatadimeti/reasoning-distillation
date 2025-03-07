@@ -76,6 +76,12 @@ class FireworksModel(Model):
         self.max_extensions = self.reasoning_config.get("max_extensions", 10)
         self.target_token_count = self.reasoning_config.get("target_token_count", 2000)
         
+        # Generation parameters
+        self.top_p = self.model_config.get("top_p", 1.0)
+        self.top_k = self.model_config.get("top_k", 40)
+        self.frequency_penalty = self.model_config.get("frequency_penalty", 0.0)
+        self.presence_penalty = self.model_config.get("presence_penalty", 0.0)
+        
         # Continuation phrases for extending reasoning
         self.continuation_phrases = self.reasoning_config.get("continuation_phrases", [
             "Let me think more about this.",
