@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import Dict, Optional, Any
 import importlib
 import time
-
 from src.utils.config import Config, PROJECT_ROOT
 from src.data.dataset import Dataset
 from src.pipeline.base_pipeline import BasePipeline
@@ -66,7 +65,9 @@ def get_pipeline_class(pipeline_type: str) -> type:
     """
     pipeline_mapping = {
         "baseline": "src.pipeline.baseline_pipeline.BaselineReasoningPipeline",
-        "summary": "src.pipeline.summary_pipeline.SummaryReasoningPipeline",
+        "summary": "src.pipeline.summary_pipeline.SummaryReasoningPipeline", 
+        "self_summary": "src.pipeline.summary_pipeline.SummaryReasoningPipeline",
+        "external_summary": "src.pipeline.summary_pipeline.SummaryReasoningPipeline",
         "recursive": "src.pipeline.recursive_pipeline.RecursiveReasoningPipeline"
     }
     
@@ -87,6 +88,10 @@ def run_experiment(config_path: str, **kwargs) -> Dict[str, Any]:
     Args:
         config_path: Path to configuration file
         **kwargs: Additional arguments to override configuration
+            - split: Data split to use (train, test, all)
+            - max_problems: Maximum number of problems to process
+            - problem_ids: Comma-separated list of problem IDs
+            - max_iterations: Maximum number of iterations (for iterative pipelines)
         
     Returns:
         Dictionary with experiment results
@@ -102,6 +107,8 @@ def run_experiment(config_path: str, **kwargs) -> Dict[str, Any]:
             config._merge_config({"pipeline": {"max_problems": int(value)}})
         elif key == "problem_ids" and value:
             config._merge_config({"pipeline": {"problem_ids": value.split(",")}})
+        elif key == "max_iterations" and value:
+            config._merge_config({"pipeline": {"max_iterations": int(value)}})
     
     # Set up logging
     setup_logging(config)
@@ -130,7 +137,8 @@ def run_experiment(config_path: str, **kwargs) -> Dict[str, Any]:
         dataset=dataset,
         split=config.get("pipeline.split", "test"),
         max_problems=config.get("pipeline.max_problems", None),
-        problem_ids=config.get("pipeline.problem_ids", None)
+        problem_ids=config.get("pipeline.problem_ids", None),
+        max_iterations=config.get("pipeline.max_iterations", None)
     )
     
     # Evaluate the results

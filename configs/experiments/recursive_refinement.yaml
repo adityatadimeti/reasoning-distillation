@@ -1,95 +1,83 @@
-# Recursive refinement experiment configuration
+# Configuration for recursive reasoning refinement experiment
 
-name: recursive_refinement
-description: "Experiment using iterative refinement through summarization"
+# Base configuration (will be merged with this config)
+base_config: configs/experiments/baseline.yaml
 
-# Inherit from external summarization config
-defaults:
-  - external_summarization
-
-# Override specific settings
-experiment:
-  name: recursive_refinement
-  description: "Experiment using iterative refinement through GPT-4o summarization"
-  seed: 42
-  output_dir: ${results_dir}/${experiment.name}
-
-# Pipeline settings
+# Pipeline configuration
 pipeline:
+  name: recursive_refinement
   type: recursive
   batch_size: 4
-  save_reasoning_traces: true
-  save_summaries: true
-  save_final_answers: true
-  summarization_strategy: external
+  save_intermediates: true
   max_iterations: 3
-  convergence_threshold: 0.05  # Stop if improvement is less than this between iterations
-
-# Recursive settings
-recursive:
-  iteration_prompt_template: |
-    [INST]
-    You are DeepSeek Math, an AI assistant that specializes in solving mathematical problems step by step with clear reasoning.
-    
-    Problem: {problem}
-    
-    Previous reasoning summary: {summary}
-    
-    Key insights from previous attempt:
-    {insights}
-    
-    Areas to improve:
-    {improvements}
-    
-    Please solve this problem again, step by step, taking into account the feedback from your previous attempt.
-    [/INST]
+  early_stopping: true
+  confidence_threshold: 0.8
   
-  track_improvements: true
-  save_all_iterations: true
-  adaptive_stopping: true  # Stop early if solution converges or gets worse
+  # Prompts for different steps
+  continuation_prompt: "Based on the summary of your previous reasoning, please continue solving the problem. Focus specifically on addressing the issues identified in the summary."
+  evaluation_prompt: "Evaluate the above reasoning and answer. Is it correct? If there are errors, what are they? Should the reasoning be refined further?"
+  synthesis_prompt: "Based on all the iterations of reasoning so far, synthesize a final answer to the problem."
 
-# Summarization settings
+# Model configuration (import from files)
+imports:
+  - configs/models/fireworks.yaml
+  - configs/summarization/default.yaml
+
+# Summarization configuration
 summarization:
-  prompt_template: |
-    I need you to analyze the following mathematical reasoning and provide a concise summary that captures the key insights, strategies, and potential errors.
-    
-    Original problem: {problem}
-    
-    Reasoning trace (iteration {iteration}):
-    {reasoning_trace}
-    
-    Please provide:
-    
-    1. A concise summary (no more than 100 words) that captures the key insights and strategies.
-    
-    2. A list of 2-3 key insights from this reasoning attempt.
-    
-    3. A list of 2-3 specific areas that could be improved in the next iteration.
-    
-    Your feedback should be clear, specific, and actionable for improving the next reasoning attempt.
+  method: external
+  strategy: error_focused
+  prompt: error_focused
+  max_tokens: 1000
+  temperature: 0.5
   
-  extract_insights: true
-  extract_improvements: true
-  max_summary_length: 100
-  focus_on_errors: true
-  include_in_final_prompt: true
+  # External summarization specific settings
+  external_summary:
+    strategy: error_focused
+    prompt: error_focused
+    max_tokens: 1000
+    temperature: 0.5
 
-# Evaluation settings
+# Reasoning model 
+reasoning_model:
+  name: deepseek-r1
+  model_id: accounts/fireworks/models/deepseek-r1
+
+# Summarization model (same as reasoning by default)
+summarization_model:
+  name: deepseek-r1
+  model_id: accounts/fireworks/models/deepseek-r1
+
+# Recursive pipeline specific settings
+recursive:
+  use_think_tags: true
+  use_summarize_tags: false  # Experimental feature for <summarize> tags
+  track_confidence: true
+  refine_errors_only: true  # Only refine iterations where errors were detected
+
+# Reasoning configuration overrides
+reasoning:
+  think_tag: true
+  max_extensions: 5
+  target_token_count: 2000
+
+# Evaluation configuration
 evaluation:
   metrics:
     - accuracy
-    - token_efficiency
-    - reasoning_quality
-    - step_count
-    - summary_quality
     - improvement_rate
-    - convergence_rate
-  save_evaluation_results: true
-  compare_iterations: true
+    - wrong_to_right_percentage
+  tolerance: 0.01  # Numerical tolerance for answer comparison
 
-# Logging settings
+# Output configuration
+output:
+  results_path: results/recursive_refinement
+  save_format: json
+  visualizations: true
+
+# Logging configuration
 logging:
-  use_wandb: false
-  wandb_project: reasoning-distillation
-  wandb_run_name: recursive_refinement
-  log_frequency: 1
+  level: INFO
+  save_path: logs
+  console_output: true
+  log_file: true

@@ -32,8 +32,8 @@ SAMPLE_CONFIG = {
         "save_intermediates": True
     },
     "model": {
-        "name": "deepseek_r1",
-        "model_id": "accounts/fireworks/models/deepseek-r1",
+        "name": "deepseek-r1-distill-qwen-1p5b",
+        "model_id": "accounts/fireworks/models/deepseek-r1-distill-qwen-1p5b",
         "api_type": "fireworks",
         "max_tokens": 1000,
         "temperature": 0.7
@@ -94,6 +94,7 @@ class TestBaselineReasoningPipeline:
         assert pipeline.name == "test_baseline"
         assert pipeline.batch_size == 1
         assert isinstance(pipeline.model, DeepSeekModel)
+        assert pipeline.model.model_id == "accounts/fireworks/models/deepseek-r1-distill-qwen-1p5b"
     
     def test_save_results(self, output_config, temp_dir):
         """Test saving results and metrics"""

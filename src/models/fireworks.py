@@ -17,6 +17,13 @@ from openai import OpenAI
 from src.utils.config import Config
 from src.models.base import Model, ModelResponse
 
+# Import experiment monitor for tracking API messages
+try:
+    from src.utils.experiment_monitor import add_api_message
+    MONITOR_AVAILABLE = True
+except ImportError:
+    MONITOR_AVAILABLE = False
+
 logger = logging.getLogger(__name__)
 
 class FireworksModel(Model):
@@ -102,13 +109,15 @@ class FireworksModel(Model):
                 "This safeguard prevents accidental usage of paid API services during testing."
             )
     
-    def _make_api_call(self, url: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    def _make_api_call(self, url: str, payload: Dict[str, Any], problem_id: Optional[str] = None, iteration: Optional[int] = None) -> Dict[str, Any]:
         """
         Make an API call to the Fireworks API with retry logic.
         
         Args:
             url: API endpoint URL
             payload: API request payload
+            problem_id: Optional problem ID for tracking
+            iteration: Optional iteration number for tracking
             
         Returns:
             API response as a dictionary
@@ -118,6 +127,10 @@ class FireworksModel(Model):
         """
         # Check API calls safeguard
         self._check_api_safeguard()
+        
+        # Track API request if monitor is available
+        if MONITOR_AVAILABLE and problem_id is not None and iteration is not None:
+            add_api_message(problem_id, iteration, "request", payload.get("messages", [payload]))
         
         for attempt in range(self.retries):
             try:
@@ -129,7 +142,13 @@ class FireworksModel(Model):
                 )
                 
                 if response.status_code == 200:
-                    return response.json()
+                    response_data = response.json()
+                    
+                    # Track API response if monitor is available
+                    if MONITOR_AVAILABLE and problem_id is not None and iteration is not None:
+                        add_api_message(problem_id, iteration, "response", [response_data])
+                    
+                    return response_data
                 elif response.status_code == 429:  # Rate limit
                     wait_time = (2 ** attempt) * self.retry_delay
                     logger.warning(f"Rate limited. Waiting {wait_time}s...")
@@ -203,170 +222,170 @@ class FireworksModel(Model):
                        messages: List[Dict[str, str]],
                        max_tokens: Optional[int] = None,
                        temperature: Optional[float] = None,
+                       problem_id: Optional[str] = None,
+                       iteration: Optional[int] = None,
                        **kwargs) -> ModelResponse:
         """
-        Generate a chat completion using the OpenAI-compatible API.
+        Generate a chat completion using the Fireworks API.
         
         Args:
             messages: List of message dictionaries with 'role' and 'content' keys
             max_tokens: Maximum number of tokens to generate
-            temperature: Temperature for generation
-            **kwargs: Additional model-specific parameters
+            temperature: Sampling temperature
+            problem_id: Optional problem ID for tracking
+            iteration: Optional iteration number for tracking
+            **kwargs: Additional parameters to pass to the API
             
         Returns:
-            ModelResponse containing the generated text and metadata
+            ModelResponse object with the generated text
         """
-        # Check API calls safeguard
-        self._check_api_safeguard()
+        # Use default values from config if not provided
+        max_tokens = max_tokens or self.max_tokens
+        temperature = temperature or self.temperature
         
+        # Prepare the payload
+        payload = {
+            "model": self.model_id,
+            "messages": messages,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "top_p": kwargs.get("top_p", self.top_p),
+            "top_k": kwargs.get("top_k", self.top_k),
+            "frequency_penalty": kwargs.get("frequency_penalty", self.frequency_penalty),
+            "presence_penalty": kwargs.get("presence_penalty", self.presence_penalty),
+        }
+        
+        # Add any additional parameters
+        for key, value in kwargs.items():
+            if key not in payload:
+                payload[key] = value
+        
+        # Make the API call
         try:
-            response = self.client.chat.completions.create(
-                model=self.model_id,
-                messages=messages,
-                max_tokens=max_tokens or self.max_tokens,
-                temperature=temperature or self.temperature,
-                top_p=kwargs.get("top_p", self.top_p),
-                presence_penalty=kwargs.get("presence_penalty", self.presence_penalty),
-                frequency_penalty=kwargs.get("frequency_penalty", self.frequency_penalty)
-            )
+            response = self._make_api_call(self.chat_url, payload, problem_id, iteration)
             
-            # Extract content
-            generated_text = response.choices[0].message.content
-            
-            # Prepare ModelResponse
-            return ModelResponse(
-                text=generated_text,
-                prompt=json.dumps(messages),  # Serialize messages as prompt
-                tokens_used=response.usage.total_tokens if hasattr(response, 'usage') else None,
-                model_name=self.model_id,
-                raw_response=response
-            )
-            
+            # Extract the generated text
+            if "choices" in response and len(response["choices"]) > 0:
+                text = response["choices"][0]["message"]["content"]
+                return ModelResponse(text=text, raw_response=response)
+            else:
+                logger.error(f"Unexpected response format: {response}")
+                return ModelResponse(text="", raw_response=response)
         except Exception as e:
-            logger.error(f"Chat completion error: {str(e)}")
-            raise
+            logger.error(f"Error in chat completion: {str(e)}")
+            return ModelResponse(text="", error=str(e))
     
     def generate_reasoning(self, 
                           question: str, 
                           max_extensions: Optional[int] = None,
                           target_token_count: Optional[int] = None,
+                          problem_id: Optional[str] = None,
                           **kwargs) -> Dict[str, Any]:
         """
-        Generate extensive reasoning trace for a question using the think tag approach.
+        Generate a reasoning trace for a given question.
         
         Args:
-            question: The input question to reason about
-            max_extensions: Maximum number of reasoning extensions (overrides config)
-            target_token_count: Target number of tokens for reasoning (overrides config)
-            **kwargs: Additional model-specific parameters
+            question: The question to generate reasoning for
+            max_extensions: Maximum number of reasoning extensions
+            target_token_count: Target token count for reasoning
+            problem_id: Optional problem ID for tracking
+            **kwargs: Additional parameters for the model
             
         Returns:
-            Dictionary containing the reasoning trace, answer, and metadata
+            Dictionary containing the generated reasoning, answer, and metadata
         """
-        # Get parameters, allowing overrides
-        max_extensions = max_extensions or self.max_extensions
-        target_token_count = target_token_count or self.target_token_count
-        temperature = kwargs.get("temperature", self.temperature)
+        # Use default values from config if not provided
+        max_extensions = max_extensions or self.reasoning_config.get("max_extensions", 3)
+        target_token_count = target_token_count or self.reasoning_config.get("target_token_count", 1000)
         
+        # Determine if we should use think tags
+        use_think_tags = self.reasoning_config.get("think_tag", False)
+        
+        # Prepare the system message
+        system_content = self.reasoning_config.get("system_message", "You are a helpful assistant that solves problems step-by-step.")
+        
+        # Prepare the user message with the question
+        user_content = question
+        
+        # Initial messages
+        messages = [
+            {"role": "system", "content": system_content},
+            {"role": "user", "content": user_content}
+        ]
+        
+        # Start timing
         start_time = time.time()
         
-        # Initialize with thinking prompt
-        initial_prompt = f"{question}\n\n<think>" if self.think_tag else question
+        # Generate the initial response
+        response = self.chat_completion(
+            messages=messages,
+            max_tokens=self.max_tokens,
+            temperature=self.temperature,
+            problem_id=problem_id,
+            iteration=0,
+            **kwargs
+        )
         
-        full_reasoning = ""
-        num_extensions = 0
+        # Extract the initial reasoning
+        reasoning = response.text
         
-        current_prompt = initial_prompt
+        # Add think tags if needed
+        if use_think_tags and not reasoning.startswith("<think>"):
+            reasoning = f"<think>\n{reasoning}\n</think>"
         
-        # Generate initial reasoning and continue extending if needed
-        while num_extensions <= max_extensions:
-            # Prepare and make API call
-            payload = {
-                "model": self.model_id,
-                "max_tokens": 1000,  # Using a smaller chunk size per call
-                "temperature": temperature,
-                "top_p": kwargs.get("top_p", self.top_p),
-                "top_k": kwargs.get("top_k", 40),
-                "presence_penalty": kwargs.get("presence_penalty", self.presence_penalty),
-                "frequency_penalty": kwargs.get("frequency_penalty", self.frequency_penalty),
-                "prompt": current_prompt
-            }
+        # Track token count (approximate)
+        token_count = len(reasoning.split())
+        
+        # Extend reasoning if needed
+        extensions = 0
+        while extensions < max_extensions and token_count < target_token_count:
+            # Add the assistant's response to the messages
+            messages.append({"role": "assistant", "content": reasoning})
             
-            response_data = self._make_api_call(self.completion_url, payload)
+            # Add a continuation prompt
+            continuation_prompts = self.reasoning_config.get("continuation_phrases", ["Let me continue my reasoning."])
+            continuation_prompt = random.choice(continuation_prompts)
+            messages.append({"role": "user", "content": continuation_prompt})
             
-            # Extract the generated text
-            if "choices" in response_data and len(response_data["choices"]) > 0:
-                generation = response_data["choices"][0]["text"]
-            else:
-                raise ValueError("No generation found in response")
+            # Generate the continuation
+            extension_response = self.chat_completion(
+                messages=messages,
+                max_tokens=self.max_tokens,
+                temperature=self.temperature,
+                problem_id=problem_id,
+                iteration=extensions + 1,
+                **kwargs
+            )
             
-            # Check if the model completed its thinking with </think> tag
-            if self.think_tag and "</think>" in generation:
-                # Remove everything from </think> onwards for continuation
-                thinking_part = generation.split("</think>")[0]
-                full_reasoning += thinking_part
-                break
-            else:
-                # No closing tag, just append the generation
-                full_reasoning += generation
+            # Extract the continuation
+            extension = extension_response.text
             
-            # Estimate the current token count
-            current_token_count = self.estimate_tokens(full_reasoning)
+            # Add think tags if needed
+            if use_think_tags and not extension.startswith("<think>"):
+                extension = f"<think>\n{extension}\n</think>"
             
-            # Check if we've reached the target token count
-            if current_token_count >= target_token_count:
-                break
+            # Append the continuation to the reasoning
+            reasoning += f"\n{extension}"
             
-            # Haven't reached target count, continue extending
-            num_extensions += 1
-            if num_extensions <= max_extensions:
-                # Add a continuation phrase
-                continuation = random.choice(self.continuation_phrases)
-                
-                # Explicitly add the continuation phrase to the full reasoning
-                full_reasoning += f"\n{continuation}\n"
-                
-                # Update the current prompt with the full reasoning including continuation
-                if self.think_tag:
-                    current_prompt = initial_prompt + full_reasoning
-                else:
-                    current_prompt = question + "\n\n" + full_reasoning
-            else:
-                # Reached max extensions, close the reasoning
-                break
+            # Update token count
+            token_count = len(reasoning.split())
+            
+            # Increment extensions counter
+            extensions += 1
         
-        # After reaching target token count or max extensions, generate a final answer
-        if self.think_tag:
-            final_prompt = f"{question}\n\n<think>{full_reasoning}</think>"
-        else:
-            final_prompt = f"{question}\n\n{full_reasoning}\n\nTherefore, the answer is:"
-        
-        final_payload = {
-            "model": self.model_id,
-            "max_tokens": 500,
-            "temperature": temperature,
-            "prompt": final_prompt
-        }
-        
-        final_response = self._make_api_call(self.completion_url, final_payload)
-        
-        if "choices" in final_response and len(final_response["choices"]) > 0:
-            final_answer = final_response["choices"][0]["text"].strip()
-        else:
-            final_answer = ""
-        
+        # Calculate generation time
         generation_time = time.time() - start_time
         
-        # Construct and return the final output
+        # Extract answer if possible
+        answer = self.extract_answer(reasoning)
+        
+        # Return the result
         return {
-            "question": question,
-            "reasoning": full_reasoning,
-            "full_reasoning_with_tags": f"<think>{full_reasoning}</think>" if self.think_tag else full_reasoning,
-            "answer": final_answer,
-            "extensions": num_extensions,
-            "estimated_token_count": self.estimate_tokens(full_reasoning),
-            "generation_time": generation_time,
-            "model_id": self.model_id
+            "reasoning": reasoning,
+            "answer": answer,
+            "extensions": extensions,
+            "estimated_token_count": token_count,
+            "generation_time": generation_time
         }
     
     def summarize_reasoning(self, reasoning_trace: str, **kwargs) -> str:

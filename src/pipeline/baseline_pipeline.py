@@ -10,7 +10,7 @@ import pandas as pd
 
 from src.utils.config import Config
 from src.models.base import Model
-from src.models.deepseek import DeepSeekModel
+from src.models.fireworks import FireworksModel
 from src.data.dataset import Dataset
 from src.pipeline.base_pipeline import BasePipeline
 import src.reasoning.generation as generation
@@ -40,7 +40,7 @@ class BaselineReasoningPipeline(BasePipeline):
         model_type = model_config.get("api_type", "fireworks")
         
         if model_type == "fireworks":
-            self.model = DeepSeekModel(config)
+            self.model = FireworksModel(config)
         else:
             raise ValueError(f"Unsupported model type: {model_type}")
         

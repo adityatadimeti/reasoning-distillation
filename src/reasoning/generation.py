@@ -6,8 +6,7 @@ import time
 import logging
 
 from src.utils.config import Config
-from src.models.base import Model, ModelResponse
-from src.models.deepseek import DeepSeekModel
+from src.models.base import Model
 
 logger = logging.getLogger(__name__)
 
