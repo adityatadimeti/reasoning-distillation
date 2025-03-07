@@ -27,6 +27,8 @@ MAX_PROBLEMS=5  # Limit to 5 problems by default for quicker testing
 MAX_ITERATIONS=3  # Default to 3 iterations
 MODEL=""
 DATASET=""
+ENABLE_DASHBOARD=false
+DASHBOARD_PORT=5000
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -75,6 +77,15 @@ while [[ $# -gt 0 ]]; do
             MAX_PROBLEMS=""  # Process all problems
             shift
             ;;
+        --dashboard)
+            ENABLE_DASHBOARD=true
+            shift
+            ;;
+        --dashboard-port)
+            DASHBOARD_PORT="$2"
+            shift
+            shift
+            ;;
         *)
             echo "Unknown option: $1"
             exit 1
@@ -112,14 +123,54 @@ fi
 if [ -n "$DATASET" ]; then
     echo "  Dataset: $DATASET"
 fi
+if [ "$ENABLE_DASHBOARD" = true ]; then
+    echo "  Dashboard enabled on port $DASHBOARD_PORT"
+fi
 
 # Create output directories if they don't exist
 mkdir -p results
 mkdir -p logs
 mkdir -p configs/temp
+mkdir -p dashboard
 
 # Enable API calls for this run
 export ENABLE_API_CALLS=1
+
+# Set up dashboard if enabled
+if [ "$ENABLE_DASHBOARD" = true ]; then
+    # Set environment variables for dashboard
+    export ENABLE_EXPERIMENT_DASHBOARD=1
+    export DASHBOARD_DATA_PATH="dashboard/experiment_data.json"
+    export DASHBOARD_PORT=$DASHBOARD_PORT
+    
+    # Initialize dashboard data file
+    echo '{
+        "status": "initializing",
+        "problems": {},
+        "current_problem": null,
+        "api_calls": [],
+        "start_time": '$(date +%s)',
+        "last_update": '$(date +%s)'
+    }' > $DASHBOARD_DATA_PATH
+    
+    # Start dashboard server in background
+    echo "Starting dashboard server on port $DASHBOARD_PORT"
+    ./dashboard/start_dashboard.sh --port $DASHBOARD_PORT &
+    DASHBOARD_PID=$!
+    
+    # Give the server a moment to start
+    sleep 2
+    
+    # Open dashboard in browser if on macOS
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        open "http://localhost:$DASHBOARD_PORT"
+    else
+        echo "Dashboard available at: http://localhost:$DASHBOARD_PORT"
+    fi
+else
+    # Disable dashboard
+    export ENABLE_EXPERIMENT_DASHBOARD=0
+fi
 
 # Build command
 CMD="python experiments/recursive_pipeline.py"
@@ -145,11 +196,34 @@ fi
 # Run the experiment
 echo "Running command: $CMD"
 eval $CMD
+EXPERIMENT_STATUS=$?
 
 # Check if the experiment was successful
-if [ $? -eq 0 ]; then
+if [ $EXPERIMENT_STATUS -eq 0 ]; then
     echo "Recursive experiment completed successfully"
 else
     echo "Recursive experiment failed"
-    exit 1
 fi
+
+# Update dashboard status if enabled
+if [ "$ENABLE_DASHBOARD" = true ]; then
+    if [ $EXPERIMENT_STATUS -eq 0 ]; then
+        # Update status to completed
+        jq '.status = "completed"' $DASHBOARD_DATA_PATH > temp.json && mv temp.json $DASHBOARD_DATA_PATH
+    else
+        # Update status to error
+        jq '.status = "error"' $DASHBOARD_DATA_PATH > temp.json && mv temp.json $DASHBOARD_DATA_PATH
+    fi
+    
+    # Keep dashboard running for a while to allow viewing results
+    echo "Dashboard will remain active for 5 minutes. Press Ctrl+C to stop it earlier."
+    echo "Dashboard URL: http://localhost:$DASHBOARD_PORT"
+    sleep 300
+    
+    # Kill dashboard server
+    if [ -n "$DASHBOARD_PID" ]; then
+        kill $DASHBOARD_PID 2>/dev/null || true
+    fi
+fi
+
+exit $EXPERIMENT_STATUS
