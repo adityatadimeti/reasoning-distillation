@@ -2,23 +2,34 @@ from typing import Dict, Any, List, Optional
 import os
 import json
 from datetime import datetime
+import logging
 
 from src.utils.config import load_config
+from src.dashboard.server import DashboardServer
+
+logger = logging.getLogger(__name__)
 
 class BaseExperiment:
     """Base class for all experiments."""
     
-    def __init__(self, experiment_name: str = "baseline", config: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self, 
+        experiment_name: str,
+        config: Dict[str, Any],
+        dashboard: Optional[DashboardServer] = None
+    ):
         """
         Initialize the experiment.
         
         Args:
             experiment_name: Name of the experiment
-            config: Configuration dictionary (if None, load from files)
+            config: Configuration dictionary
+            dashboard: Optional dashboard server for real-time updates
         """
         self.experiment_name = experiment_name
-        self.config = config if config is not None else load_config(experiment_name)
+        self.config = config
         self.results = []
+        self.dashboard = dashboard
         
         # Create results directory
         self.results_dir = os.path.join(
@@ -26,6 +37,7 @@ class BaseExperiment:
             f"{experiment_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         )
         os.makedirs(self.results_dir, exist_ok=True)
+        logger.info(f"Results will be saved to {self.results_dir}")
     
     def run(self, problems: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
@@ -55,7 +67,7 @@ class BaseExperiment:
         with open(metrics_path, "w") as f:
             json.dump(metrics, f, indent=2)
             
-        print(f"Results saved to {self.results_dir}")
+        logger.info(f"Results saved to {self.results_dir}")
     
     def calculate_metrics(self) -> Dict[str, Any]:
         """
@@ -64,12 +76,7 @@ class BaseExperiment:
         Returns:
             Dictionary of metrics
         """
-        # Default implementation: calculate accuracy
-        correct = sum(1 for r in self.results if r.get("correct", False))
-        total = len(self.results)
-        
+        # Default implementation: count problems processed
         return {
-            "accuracy": correct / total if total > 0 else 0,
-            "correct": correct,
-            "total": total
+            "total_problems": len(self.results)
         }

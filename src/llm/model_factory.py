@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any
+from typing import Optional
 
 from src.llm.base_client import ModelClient
 from src.llm.fireworks_client import FireworksModelClient
@@ -10,7 +10,7 @@ def create_model_client(
     api_key: Optional[str] = None
 ) -> ModelClient:
     """
-    Factory function to create the appropriate model client based on model name or provider.
+    Create the appropriate model client based on model name or provider.
     
     Args:
         model_name: Name of the model to use

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reasoning Experiment Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Reasoning Experiment Dashboard</h1>
+            <div id="status-bar">Status: <span id="connection-status">Connecting...</span></div>
+        </header>
+        
+        <div class="experiment-info">
+            <h2>Experiment Information</h2>
+            <div id="experiment-details">
+                <p>Waiting for experiment to start...</p>
+            </div>
+        </div>
+        
+        <div class="problems-container">
+            <h2>Problems</h2>
+            <div id="problems-list">
+                <!-- Problems will be added here dynamically -->
+            </div>
+        </div>
+        
+        <div class="output-container">
+            <h2>Model Output</h2>
+            <div id="current-problem">No problem selected</div>
+            <pre id="model-output"></pre>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html> 

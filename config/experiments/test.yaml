@@ -1,0 +1,28 @@
+# Experiment configuration
+experiment_name: "test_reasoning_problems"
+results_dir: "./results/test"
+data_path: "./data/test_problems.csv"
+save_intermediate: true
+
+# Dashboard configuration
+dashboard_port: 8080
+
+# Model configuration
+reasoning_model: "accounts/fireworks/models/qwq-32b"
+summarizer_type: "self"
+
+# Generation parameters
+max_tokens: 16384
+temperature: 0.7
+top_p: 1.0
+top_k: 40
+presence_penalty: 0.0
+frequency_penalty: 0.0
+
+# Prompt templates
+reasoning_prompt_template: |
+  Solve the following reasoning problem step by step. 
+  First, think through the problem carefully in <think> tags, then provide your final answer.
+  
+  PROBLEM:
+  {question} 
