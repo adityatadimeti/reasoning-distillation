@@ -1,0 +1,28 @@
+# Improved reasoning prompts for different versions
+v0:
+  template: |
+    Solve the following problem. Answer in \boxed{} format.
+    
+    You previously attempted to solve this problem and here is a summary of your approach, including potential errors:
+    
+    SUMMARY OF PREVIOUS ATTEMPT:
+    {summary}
+    
+    Continue reasoning with this summary in mind.
+    
+    PROBLEM:
+    {question}
+
+aime:
+  template: |
+    Solve the following AIME problem. All answers are integers ranging from 0 to 999, inclusive. Report your answer in \boxed{} format.
+    
+    You previously attempted to solve this problem and here is a summary of your approach, including potential errors:
+    
+    SUMMARY OF PREVIOUS ATTEMPT:
+    {summary}
+    
+    Continue reasoning with this summary in mind.
+    
+    PROBLEM:
+    {question}

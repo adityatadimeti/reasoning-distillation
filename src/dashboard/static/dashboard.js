@@ -27,7 +27,7 @@ const summaryContentElem = document.querySelector('#summary-info .summary-conten
 
 // Current active problem
 let activeProblemId = null;
-// Store problem output by problem ID
+// Store problem outputs by problem ID and iteration
 let problemOutputs = {};
 // Store answer information by problem ID
 let answerInfo = {};
@@ -165,7 +165,7 @@ if (!isStaticMode && socket) {
             `;
             
             // Initialize output storage
-            problemOutputs[problem_id] = '';
+            problemOutputs[problem_id] = {};
             
             // Add click handler to view problem output
             problemCard.addEventListener('click', () => {
@@ -197,54 +197,90 @@ if (!isStaticMode && socket) {
 
     // Handle model output chunks
     socket.on('model_output', (data) => {
-        const { problem_id, chunk } = data;
+        const { problem_id, chunk, iteration = 0 } = data;
         
-        // console.log(`Received chunk for problem_id: ${problem_id}`);
+        // Initialize problem structure if needed
+        if (!problemOutputs[problem_id]) {
+            problemOutputs[problem_id] = {};
+        }
+        
+        // Initialize iteration if needed
+        if (!problemOutputs[problem_id][iteration]) {
+            problemOutputs[problem_id][iteration] = {
+                reasoning: '',
+                summary: '',
+                answer: '',
+                correct_answer: '',
+                is_correct: false
+            };
+        }
         
         // Store the chunk
-        if (!problemOutputs[problem_id]) {
-            problemOutputs[problem_id] = '';
-            console.log(`Initializing output storage for problem_id: ${problem_id}`);
-        }
-        problemOutputs[problem_id] += chunk;
+        problemOutputs[problem_id][iteration].reasoning += chunk;
         
         // If this is the active problem, update the display
         if (problem_id === activeProblemId) {
-            // console.log(`Updating display for active problem: ${problem_id}`);
             updateModelOutput(problem_id);
-        } else {
-            // console.log(`Not updating display. Active: ${activeProblemId}, Received: ${problem_id}`);
+        }
+    });
+    
+    // Handle summary updates
+    socket.on('summary', (data) => {
+        const { problem_id, summary, iteration = 0 } = data;
+        
+        // Initialize problem structure if needed
+        if (!problemOutputs[problem_id]) {
+            problemOutputs[problem_id] = {};
         }
         
-        // Auto-select this problem if no problem is currently selected
-        if (!activeProblemId) {
-            console.log(`No active problem, attempting to select: ${problem_id}`);
-            const problemCard = document.getElementById(`problem-${problem_id}`);
-            if (problemCard) {
-                console.log(`Found problem card, clicking: ${problem_id}`);
-                problemCard.click();
-            } else {
-                console.log(`Problem card not found for: ${problem_id}`);
-            }
+        // Initialize iteration if needed
+        if (!problemOutputs[problem_id][iteration]) {
+            problemOutputs[problem_id][iteration] = {
+                reasoning: '',
+                summary: '',
+                answer: '',
+                correct_answer: '',
+                is_correct: false
+            };
+        }
+        
+        // Store the summary
+        problemOutputs[problem_id][iteration].summary = summary;
+        
+        // If this is the active problem, update the display
+        if (problem_id === activeProblemId) {
+            updateModelOutput(problem_id);
         }
     });
     
     // Handle answer information
     socket.on('answer_info', (data) => {
-        const { problem_id, extracted_answer, correct_answer, is_correct } = data;
+        const { problem_id, answer, correct_answer, is_correct, iteration = 0 } = data;
         
-        console.log(`Received answer info for problem_id: ${problem_id}`);
+        // Initialize problem structure if needed
+        if (!problemOutputs[problem_id]) {
+            problemOutputs[problem_id] = {};
+        }
+        
+        // Initialize iteration if needed
+        if (!problemOutputs[problem_id][iteration]) {
+            problemOutputs[problem_id][iteration] = {
+                reasoning: '',
+                summary: '',
+                answer: '',
+                correct_answer: '',
+                is_correct: false
+            };
+        }
         
         // Store the answer information
-        answerInfo[problem_id] = {
-            extractedAnswer: extracted_answer,
-            correctAnswer: correct_answer,
-            isCorrect: is_correct
-        };
+        problemOutputs[problem_id][iteration].answer = answer;
+        problemOutputs[problem_id][iteration].correct_answer = correct_answer;
+        problemOutputs[problem_id][iteration].is_correct = is_correct;
         
         // If this is the active problem, update the display
         if (problem_id === activeProblemId) {
-            updateAnswerInfo(problem_id);
+            updateModelOutput(problem_id);
         }
     });
     
@@ -264,31 +300,78 @@ if (!isStaticMode && socket) {
     });
 }
 
-// Format and display model output with answer highlighting
+// Update the model output display
 function updateModelOutput(problemId) {
     if (!problemOutputs[problemId]) {
         modelOutputElem.textContent = 'No output yet.';
         return;
     }
     
-    let formattedOutput = problemOutputs[problemId];
+    let formattedContent = '';
+    
+    // Get the number of iterations
+    const iterations = Object.keys(problemOutputs[problemId])
+        .map(Number)
+        .sort((a, b) => a - b);
+    
+    // Display each iteration
+    for (const iteration of iterations) {
+        const iterData = problemOutputs[problemId][iteration];
+        
+        // Display the iteration heading
+        formattedContent += `<h3>Iteration ${iteration}</h3>`;
+        
+        // Display the reasoning
+        if (iterData.reasoning) {
+            formattedContent += '<div class="reasoning-section">';
+            formattedContent += '<h4>Reasoning</h4>';
+            formattedContent += formatReasoning(iterData.reasoning);
+            
+            // Display the answer if available
+            if (iterData.answer) {
+                const correctClass = iterData.is_correct ? 'answer-correct' : 'answer-incorrect';
+                formattedContent += `<div class="answer-section ${correctClass}">`;
+                formattedContent += `<h4>Answer: ${iterData.answer}</h4>`;
+                formattedContent += `<div>Correct answer: ${iterData.correct_answer}</div>`;
+                formattedContent += `<div>Status: ${iterData.is_correct ? 'Correct' : 'Incorrect'}</div>`;
+                formattedContent += '</div>';
+            }
+            
+            formattedContent += '</div>';
+        }
+        
+        // Display the summary if available (and not the last iteration)
+        if (iterData.summary) {
+            formattedContent += '<div class="summary-section">';
+            formattedContent += '<h4>Summary</h4>';
+            formattedContent += iterData.summary;
+            formattedContent += '</div>';
+        }
+    }
+    
+    modelOutputElem.innerHTML = formattedContent;
+    
+    // Scroll to the bottom
+    modelOutputElem.scrollTop = modelOutputElem.scrollHeight;
+}
+
+// Helper function to format reasoning text
+function formatReasoning(text) {
+    let formatted = text;
     
     // Highlight <think> sections
-    formattedOutput = formattedOutput.replace(
+    formatted = formatted.replace(
         /<think>([\s\S]*?)<\/think>/g, 
         '<div class="think-section"><strong>&lt;think&gt;</strong>$1<strong>&lt;/think&gt;</strong></div>'
     );
     
     // Highlight boxed answers
-    formattedOutput = formattedOutput.replace(
+    formatted = formatted.replace(
         /\\boxed\{([^{}]+)\}/g,
         '<span class="answer-highlight">\\boxed{$1}</span>'
     );
     
-    modelOutputElem.innerHTML = formattedOutput;
-    
-    // Scroll to the bottom
-    modelOutputElem.scrollTop = modelOutputElem.scrollHeight;
+    return formatted;
 }
 
 // Display answer information

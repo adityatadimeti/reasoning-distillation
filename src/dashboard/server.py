@@ -243,53 +243,56 @@ class DashboardServer:
                 'status': status
             })
     
-    def stream_model_output(self, problem_id: str, chunk: str):
+    def stream_model_output(self, problem_id: str, chunk: str, iteration: int = 0):
         """
         Stream a chunk of model output to the dashboard.
         
         Args:
             problem_id: ID of the problem
             chunk: Text chunk from the model
+            iteration: Iteration number (0 = initial, 1 = first improvement, etc.)
         """
-        logger.debug(f"Streaming chunk to dashboard for problem ID: {problem_id}")
-        if self.thread and self.thread.is_alive() and self.client_ready:
+        if self.thread and self.thread.is_alive():
             self.socketio.emit('model_output', {
                 'problem_id': problem_id,
-                'chunk': chunk
+                'chunk': chunk,
+                'iteration': iteration
             })
     
-    def update_answer_info(self, problem_id: str, extracted_answer: str, correct_answer: str, is_correct: bool):
+    def update_answer_info(self, problem_id: str, answer: str, correct_answer: str, is_correct: bool, iteration: int = 0):
         """
-        Send answer information to the dashboard.
+        Update answer information for a problem.
         
         Args:
             problem_id: ID of the problem
-            extracted_answer: The answer extracted from the model's reasoning
-            correct_answer: The correct answer to the problem
-            is_correct: Whether the extracted answer matches the correct answer
+            answer: The extracted answer
+            correct_answer: The correct answer
+            is_correct: Whether the answer is correct
+            iteration: Iteration number
         """
-        logger.debug(f"Sending answer info to dashboard for problem ID: {problem_id}")
-        if self.thread and self.thread.is_alive() and self.client_ready:
+        if self.thread and self.thread.is_alive():
             self.socketio.emit('answer_info', {
                 'problem_id': problem_id,
-                'extracted_answer': extracted_answer,
+                'answer': answer,
                 'correct_answer': correct_answer,
-                'is_correct': is_correct
+                'is_correct': is_correct,
+                'iteration': iteration
             })
     
-    def update_summary(self, problem_id: str, summary: str):
+    def update_summary(self, problem_id: str, summary: str, iteration: int = 0):
         """
-        Send reasoning summary to the dashboard.
+        Update summary for a problem.
         
         Args:
             problem_id: ID of the problem
-            summary: The summarized reasoning
+            summary: The summary text
+            iteration: The iteration this summary belongs to
         """
-        logger.debug(f"Sending summary to dashboard for problem ID: {problem_id}")
-        if self.thread and self.thread.is_alive() and self.client_ready:
-            self.socketio.emit('reasoning_summary', {
+        if self.thread and self.thread.is_alive():
+            self.socketio.emit('summary', {
                 'problem_id': problem_id,
-                'summary': summary
+                'summary': summary,
+                'iteration': iteration
             })
     
     def stop(self):

@@ -102,7 +102,7 @@ class SummarizationExperiment(BaseExperiment):
             problem: Problem dictionary with 'question' and 'answer' keys
             
         Returns:
-            Result dictionary with original reasoning
+            Result dictionary with reasoning iterations
         """
         # Handle different case variations of 'id' field
         problem_id = problem.get("id", problem.get("ID", "unknown"))
@@ -110,20 +110,20 @@ class SummarizationExperiment(BaseExperiment):
         question = problem["question"]
         correct_answer = problem["answer"]
         
-        # Create initial reasoning prompt
+        # Create initial reasoning prompt (iteration 0)
         reasoning_template = self.config.get("reasoning_prompt_template")
         if not reasoning_template:
             raise ValueError("reasoning_prompt_template must be specified in configuration")
         
         initial_prompt = reasoning_template.replace("{question}", question)
         
-        # Generate initial reasoning with streaming
+        # Generate iteration 0 reasoning with streaming
         if self.dashboard:
             # Use streaming for dashboard updates
-            initial_reasoning = self._stream_reasoning(problem_id, initial_prompt)
+            iter0_reasoning = self._stream_model_output(problem_id, initial_prompt, iteration=0)
         else:
             # Without dashboard, just get the full response
-            initial_reasoning = self.reasoning_model.generate_response(
+            iter0_reasoning = self.reasoning_model.generate_response(
                 initial_prompt,
                 max_tokens=self.config["max_tokens"],
                 temperature=self.config["temperature"],
@@ -134,57 +134,80 @@ class SummarizationExperiment(BaseExperiment):
                 verbose=self.verbose
             )
         
-        # Extract answer from reasoning
-        initial_answer = extract_answer(initial_reasoning)
+        # Extract answer from iteration 0 reasoning
+        iter0_answer = extract_answer(iter0_reasoning)
         
         # Check if answer is correct (simple string comparison)
-        initial_correct = False
-        if initial_answer is not None:
-            initial_correct = initial_answer.strip() == correct_answer.strip()
+        iter0_correct = False
+        if iter0_answer is not None:
+            iter0_correct = iter0_answer.strip() == correct_answer.strip()
         
-        # Construct result dictionary
+        # Construct initial result dictionary
         result = {
             "problem_id": problem_id,
             "question": question,
             "correct_answer": correct_answer,
-            "initial_reasoning": initial_reasoning,
-            "initial_answer": initial_answer,
-            "initial_correct": initial_correct,
+            "iterations": [
+                {
+                    "iteration": 0,
+                    "reasoning": iter0_reasoning,
+                    "answer": iter0_answer,
+                    "correct": iter0_correct
+                }
+            ],
             "timestamp": time.time()
         }
+        
+        # Add convenience fields for backward compatibility
+        result["initial_reasoning"] = iter0_reasoning
+        result["initial_answer"] = iter0_answer
+        result["initial_correct"] = iter0_correct
         
         # Update dashboard with answer information
         if self.dashboard:
             self.dashboard.update_problem_status(
                 problem_id, 
-                "correct" if initial_correct else "incorrect"
+                "correct" if iter0_correct else "incorrect"
             )
             
             # Send answer information to the dashboard
             self.dashboard.update_answer_info(
                 problem_id,
-                initial_answer or "No answer extracted",
+                iter0_answer or "No answer extracted",
                 correct_answer,
-                initial_correct
+                iter0_correct,
+                iteration=0
             )
         
-        # If the initial answer is incorrect and summarization is enabled, try summarization
-        # if not initial_correct and self.config.get("enable_summarization", True):
-        if self.config.get("enable_summarization", True): # FOR TESTING: ALWAYS SUMMARIZE
+        # Maximum number of iterations to perform
+        max_iterations = self.config.get("max_iterations", 1)
+        
+        # Track if we've found the correct answer in any iteration
+        found_correct_answer = iter0_correct
+        
+        # Perform additional iterations if enabled and we haven't found a correct answer yet
+        current_iteration = 0
+        current_reasoning = iter0_reasoning
+        
+        while (
+            current_iteration < max_iterations and 
+            self.config.get("enable_summarization", True) and
+            (not found_correct_answer or self.config.get("continue_after_correct", False))
+        ):
             # Get the summarization prompt template
             summarize_template = self.config.get("summarize_prompt_template")
             if not summarize_template:
                 raise ValueError("summarize_prompt_template must be specified in configuration")
             
-            # Generate summary of the reasoning
-            logger.info(f"Generating summary for problem {problem_id}")
+            # Generate summary of the current reasoning
+            logger.info(f"Generating summary for problem {problem_id}, iteration {current_iteration}")
             
             # Ensure top_k is included in the config for FireworksModelClient
             if not hasattr(self.summarizer, "top_k"):
                 assert "top_k" in self.config, "top_k must be specified in config if using FireworksModelClient"
                 
             summary = summarize_reasoning(
-                initial_reasoning,
+                current_reasoning,
                 self.summarizer,
                 summarize_template,
                 max_tokens=self.config.get("summary_max_tokens"),
@@ -196,37 +219,106 @@ class SummarizationExperiment(BaseExperiment):
                 verbose=self.verbose
             )
             
-            # Add summary to result
-            result["summary"] = summary
-            
             # Update dashboard with summary
             if self.dashboard:
-                self.dashboard.update_summary(problem_id, summary)
+                self.dashboard.update_summary(problem_id, summary, iteration=current_iteration)
+            
+            # Prepare for next iteration
+            next_iteration = current_iteration + 1
+            
+            # Get improved reasoning prompt template
+            improved_template = self.config.get("improved_prompt_template")
+            if not improved_template:
+                raise ValueError("improved_prompt_template must be specified for additional iterations")
+            
+            # Create prompt for next iteration
+            improved_prompt = improved_template.format(
+                question=question,
+                summary=summary
+            )
+            
+            # Generate reasoning for next iteration
+            if self.dashboard:
+                # Use streaming for dashboard updates
+                next_reasoning = self._stream_model_output(problem_id, improved_prompt, iteration=next_iteration)
+            else:
+                # Without dashboard, just get the full response
+                next_reasoning = self.reasoning_model.generate_response(
+                    improved_prompt,
+                    max_tokens=self.config["max_tokens"],
+                    temperature=self.config["temperature"],
+                    top_p=self.config["top_p"],
+                    top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
+                    presence_penalty=self.config["presence_penalty"],
+                    frequency_penalty=self.config["frequency_penalty"],
+                    verbose=self.verbose
+                )
+            
+            # Extract answer from next iteration reasoning
+            next_answer = extract_answer(next_reasoning)
+            
+            # Check if answer is correct
+            next_correct = False
+            if next_answer is not None:
+                next_correct = next_answer.strip() == correct_answer.strip()
+                found_correct_answer = found_correct_answer or next_correct
+            
+            # Add this iteration to the results
+            result["iterations"].append({
+                "iteration": next_iteration,
+                "summary": summary,
+                "reasoning": next_reasoning,
+                "answer": next_answer,
+                "correct": next_correct
+            })
+            
+            # Add convenience fields for the latest iteration
+            if next_iteration == 1:
+                result["summary"] = summary
+                result["improved_reasoning"] = next_reasoning
+                result["improved_answer"] = next_answer
+                result["improved_correct"] = next_correct
+            
+            # Update dashboard with answer information
+            if self.dashboard:
+                self.dashboard.update_answer_info(
+                    problem_id,
+                    next_answer or "No answer extracted",
+                    correct_answer,
+                    next_correct,
+                    iteration=next_iteration
+                )
+            
+            # Update for next potential iteration
+            current_iteration = next_iteration
+            current_reasoning = next_reasoning
         
         return result
     
-    def _stream_reasoning(self, problem_id: str, prompt: str) -> str:
+    def _stream_model_output(self, problem_id: str, prompt: str, iteration: int = 0) -> str:
         """
-        Stream reasoning generation and update dashboard in real-time.
+        Generic method to stream model output for any iteration and update dashboard in real-time.
         
         Args:
             problem_id: ID of the problem
             prompt: The prompt to send to the model
+            iteration: Iteration number (0 = initial, 1 = first improvement, etc.)
             
         Returns:
-            The full generated reasoning
+            The full generated output
         """
         full_response = ""
         buffered_chunks = []
         
         # Add debug logging
-        logger.debug(f"Streaming for problem ID: {problem_id}")
+        logger.debug(f"Streaming iteration {iteration} for problem ID: {problem_id}")
         
         # Update the problem status to show it's processing
         if self.dashboard:
-            self.dashboard.update_problem_status(problem_id, "in-progress")
+            status = f"iter{iteration}-in-progress"
+            self.dashboard.update_problem_status(problem_id, status)
         
-        # Get streaming response
+        # Get streaming response with appropriate parameters
         stream = self.reasoning_model.generate_response(
             prompt,
             stream=True,
@@ -246,19 +338,20 @@ class SummarizationExperiment(BaseExperiment):
             
             # Send chunk to dashboard with debug
             if self.dashboard:
-                logger.debug(f"Streaming chunk to problem ID: {problem_id}")
-                self.dashboard.stream_model_output(problem_id, chunk)
+                logger.debug(f"Streaming iteration {iteration} chunk to problem ID: {problem_id}")
+                self.dashboard.stream_model_output(problem_id, chunk, iteration=iteration)
                 
         # If the client wasn't ready, ensure all chunks are sent now
         if self.dashboard and hasattr(self.dashboard, 'client_ready') and self.dashboard.client_ready:
             # Check if we need to resend all chunks 
             if buffered_chunks and not self.dashboard.client_ready:
-                logger.info(f"Client is now ready, sending all buffered chunks for problem {problem_id}")
+                logger.info(f"Client is now ready, sending all buffered chunks for iteration {iteration} on problem {problem_id}")
                 # Send the complete output as one chunk
-                self.dashboard.stream_model_output(problem_id, ''.join(buffered_chunks))
+                self.dashboard.stream_model_output(problem_id, ''.join(buffered_chunks), iteration=iteration)
                 
-        # Update the problem status to completed
+        # Update the problem status based on iteration
         if self.dashboard:
-            self.dashboard.update_problem_status(problem_id, "completed")
-            
+            status = f"iter{iteration}-completed"
+            self.dashboard.update_problem_status(problem_id, status)
+        
         return full_response
