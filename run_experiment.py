@@ -4,6 +4,7 @@ import json
 import csv
 import logging
 import time
+import yaml
 from typing import Dict, Any
 
 from src.utils.config import load_config
@@ -54,6 +55,30 @@ def load_problems(data_path: str) -> list:
             problems.append(normalized_row)
     return problems
 
+def load_prompt(prompt_type: str, version: str) -> str:
+    """
+    Load a prompt template from the prompts configuration.
+    
+    Args:
+        prompt_type: Type of prompt (e.g., 'reasoning', 'summarization')
+        version: Version of the prompt to use
+        
+    Returns:
+        The prompt template string
+    """
+    prompt_path = os.path.join("config", "prompts", f"{prompt_type}.yaml")
+    
+    if not os.path.exists(prompt_path):
+        raise FileNotFoundError(f"Prompt file not found: {prompt_path}")
+    
+    with open(prompt_path, "r", encoding="utf-8") as f:
+        prompts = yaml.safe_load(f)
+    
+    if version not in prompts:
+        raise ValueError(f"Prompt version '{version}' not found in {prompt_path}")
+    
+    return prompts[version]["template"]
+
 def run_experiment(
     config_path: str, 
     use_dashboard: bool = False,
@@ -77,6 +102,12 @@ def run_experiment(
     for key, value in kwargs.items():
         if value is not None:
             config[key] = value
+    
+    # Load prompt templates
+    if "prompts" in config:
+        for prompt_type, version in config["prompts"].items():
+            template_key = f"{prompt_type}_prompt_template"
+            config[template_key] = load_prompt(prompt_type, version)
     
     # Start dashboard if requested
     dashboard = None

@@ -19,10 +19,7 @@ top_k: 40
 presence_penalty: 0.0
 frequency_penalty: 0.0
 
-# Prompt templates
-reasoning_prompt_template: |
-  Solve the following reasoning problem step by step. 
-  First, think through the problem carefully in <think> tags, then provide your final answer.
-  
-  PROBLEM:
-  {question} 
+# Prompt configurations
+prompts:
+  reasoning: "v1"  # This references the version in config/prompts/reasoning.yaml
+

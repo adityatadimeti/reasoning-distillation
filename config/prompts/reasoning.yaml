@@ -1,0 +1,25 @@
+# Reasoning prompts for different versions
+v1:
+  template: |
+    Solve the following reasoning problem step by step. 
+    First, think through the problem carefully in <think> tags, then provide your final answer.
+    
+    PROBLEM:
+    {question}
+
+v2:
+  template: |
+    I need you to solve this reasoning problem carefully.
+    Break down your thinking into clear steps, and use <think> tags for your reasoning process.
+    After you've thought it through, provide your final answer.
+    
+    PROBLEM:
+    {question}
+
+v3:
+  template: |
+    You are an expert problem solver. Please solve this problem:
+    {question}
+    
+    Show all your work in <think> tags. Be thorough and methodical.
+    After your thinking process, clearly state your final answer. 
