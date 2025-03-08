@@ -103,9 +103,6 @@ socket.on('status', (data) => {
 
 // Handle experiment status updates
 socket.on('experiment_status', (data) => {
-    console.log(`Received experiment_status event. Status: ${data.status}`);
-    console.log(`Has config: ${Boolean(data.config)}`);
-    
     // Update only the fields that are present in the data
     if (data.experiment_name !== undefined) experimentState.experiment_name = data.experiment_name;
     if (data.completed !== undefined) experimentState.completed = data.completed;
@@ -121,7 +118,6 @@ socket.on('experiment_status', (data) => {
     `;
     
     if (experimentState.config) {
-        console.log('Adding config details to UI');
         html += '<details class="config-details">';
         html += '<summary class="config-summary"><strong>Config</strong></summary>';
         html += '<div class="config-container">';

@@ -115,12 +115,12 @@ def run_experiment(
         dashboard = DashboardServer(port=config.get("dashboard_port", 5000))
         dashboard.start(open_browser=True)
         
-        # Send initial experiment status
+        # Initial status update
         logger.info("Sending initial experiment status with config")
         dashboard.update_experiment_status({
             "experiment_name": config.get("experiment_name", "Summarization"),
             "status": "Starting",
-            "config": config
+            "config": config  # Send full config only once
         })
         
         # Give the dashboard client time to connect
@@ -132,14 +132,13 @@ def run_experiment(
     # Show problem count
     logger.info(f"Loaded {len(problems)} problems")
     
-    # Update dashboard with problem count
+    # When updating with problem count
     if dashboard:
         logger.info("Sending running status update with config")
         dashboard.update_experiment_status({
             "total": len(problems),
             "completed": 0,
-            "status": "Running",
-            "config": config
+            "status": "Running"
         })
     
     # Create experiment
@@ -152,14 +151,12 @@ def run_experiment(
     # Run experiment
     results = experiment.run(problems)
     
-    # Update dashboard with completion status
+    # Final completion status
     if dashboard:
         logger.info("Sending completion status update with config")
         dashboard.update_experiment_status({
             "status": "Completed",
-            "completed": len(problems),
-            "total": len(problems),
-            "config": config
+            "completed": len(problems)
         })
     
     # Save results
