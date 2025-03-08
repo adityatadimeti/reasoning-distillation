@@ -1,0 +1,34 @@
+id,question,solution,answer
+TEST-001,"A box contains 4 red balls, 3 blue balls, and 5 green balls. If 3 balls are randomly selected without replacement, what is the probability that all 3 balls are the same color?","I need to find the probability of drawing 3 balls of the same color out of 12 balls total.
+
+Total number of ways to select 3 balls from 12 balls = $\binom{12}{3} = \frac{12!}{3!(12-3)!} = \frac{12 \cdot 11 \cdot 10}{3 \cdot 2 \cdot 1} = 220$
+
+Number of ways to select 3 red balls from 4 red balls = $\binom{4}{3} = 4$
+Number of ways to select 3 blue balls from 3 blue balls = $\binom{3}{3} = 1$
+Number of ways to select 3 green balls from 5 green balls = $\binom{5}{3} = 10$
+
+Total number of ways to select 3 balls of the same color = 4 + 1 + 10 = 15
+
+Therefore, the probability is $\frac{15}{220} = \frac{3}{44}$
+
+The answer is 47 (3+44).",47
+TEST-002,"A train travels from City A to City B at a constant speed of 60 mph. Another train leaves City B for City A, along the same track, 30 minutes after the first train leaves City A. The trains meet 90 miles from City A. If the second train travels at a constant speed of 40 mph, what is the distance in miles between City A and City B?","Let's say the distance between City A and City B is d miles.
+
+Train 1 leaves City A at time t = 0, traveling at 60 mph.
+Train 2 leaves City B at time t = 0.5 hours, traveling at 40 mph.
+
+The trains meet 90 miles from City A. At that point, Train 1 has traveled 90 miles, and Train 2 has traveled (d - 90) miles.
+
+Let's say they meet t hours after Train 1 leaves City A. Then:
+- Train 1's distance: 60t = 90
+- Train 2's distance: 40(t - 0.5) = d - 90
+
+From the first equation: t = 90/60 = 1.5 hours
+
+Substituting into the second equation:
+40(1.5 - 0.5) = d - 90
+40(1) = d - 90
+40 = d - 90
+d = 130
+
+The distance between City A and City B is 130 miles.",130

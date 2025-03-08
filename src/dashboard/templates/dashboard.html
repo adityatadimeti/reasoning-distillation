@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reasoning Experiment Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <!-- Add debug elements to show template variables -->
+    <!--
+        FLASK TEMPLATE DEBUG INFO:
+        Static Mode: {% if static_mode %}TRUE{% else %}FALSE{% endif %}
+        Static Results: {% if static_results %}PRESENT (length: {{ static_results|length }}){% else %}MISSING{% endif %}
+        Error: {% if error %}{{ error }}{% else %}NONE{% endif %}
+    -->
+    
+    <!-- Set static mode flag for JavaScript -->
+    <script>
+        // Debug info for JavaScript
+        console.log("TEMPLATE VARS - Static Mode: {% if static_mode %}TRUE{% else %}FALSE{% endif %}");
+        console.log("TEMPLATE VARS - Static Results: {% if static_results %}PRESENT{% else %}MISSING{% endif %}");
+        
+        window.DASHBOARD_STATIC_MODE = {% if static_mode %}true{% else %}false{% endif %};
+    </script>
+    
+    <!-- Load socket.io only in dynamic mode -->
+    {% if not static_mode %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    {% endif %}
+    
+    <!-- Make static results available if present -->
+    {% if static_results %}
+    <script>
+        try {
+            console.log("Static results detected in template");
+            // Directly assign the JSON object without parsing
+            window.staticResults = {{ static_results|tojson|safe }};
+            console.log('Static results loaded successfully, found', 
+                window.staticResults.results ? window.staticResults.results.length : 0, 'problems');
+        } catch (e) {
+            console.error('Error loading static results:', e);
+        }
+    </script>
+    {% endif %}
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Reasoning Experiment Dashboard</h1>
+            <div id="status-bar">
+                {% if static_results %}
+                <span id="static-mode">Static Mode - Viewing Saved Results</span>
+                {% else %}
+                Status: <span id="connection-status">Connecting...</span>
+                {% endif %}
+            </div>
+        </header>
+        
+        <div class="experiment-info">
+            <h2>Experiment Information</h2>
+            <div id="experiment-details">
+                <p>Waiting for experiment to start...</p>
+            </div>
+        </div>
+        
+        <div class="problems-container">
+            <h2>Problems</h2>
+            <div id="problems-list">
+                <!-- Problems will be added here dynamically -->
+            </div>
+        </div>
+        
+        <div class="output-container">
+            <h2>Model Output</h2>
+            <div id="current-problem">No problem selected</div>
+            <div id="answer-info" class="answer-info" style="display: none;">
+                <h3>Answer Information</h3>
+                <div class="answer-content"></div>
+            </div>
+            
+            <div class="collapsible-section">
+                <div class="section-header" id="model-output-header">
+                    <h3>Raw Reasoning Trace</h3>
+                    <button class="toggle-btn" aria-expanded="true" title="Collapse section">−</button>
+                </div>
+                <div class="section-content" id="model-output-container">
+                    <pre id="model-output"></pre>
+                </div>
+            </div>
+            
+            <div class="collapsible-section">
+                <div class="section-header" id="summary-header">
+                    <h3>Reasoning Summary</h3>
+                    <button class="toggle-btn" aria-expanded="true" title="Collapse section">−</button>
+                </div>
+                <div class="section-content" id="summary-container">
+                    <div id="summary-info" class="summary-info" style="display: none;">
+                        <div class="summary-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html> 
