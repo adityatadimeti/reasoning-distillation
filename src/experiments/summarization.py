@@ -231,11 +231,8 @@ class SummarizationExperiment(BaseExperiment):
             if not improved_template:
                 raise ValueError("improved_prompt_template must be specified for additional iterations")
             
-            # Create prompt for next iteration
-            improved_prompt = improved_template.format(
-                question=question,
-                summary=summary
-            )
+            # Create prompt for next iteration using simple string replacement
+            improved_prompt = improved_template.replace("{question}", question).replace("{summary}", summary)
             
             # Generate reasoning for next iteration
             if self.dashboard:
