@@ -276,14 +276,17 @@ h2 {
 }
 
 .config-section {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    padding: 0 15px;
 }
 
 .config-section h4 {
-    margin-bottom: 8px;
-    color: #2c3e50;
-    border-bottom: 1px solid #e0e0e0;
-    padding-bottom: 5px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+    color: #333;
+    font-size: 1.1em;
 }
 
 .config-table {
@@ -304,6 +307,23 @@ h2 {
 .config-table td:first-child {
     font-weight: bold;
     width: 40%;
+}
+
+.config-item {
+    margin-bottom: 5px;
+    padding: 3px 0;
+}
+
+.config-key {
+    font-weight: bold;
+    color: #555;
+    display: inline-block;
+    width: 200px;
+    margin-right: 10px;
+}
+
+.config-value {
+    display: inline-block;
 }
 
 /* Prompt Templates */
@@ -402,4 +422,113 @@ h3 {
 h4 {
     margin: 10px 0 5px 0;
     font-size: 1.1rem;
+}
+
+/* Add these styles at the end of the file */
+
+/* Iterations container */
+.iterations-container {
+    margin-top: 20px;
+}
+
+.iteration-section {
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    overflow: hidden;
+    background-color: #f9f9f9;
+}
+
+.iteration-section .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+}
+
+.iteration-section .section-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.iteration-section .section-content {
+    padding: 15px;
+    max-height: 2000px;
+    transition: max-height 0.3s ease;
+    overflow: auto;
+}
+
+.iteration-section .section-content.collapsed {
+    max-height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.iteration-section .iteration-answer,
+.iteration-section .iteration-summary,
+.iteration-section .iteration-reasoning {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.iteration-section .iteration-reasoning {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.iteration-section h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #555;
+    font-size: 1em;
+}
+
+.iteration-section .answer-row {
+    display: flex;
+    margin-bottom: 5px;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.iteration-section .answer-label {
+    width: 150px;
+    font-weight: bold;
+    color: #666;
+}
+
+.iteration-section .answer-value {
+    flex: 1;
+}
+
+.iteration-section .answer-value.correct {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.iteration-section .answer-value.incorrect {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.iteration-section .summary-content,
+.iteration-section .reasoning-content {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.no-data {
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    color: #6c757d;
+    text-align: center;
 } 

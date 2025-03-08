@@ -1,3 +1,12 @@
+// Legacy Dashboard.js 
+// This file is maintained for backward compatibility
+// It forwards to the new modular dashboard files
+
+console.warn('dashboard.js is deprecated. Using modular dashboard files instead.');
+
+// Nothing to do here as the modular files are loaded directly in the HTML
+// This file is just kept to avoid breaking any existing code that might reference it
+
 // Check if we're in static mode (viewing saved results)
 console.log('DEBUG: DASHBOARD_STATIC_MODE typeof =', typeof window.DASHBOARD_STATIC_MODE);
 console.log('DEBUG: DASHBOARD_STATIC_MODE value =', window.DASHBOARD_STATIC_MODE);

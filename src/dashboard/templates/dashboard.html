@@ -21,6 +21,12 @@
         console.log("TEMPLATE VARS - Static Results: {% if static_results %}PRESENT{% else %}MISSING{% endif %}");
         
         window.DASHBOARD_STATIC_MODE = {% if static_mode %}true{% else %}false{% endif %};
+        
+        // Initialize global state
+        window.problemOutputs = {};
+        window.problemStatuses = {};
+        window.summaryInfo = {};
+        window.answerInfo = {};
     </script>
     
     <!-- Load socket.io only in dynamic mode -->
@@ -42,6 +48,12 @@
         }
     </script>
     {% endif %}
+    
+    <!-- Load modular dashboard scripts in correct dependency order -->
+    <script src="{{ url_for('static', filename='dashboard-ui.js') }}"></script>
+    <script src="{{ url_for('static', filename='dashboard-iterations.js') }}"></script>
+    <script src="{{ url_for('static', filename='dashboard-events.js') }}"></script>
+    <script src="{{ url_for('static', filename='dashboard-core.js') }}"></script>
 </head>
 <body>
     <div class="container">
@@ -73,12 +85,20 @@
         <div class="output-container">
             <h2>Model Output</h2>
             <div id="current-problem">No problem selected</div>
+            
+            <!-- Legacy answer info section (will be replaced by iterations) -->
             <div id="answer-info" class="answer-info" style="display: none;">
                 <h3>Answer Information</h3>
                 <div class="answer-content"></div>
             </div>
             
-            <div class="collapsible-section">
+            <!-- New iterations container -->
+            <div id="iterations-container" class="iterations-container">
+                <!-- Iterations will be added here dynamically -->
+            </div>
+            
+            <!-- Legacy sections (hidden but kept for backward compatibility) -->
+            <div class="collapsible-section" style="display: none;">
                 <div class="section-header" id="model-output-header">
                     <h3>Raw Reasoning Trace</h3>
                     <button class="toggle-btn" aria-expanded="true" title="Collapse section">−</button>
@@ -88,7 +108,7 @@
                 </div>
             </div>
             
-            <div class="collapsible-section">
+            <div class="collapsible-section" style="display: none;">
                 <div class="section-header" id="summary-header">
                     <h3>Reasoning Summary</h3>
                     <button class="toggle-btn" aria-expanded="true" title="Collapse section">−</button>
@@ -101,7 +121,5 @@
             </div>
         </div>
     </div>
-    
-    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
 </body>
 </html> 
