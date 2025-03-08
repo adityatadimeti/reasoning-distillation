@@ -91,6 +91,16 @@ h2 {
     border-left-color: #fd7e14;
 }
 
+.problem-card.correct {
+    border-left-color: #28a745;
+    background-color: #d4edda;
+}
+
+.problem-card.incorrect {
+    border-left-color: #dc3545;
+    background-color: #f8d7da;
+}
+
 #model-output {
     background-color: #f8f9fa;
     border: 1px solid #e9ecef;
@@ -115,4 +125,15 @@ h2 {
     border-left: 3px solid #ffc107;
     padding: 5px 10px;
     margin: 5px 0;
+}
+
+/* Add this to highlight the answer in the output */
+.answer-highlight {
+    background-color: #e2f0ff;
+    font-weight: bold;
+    padding: 5px;
+    border-radius: 3px;
+    border: 1px solid #b8daff;
+    margin: 5px 0;
+    display: inline-block;
 } 

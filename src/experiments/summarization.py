@@ -4,7 +4,7 @@ import logging
 
 from src.experiments.base import BaseExperiment
 from src.llm.model_factory import create_model_client
-# from src.reasoning.extractor import extract_answer
+from src.reasoning.extractor import extract_answer
 # from src.reasoning.summarizer import summarize_reasoning
 from src.dashboard.server import DashboardServer
 
@@ -128,14 +128,31 @@ class SummarizationExperiment(BaseExperiment):
                 frequency_penalty=self.config["frequency_penalty"],
             )
         
-        # For now, we're only implementing the first step, so return the result
+        # Extract answer from reasoning
+        initial_answer = extract_answer(initial_reasoning)
+        
+        # Check if answer is correct (simple string comparison)
+        initial_correct = False
+        if initial_answer is not None:
+            initial_correct = initial_answer.strip() == correct_answer.strip()
+        
+        # Construct result dictionary
         result = {
             "problem_id": problem_id,
             "question": question,
             "correct_answer": correct_answer,
             "initial_reasoning": initial_reasoning,
+            "initial_answer": initial_answer,
+            "initial_correct": initial_correct,
             "timestamp": time.time()
         }
+        
+        # Update dashboard with answer information
+        if self.dashboard:
+            self.dashboard.update_problem_status(
+                problem_id, 
+                "correct" if initial_correct else "incorrect"
+            )
         
         return result
     
@@ -195,26 +212,3 @@ class SummarizationExperiment(BaseExperiment):
             self.dashboard.update_problem_status(problem_id, "completed")
             
         return full_response
-    
-    # def _create_reasoning_prompt(self, question: str) -> str:
-    #     """Create a prompt for generating reasoning."""
-    #     template = self.config.get("reasoning_prompt_template", 
-    #         "Solve the following math problem step by step:\n\n{question}"
-    #     )
-    #     return template.format(question=question)
-    
-    # def _create_improved_reasoning_prompt(self, question: str, summary: str) -> str:
-    #     """Create a prompt for generating improved reasoning based on summary."""
-    #     template = self.config.get("improved_reasoning_prompt_template",
-    #         "Solve the following math problem step by step. "
-    #         "Here's a summary of a previous attempt that had errors:\n\n"
-    #         "SUMMARY: {summary}\n\n"
-    #         "PROBLEM: {question}\n\n"
-    #         "Let's solve this correctly:"
-    #     )
-    #     return template.format(question=question, summary=summary)
-    
-    # def _check_answer(self, predicted_answer: str, correct_answer: str) -> bool:
-    #     """Check if the predicted answer matches the correct answer."""
-    #     # Simple string comparison (you might want something more sophisticated)
-    #     return predicted_answer.strip() == correct_answer.strip()

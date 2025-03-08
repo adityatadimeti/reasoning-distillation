@@ -135,19 +135,14 @@ socket.on('model_output', (data) => {
     }
 });
 
-// Format and display model output
+// Format and display model output with answer highlighting
 function updateModelOutput(problemId) {
-    console.log(`updateModelOutput called for problem: ${problemId}`);
-    console.log(`Problem outputs available: ${Object.keys(problemOutputs).join(', ')}`);
-    
     if (!problemOutputs[problemId]) {
-        console.log(`No output for problem: ${problemId}`);
         modelOutputElem.textContent = 'No output yet.';
         return;
     }
     
     let formattedOutput = problemOutputs[problemId];
-    console.log(`Formatting output of length: ${formattedOutput.length}`);
     
     // Highlight <think> sections
     formattedOutput = formattedOutput.replace(
@@ -155,8 +150,11 @@ function updateModelOutput(problemId) {
         '<div class="think-section"><strong>&lt;think&gt;</strong>$1<strong>&lt;/think&gt;</strong></div>'
     );
     
-    // Handle line breaks properly
-    formattedOutput = formattedOutput.replace(/\n/g, '<br>');
+    // Highlight boxed answers
+    formattedOutput = formattedOutput.replace(
+        /\\boxed\{([^{}]+)\}/g,
+        '<span class="answer-highlight">\\boxed{$1}</span>'
+    );
     
     modelOutputElem.innerHTML = formattedOutput;
     
