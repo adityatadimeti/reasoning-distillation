@@ -14,7 +14,8 @@ def summarize_reasoning(
     top_p: float = None,
     top_k: int = None,
     presence_penalty: float = None,
-    frequency_penalty: float = None
+    frequency_penalty: float = None,
+    verbose: bool = False
 ) -> str:
     """
     Generate a summary of the reasoning trace.
@@ -29,6 +30,7 @@ def summarize_reasoning(
         top_k: Top-k sampling parameter
         presence_penalty: Presence penalty parameter
         frequency_penalty: Frequency penalty parameter
+        verbose: Whether to log model calls
         
     Returns:
         The summarized reasoning
@@ -52,6 +54,7 @@ def summarize_reasoning(
             "top_k": top_k,
             "presence_penalty": presence_penalty,
             "frequency_penalty": frequency_penalty,
+            "verbose": verbose
         }
     else:
         # Other model clients
@@ -61,6 +64,7 @@ def summarize_reasoning(
             "top_p": top_p,
             "presence_penalty": presence_penalty,
             "frequency_penalty": frequency_penalty,
+            "verbose": verbose
         }
         # Only add top_k if provided
         if top_k is not None:

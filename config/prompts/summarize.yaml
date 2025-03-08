@@ -55,7 +55,7 @@ error_focused:
 
 testing:
   template: |
-    Please summarize the following thought process. Do not try to solve the problem, your only goal is to summarize the thought process.
+    Please summarize the following thought process. Do not try to solve the problem. Your only goal is to summarize the thought process faithfully and very concisely.
     
     REASONING:
     {reasoning}

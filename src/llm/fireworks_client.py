@@ -99,10 +99,16 @@ class FireworksModelClient(ModelClient):
         self, 
         prompt: str, 
         stream: bool = False,
+        verbose: bool = False,
         **kwargs
     ) -> Union[str, Iterator[str]]:
         """Get a response from the model for a specific prompt."""
         messages = [{"role": "user", "content": prompt}]
+        
+        if verbose:
+            print(f"\n[VERBOSE] Fireworks API Request to {self.model_name}")
+            print(f"[VERBOSE] Messages: {json.dumps(messages, indent=2)}")
+            print(f"[VERBOSE] Parameters: {json.dumps({k: v for k, v in kwargs.items()}, indent=2)}")
         
         if stream:
             response_stream = self.generate_completion(messages, stream=True, **kwargs)

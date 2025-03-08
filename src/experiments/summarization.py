@@ -17,10 +17,14 @@ class SummarizationExperiment(BaseExperiment):
         self, 
         experiment_name: str = "test_summarization", 
         config: Dict[str, Any] = None,
-        dashboard: Optional[DashboardServer] = None
+        dashboard: Optional[DashboardServer] = None,
+        verbose: bool = False
     ):
         """Initialize the summarization experiment."""
         super().__init__(experiment_name, config, dashboard)
+        
+        # Store verbose flag
+        self.verbose = verbose
         
         # Validate required parameters
         required_params = [
@@ -127,6 +131,7 @@ class SummarizationExperiment(BaseExperiment):
                 top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
                 presence_penalty=self.config["presence_penalty"],
                 frequency_penalty=self.config["frequency_penalty"],
+                verbose=self.verbose
             )
         
         # Extract answer from reasoning
@@ -165,7 +170,7 @@ class SummarizationExperiment(BaseExperiment):
         
         # If the initial answer is incorrect and summarization is enabled, try summarization
         # if not initial_correct and self.config.get("enable_summarization", True):
-        if self.config.get("enable_summarization", True): # FOR: ALWAYS SUMMARIZE
+        if self.config.get("enable_summarization", True): # FOR TESTING: ALWAYS SUMMARIZE
             # Get the summarization prompt template
             summarize_template = self.config.get("summarize_prompt_template")
             if not summarize_template:
@@ -187,7 +192,8 @@ class SummarizationExperiment(BaseExperiment):
                 top_p=self.config.get("summary_top_p"),
                 top_k=self.config.get("summary_top_k"),
                 presence_penalty=self.config.get("summary_presence_penalty"),
-                frequency_penalty=self.config.get("summary_frequency_penalty")
+                frequency_penalty=self.config.get("summary_frequency_penalty"),
+                verbose=self.verbose
             )
             
             # Add summary to result
@@ -230,6 +236,7 @@ class SummarizationExperiment(BaseExperiment):
             top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
             presence_penalty=self.config["presence_penalty"],
             frequency_penalty=self.config["frequency_penalty"],
+            verbose=self.verbose
         )
         
         # Process each chunk as it comes in

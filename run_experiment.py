@@ -82,6 +82,7 @@ def load_prompt(prompt_type: str, version: str) -> str:
 def run_experiment(
     config_path: str, 
     use_dashboard: bool = False,
+    verbose: bool = False,
     **kwargs
 ) -> Dict[str, Any]:
     """
@@ -90,6 +91,7 @@ def run_experiment(
     Args:
         config_path: Path to configuration file
         use_dashboard: Whether to use the dashboard
+        verbose: Whether to log all LLM calls
         **kwargs: Additional configuration overrides
         
     Returns:
@@ -145,7 +147,8 @@ def run_experiment(
     experiment = SummarizationExperiment(
         experiment_name=config.get("experiment_name", "summarization"),
         config=config,
-        dashboard=dashboard  # Pass dashboard to experiment
+        dashboard=dashboard,  # Pass dashboard to experiment
+        verbose=verbose
     )
     
     # Run experiment
@@ -172,6 +175,7 @@ def main():
     parser = argparse.ArgumentParser(description="Run a reasoning enhancement experiment")
     parser.add_argument("config", help="Path to configuration file")
     parser.add_argument("--dashboard", action="store_true", help="Enable dashboard")
+    parser.add_argument("--verbose", action="store_true", help="log all LLM calls")
     
     args = parser.parse_args()
     
@@ -179,7 +183,11 @@ def main():
     setup_logging()
     
     try:
-        run_experiment(args.config, use_dashboard=args.dashboard)
+        run_experiment(
+            args.config, 
+            use_dashboard=args.dashboard,
+            verbose=args.verbose
+        )
         logger.info("Experiment completed successfully")
     except Exception as e:
         logger.error(f"Experiment failed: {e}")
