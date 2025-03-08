@@ -33,11 +33,12 @@
     <script>
         try {
             console.log("Static results detected in template");
-            window.staticResults = JSON.parse('{{ static_results|safe }}');
-            console.log('Static results parsed successfully, found', 
+            // Directly assign the JSON object without parsing
+            window.staticResults = {{ static_results|tojson|safe }};
+            console.log('Static results loaded successfully, found', 
                 window.staticResults.results ? window.staticResults.results.length : 0, 'problems');
         } catch (e) {
-            console.error('Error parsing static results:', e);
+            console.error('Error loading static results:', e);
         }
     </script>
     {% endif %}

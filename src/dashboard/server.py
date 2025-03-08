@@ -68,14 +68,21 @@ class DashboardServer:
                 # Log loaded results
                 logger.info(f"Loaded static results with {len(results_data.get('results', []))} problems")
                 
-                # Debugging: log what's being passed to the template
-                results_json = json.dumps(results_data)
-                logger.info(f"Passing static_results to template (length: {len(results_json)} chars)")
+                # Don't convert to JSON string here - let Flask/Jinja handle it with the tojson filter
+                logger.info(f"Passing static_results to template")
+                logger.info(f"static_mode flag set to: True")
+                
+                # Create a debug version of the template context
+                template_context = {
+                    'static_results': results_data,  # Pass the Python object, not a JSON string
+                    'static_mode': True
+                }
+                logger.info(f"Template context keys: {list(template_context.keys())}")
                 
                 # Pass the results data to the template with explicit static mode flag
-                return render_template('dashboard.html', 
-                                      static_results=results_json,
-                                      static_mode=True)
+                rendered = render_template('dashboard.html', **template_context)
+                logger.info(f"Template rendered, size: {len(rendered)} bytes")
+                return rendered
             except Exception as e:
                 return render_template('dashboard.html', error=f"Error loading results: {str(e)}")
     
@@ -181,14 +188,13 @@ class DashboardServer:
                 # Log loaded results
                 logger.info(f"Loaded static results with {len(results_data.get('results', []))} problems")
                 
-                # Debugging: log what's being passed to the template
-                results_json = json.dumps(results_data)
-                logger.info(f"Passing static_results to template (length: {len(results_json)} chars)")
+                # Don't convert to JSON string here - let Flask/Jinja handle it with the tojson filter
+                logger.info(f"Passing static_results to template")
                 logger.info(f"static_mode flag set to: True")
                 
                 # Create a debug version of the template context
                 template_context = {
-                    'static_results': results_json,
+                    'static_results': results_data,  # Pass the Python object, not a JSON string
                     'static_mode': True
                 }
                 logger.info(f"Template context keys: {list(template_context.keys())}")
