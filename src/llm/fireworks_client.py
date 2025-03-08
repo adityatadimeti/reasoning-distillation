@@ -123,3 +123,5 @@ class FireworksModelClient(ModelClient):
                     yield content
             except (KeyError, IndexError) as e:
                 print(f"Error extracting content from chunk: {e}")
+                # Don't let errors break the stream, yield an empty string
+                yield ""

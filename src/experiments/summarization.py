@@ -48,6 +48,7 @@ class SummarizationExperiment(BaseExperiment):
         total_problems = len(problems)
         for i, problem in enumerate(problems):
             problem_id = problem.get("id", str(i+1))
+            
             logger.info(f"Processing problem {problem_id} ({i+1}/{total_problems})")
             
             # Update dashboard
@@ -98,6 +99,7 @@ class SummarizationExperiment(BaseExperiment):
             Result dictionary with original reasoning
         """
         problem_id = problem.get("id", "unknown")
+        
         question = problem["question"]
         correct_answer = problem["answer"]
         
@@ -148,6 +150,10 @@ class SummarizationExperiment(BaseExperiment):
         """
         full_response = ""
         
+        # Update the problem status to show it's processing
+        if self.dashboard:
+            self.dashboard.update_problem_status(problem_id, "in-progress")
+        
         # Get streaming response
         stream = self.reasoning_model.generate_response(
             prompt,
@@ -167,7 +173,14 @@ class SummarizationExperiment(BaseExperiment):
             # Send chunk to dashboard
             if self.dashboard:
                 self.dashboard.stream_model_output(problem_id, chunk)
+                
+                # Add a small delay to ensure chunks are rendered properly
+                # time.sleep(0.01)
         
+        # Update the problem status to completed
+        if self.dashboard:
+            self.dashboard.update_problem_status(problem_id, "completed")
+            
         return full_response
     
     # def _create_reasoning_prompt(self, question: str) -> str:

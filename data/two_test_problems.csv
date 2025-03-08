@@ -1,0 +1,128 @@
+ID,question,solution,answer
+TEST-001,"A box contains 4 red balls, 3 blue balls, and 5 green balls. If 3 balls are randomly selected without replacement, what is the probability that all 3 balls are the same color?","I need to find the probability of drawing 3 balls of the same color out of 12 balls total.
+
+Total number of ways to select 3 balls from 12 balls = $\binom{12}{3} = \frac{12!}{3!(12-3)!} = \frac{12 \cdot 11 \cdot 10}{3 \cdot 2 \cdot 1} = 220$
+
+Number of ways to select 3 red balls from 4 red balls = $\binom{4}{3} = 4$
+Number of ways to select 3 blue balls from 3 blue balls = $\binom{3}{3} = 1$
+Number of ways to select 3 green balls from 5 green balls = $\binom{5}{3} = 10$
+
+Total number of ways to select 3 balls of the same color = 4 + 1 + 10 = 15
+
+Therefore, the probability is $\frac{15}{220} = \frac{3}{44}$
+
+The answer is 47 (3+44).",47
+TEST-002,"A train travels from City A to City B at a constant speed of 60 mph. Another train leaves City B for City A, along the same track, 30 minutes after the first train leaves City A. The trains meet 90 miles from City A. If the second train travels at a constant speed of 40 mph, what is the distance in miles between City A and City B?","Let's say the distance between City A and City B is d miles.
+
+Train 1 leaves City A at time t = 0, traveling at 60 mph.
+Train 2 leaves City B at time t = 0.5 hours, traveling at 40 mph.
+
+The trains meet 90 miles from City A. At that point, Train 1 has traveled 90 miles, and Train 2 has traveled (d - 90) miles.
+
+Let's say they meet t hours after Train 1 leaves City A. Then:
+- Train 1's distance: 60t = 90
+- Train 2's distance: 40(t - 0.5) = d - 90
+
+From the first equation: t = 90/60 = 1.5 hours
+
+Substituting into the second equation:
+40(1.5 - 0.5) = d - 90
+40(1) = d - 90
+40 = d - 90
+d = 130
+
+The distance between City A and City B is 130 miles.",130
+TEST-003,"A sequence is defined recursively by $a_1 = 3$, $a_2 = 7$, and $a_n = a_{n-1} + a_{n-2}$ for $n \geq 3$. What is the remainder when $a_{20}$ is divided by 4?","I'll work out the first several terms of the sequence to look for a pattern.
+
+$a_1 = 3$
+$a_2 = 7$
+$a_3 = a_2 + a_1 = 7 + 3 = 10$
+$a_4 = a_3 + a_2 = 10 + 7 = 17$
+$a_5 = a_4 + a_3 = 17 + 10 = 27$
+$a_6 = a_5 + a_4 = 27 + 17 = 44$
+$a_7 = a_6 + a_5 = 44 + 27 = 71$
+$a_8 = a_7 + a_6 = 71 + 44 = 115$
+
+Let's look at the remainders when divided by 4:
+$a_1 \cong 3 \pmod{4}$
+$a_2 \cong 3 \pmod{4}$
+$a_3 \cong 2 \pmod{4}$
+$a_4 \cong 1 \pmod{4}$
+$a_5 \cong 3 \pmod{4}$
+$a_6 \cong 0 \pmod{4}$
+$a_7 \cong 3 \pmod{4}$
+$a_8 \cong 3 \pmod{4}$
+
+I notice the pattern of remainders repeats with period 6: 3, 3, 2, 1, 3, 0, ...
+
+To find $a_{20} \pmod{4}$, I need to find where 20 falls in this cycle.
+20 ÷ 6 = 3 remainder 2
+So $a_{20}$ is in the same position as $a_2$ in the cycle.
+Therefore, $a_{20} \cong 3 \pmod{4}$
+
+The remainder when $a_{20}$ is divided by 4 is 3.",3
+TEST-004,"In a regular hexagon ABCDEF with side length 1, what is the area of the quadrilateral formed by connecting the midpoints of sides AB, BC, DE, and EF?","Let's establish a coordinate system with the center of the hexagon at the origin, and vertex A at (1, 0).
+
+For a regular hexagon with side length 1, the distance from the center to any vertex is also 1.
+
+The vertices of the hexagon are:
+A = (1, 0)
+B = (0.5, 0.866)
+C = (-0.5, 0.866)
+D = (-1, 0)
+E = (-0.5, -0.866)
+F = (0.5, -0.866)
+
+The midpoints of the sides are:
+AB midpoint = (0.75, 0.433)
+BC midpoint = (0, 0.866)
+DE midpoint = (-0.75, -0.433)
+EF midpoint = (0, -0.866)
+
+The quadrilateral formed by these midpoints has vertices (0.75, 0.433), (0, 0.866), (-0.75, -0.433), and (0, -0.866).
+
+I can calculate the area using the Shoelace formula:
+Area = 1/2 × |x₁(y₂-y₄) + x₂(y₃-y₁) + x₃(y₄-y₂) + x₄(y₁-y₃)|
+
+Substituting the coordinates:
+Area = 1/2 × |0.75(0.866-(-0.866)) + 0((-0.433)-0.433) + (-0.75)((-0.866)-0.866) + 0(0.433-(-0.433))|
+     = 1/2 × |0.75(1.732) + 0 + (-0.75)((-1.732)) + 0|
+     = 1/2 × |1.299 + 1.299|
+     = 1/2 × 2.598
+     = 1.299
+
+The area of the quadrilateral is 1.299, which equals $\frac{3\sqrt{3}}{4}$ or approximately 1.299.",1.299
+TEST-005,"A fair six-sided die is rolled 4 times. What is the probability that the product of the 4 numbers rolled is a multiple of 8?","For a number to be a multiple of 8, it must be divisible by 2³. I need to determine when the product of 4 die rolls is divisible by 8.
+
+A die has numbers 1, 2, 3, 4, 5, and 6. Let's analyze which of these contribute factors of 2:
+- 1: provides factor 2⁰
+- 2: provides factor 2¹
+- 3: provides factor 2⁰
+- 4: provides factor 2²
+- 5: provides factor 2⁰
+- 6: provides factor 2¹
+
+To get a product divisible by 2³ (or 8), I need the sum of the exponents of 2 to be at least 3.
+
+Case 1: Roll at least one 4 (contributing 2²)
+Probability = 1 - (probability of rolling no 4s)
+Probability = 1 - (5/6)⁴ = 1 - 625/1296 = 671/1296
+
+Case 2: Roll no 4s, but at least three 2s or 6s (each contributing 2¹)
+Probability = (5/6)⁴ × (probability of at least three 2s or 6s given no 4s)
+
+The probability of rolling a 2 or 6 given no 4s = 2/5
+The probability of rolling a 1, 3, or 5 given no 4s = 3/5
+
+We need at least three 2s or 6s, so:
+Probability = (5/6)⁴ × [C(4,3) × (2/5)³ × (3/5)¹ + C(4,4) × (2/5)⁴]
+            = 625/1296 × [4 × 8/625 × 3/5 + 16/625]
+            = 625/1296 × [96/625 + 16/625]
+            = 625/1296 × 112/625
+            = 112/1296
+            = 28/324
+            = 7/81
+
+Total probability = 671/1296 + 7/81 = 671/1296 + 112/1296 = 783/1296 = 261/432
+
+The answer in the format of the sum of numerator and denominator is 261 + 432 = 693.",693 

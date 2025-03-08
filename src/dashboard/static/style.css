@@ -98,10 +98,11 @@ h2 {
     padding: 15px;
     margin-top: 10px;
     white-space: pre-wrap;
-    height: 400px;
+    height: 500px;
     overflow-y: auto;
     font-family: "Courier New", Courier, monospace;
     font-size: 14px;
+    line-height: 1.5;
 }
 
 #current-problem {

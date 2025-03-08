@@ -60,8 +60,9 @@ socket.on('problem_status', (data) => {
         const problemCard = document.createElement('div');
         problemCard.id = `problem-${problem_id}`;
         problemCard.className = `problem-card ${status}`;
+        
         problemCard.innerHTML = `
-            <strong>Problem ${problem_id}</strong>
+            <strong>${problem_id}</strong>
             <div class="problem-status">${status}</div>
         `;
         
@@ -81,11 +82,16 @@ socket.on('problem_status', (data) => {
             problemCard.classList.add('active');
             
             // Update output display
-            currentProblemElem.textContent = `Problem ${problem_id}`;
+            currentProblemElem.textContent = problem_id;
             updateModelOutput(problem_id);
         });
         
         problemsListElem.appendChild(problemCard);
+        
+        // Auto-select first problem
+        if (!activeProblemId) {
+            problemCard.click();
+        }
     }
 });
 
@@ -103,6 +109,14 @@ socket.on('model_output', (data) => {
     if (problem_id === activeProblemId) {
         updateModelOutput(problem_id);
     }
+    
+    // Auto-select this problem if no problem is currently selected
+    if (!activeProblemId) {
+        const problemCard = document.getElementById(`problem-${problem_id}`);
+        if (problemCard) {
+            problemCard.click();
+        }
+    }
 });
 
 // Format and display model output
@@ -119,6 +133,9 @@ function updateModelOutput(problemId) {
         /<think>([\s\S]*?)<\/think>/g, 
         '<div class="think-section"><strong>&lt;think&gt;</strong>$1<strong>&lt;/think&gt;</strong></div>'
     );
+    
+    // Handle line breaks properly
+    formattedOutput = formattedOutput.replace(/\n/g, '<br>');
     
     modelOutputElem.innerHTML = formattedOutput;
     
