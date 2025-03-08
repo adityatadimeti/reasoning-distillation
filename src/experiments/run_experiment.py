@@ -41,7 +41,16 @@ def load_problems(data_path: str) -> list:
     with open(data_path, "r", encoding="utf-8") as f:
         csv_reader = csv.DictReader(f)
         for row in csv_reader:
-            problems.append(row)
+            # Create a normalized copy of the row with consistent keys
+            normalized_row = {}
+            for key, value in row.items():
+                # Ensure ID field is available with both casings
+                if key.lower() == 'id':
+                    normalized_row['id'] = value
+                    normalized_row['ID'] = value
+                else:
+                    normalized_row[key] = value
+            problems.append(normalized_row)
     return problems
 
 def run_experiment(

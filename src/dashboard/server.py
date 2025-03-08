@@ -94,6 +94,7 @@ class DashboardServer:
             problem_id: ID of the problem
             chunk: Text chunk from the model
         """
+        logger.debug(f"Streaming chunk to dashboard for problem ID: {problem_id}")
         if self.thread and self.thread.is_alive():
             self.socketio.emit('model_output', {
                 'problem_id': problem_id,

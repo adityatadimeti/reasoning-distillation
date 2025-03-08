@@ -47,7 +47,8 @@ class SummarizationExperiment(BaseExperiment):
         """Run the summarization experiment on a list of problems."""
         total_problems = len(problems)
         for i, problem in enumerate(problems):
-            problem_id = problem.get("id", str(i+1))
+            # Handle different case variations of 'id' field
+            problem_id = problem.get("id", problem.get("ID", str(i+1)))
             
             logger.info(f"Processing problem {problem_id} ({i+1}/{total_problems})")
             
@@ -98,7 +99,8 @@ class SummarizationExperiment(BaseExperiment):
         Returns:
             Result dictionary with original reasoning
         """
-        problem_id = problem.get("id", "unknown")
+        # Handle different case variations of 'id' field
+        problem_id = problem.get("id", problem.get("ID", "unknown"))
         
         question = problem["question"]
         correct_answer = problem["answer"]
@@ -150,6 +152,9 @@ class SummarizationExperiment(BaseExperiment):
         """
         full_response = ""
         
+        # Add debug logging
+        logger.debug(f"Streaming for problem ID: {problem_id}")
+        
         # Update the problem status to show it's processing
         if self.dashboard:
             self.dashboard.update_problem_status(problem_id, "in-progress")
@@ -170,12 +175,11 @@ class SummarizationExperiment(BaseExperiment):
         for chunk in stream:
             full_response += chunk
             
-            # Send chunk to dashboard
+            # Send chunk to dashboard with debug
             if self.dashboard:
+                logger.debug(f"Streaming chunk to problem ID: {problem_id}")
                 self.dashboard.stream_model_output(problem_id, chunk)
                 
-                # Add a small delay to ensure chunks are rendered properly
-                # time.sleep(0.01)
         
         # Update the problem status to completed
         if self.dashboard:

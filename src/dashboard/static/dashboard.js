@@ -99,34 +99,49 @@ socket.on('problem_status', (data) => {
 socket.on('model_output', (data) => {
     const { problem_id, chunk } = data;
     
+    console.log(`Received chunk for problem_id: ${problem_id}`);
+    
     // Store the chunk
     if (!problemOutputs[problem_id]) {
         problemOutputs[problem_id] = '';
+        console.log(`Initializing output storage for problem_id: ${problem_id}`);
     }
     problemOutputs[problem_id] += chunk;
     
     // If this is the active problem, update the display
     if (problem_id === activeProblemId) {
+        console.log(`Updating display for active problem: ${problem_id}`);
         updateModelOutput(problem_id);
+    } else {
+        console.log(`Not updating display. Active: ${activeProblemId}, Received: ${problem_id}`);
     }
     
     // Auto-select this problem if no problem is currently selected
     if (!activeProblemId) {
+        console.log(`No active problem, attempting to select: ${problem_id}`);
         const problemCard = document.getElementById(`problem-${problem_id}`);
         if (problemCard) {
+            console.log(`Found problem card, clicking: ${problem_id}`);
             problemCard.click();
+        } else {
+            console.log(`Problem card not found for: ${problem_id}`);
         }
     }
 });
 
 // Format and display model output
 function updateModelOutput(problemId) {
+    console.log(`updateModelOutput called for problem: ${problemId}`);
+    console.log(`Problem outputs available: ${Object.keys(problemOutputs).join(', ')}`);
+    
     if (!problemOutputs[problemId]) {
+        console.log(`No output for problem: ${problemId}`);
         modelOutputElem.textContent = 'No output yet.';
         return;
     }
     
     let formattedOutput = problemOutputs[problemId];
+    console.log(`Formatting output of length: ${formattedOutput.length}`);
     
     // Highlight <think> sections
     formattedOutput = formattedOutput.replace(
