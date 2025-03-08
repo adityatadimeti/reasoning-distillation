@@ -1,0 +1,62 @@
+id,question,solution,answer
+2024-I-8,"Eight circles of radius $34$ are sequentially tangent, and two of the circles are tangent to $AB$ and $BC$ of triangle $ABC$, respectively. $2024$ circles of radius $1$ can be arranged in the same manner. The inradius of triangle $ABC$ can be expressed as $\frac{m}{n}$, where $m$ and $n$ are relatively prime positive integers. Find $m+n$.","Draw an altitude from both end circles of the diagram with the circles of radius one, and call the lengths you get drawing the altitudes of the circles down to $BC$ $a$ and $b$. Now we have the length of side $BC$ of being $(2)(2022)+1+1+a+b$. However, the side $BC$ can also be written as $(6)(68)+34+34+34a+34b$, due to similar triangles from the second diagram. If we set the equations equal, we have $\frac{1190}{11} = a+b$. Call the radius of the incircle $r$, then we have the side BC to be $r(a+b)$. We find $r$ as $\frac{4046+\frac{1190}{11}}{\frac{1190}{11}}$, which simplifies to $\frac{10+((34)(11))}{10}$, so we have $\frac{192}{5}$, which sums to $\boxed{197}$.",197
+2024-I-12,Define $f(x)=|| x|-\tfrac{1}{2}|$ and $g(x)=|| x|-\tfrac{1}{4}|$. Find the number of intersections of the graphs of \[y=4 g(f(\sin (2 \pi x))) \quad\text{ and }\quad x=4 g(f(\cos (3 \pi y))).\],"We will denote $h(x)=4g(f(x))$ for simplicity. Denote $p(x)$ as the first equation and $q(y)$ as the graph of the second. We notice that both $f(x)$ and $g(x)$ oscillate between 0 and 1. The intersections are thus all in the square $(0,0)$, $(0,1)$, $(1,1)$, and $(1,0)$. Every $p(x)$ wave going up and down crosses every $q(y)$ wave. Now, we need to find the number of times each wave touches 0 and 1.
+
+We notice that $h(x)=0$ occurs at $x=-\frac{3}{4}, -\frac{1}{4}, \frac{1}{4}, \frac{3}{4}$, and $h(x)=1$ occurs at $x=-1, -\frac{1}{2}, 0,\frac{1}{2},1$. A sinusoid passes through each point twice during each period, but it only passes through the extrema once. $p(x)$ has 1 period between 0 and 1, giving 8 solutions for $p(x)=0$ and 9 solutions for $p(x)=1$, or 16 up and down waves. $q(y)$ has 1.5 periods, giving 12 solutions for $q(y)=0$ and 13 solutions for $q(y)=1$, or 24 up and down waves. This amounts to $16\cdot24=384$ intersections.
+
+However, we have to be very careful when counting around $(1, 1)$. At this point, $q(y)$ has an infinite downwards slope and $p(x)$ is slanted, giving us an extra intersection; thus, we need to add 1 to our answer to get $\boxed{385}$.",385
+2024-I-11,"Each vertex of a regular octagon is independently colored either red or blue with equal probability. The probability that the octagon can then be rotated so that all of the blue vertices end up at positions where there were originally red vertices is $\tfrac{m}{n}$, where $m$ and $n$ are relatively prime positive integers. What is $m+n$?","Let $r$ be the number of red vertices and $b$ be the number of blue vertices, where $r+b=8$. By the Pigeonhole Principle, $r\geq{b} \Longrightarrow b\leq4$ if a configuration is valid.
+
+We claim that if $b\leq3$, then any configuration is valid. We attempt to prove by the following:
+
+If there are $b\in{0,1,2}$ vertices, then intuitively any configuration is valid. For $b=3$, we do cases:
+
+If all the vertices in $b$ are non-adjacent, then simply rotating once in any direction suffices. If there are $2$ adjacent vertices, then WLOG let us create a set $\{b_1,b_2,r_1\cdots\}$ where the third $b_3$ is somewhere later in the set. If we assign the set as $\{1,2,3,4,5,6,7,8\}$ and $b_3\leq4$, then intuitively, rotating it $4$ will suffice. If $b_3=5$, then rotating it by 2 will suffice. Consider any other $b_3>5$ as simply a mirror to a configuration of the cases.
+
+Therefore, if $b\leq3$, then there are $\sum_{i=0}^{3}{\binom{8}{i}}=93$ ways. We do count the degenerate case.
+
+Now if $b=4$, we do casework on the number of adjacent vertices. 0 adjacent: $\{b_1,r_1,b_2,r_2\cdots{r_4}\}$. There are 4 axes of symmetry so there are only $\frac{8}{4}=2$ rotations of this configuration.
+
+1 adjacent: WLOG $\{b_1,b_2\cdots{b_3}\cdots{b_4}\}$ where $b_4\neq{8}$. Listing out the cases and trying, we get that $b_3=4$ and $b_4=7$ is the only configuration. There are $8$ ways to choose $b_1$ and $b_2$ and the rest is set, so there are $8$ ways.
+
+2 adjacent: We can have WLOG $\{b_1,b_2\cdots{b_3},b_4\}$ or $\{b_1,b_2,b_3\cdots\}$ where $b_4\neq{8}$. The former yields the case $b_3=5$ and $b_4=6$ by simply rotating it 2 times. The latter yields none. There are 2 axes of symmetry so there are $\frac{8}{2}=4$ configurations.
+
+3 adjacent: WLOG $\{b_1,b_2,b_3,b_4\cdots\}$ which intuitively works. There are $8$ configurations here as $b_1$ can is unique.
+
+In total, $b=4$ yields $2+8+4+8=22$ configurations.
+
+There are $22+93=115$ configurations in total. There are $2^8=256$ total cases, so the probability is $\frac{115}{256}$. Adding them up, we get $115+256=\boxed{371}$.",371
+2024-I-13,Let $p$ be the least prime number for which there exists a positive integer $n$ such that $n^{4}+1$ is divisible by $p^{2}$. Find the least positive integer $m$ such that $m^{4}+1$ is divisible by $p^{2}$.,"Note that $n^4 + 1 \equiv 0 \pmod{p}$ means $\text{ord}_{p}(n) = 8 \mid p-1.$ The smallest prime that does this is $17$ and $2^4 + 1 = 17$ for example. Now let $g$ be a primitive root of $17^2.$ The satisfying $n$ are of the form, $g^{\frac{p(p-1)}{8}}, g^{3\frac{p(p-1)}{8}}, g^{5\frac{p(p-1)}{8}}, g^{7\frac{p(p-1)}{8}}.$ So if we find one such $n$, then all $n$ are $n, n^3, n^5, n^7.$ Consider the $2$ from before. Note $17^2 \mid 2^{4 \cdot 17} + 1$ by LTE. Hence the possible $n$ are, $2^{17}, 2^{51}, 2^{85}, 2^{119}.$ Some modular arithmetic yields that $2^{51} \equiv \boxed{110}$ is the least value.",110
+2024-II-15,Find the number of rectangles that can be formed inside a fixed regular dodecagon (12-gon) where each side of the rectangle lies on either a side or a diagonal of the dodecagon. The diagram below shows three of those rectangles.,"We put the dodecagon in the right position that there exists a side whose slope is 0. Note that finding a rectangle is equivalent to finding two pairs of lines, such that two lines in each pair are parallel and lines from different pairs are perpendicular. Now, we use this property to count the number of rectangles.
+
+Because two pairs of lines that form a rectangle are perpendicular, we only need to use the slope of one pair, denoted as k, to determine the direction of the rectangle. The slope of the other pair is thus - 1/k. To avoid overcounting, we do casework analysis by defining each case in term of 0 ≤ k < ∞ only (we make a convention that if k = 0, then -1/k = ∞).
+
+In our counting, we will frequently quantify the distance between two vertices of the regular dodecagon. To characterize this in a straightforward way, we simply measure the number of vertices (on the minor arc) between our measured two vertices. For instance, two vertices on a side has distance 0. Distances between two vertices that are diagonals can be 1, 2, 3, 4, 5.
+
+Case 1: k = 0, tan(30°), tan(60°).
+We only count for k = 0. The number of solutions for k = tan(30°) and tan(60°) are the same.
+Consider k = 0. We need to find a pair of horizontal segments and a pair of vertical segments to form a rectangle.
+For k = 0, the length of each horizontal segment can only be 0, 2, 4.
+Denote by 2i the shorter length of two parallel horizontal segments. Given i, the number of pairs of two parallel horizontal segments is 1 + 2(4 - 2i).
+Given i, to form a rectangle, the number of pairs of vertical segments is C(2i + 2, 2).
+Therefore, for k = 0, the number of rectangles is sum(i=0 to 2) of (1 + 2(4 - 2i)) * C(2i + 2, 2) = 54.
+The number of rectangles for k = tan(30°) and tan(60°) are the same. Therefore, the total number of rectangles in this case is 54 * 3 = 162.
+
+Case 2: k = tan(15°), tan(45°), tan(75°).
+The number of rectangles under all these ks are the same. So we only count for k = tan(15°).
+For k = tan(15°), the length of each segment can only be 1, 3, 5. However, there is only one segment with length 5. So this cannot be the shorter length of two parallel segments with slope tan(15°).
+Denote by 2i + 1 the shorter length of two parallel segments with slope tan(15°). Given i, the number of pairs of two parallel segments is 1 + 2(3 - 2i).
+Given i, to form a rectangle, the number of pairs of vertical segments is C(2i + 3, 2).
+Therefore, for k = tan(15°), the number of rectangles is sum(i=0 to 1) of (1 + 2(3 - 2i)) * C(2i + 3, 2) = 51.
+The number of rectangles for k = tan(45°) and tan(75°) are the same. Therefore, the total number of rectangles in this case is 51 * 3 = 153.
+
+Putting all cases together, the total number of rectangles is 162 + 153 = 315.",315
+2024-II-9,"There is a collection of $25$ indistinguishable white chips and $25$ indistinguishable black chips. Find the number of ways to place some of these chips in the $25$ unit cells of a $5\times5$ grid such that:
+
+each cell contains at most one chip
+all chips in the same row and all chips in the same column have the same colour
+any additional chip placed on the grid would violate one or more of the previous two conditions.","The problem says 'some', so not all cells must be occupied. We start by doing casework on the column on the left. There can be 5, 4, 3, 2, or 1 black chip. The same goes for white chips, so we will multiply by 2 at the end. There is $1$ way to select $5$ cells with black chips. Because of the 2nd condition, there can be no white, and the grid must be all black, yielding $1$ way. There are $5$ ways to select $4$ cells with black chips. We now consider the row that does not contain a black chip. The first cell must be blank, and the remaining $4$ cells have $2^4 - 1$ different ways ($-1$ comes from all blank). This gives us $75$ ways. Notice that for $3$, $2$, or $1$ black chips on the left, there is a pattern. Once the first blank row is chosen, the rest of the blank rows must be ordered similarly. For example, with $2$ black chips on the left, there will be $3$ blank rows. There are $15$ ways for the first row to be chosen, and the following $2$ rows must have the same order. Thus, the number of ways for $3$, $2$, and $1$ black chips is $10\times 15$, $10\times 15$, $5\times 15$. Adding these up, we have $1 + 75 + 150 + 150 + 75 = 451$. Multiplying this by $2$, we get $902$.",902
+2024-I-14,"Let $ABCD$ be a tetrahedron such that $AB=CD= \sqrt{41}$, $AC=BD= \sqrt{80}$, and $BC=AD= \sqrt{89}$. There exists a point $I$ inside the tetrahedron such that the distances from $I$ to each of the faces of the tetrahedron are all equal. This distance can be written in the form $\frac{m \sqrt n}{p}$, where $m$, $n$, and $p$ are positive integers, $m$ and $p$ are relatively prime, and $n$ is not divisible by the square of any prime. Find $m+n+p$.","We use the formula for the volume of an isosceles tetrahedron. $V = \sqrt{(a^2 + b^2 - c^2)(b^2 + c^2 - a^2)(a^2 + c^2 - b^2)/72}$.
+Note that all faces have equal area due to equal side lengths. By the Law of Cosines, we find \[\cos{\angle ACB} = \frac{80 + 89 - 41}{2\sqrt{80\cdot 89}} = \frac{16}{\sqrt{445}}.\].
+From this, we find \[\sin{\angle ACB} = \sqrt{1 - \cos^2{\angle ACB}} = \sqrt{1 - \frac{256}{445}} = \sqrt{\frac{189}{445}}\] and can find the area of $\triangle ABC$ as \[A = \frac{1}{2} \sqrt{89\cdot 80}\cdot \sin{\angle ACB} = 6\sqrt{21}.\]
+Let $R$ be the distance we want to find. By taking the sum of (equal) volumes \[ [ABCI] + [ABDI] + [ACDI] + [BCDI] = V,\] we have \[V = \frac{4AR}{3}.\] Plugging in and simplifying, we get $R = \frac{20\sqrt{21}}{63}$ for an answer of $20 + 21 + 63 = \boxed{104}$.",104
