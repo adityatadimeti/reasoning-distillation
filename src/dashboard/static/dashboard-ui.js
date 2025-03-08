@@ -239,8 +239,32 @@ function createProblemCard(problemId, title, status) {
 
 // Update the display for a problem
 function updateProblemDisplay(problemId) {
+    // Get the full problem data
+    const problem = window.problemData && window.problemData[problemId];
+    const question = problem ? problem.question : '';
+    
     // Update current problem display
-    document.getElementById('current-problem').textContent = `Problem: ${problemId}`;
+    const currentProblemElem = document.getElementById('current-problem');
+    currentProblemElem.innerHTML = `
+        <div class="problem-header">
+            <span>Problem: ${problemId}</span>
+            <button class="toggle-btn" aria-expanded="true" title="Collapse section">−</button>
+        </div>
+        <div class="problem-content" id="problem-content">
+            <div class="problem-question">${question || 'No question text available'}</div>
+        </div>
+    `;
+    
+    // Set up toggle for problem content
+    const problemHeader = currentProblemElem.querySelector('.problem-header');
+    const problemContent = document.getElementById('problem-content');
+    const toggleBtn = problemHeader.querySelector('.toggle-btn');
+    
+    if (problemHeader && problemContent && toggleBtn) {
+        problemHeader.addEventListener('click', () => {
+            toggleSection(problemContent, toggleBtn);
+        });
+    }
     
     // Use the new iterations UI
     DashboardIterations.updateIterationsUI(problemId);

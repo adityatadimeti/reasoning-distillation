@@ -6,13 +6,15 @@ if (!window.problemOutputs) window.problemOutputs = {};
 if (!window.problemStatuses) window.problemStatuses = {};
 if (!window.summaryInfo) window.summaryInfo = {}; 
 if (!window.answerInfo) window.answerInfo = {};
+if (!window.problemData) window.problemData = {}; // Store problem information like questions
 
 // Log globals for debugging
 console.log('Global state initialized:', {
     problemOutputs: window.problemOutputs,
     problemStatuses: window.problemStatuses,
     summaryInfo: window.summaryInfo,
-    answerInfo: window.answerInfo
+    answerInfo: window.answerInfo,
+    problemData: window.problemData
 });
 
 // Store private socket reference
@@ -120,6 +122,11 @@ function initializeStaticDashboard(results) {
 
 // Process static problem result
 function processStaticProblemResult(problemId, result) {
+    // Store problem data
+    window.problemData[problemId] = {
+        question: result.question || ''
+    };
+
     // Create iterations structure
     window.problemOutputs[problemId] = {};
     

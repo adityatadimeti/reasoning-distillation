@@ -29,6 +29,12 @@ function registerEventHandlers(socket) {
         const { problem_id, status, question } = data;
         console.log(`Problem ${problem_id} status: ${status}`);
         
+        // Store problem data globally
+        if (!window.problemData) window.problemData = {};
+        if (question && !window.problemData[problem_id]) {
+            window.problemData[problem_id] = { question };
+        }
+        
         // Check if this is a summarizing status
         if (status && status.includes('summarizing')) {
             // Extract the iteration number
