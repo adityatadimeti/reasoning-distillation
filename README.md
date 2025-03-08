@@ -1,53 +1,160 @@
-# Project Overview: Improving Reasoning Models through Self-Summarization
+# Reasoning Distillation
 
-We're working on a research project that aims to improve how AI reasoning models solve complex problems. Let me explain what the project is about and where we currently stand.
+A framework for running experiments on AI reasoning, summarization, and reasoning enhancement.
 
-## The Research Problem
+## Setup
 
-Modern AI reasoning models like DeepSeek-R1 can solve complex math and logic problems by generating detailed step-by-step reasoning (often marked with `<think>` tags). However, we've identified an interesting gap: when these models make a single attempt at a problem (pass@1), they achieve about 70% accuracy on mathematical benchmarks like AIME. But if allowed multiple attempts (pass@64), accuracy jumps to about 85%.
+### Prerequisites
 
-Our research question: Can we close this gap without the computational expense of 64 separate attempts?
+- Python 3.8+
+- pip
 
-## The Hypothesis
+### Installation
 
-Our hypothesis is that models can improve their reasoning by doing something humans naturally do: summarizing their own work, reflecting on it, and using that reflection to guide further reasoning.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/adityatadimeti/reasoning-distillation.git
+   cd reasoning-distillation
+   ```
 
-The key insight is that we could potentially achieve near pass@64 performance with significantly less computation by having the model:
-1. Generate an initial reasoning trace
-2. Summarize this reasoning
-3. Use this summary to continue or redo its reasoning
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Set up API keys:
+   
+   Create a `.env` file in the root directory with your API keys:
+   ```
+   # API Keys
+   OPENAI_API_KEY=your_openai_api_key
+   FIREWORKS_API_KEY=your_fireworks_api_key
+   
+   # Enable API calls
+   ENABLE_API_CALLS=1
+   ```
+
+## Configuration
+
+### Experiment Configuration
+
+Experiments are configured using YAML files in the `config/experiments` directory. A typical configuration file looks like:
+
+```yaml
+# Experiment configuration
+experiment_name: "test_reasoning_problems"
+results_dir: "./results/test"
+data_path: "./data/simple.csv"
+save_intermediate: true
+
+# Dashboard configuration
+dashboard_port: 8080
+
+# Model configuration
+reasoning_model: "accounts/fireworks/models/qwq-32b"
+summarizer_type: "self"
+
+# Generation parameters
+max_tokens: 16384
+temperature: 0.7
+top_p: 1.0
+top_k: 40
+presence_penalty: 0.0
+frequency_penalty: 0.0
+
+# Summarization parameters
+enable_summarization: true
+summary_max_tokens: 16384
+summary_temperature: 0.7
+summary_top_p: 1.0
+summary_top_k: 40
+summary_presence_penalty: 0.0
+summary_frequency_penalty: 0.0
+
+# Prompt configurations
+prompts:
+  reasoning: "v0"  # This references the version in config/prompts/reasoning.yaml
+  summarize: "testing"  # This references the version in config/prompts/summarize.yaml
+```
+
+### Problem Sets
+
+Problem sets are defined in CSV files in the `data` directory:
+
+```csv
+id,question,solution,answer
+simple,What is 5 + 3?,5 + 3=8,8
+```
+
+Each row contains:
+- `id`: Unique identifier for the problem
+- `question`: The question text
+- `solution`: The solution or explanation
+- `answer`: The expected answer
+
+## Running Experiments
+
+### Basic Usage
+
+To run an experiment with the default settings:
+
+```bash
+python run_experiment.py config/experiments/test.yaml
+```
+
+### Command-line Options
+
+```bash
+python run_experiment.py config/experiments/test.yaml [OPTIONS]
+```
+
+Available options:
+
+- `--dashboard`: Enable the dashboard visualization for experiment progress
+- `--verbose`: Log all LLM API calls, showing the full message arrays and parameters
+
+### Examples
+
+Run an experiment with dashboard visualization (uses `config/experiment/test.yaml`):
+```bash
+python run_experiment.py test --dashboard
+```
+
+Run an experiment with verbose logging:
+```bash
+python run_experiment.py test --verbose
+```
 
 ## Project Structure
 
-We've organized the project as a proper research codebase with:
+- `run_experiment.py`: Main entry point for running experiments
+- `src/`:
+  - `experiments/`: Contains experiment implementations
+    - `summarization.py`: Summarization experiment implementation
+  - `llm/`: LLM client implementations
+    - `openai_client.py`: OpenAI API client
+    - `fireworks_client.py`: Fireworks AI API client
+  - `reasoning/`: Reasoning and summarization utilities
+    - `extractor.py`: Extracts answers from reasoning texts
+    - `summarizer.py`: Summarizes reasoning traces
+  - `dashboard/`: Dashboard for experiment visualization
+- `config/`:
+  - `experiments/`: Experiment configuration files
+  - `prompts/`: Prompt templates
+- `data/`: Problem sets in CSV format
+- `results/`: Output directory for experiment results
 
-- Core modules for working with reasoning models, generating reasoning traces, creating summaries, and evaluating results
-- Configurable pipelines for different experimental approaches
-- Testing infrastructure to validate each component
-- Experiment runners for systematic evaluation
-- Clear separation of data, code, and results
+## Results
 
-## Pipeline Flow
+Experiment results are saved in the specified `results_dir` directory from your configuration. The results include:
 
-The basic flow of our approach is:
+- `config.json`: The configuration used for the experiment
+- `results.json`: The results of the experiment, including questions, answers, and evaluations
 
-1. Generate initial reasoning trace from model
-2. Extract and check answer for correctness
-3. For incorrect answers:
-   - Summarize the reasoning trace (either using the same model or GPT-4o)
-   - Generate new reasoning based on the summary
-   - Extract new answer and check if it's improved
+## Tips
 
-## Current Status
-
-We've completed the repository structure design and are about to start implementing the core components in an iterative, test-driven way. Our plan is to build up from fundamental utilities (configuration, logging) to the complete pipeline, testing each component as we go.
-
-## Research Goals
-
-If successful, this project could:
-1. Demonstrate a novel approach for improving reasoning model performance through reflection
-2. Create a more computationally efficient way to get high-quality reasoning
-3. Potentially lead to a paper at venues like NeurIPS or ICLR, especially if we develop the "summarize tag" approach
-4. Provide insights into how large language models can benefit from reviewing and reflecting on their own reasoning
-
-The project leverages existing state-of-the-art models while introducing a novel framework for enhancing their capabilities through a systematic approach to self-improvement.
+1. When working with Fireworks models, always include the `top_k` parameter in your configuration.
+2. Use the `--verbose` flag during development to see the exact prompts and parameters sent to the LLM.
+3. The dashboard (`--dashboard` flag) provides real-time feedback on experiment progress.
+4. Make sure `ENABLE_API_CALLS=1` is set in your `.env` file to allow the system to make actual API calls.
+5. Check the logs for detailed information about the experiment run.
