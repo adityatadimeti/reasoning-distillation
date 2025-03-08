@@ -55,7 +55,7 @@ error_focused:
 
 testing:
   template: |
-    Please summarize the following reasoning trace in EXACTLY 20 WORDS.
+    Please summarize the following thought process. Do not try to solve the problem, your only goal is to summarize the thought process.
     
     REASONING:
     {reasoning}

@@ -1,7 +1,7 @@
 # Experiment configuration
 experiment_name: "test_reasoning_problems"
 results_dir: "./results/test"
-data_path: "/Users/vivekvajipey/Development/research/reasoning-distillation/data/two_test_problems.csv"
+data_path: "./data/simple.csv"
 save_intermediate: true
 
 # Dashboard configuration

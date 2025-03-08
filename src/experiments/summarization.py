@@ -58,7 +58,8 @@ class SummarizationExperiment(BaseExperiment):
                 self.dashboard.update_experiment_status({
                     "total": total_problems,
                     "completed": i,
-                    "status": f"Processing problem {problem_id}"
+                    "status": f"Processing problem {problem_id}",
+                    "config": self.config  # Include config with every status update
                 })
             
             try:

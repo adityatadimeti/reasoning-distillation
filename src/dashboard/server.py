@@ -27,6 +27,7 @@ class DashboardServer:
         self.socketio = SocketIO(self.app, cors_allowed_origins="*")
         self.thread = None
         self.client_ready = False
+        self.latest_status = None  # Store the latest experiment status
         self.setup_routes()
         self.setup_socketio()
         
@@ -47,6 +48,13 @@ class DashboardServer:
         def handle_client_ready():
             logger.info("Client ready to receive data")
             self.client_ready = True
+            
+        @self.socketio.on('request_current_status')
+        def handle_request_status():
+            logger.info("Client requested current experiment status")
+            if self.latest_status:
+                logger.info(f"Resending latest status: {self.latest_status.get('status', 'unknown')}")
+                emit('experiment_status', self.latest_status)
     
     def start(self, open_browser: bool = True):
         """
@@ -75,7 +83,12 @@ class DashboardServer:
         Args:
             data: Status data to send to the dashboard
         """
+        # Store the latest status
+        self.latest_status = data
+        
         if self.thread and self.thread.is_alive():
+            has_config = 'config' in data
+            logger.info(f"Emitting experiment_status event. Status: {data.get('status')}, Has config: {has_config}")
             self.socketio.emit('experiment_status', data)
     
     def update_problem_status(self, problem_id: str, status: str):

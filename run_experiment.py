@@ -116,6 +116,7 @@ def run_experiment(
         dashboard.start(open_browser=True)
         
         # Send initial experiment status
+        logger.info("Sending initial experiment status with config")
         dashboard.update_experiment_status({
             "experiment_name": config.get("experiment_name", "Summarization"),
             "status": "Starting",
@@ -133,10 +134,12 @@ def run_experiment(
     
     # Update dashboard with problem count
     if dashboard:
+        logger.info("Sending running status update with config")
         dashboard.update_experiment_status({
             "total": len(problems),
             "completed": 0,
-            "status": "Running"
+            "status": "Running",
+            "config": config
         })
     
     # Create experiment
@@ -151,9 +154,12 @@ def run_experiment(
     
     # Update dashboard with completion status
     if dashboard:
+        logger.info("Sending completion status update with config")
         dashboard.update_experiment_status({
             "status": "Completed",
-            "completed": len(problems)
+            "completed": len(problems),
+            "total": len(problems),
+            "config": config
         })
     
     # Save results

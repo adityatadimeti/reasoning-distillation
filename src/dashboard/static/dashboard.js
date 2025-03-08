@@ -23,6 +23,15 @@ let answerInfo = {};
 // Store summary information by problem ID
 let summaryInfo = {};
 
+// Store the complete experiment state
+let experimentState = {
+    experiment_name: 'N/A',
+    completed: 0,
+    total: 0,
+    status: 'Starting...',
+    config: null
+};
+
 // Setup collapsible sections
 document.addEventListener('DOMContentLoaded', function() {
     // Setup model output toggle
@@ -35,16 +44,10 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleSection(summaryContainerElem, summaryHeaderElem.querySelector('.toggle-btn'));
     });
     
-    // Ensure toggle buttons have the correct initial symbols
+    // Initialize toggle buttons to match their content state
     document.querySelectorAll('.toggle-btn').forEach(button => {
         const contentElement = button.closest('.section-header').nextElementSibling;
-        if (contentElement.classList.contains('collapsed')) {
-            button.textContent = '▼';
-            button.classList.add('collapsed');
-        } else {
-            button.textContent = '▲';
-            button.classList.remove('collapsed');
-        }
+        updateToggleButton(button, contentElement);
     });
 });
 
@@ -53,13 +56,27 @@ function toggleSection(contentElement, buttonElement) {
     if (contentElement.classList.contains('collapsed')) {
         // Expand section
         contentElement.classList.remove('collapsed');
-        buttonElement.classList.remove('collapsed');
-        buttonElement.textContent = '▲';
     } else {
         // Collapse section
         contentElement.classList.add('collapsed');
+    }
+    
+    // Update button appearance to match content state
+    updateToggleButton(buttonElement, contentElement);
+}
+
+// Helper function to ensure button state matches content state
+function updateToggleButton(buttonElement, contentElement) {
+    if (contentElement.classList.contains('collapsed')) {
+        buttonElement.textContent = '+';
         buttonElement.classList.add('collapsed');
-        buttonElement.textContent = '▼';
+        buttonElement.setAttribute('aria-expanded', 'false');
+        buttonElement.setAttribute('title', 'Expand section');
+    } else {
+        buttonElement.textContent = '−'; // Using minus sign (U+2212)
+        buttonElement.classList.remove('collapsed');
+        buttonElement.setAttribute('aria-expanded', 'true');
+        buttonElement.setAttribute('title', 'Collapse section');
     }
 }
 
@@ -86,17 +103,112 @@ socket.on('status', (data) => {
 
 // Handle experiment status updates
 socket.on('experiment_status', (data) => {
+    console.log(`Received experiment_status event. Status: ${data.status}`);
+    console.log(`Has config: ${Boolean(data.config)}`);
+    
+    // Update only the fields that are present in the data
+    if (data.experiment_name !== undefined) experimentState.experiment_name = data.experiment_name;
+    if (data.completed !== undefined) experimentState.completed = data.completed;
+    if (data.total !== undefined) experimentState.total = data.total;
+    if (data.status !== undefined) experimentState.status = data.status;
+    if (data.config !== undefined) experimentState.config = data.config;
+    
     // Update experiment information
     let html = `
-        <p><strong>Experiment:</strong> ${data.experiment_name || 'N/A'}</p>
-        <p><strong>Progress:</strong> ${data.completed || 0}/${data.total || 0} problems</p>
-        <p><strong>Status:</strong> ${data.status || 'Starting...'}</p>
+        <p><strong>Experiment:</strong> ${experimentState.experiment_name}</p>
+        <p><strong>Progress:</strong> ${experimentState.completed}/${experimentState.total} problems</p>
+        <p><strong>Status:</strong> ${experimentState.status}</p>
     `;
     
-    if (data.config) {
-        html += '<details><summary><strong>Configuration</strong></summary><pre>';
-        html += JSON.stringify(data.config, null, 2);
-        html += '</pre></details>';
+    if (experimentState.config) {
+        console.log('Adding config details to UI');
+        html += '<details class="config-details">';
+        html += '<summary class="config-summary"><strong>Config</strong></summary>';
+        html += '<div class="config-container">';
+        
+        // Main experiment config
+        html += '<div class="config-section">';
+        html += '<h4>Experiment Settings</h4>';
+        html += '<table class="config-table">';
+        
+        // Display basic experiment settings
+        const basicConfigKeys = [
+            'experiment_name', 'results_dir', 'data_path', 'save_intermediate',
+            'dashboard_port', 'reasoning_model', 'summarizer_type'
+        ];
+        
+        basicConfigKeys.forEach(key => {
+            if (experimentState.config[key] !== undefined) {
+                html += `<tr><td>${key}</td><td>${experimentState.config[key]}</td></tr>`;
+            }
+        });
+        html += '</table></div>';
+        
+        // Generation parameters
+        html += '<div class="config-section">';
+        html += '<h4>Generation Parameters</h4>';
+        html += '<table class="config-table">';
+        
+        const genParamKeys = [
+            'max_tokens', 'temperature', 'top_p', 'top_k', 
+            'presence_penalty', 'frequency_penalty'
+        ];
+        
+        genParamKeys.forEach(key => {
+            if (experimentState.config[key] !== undefined) {
+                html += `<tr><td>${key}</td><td>${experimentState.config[key]}</td></tr>`;
+            }
+        });
+        html += '</table></div>';
+        
+        // Summarization parameters
+        html += '<div class="config-section">';
+        html += '<h4>Summarization Parameters</h4>';
+        html += '<table class="config-table">';
+        
+        const summaryParamKeys = [
+            'enable_summarization', 'summary_max_tokens', 'summary_temperature', 
+            'summary_top_p', 'summary_top_k', 'summary_presence_penalty', 
+            'summary_frequency_penalty'
+        ];
+        
+        summaryParamKeys.forEach(key => {
+            if (experimentState.config[key] !== undefined) {
+                html += `<tr><td>${key}</td><td>${experimentState.config[key]}</td></tr>`;
+            }
+        });
+        html += '</table></div>';
+        
+        // Prompt Templates
+        html += '<div class="config-section">';
+        html += '<h4>Prompt Templates</h4>';
+        
+        // Show reasoning prompt template if available
+        if (experimentState.config.reasoning_prompt_template) {
+            html += '<details class="prompt-details">';
+            html += '<summary>Reasoning Prompt</summary>';
+            html += `<pre class="prompt-template">${experimentState.config.reasoning_prompt_template}</pre>`;
+            html += '</details>';
+        }
+        
+        // Show summarization prompt template if available
+        if (experimentState.config.summarize_prompt_template) {
+            html += '<details class="prompt-details">';
+            html += '<summary>Summarization Prompt</summary>';
+            html += `<pre class="prompt-template">${experimentState.config.summarize_prompt_template}</pre>`;
+            html += '</details>';
+        }
+        
+        html += '</div>';
+        
+        // Raw config for advanced users
+        html += '<details class="raw-config-details">';
+        html += '<summary>Raw Configuration JSON</summary>';
+        html += `<pre class="raw-config">${JSON.stringify(experimentState.config, null, 2)}</pre>`;
+        html += '</details>';
+        
+        html += '</div>'; // end config-container
+        html += '</details>'; // end main details
     }
     
     experimentsInfoElem.innerHTML = html;
@@ -159,7 +271,7 @@ socket.on('problem_status', (data) => {
 socket.on('model_output', (data) => {
     const { problem_id, chunk } = data;
     
-    console.log(`Received chunk for problem_id: ${problem_id}`);
+    // console.log(`Received chunk for problem_id: ${problem_id}`);
     
     // Store the chunk
     if (!problemOutputs[problem_id]) {
@@ -170,10 +282,10 @@ socket.on('model_output', (data) => {
     
     // If this is the active problem, update the display
     if (problem_id === activeProblemId) {
-        console.log(`Updating display for active problem: ${problem_id}`);
+        // console.log(`Updating display for active problem: ${problem_id}`);
         updateModelOutput(problem_id);
     } else {
-        console.log(`Not updating display. Active: ${activeProblemId}, Received: ${problem_id}`);
+        // console.log(`Not updating display. Active: ${activeProblemId}, Received: ${problem_id}`);
     }
     
     // Auto-select this problem if no problem is currently selected
@@ -286,8 +398,8 @@ function updateSummaryInfo(problemId) {
     if (!summaryInfo[problemId]) {
         summaryInfoElem.style.display = 'none';
         summaryContainerElem.classList.add('collapsed');
-        summaryHeaderElem.querySelector('.toggle-btn').classList.add('collapsed');
-        summaryHeaderElem.querySelector('.toggle-btn').textContent = '▼';
+        const toggleBtn = summaryHeaderElem.querySelector('.toggle-btn');
+        updateToggleButton(toggleBtn, summaryContainerElem);
         return;
     }
     
@@ -296,6 +408,6 @@ function updateSummaryInfo(problemId) {
     
     // Make sure the section is expanded when new content is available
     summaryContainerElem.classList.remove('collapsed');
-    summaryHeaderElem.querySelector('.toggle-btn').classList.remove('collapsed');
-    summaryHeaderElem.querySelector('.toggle-btn').textContent = '▲';
+    const toggleBtn = summaryHeaderElem.querySelector('.toggle-btn');
+    updateToggleButton(toggleBtn, summaryContainerElem);
 } 

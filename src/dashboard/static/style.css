@@ -242,4 +242,109 @@ h2 {
 .section-content.collapsed {
     max-height: 0;
     overflow: hidden;
+}
+
+/* Configuration Details */
+.config-details {
+    margin-top: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.config-details summary {
+    padding: 10px;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    user-select: none;
+}
+
+.config-details summary:hover {
+    background-color: #e9ecef;
+}
+
+.config-container {
+    padding: 15px;
+}
+
+.config-section {
+    margin-bottom: 20px;
+}
+
+.config-section h4 {
+    margin-bottom: 8px;
+    color: #2c3e50;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 5px;
+}
+
+.config-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+
+.config-table tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.config-table td {
+    padding: 6px 10px;
+    border: 1px solid #e0e0e0;
+}
+
+.config-table td:first-child {
+    font-weight: bold;
+    width: 40%;
+}
+
+/* Prompt Templates */
+.prompt-details {
+    margin-top: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+}
+
+.prompt-details summary {
+    padding: 8px 12px;
+    background-color: #f0f4f8;
+    cursor: pointer;
+}
+
+.prompt-template {
+    padding: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    white-space: pre-wrap;
+    font-family: monospace;
+    font-size: 0.85em;
+    overflow-x: auto;
+    margin: 10px 0;
+}
+
+/* Raw Configuration */
+.raw-config-details {
+    margin-top: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+}
+
+.raw-config-details summary {
+    padding: 8px 12px;
+    background-color: #f0f4f8;
+    cursor: pointer;
+}
+
+.raw-config {
+    padding: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    white-space: pre-wrap;
+    font-family: monospace;
+    font-size: 0.85em;
+    overflow-x: auto;
+    max-height: 300px;
+    overflow-y: auto;
 } 

@@ -1,7 +1,7 @@
 # Reasoning prompts for different versions
 v0:
   template: |
-    Solve the following problem. 
+    Solve the following problem. Answer in \boxed{} format.
     
     PROBLEM:
     {question}
