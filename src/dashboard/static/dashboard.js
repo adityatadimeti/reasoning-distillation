@@ -15,6 +15,12 @@ let problemOutputs = {};
 socket.on('connect', () => {
     statusElem.textContent = 'Connected';
     statusElem.style.color = '#28a745';
+    
+    // Signal to the server that we're ready to receive problem outputs
+    setTimeout(() => {
+        console.log('Sending client_ready signal to server');
+        socket.emit('client_ready');
+    }, 500);  // Small delay to ensure connection is fully established
 });
 
 socket.on('disconnect', () => {

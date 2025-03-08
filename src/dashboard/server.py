@@ -26,6 +26,7 @@ class DashboardServer:
         )
         self.socketio = SocketIO(self.app, cors_allowed_origins="*")
         self.thread = None
+        self.client_ready = False
         self.setup_routes()
         self.setup_socketio()
         
@@ -41,6 +42,11 @@ class DashboardServer:
         def handle_connect():
             logger.info("Client connected to dashboard")
             emit('status', {'message': 'Connected to experiment server'})
+            
+        @self.socketio.on('client_ready')
+        def handle_client_ready():
+            logger.info("Client ready to receive data")
+            self.client_ready = True
     
     def start(self, open_browser: bool = True):
         """
@@ -95,7 +101,7 @@ class DashboardServer:
             chunk: Text chunk from the model
         """
         logger.debug(f"Streaming chunk to dashboard for problem ID: {problem_id}")
-        if self.thread and self.thread.is_alive():
+        if self.thread and self.thread.is_alive() and self.client_ready:
             self.socketio.emit('model_output', {
                 'problem_id': problem_id,
                 'chunk': chunk

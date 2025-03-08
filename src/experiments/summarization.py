@@ -151,6 +151,7 @@ class SummarizationExperiment(BaseExperiment):
             The full generated reasoning
         """
         full_response = ""
+        buffered_chunks = []
         
         # Add debug logging
         logger.debug(f"Streaming for problem ID: {problem_id}")
@@ -174,13 +175,21 @@ class SummarizationExperiment(BaseExperiment):
         # Process each chunk as it comes in
         for chunk in stream:
             full_response += chunk
+            buffered_chunks.append(chunk)
             
             # Send chunk to dashboard with debug
             if self.dashboard:
                 logger.debug(f"Streaming chunk to problem ID: {problem_id}")
                 self.dashboard.stream_model_output(problem_id, chunk)
                 
-        
+        # If the client wasn't ready, ensure all chunks are sent now
+        if self.dashboard and hasattr(self.dashboard, 'client_ready') and self.dashboard.client_ready:
+            # Check if we need to resend all chunks 
+            if buffered_chunks and not self.dashboard.client_ready:
+                logger.info(f"Client is now ready, sending all buffered chunks for problem {problem_id}")
+                # Send the complete output as one chunk
+                self.dashboard.stream_model_output(problem_id, ''.join(buffered_chunks))
+                
         # Update the problem status to completed
         if self.dashboard:
             self.dashboard.update_problem_status(problem_id, "completed")
