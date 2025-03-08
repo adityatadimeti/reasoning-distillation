@@ -295,6 +295,22 @@ class DashboardServer:
                 'iteration': iteration
             })
     
+    def stream_summary_chunk(self, problem_id: str, chunk: str, iteration: int = 0):
+        """
+        Stream a chunk of summary text to the dashboard.
+        
+        Args:
+            problem_id: ID of the problem
+            chunk: Text chunk of the summary
+            iteration: The iteration this summary belongs to
+        """
+        if self.thread and self.thread.is_alive():
+            self.socketio.emit('summary_chunk', {
+                'problem_id': problem_id,
+                'chunk': chunk,
+                'iteration': iteration
+            })
+    
     def stop(self):
         """Stop the dashboard server."""
         if self.thread and self.thread.is_alive():

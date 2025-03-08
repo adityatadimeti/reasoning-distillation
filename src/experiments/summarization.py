@@ -94,6 +94,69 @@ class SummarizationExperiment(BaseExperiment):
                 
         return self.results
     
+    def _stream_summary_generation(self, problem_id: str, reasoning: str, prompt_template: str, iteration: int = 0) -> str:
+        """
+        Stream the summary generation for a problem and update dashboard in real-time.
+        
+        Args:
+            problem_id: ID of the problem
+            reasoning: The reasoning to summarize
+            prompt_template: The template to use for summarization
+            iteration: Iteration number
+            
+        Returns:
+            The full summary
+        """
+        full_summary = ""
+        buffered_chunks = []
+        
+        # Add debug logging
+        logger.debug(f"Streaming summary for iteration {iteration}, problem ID: {problem_id}")
+        
+        # Update the problem status to show it's summarizing
+        if self.dashboard:
+            status = f"iter{iteration}-summarizing"
+            self.dashboard.update_problem_status(problem_id, status)
+        
+        try:
+            # Stream the summary using the summarizer model
+            summary_stream = summarize_reasoning(
+                reasoning,
+                self.summarizer,
+                prompt_template,
+                max_tokens=self.config.get("summary_max_tokens"),
+                temperature=self.config.get("summary_temperature"),
+                top_p=self.config.get("summary_top_p"),
+                top_k=self.config.get("summary_top_k"),
+                presence_penalty=self.config.get("summary_presence_penalty"),
+                frequency_penalty=self.config.get("summary_frequency_penalty"),
+                verbose=self.verbose,
+                stream=True
+            )
+            
+            # Process the streaming output
+            for chunk in summary_stream:
+                # Add to full response
+                full_summary += chunk
+                buffered_chunks.append(chunk)
+                
+                # Stream to dashboard if available
+                if self.dashboard and len(buffered_chunks) >= 1:
+                    combined_chunk = "".join(buffered_chunks)
+                    self.dashboard.stream_summary_chunk(problem_id, combined_chunk, iteration)
+                    buffered_chunks = []
+            
+            # Send any remaining buffered chunks
+            if self.dashboard and buffered_chunks:
+                combined_chunk = "".join(buffered_chunks)
+                self.dashboard.stream_summary_chunk(problem_id, combined_chunk, iteration)
+            
+            return full_summary
+            
+        except Exception as e:
+            logger.error(f"Error streaming summary: {str(e)}")
+            raise
+    
     def _process_problem(self, problem: Dict[str, Any]) -> Dict[str, Any]:
         """
         Process a single problem through the summarization pipeline.
@@ -209,22 +272,30 @@ class SummarizationExperiment(BaseExperiment):
             if not hasattr(self.summarizer, "top_k"):
                 assert "top_k" in self.config, "top_k must be specified in config if using FireworksModelClient"
                 
-            summary = summarize_reasoning(
-                current_reasoning,
-                self.summarizer,
-                summarize_template,
-                max_tokens=self.config.get("summary_max_tokens"),
-                temperature=self.config.get("summary_temperature"),
-                top_p=self.config.get("summary_top_p"),
-                top_k=self.config.get("summary_top_k"),
-                presence_penalty=self.config.get("summary_presence_penalty"),
-                frequency_penalty=self.config.get("summary_frequency_penalty"),
-                verbose=self.verbose
-            )
-            
-            # Update dashboard with summary
+            # Stream the summary if we have a dashboard, otherwise generate normally
             if self.dashboard:
+                summary = self._stream_summary_generation(
+                    problem_id, 
+                    current_reasoning, 
+                    summarize_template, 
+                    iteration=current_iteration
+                )
+                # The summary has already been streamed to the dashboard, 
+                # but we need to send a final update to indicate it's complete
                 self.dashboard.update_summary(problem_id, summary, iteration=current_iteration)
+            else:
+                summary = summarize_reasoning(
+                    current_reasoning,
+                    self.summarizer,
+                    summarize_template,
+                    max_tokens=self.config.get("summary_max_tokens"),
+                    temperature=self.config.get("summary_temperature"),
+                    top_p=self.config.get("summary_top_p"),
+                    top_k=self.config.get("summary_top_k"),
+                    presence_penalty=self.config.get("summary_presence_penalty"),
+                    frequency_penalty=self.config.get("summary_frequency_penalty"),
+                    verbose=self.verbose
+                )
             
             # Prepare for next iteration
             next_iteration = current_iteration + 1

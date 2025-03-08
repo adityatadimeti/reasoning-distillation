@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Dict, Any, Union
+from typing import Optional, Dict, Any, Union, Iterator
 
 from src.llm.base_client import ModelClient
 
@@ -15,8 +15,9 @@ def summarize_reasoning(
     top_k: int = None,
     presence_penalty: float = None,
     frequency_penalty: float = None,
-    verbose: bool = False
-) -> str:
+    verbose: bool = False,
+    stream: bool = False
+) -> Union[str, Iterator[str]]:
     """
     Generate a summary of the reasoning trace.
     
@@ -31,9 +32,10 @@ def summarize_reasoning(
         presence_penalty: Presence penalty parameter
         frequency_penalty: Frequency penalty parameter
         verbose: Whether to log model calls
+        stream: Whether to stream the summary in chunks
         
     Returns:
-        The summarized reasoning
+        The summarized reasoning as a string or an iterator of chunks if streaming
     """
     logger.info("Generating summary of reasoning trace")
     
@@ -54,7 +56,8 @@ def summarize_reasoning(
             "top_k": top_k,
             "presence_penalty": presence_penalty,
             "frequency_penalty": frequency_penalty,
-            "verbose": verbose
+            "verbose": verbose,
+            "stream": stream
         }
     else:
         # Other model clients
@@ -64,7 +67,8 @@ def summarize_reasoning(
             "top_p": top_p,
             "presence_penalty": presence_penalty,
             "frequency_penalty": frequency_penalty,
-            "verbose": verbose
+            "verbose": verbose,
+            "stream": stream
         }
         # Only add top_k if provided
         if top_k is not None:
@@ -74,7 +78,5 @@ def summarize_reasoning(
     gen_params = {k: v for k, v in gen_params.items() if v is not None}
     
     # Generate the summary
-    summary = model.generate_response(prompt, **gen_params)
-    
-    return summary
+    return model.generate_response(prompt, **gen_params)
 

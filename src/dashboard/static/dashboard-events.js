@@ -29,6 +29,36 @@ function registerEventHandlers(socket) {
         const { problem_id, status, question } = data;
         console.log(`Problem ${problem_id} status: ${status}`);
         
+        // Check if this is a summarizing status
+        if (status && status.includes('summarizing')) {
+            // Extract the iteration number
+            const iterMatch = status.match(/iter(\d+)-summarizing/);
+            if (iterMatch && iterMatch[1]) {
+                const iteration = parseInt(iterMatch[1], 10);
+                
+                // Ensure we have the problemOutputs structure
+                if (!window.problemOutputs) window.problemOutputs = {};
+                if (!window.problemOutputs[problem_id]) window.problemOutputs[problem_id] = {};
+                if (!window.problemOutputs[problem_id][iteration]) {
+                    window.problemOutputs[problem_id][iteration] = {
+                        reasoning: '',
+                        summary: '',
+                        answer: '',
+                        correct_answer: '',
+                        is_correct: false,
+                        summaryStreaming: true  // Mark as streaming
+                    };
+                } else {
+                    window.problemOutputs[problem_id][iteration].summaryStreaming = true;
+                }
+                
+                // Update UI if this is the active problem
+                if (problem_id === DashboardCore.getActiveProblem()) {
+                    DashboardIterations.updateIterationsUI(problem_id);
+                }
+            }
+        }
+        
         // Create a new problem card if needed
         const title = question 
             ? `${problem_id}: ${question.substring(0, 50)}...` 
@@ -91,7 +121,7 @@ function registerEventHandlers(socket) {
     socket.on('summary', (data) => {
         const { problem_id, summary, iteration = 0 } = data;
         
-        console.log(`Received summary for problem ${problem_id}, iteration ${iteration}`);
+        console.log(`Received complete summary for problem ${problem_id}, iteration ${iteration}`);
         
         // Ensure we have the global problemOutputs
         if (!window.problemOutputs) {
@@ -110,15 +140,64 @@ function registerEventHandlers(socket) {
                 summary: summary,
                 answer: '',
                 correct_answer: '',
-                is_correct: false
+                is_correct: false,
+                summaryStreaming: false  // Mark as not streaming
             };
         } else {
             window.problemOutputs[problem_id][iteration].summary = summary;
+            window.problemOutputs[problem_id][iteration].summaryStreaming = false;  // Mark as not streaming
         }
         
         // Store summary info (for backward compatibility)
         window.summaryInfo = window.summaryInfo || {};
         window.summaryInfo[problem_id] = summary;
+        
+        // If this is the active problem, update the display
+        if (problem_id === DashboardCore.getActiveProblem()) {
+            DashboardIterations.updateIterationsUI(problem_id);
+        }
+    });
+    
+    // Handle streaming summary chunks
+    socket.on('summary_chunk', (data) => {
+        const { problem_id, chunk, iteration = 0 } = data;
+        
+        console.log(`Received summary chunk for problem ${problem_id}, iteration ${iteration}`);
+        
+        // Ensure we have the global problemOutputs
+        if (!window.problemOutputs) {
+            window.problemOutputs = {};
+        }
+        
+        // Initialize problem if needed
+        if (!window.problemOutputs[problem_id]) {
+            window.problemOutputs[problem_id] = {};
+        }
+        
+        // Initialize iteration if needed
+        if (!window.problemOutputs[problem_id][iteration]) {
+            window.problemOutputs[problem_id][iteration] = {
+                reasoning: '',
+                summary: '',
+                answer: '',
+                correct_answer: '',
+                is_correct: false,
+                summaryStreaming: true  // Mark as streaming
+            };
+        }
+        
+        // Add the chunk to the iteration's summary
+        window.problemOutputs[problem_id][iteration].summary += chunk;
+        window.problemOutputs[problem_id][iteration].summaryStreaming = true;  // Mark as streaming
+        
+        // Log output state for debugging
+        console.log(`Problem ${problem_id}, iteration ${iteration} summary updated`, {
+            summaryLength: window.problemOutputs[problem_id][iteration].summary.length
+        });
+        
+        // Update summary info (for backward compatibility)
+        window.summaryInfo = window.summaryInfo || {};
+        window.summaryInfo[problem_id] = window.problemOutputs[problem_id][iteration].summary;
         
         // If this is the active problem, update the display
         if (problem_id === DashboardCore.getActiveProblem()) {

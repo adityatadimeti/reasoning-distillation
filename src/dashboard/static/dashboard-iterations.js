@@ -76,7 +76,7 @@ function updateIterationsUI(problemId) {
         // Show summary if available
         if (iterData.summary) {
             html += `<div class="iteration-summary">`;
-            html += `<h4>Summary</h4>`;
+            html += `<h4>Summary${iterData.summaryStreaming ? ' <span class="streaming-text">(streaming...)</span>' : ''}</h4>`;
             html += `<div class="summary-content">${iterData.summary}</div>`;
             html += `</div>`; // End iteration-summary
         }

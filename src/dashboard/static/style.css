@@ -531,4 +531,19 @@ h4 {
     border-radius: 4px;
     color: #6c757d;
     text-align: center;
+}
+
+/* Streaming indicator styling */
+.streaming-text {
+    color: #0077cc;
+    animation: pulse 1.5s infinite;
+    margin-left: 5px;
+    font-size: 0.85em;
+    font-style: italic;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
 } 
