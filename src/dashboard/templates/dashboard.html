@@ -5,13 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reasoning Experiment Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <!-- Add debug elements to show template variables -->
+    <!--
+        FLASK TEMPLATE DEBUG INFO:
+        Static Mode: {% if static_mode %}TRUE{% else %}FALSE{% endif %}
+        Static Results: {% if static_results %}PRESENT (length: {{ static_results|length }}){% else %}MISSING{% endif %}
+        Error: {% if error %}{{ error }}{% else %}NONE{% endif %}
+    -->
+    
+    <!-- Set static mode flag for JavaScript -->
+    <script>
+        // Debug info for JavaScript
+        console.log("TEMPLATE VARS - Static Mode: {% if static_mode %}TRUE{% else %}FALSE{% endif %}");
+        console.log("TEMPLATE VARS - Static Results: {% if static_results %}PRESENT{% else %}MISSING{% endif %}");
+        
+        window.DASHBOARD_STATIC_MODE = {% if static_mode %}true{% else %}false{% endif %};
+    </script>
+    
+    <!-- Load socket.io only in dynamic mode -->
+    {% if not static_mode %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    {% endif %}
+    
+    <!-- Make static results available if present -->
+    {% if static_results %}
+    <script>
+        try {
+            console.log("Static results detected in template");
+            window.staticResults = JSON.parse('{{ static_results|safe }}');
+            console.log('Static results parsed successfully, found', 
+                window.staticResults.results ? window.staticResults.results.length : 0, 'problems');
+        } catch (e) {
+            console.error('Error parsing static results:', e);
+        }
+    </script>
+    {% endif %}
 </head>
 <body>
     <div class="container">
         <header>
             <h1>Reasoning Experiment Dashboard</h1>
-            <div id="status-bar">Status: <span id="connection-status">Connecting...</span></div>
+            <div id="status-bar">
+                {% if static_results %}
+                <span id="static-mode">Static Mode - Viewing Saved Results</span>
+                {% else %}
+                Status: <span id="connection-status">Connecting...</span>
+                {% endif %}
+            </div>
         </header>
         
         <div class="experiment-info">

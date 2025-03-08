@@ -1,5 +1,16 @@
-// Connect to WebSocket server
-const socket = io();
+// Check if we're in static mode (viewing saved results)
+console.log('DEBUG: DASHBOARD_STATIC_MODE typeof =', typeof window.DASHBOARD_STATIC_MODE);
+console.log('DEBUG: DASHBOARD_STATIC_MODE value =', window.DASHBOARD_STATIC_MODE);
+console.log('DEBUG: staticResults typeof =', typeof window.staticResults);
+console.log('DEBUG: staticResults defined =', window.staticResults !== undefined);
+
+const isStaticMode = window.DASHBOARD_STATIC_MODE === true || typeof window.staticResults !== 'undefined';
+
+console.log('Dashboard initializing, static mode:', isStaticMode);
+console.log('Static results available:', Boolean(window.staticResults));
+
+// Connect to WebSocket server only if not in static mode and io is defined
+const socket = !isStaticMode && (typeof io !== 'undefined') ? io() : null;
 const modelOutputElem = document.getElementById('model-output');
 const modelOutputHeaderElem = document.getElementById('model-output-header');
 const modelOutputContainerElem = document.getElementById('model-output-container');
@@ -34,6 +45,9 @@ let experimentState = {
 
 // Setup collapsible sections
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, static mode:', isStaticMode);
+    console.log('Static results available:', Boolean(window.staticResults));
+    
     // Setup model output toggle
     modelOutputHeaderElem.addEventListener('click', function() {
         toggleSection(modelOutputContainerElem, modelOutputHeaderElem.querySelector('.toggle-btn'));
@@ -49,6 +63,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const contentElement = button.closest('.section-header').nextElementSibling;
         updateToggleButton(button, contentElement);
     });
+    
+    // If we have static results, initialize the dashboard with them
+    if (isStaticMode && window.staticResults) {
+        console.log('Initializing static dashboard...');
+        initializeStaticDashboard(window.staticResults);
+    } else if (isStaticMode) {
+        console.error('Static mode detected but no static results found!');
+    }
 });
 
 // Function to toggle collapsible sections
@@ -80,36 +102,442 @@ function updateToggleButton(buttonElement, contentElement) {
     }
 }
 
-// Handle connection status
-socket.on('connect', () => {
-    statusElem.textContent = 'Connected';
-    statusElem.style.color = '#28a745';
+// Only set up socket event handlers if not in static mode
+if (!isStaticMode && socket) {
+    // Handle connection status
+    socket.on('connect', () => {
+        console.log('WebSocket connected');
+        statusElem.textContent = 'Connected';
+        statusElem.style.color = '#28a745';
+        
+        // Signal to the server that we're ready to receive problem outputs
+        setTimeout(() => {
+            console.log('Sending client_ready signal to server');
+            socket.emit('client_ready');
+            
+            // Also request current experiment status
+            console.log('Requesting current experiment status');
+            socket.emit('request_current_status');
+        }, 500);  // Small delay to ensure connection is fully established
+    });
+
+    socket.on('disconnect', () => {
+        statusElem.textContent = 'Disconnected';
+        statusElem.style.color = '#dc3545';
+    });
+
+    socket.on('status', (data) => {
+        statusElem.textContent = data.message;
+    });
+
+    // Handle experiment status updates
+    socket.on('experiment_status', (data) => {
+        // Update only the fields that are present in the data
+        if (data.experiment_name !== undefined) experimentState.experiment_name = data.experiment_name;
+        if (data.completed !== undefined) experimentState.completed = data.completed;
+        if (data.total !== undefined) experimentState.total = data.total;
+        if (data.status !== undefined) experimentState.status = data.status;
+        if (data.config !== undefined) experimentState.config = data.config;
+        
+        updateExperimentInfoDisplay();
+    });
+
+    // Handle problem status updates
+    socket.on('problem_status', (data) => {
+        const { problem_id, status } = data;
+        
+        // Check if we already have this problem in the list
+        const existingProblem = document.getElementById(`problem-${problem_id}`);
+        
+        if (existingProblem) {
+            // Update existing problem card
+            existingProblem.className = `problem-card ${status}`;
+            existingProblem.querySelector('.problem-status').textContent = status;
+        } else {
+            // Create new problem card
+            const problemCard = document.createElement('div');
+            problemCard.id = `problem-${problem_id}`;
+            problemCard.className = `problem-card ${status}`;
+            
+            problemCard.innerHTML = `
+                <strong>${problem_id}</strong>
+                <div class="problem-status">${status}</div>
+            `;
+            
+            // Initialize output storage
+            problemOutputs[problem_id] = '';
+            
+            // Add click handler to view problem output
+            problemCard.addEventListener('click', () => {
+                // Remove active class from current active problem
+                if (activeProblemId) {
+                    const activeElem = document.getElementById(`problem-${activeProblemId}`);
+                    if (activeElem) activeElem.classList.remove('active');
+                }
+                
+                // Set this problem as active
+                activeProblemId = problem_id;
+                problemCard.classList.add('active');
+                
+                // Update output display
+                currentProblemElem.textContent = problem_id;
+                updateModelOutput(problem_id);
+                updateAnswerInfo(problem_id);
+                updateSummaryInfo(problem_id);
+            });
+            
+            problemsListElem.appendChild(problemCard);
+            
+            // Auto-select first problem
+            if (!activeProblemId) {
+                problemCard.click();
+            }
+        }
+    });
+
+    // Handle model output chunks
+    socket.on('model_output', (data) => {
+        const { problem_id, chunk } = data;
+        
+        // console.log(`Received chunk for problem_id: ${problem_id}`);
+        
+        // Store the chunk
+        if (!problemOutputs[problem_id]) {
+            problemOutputs[problem_id] = '';
+            console.log(`Initializing output storage for problem_id: ${problem_id}`);
+        }
+        problemOutputs[problem_id] += chunk;
+        
+        // If this is the active problem, update the display
+        if (problem_id === activeProblemId) {
+            // console.log(`Updating display for active problem: ${problem_id}`);
+            updateModelOutput(problem_id);
+        } else {
+            // console.log(`Not updating display. Active: ${activeProblemId}, Received: ${problem_id}`);
+        }
+        
+        // Auto-select this problem if no problem is currently selected
+        if (!activeProblemId) {
+            console.log(`No active problem, attempting to select: ${problem_id}`);
+            const problemCard = document.getElementById(`problem-${problem_id}`);
+            if (problemCard) {
+                console.log(`Found problem card, clicking: ${problem_id}`);
+                problemCard.click();
+            } else {
+                console.log(`Problem card not found for: ${problem_id}`);
+            }
+        }
+    });
     
-    // Signal to the server that we're ready to receive problem outputs
-    setTimeout(() => {
-        console.log('Sending client_ready signal to server');
-        socket.emit('client_ready');
-    }, 500);  // Small delay to ensure connection is fully established
-});
-
-socket.on('disconnect', () => {
-    statusElem.textContent = 'Disconnected';
-    statusElem.style.color = '#dc3545';
-});
-
-socket.on('status', (data) => {
-    statusElem.textContent = data.message;
-});
-
-// Handle experiment status updates
-socket.on('experiment_status', (data) => {
-    // Update only the fields that are present in the data
-    if (data.experiment_name !== undefined) experimentState.experiment_name = data.experiment_name;
-    if (data.completed !== undefined) experimentState.completed = data.completed;
-    if (data.total !== undefined) experimentState.total = data.total;
-    if (data.status !== undefined) experimentState.status = data.status;
-    if (data.config !== undefined) experimentState.config = data.config;
+    // Handle answer information
+    socket.on('answer_info', (data) => {
+        const { problem_id, extracted_answer, correct_answer, is_correct } = data;
+        
+        console.log(`Received answer info for problem_id: ${problem_id}`);
+        
+        // Store the answer information
+        answerInfo[problem_id] = {
+            extractedAnswer: extracted_answer,
+            correctAnswer: correct_answer,
+            isCorrect: is_correct
+        };
+        
+        // If this is the active problem, update the display
+        if (problem_id === activeProblemId) {
+            updateAnswerInfo(problem_id);
+        }
+    });
     
+    // Handle reasoning summary
+    socket.on('reasoning_summary', (data) => {
+        const { problem_id, summary } = data;
+        
+        console.log(`Received summary for problem_id: ${problem_id}`);
+        
+        // Store the summary information
+        summaryInfo[problem_id] = summary;
+        
+        // If this is the active problem, update the display
+        if (problem_id === activeProblemId) {
+            updateSummaryInfo(problem_id);
+        }
+    });
+}
+
+// Format and display model output with answer highlighting
+function updateModelOutput(problemId) {
+    if (!problemOutputs[problemId]) {
+        modelOutputElem.textContent = 'No output yet.';
+        return;
+    }
+    
+    let formattedOutput = problemOutputs[problemId];
+    
+    // Highlight <think> sections
+    formattedOutput = formattedOutput.replace(
+        /<think>([\s\S]*?)<\/think>/g, 
+        '<div class="think-section"><strong>&lt;think&gt;</strong>$1<strong>&lt;/think&gt;</strong></div>'
+    );
+    
+    // Highlight boxed answers
+    formattedOutput = formattedOutput.replace(
+        /\\boxed\{([^{}]+)\}/g,
+        '<span class="answer-highlight">\\boxed{$1}</span>'
+    );
+    
+    modelOutputElem.innerHTML = formattedOutput;
+    
+    // Scroll to the bottom
+    modelOutputElem.scrollTop = modelOutputElem.scrollHeight;
+}
+
+// Display answer information
+function updateAnswerInfo(problemId) {
+    if (!answerInfo[problemId]) {
+        answerInfoElem.style.display = 'none';
+        return;
+    }
+    
+    const { extractedAnswer, correctAnswer, isCorrect } = answerInfo[problemId];
+    
+    // Create HTML for answer information
+    let html = `
+        <div class="answer-pair">
+            <div class="answer-label">Extracted Answer:</div>
+            <div class="answer-value">${extractedAnswer}</div>
+        </div>
+        <div class="answer-pair">
+            <div class="answer-label">Correct Answer:</div>
+            <div class="answer-value">${correctAnswer}</div>
+        </div>
+        <div class="answer-pair">
+            <div class="answer-label">Status:</div>
+            <div class="answer-value ${isCorrect ? 'correct' : 'incorrect'}">
+                ${isCorrect ? 'Correct ✓' : 'Incorrect ✗'}
+            </div>
+        </div>
+    `;
+    
+    answerContentElem.innerHTML = html;
+    answerInfoElem.style.display = 'block';
+}
+
+// Display summary information
+function updateSummaryInfo(problemId) {
+    if (!summaryInfo[problemId]) {
+        summaryInfoElem.style.display = 'none';
+        summaryContainerElem.classList.add('collapsed');
+        const toggleBtn = summaryHeaderElem.querySelector('.toggle-btn');
+        updateToggleButton(toggleBtn, summaryContainerElem);
+        return;
+    }
+    
+    summaryContentElem.textContent = summaryInfo[problemId];
+    summaryInfoElem.style.display = 'block';
+    
+    // Make sure the section is expanded when new content is available
+    summaryContainerElem.classList.remove('collapsed');
+    const toggleBtn = summaryHeaderElem.querySelector('.toggle-btn');
+    updateToggleButton(toggleBtn, summaryContainerElem);
+}
+
+// Helper function to render config section HTML
+function renderConfigSection(config) {
+    let html = '<details class="config-details">';
+    html += '<summary class="config-summary"><strong>Configuration</strong></summary>';
+    html += '<div class="config-container">';
+    
+    // Main experiment config
+    html += '<div class="config-section">';
+    html += '<h4>Experiment Settings</h4>';
+    html += '<table class="config-table">';
+    
+    // Display basic experiment settings
+    const basicConfigKeys = [
+        'experiment_name', 'results_dir', 'data_path', 'save_intermediate',
+        'dashboard_port', 'reasoning_model', 'summarizer_type'
+    ];
+    
+    basicConfigKeys.forEach(key => {
+        if (config[key] !== undefined) {
+            html += `<tr><td>${key}</td><td>${config[key]}</td></tr>`;
+        }
+    });
+    html += '</table></div>';
+    
+    // Generation parameters
+    html += '<div class="config-section">';
+    html += '<h4>Generation Parameters</h4>';
+    html += '<table class="config-table">';
+    
+    const genParamKeys = [
+        'max_tokens', 'temperature', 'top_p', 'top_k', 
+        'presence_penalty', 'frequency_penalty'
+    ];
+    
+    genParamKeys.forEach(key => {
+        if (config[key] !== undefined) {
+            html += `<tr><td>${key}</td><td>${config[key]}</td></tr>`;
+        }
+    });
+    html += '</table></div>';
+    
+    // Summarization parameters
+    html += '<div class="config-section">';
+    html += '<h4>Summarization Parameters</h4>';
+    html += '<table class="config-table">';
+    
+    const summaryParamKeys = [
+        'enable_summarization', 'summary_max_tokens', 'summary_temperature', 
+        'summary_top_p', 'summary_top_k', 'summary_presence_penalty', 
+        'summary_frequency_penalty'
+    ];
+    
+    summaryParamKeys.forEach(key => {
+        if (config[key] !== undefined) {
+            html += `<tr><td>${key}</td><td>${config[key]}</td></tr>`;
+        }
+    });
+    html += '</table></div>';
+    
+    // Prompt Templates
+    html += '<div class="config-section">';
+    html += '<h4>Prompt Templates</h4>';
+    
+    // Show reasoning prompt template if available
+    if (config.reasoning_prompt_template) {
+        html += '<details class="prompt-details">';
+        html += '<summary>Reasoning Prompt</summary>';
+        html += `<pre class="prompt-template">${config.reasoning_prompt_template}</pre>`;
+        html += '</details>';
+    }
+    
+    // Show summarization prompt template if available
+    if (config.summarize_prompt_template) {
+        html += '<details class="prompt-details">';
+        html += '<summary>Summarization Prompt</summary>';
+        html += `<pre class="prompt-template">${config.summarize_prompt_template}</pre>`;
+        html += '</details>';
+    }
+    
+    html += '</div>';
+    
+    // Raw config for advanced users
+    html += '<details class="raw-config-details">';
+    html += '<summary>Raw Configuration JSON</summary>';
+    html += `<pre class="raw-config">${JSON.stringify(config, null, 2)}</pre>`;
+    html += '</details>';
+    
+    html += '</div>'; // end config-container
+    html += '</details>'; // end main details
+    
+    return html;
+}
+
+// Helper function to initialize the dashboard with static results
+function initializeStaticDashboard(results) {
+    console.log('Initializing dashboard with static results');
+    
+    // Set experiment state from results
+    if (results.experiment_name) {
+        experimentState.experiment_name = results.experiment_name;
+    }
+    if (results.config) {
+        experimentState.config = results.config;
+    }
+    
+    // Update experiment information display
+    let html = `
+        <p><strong>Experiment:</strong> ${experimentState.experiment_name}</p>
+        <p><strong>Status:</strong> Completed</p>
+    `;
+    
+    if (experimentState.config) {
+        html += renderConfigSection(experimentState.config);
+    }
+    
+    experimentsInfoElem.innerHTML = html;
+    
+    // Process results
+    if (results.results && Array.isArray(results.results)) {
+        experimentState.total = results.results.length;
+        experimentState.completed = results.results.length;
+        
+        // Create problem cards
+        results.results.forEach(result => {
+            const problemId = result.problem_id;
+            const isCorrect = result.initial_correct;
+            
+            // Add to problem list
+            const problemCard = document.createElement('div');
+            problemCard.className = `problem-card ${isCorrect ? 'correct' : 'incorrect'}`;
+            problemCard.innerHTML = `
+                <div class="problem-id">${problemId}</div>
+                <div class="problem-status">${isCorrect ? 'correct' : 'incorrect'}</div>
+            `;
+            problemCard.setAttribute('data-problem-id', problemId);
+            problemCard.addEventListener('click', function() {
+                document.querySelectorAll('.problem-card').forEach(card => {
+                    card.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                const clickedProblemId = this.getAttribute('data-problem-id');
+                activeProblemId = clickedProblemId;
+                
+                // Display problem information
+                currentProblemElem.textContent = clickedProblemId;
+                
+                // Show reasoning
+                if (result.initial_reasoning) {
+                    problemOutputs[problemId] = result.initial_reasoning;
+                    modelOutputElem.textContent = result.initial_reasoning;
+                }
+                
+                // Show answer info
+                answerInfo[problemId] = {
+                    extracted: result.initial_answer,
+                    correct: result.correct_answer,
+                    isCorrect: result.initial_correct
+                };
+                updateAnswerInfo(problemId);
+                
+                // Show summary if available
+                if (result.summary) {
+                    summaryInfo[problemId] = result.summary;
+                    updateSummaryInfo(problemId);
+                }
+            });
+            problemsListElem.appendChild(problemCard);
+            
+            // Store data
+            if (result.initial_reasoning) {
+                problemOutputs[problemId] = result.initial_reasoning;
+            }
+            
+            answerInfo[problemId] = {
+                extracted: result.initial_answer,
+                correct: result.correct_answer,
+                isCorrect: result.initial_correct
+            };
+            
+            if (result.summary) {
+                summaryInfo[problemId] = result.summary;
+            }
+        });
+        
+        // Auto-select the first problem if any exist
+        if (results.results.length > 0) {
+            const firstProblemCard = document.querySelector('.problem-card');
+            if (firstProblemCard) {
+                firstProblemCard.click();
+            }
+        }
+    }
+}
+
+// Helper function to update experiment information display
+function updateExperimentInfoDisplay() {
     // Update experiment information
     let html = `
         <p><strong>Experiment:</strong> ${experimentState.experiment_name}</p>
@@ -208,202 +636,4 @@ socket.on('experiment_status', (data) => {
     }
     
     experimentsInfoElem.innerHTML = html;
-});
-
-// Handle problem status updates
-socket.on('problem_status', (data) => {
-    const { problem_id, status } = data;
-    
-    // Check if we already have this problem in the list
-    const existingProblem = document.getElementById(`problem-${problem_id}`);
-    
-    if (existingProblem) {
-        // Update existing problem card
-        existingProblem.className = `problem-card ${status}`;
-        existingProblem.querySelector('.problem-status').textContent = status;
-    } else {
-        // Create new problem card
-        const problemCard = document.createElement('div');
-        problemCard.id = `problem-${problem_id}`;
-        problemCard.className = `problem-card ${status}`;
-        
-        problemCard.innerHTML = `
-            <strong>${problem_id}</strong>
-            <div class="problem-status">${status}</div>
-        `;
-        
-        // Initialize output storage
-        problemOutputs[problem_id] = '';
-        
-        // Add click handler to view problem output
-        problemCard.addEventListener('click', () => {
-            // Remove active class from current active problem
-            if (activeProblemId) {
-                const activeElem = document.getElementById(`problem-${activeProblemId}`);
-                if (activeElem) activeElem.classList.remove('active');
-            }
-            
-            // Set this problem as active
-            activeProblemId = problem_id;
-            problemCard.classList.add('active');
-            
-            // Update output display
-            currentProblemElem.textContent = problem_id;
-            updateModelOutput(problem_id);
-            updateAnswerInfo(problem_id);
-            updateSummaryInfo(problem_id);
-        });
-        
-        problemsListElem.appendChild(problemCard);
-        
-        // Auto-select first problem
-        if (!activeProblemId) {
-            problemCard.click();
-        }
-    }
-});
-
-// Handle model output chunks
-socket.on('model_output', (data) => {
-    const { problem_id, chunk } = data;
-    
-    // console.log(`Received chunk for problem_id: ${problem_id}`);
-    
-    // Store the chunk
-    if (!problemOutputs[problem_id]) {
-        problemOutputs[problem_id] = '';
-        console.log(`Initializing output storage for problem_id: ${problem_id}`);
-    }
-    problemOutputs[problem_id] += chunk;
-    
-    // If this is the active problem, update the display
-    if (problem_id === activeProblemId) {
-        // console.log(`Updating display for active problem: ${problem_id}`);
-        updateModelOutput(problem_id);
-    } else {
-        // console.log(`Not updating display. Active: ${activeProblemId}, Received: ${problem_id}`);
-    }
-    
-    // Auto-select this problem if no problem is currently selected
-    if (!activeProblemId) {
-        console.log(`No active problem, attempting to select: ${problem_id}`);
-        const problemCard = document.getElementById(`problem-${problem_id}`);
-        if (problemCard) {
-            console.log(`Found problem card, clicking: ${problem_id}`);
-            problemCard.click();
-        } else {
-            console.log(`Problem card not found for: ${problem_id}`);
-        }
-    }
-});
-
-// Handle answer information
-socket.on('answer_info', (data) => {
-    const { problem_id, extracted_answer, correct_answer, is_correct } = data;
-    
-    console.log(`Received answer info for problem_id: ${problem_id}`);
-    
-    // Store the answer information
-    answerInfo[problem_id] = {
-        extractedAnswer: extracted_answer,
-        correctAnswer: correct_answer,
-        isCorrect: is_correct
-    };
-    
-    // If this is the active problem, update the display
-    if (problem_id === activeProblemId) {
-        updateAnswerInfo(problem_id);
-    }
-});
-
-// Handle summary information
-socket.on('reasoning_summary', (data) => {
-    const { problem_id, summary } = data;
-    
-    console.log(`Received summary for problem_id: ${problem_id}`);
-    
-    // Store the summary information
-    summaryInfo[problem_id] = summary;
-    
-    // If this is the active problem, update the display
-    if (problem_id === activeProblemId) {
-        updateSummaryInfo(problem_id);
-    }
-});
-
-// Format and display model output with answer highlighting
-function updateModelOutput(problemId) {
-    if (!problemOutputs[problemId]) {
-        modelOutputElem.textContent = 'No output yet.';
-        return;
-    }
-    
-    let formattedOutput = problemOutputs[problemId];
-    
-    // Highlight <think> sections
-    formattedOutput = formattedOutput.replace(
-        /<think>([\s\S]*?)<\/think>/g, 
-        '<div class="think-section"><strong>&lt;think&gt;</strong>$1<strong>&lt;/think&gt;</strong></div>'
-    );
-    
-    // Highlight boxed answers
-    formattedOutput = formattedOutput.replace(
-        /\\boxed\{([^{}]+)\}/g,
-        '<span class="answer-highlight">\\boxed{$1}</span>'
-    );
-    
-    modelOutputElem.innerHTML = formattedOutput;
-    
-    // Scroll to the bottom
-    modelOutputElem.scrollTop = modelOutputElem.scrollHeight;
-}
-
-// Display answer information
-function updateAnswerInfo(problemId) {
-    if (!answerInfo[problemId]) {
-        answerInfoElem.style.display = 'none';
-        return;
-    }
-    
-    const { extractedAnswer, correctAnswer, isCorrect } = answerInfo[problemId];
-    
-    // Create HTML for answer information
-    let html = `
-        <div class="answer-pair">
-            <div class="answer-label">Extracted Answer:</div>
-            <div class="answer-value">${extractedAnswer}</div>
-        </div>
-        <div class="answer-pair">
-            <div class="answer-label">Correct Answer:</div>
-            <div class="answer-value">${correctAnswer}</div>
-        </div>
-        <div class="answer-pair">
-            <div class="answer-label">Status:</div>
-            <div class="answer-value ${isCorrect ? 'correct' : 'incorrect'}">
-                ${isCorrect ? 'Correct ✓' : 'Incorrect ✗'}
-            </div>
-        </div>
-    `;
-    
-    answerContentElem.innerHTML = html;
-    answerInfoElem.style.display = 'block';
-}
-
-// Display summary information
-function updateSummaryInfo(problemId) {
-    if (!summaryInfo[problemId]) {
-        summaryInfoElem.style.display = 'none';
-        summaryContainerElem.classList.add('collapsed');
-        const toggleBtn = summaryHeaderElem.querySelector('.toggle-btn');
-        updateToggleButton(toggleBtn, summaryContainerElem);
-        return;
-    }
-    
-    summaryContentElem.textContent = summaryInfo[problemId];
-    summaryInfoElem.style.display = 'block';
-    
-    // Make sure the section is expanded when new content is available
-    summaryContainerElem.classList.remove('collapsed');
-    const toggleBtn = summaryHeaderElem.querySelector('.toggle-btn');
-    updateToggleButton(toggleBtn, summaryContainerElem);
 } 
