@@ -7,6 +7,8 @@ const problemsListElem = document.getElementById('problems-list');
 const currentProblemElem = document.getElementById('current-problem');
 const answerInfoElem = document.getElementById('answer-info');
 const answerContentElem = document.querySelector('#answer-info .answer-content');
+const summaryInfoElem = document.getElementById('summary-info');
+const summaryContentElem = document.querySelector('#summary-info .summary-content');
 
 // Current active problem
 let activeProblemId = null;
@@ -14,6 +16,8 @@ let activeProblemId = null;
 let problemOutputs = {};
 // Store answer information by problem ID
 let answerInfo = {};
+// Store summary information by problem ID
+let summaryInfo = {};
 
 // Handle connection status
 socket.on('connect', () => {
@@ -95,6 +99,7 @@ socket.on('problem_status', (data) => {
             currentProblemElem.textContent = problem_id;
             updateModelOutput(problem_id);
             updateAnswerInfo(problem_id);
+            updateSummaryInfo(problem_id);
         });
         
         problemsListElem.appendChild(problemCard);
@@ -159,6 +164,21 @@ socket.on('answer_info', (data) => {
     }
 });
 
+// Handle summary information
+socket.on('reasoning_summary', (data) => {
+    const { problem_id, summary } = data;
+    
+    console.log(`Received summary for problem_id: ${problem_id}`);
+    
+    // Store the summary information
+    summaryInfo[problem_id] = summary;
+    
+    // If this is the active problem, update the display
+    if (problem_id === activeProblemId) {
+        updateSummaryInfo(problem_id);
+    }
+});
+
 // Format and display model output with answer highlighting
 function updateModelOutput(problemId) {
     if (!problemOutputs[problemId]) {
@@ -215,4 +235,15 @@ function updateAnswerInfo(problemId) {
     
     answerContentElem.innerHTML = html;
     answerInfoElem.style.display = 'block';
+}
+
+// Display summary information
+function updateSummaryInfo(problemId) {
+    if (!summaryInfo[problemId]) {
+        summaryInfoElem.style.display = 'none';
+        return;
+    }
+    
+    summaryContentElem.textContent = summaryInfo[problemId];
+    summaryInfoElem.style.display = 'block';
 } 

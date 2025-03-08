@@ -174,4 +174,26 @@ h2 {
 
 .answer-info .incorrect {
     color: #dc3545;
+}
+
+/* Summary information display */
+.summary-info {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 5px;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.summary-info h3 {
+    margin-top: 0;
+    font-size: 16px;
+    color: #495057;
+}
+
+.summary-info .summary-content {
+    white-space: pre-wrap;
+    font-size: 14px;
+    line-height: 1.5;
 } 

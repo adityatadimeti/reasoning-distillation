@@ -5,7 +5,7 @@ import logging
 from src.experiments.base import BaseExperiment
 from src.llm.model_factory import create_model_client
 from src.reasoning.extractor import extract_answer
-# from src.reasoning.summarizer import summarize_reasoning
+from src.reasoning.summarizer import summarize_reasoning
 from src.dashboard.server import DashboardServer
 
 logger = logging.getLogger(__name__)
@@ -161,6 +161,40 @@ class SummarizationExperiment(BaseExperiment):
                 correct_answer,
                 initial_correct
             )
+        
+        # If the initial answer is incorrect and summarization is enabled, try summarization
+        # if not initial_correct and self.config.get("enable_summarization", True):
+        if self.config.get("enable_summarization", True): # TEMP: ALWAYS SUMMARIZE
+            # Get the summarization prompt template
+            summarize_template = self.config.get("summarize_prompt_template")
+            if not summarize_template:
+                raise ValueError("summarize_prompt_template must be specified in configuration")
+            
+            # Generate summary of the reasoning
+            logger.info(f"Generating summary for problem {problem_id}")
+            
+            # Ensure top_k is included in the config for FireworksModelClient
+            if not hasattr(self.summarizer, "top_k") and "top_k" not in self.config:
+                self.config["summary_top_k"] = 40  # Add top_k to config if using FireworksModelClient
+                
+            summary = summarize_reasoning(
+                initial_reasoning,
+                self.summarizer,
+                summarize_template,
+                max_tokens=self.config.get("summary_max_tokens"),
+                temperature=self.config.get("summary_temperature"),
+                top_p=self.config.get("summary_top_p"),
+                top_k=self.config.get("summary_top_k"),
+                presence_penalty=self.config.get("summary_presence_penalty"),
+                frequency_penalty=self.config.get("summary_frequency_penalty")
+            )
+            
+            # Add summary to result
+            result["summary"] = summary
+            
+            # Update dashboard with summary
+            if self.dashboard:
+                self.dashboard.update_summary(problem_id, summary)
         
         return result
     

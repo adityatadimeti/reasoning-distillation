@@ -18,8 +18,16 @@ top_p: 1.0
 top_k: 40
 presence_penalty: 0.0
 frequency_penalty: 0.0
+# Summarization parameters
+enable_summarization: true
+summary_max_tokens: 16384
+summary_temperature: 0.7
+summary_top_p: 1.0
+summary_top_k: 40
+summary_presence_penalty: 0.0
+summary_frequency_penalty: 0.0
 
 # Prompt configurations
 prompts:
-  reasoning: "v1"  # This references the version in config/prompts/reasoning.yaml
-
+  reasoning: "v0"  # This references the version in config/prompts/reasoning.yaml
+  summarize: "testing"  # This references the version in config/prompts/summarize.yaml

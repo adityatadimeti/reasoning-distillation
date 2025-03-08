@@ -126,6 +126,21 @@ class DashboardServer:
                 'is_correct': is_correct
             })
     
+    def update_summary(self, problem_id: str, summary: str):
+        """
+        Send reasoning summary to the dashboard.
+        
+        Args:
+            problem_id: ID of the problem
+            summary: The summarized reasoning
+        """
+        logger.debug(f"Sending summary to dashboard for problem ID: {problem_id}")
+        if self.thread and self.thread.is_alive() and self.client_ready:
+            self.socketio.emit('reasoning_summary', {
+                'problem_id': problem_id,
+                'summary': summary
+            })
+    
     def stop(self):
         """Stop the dashboard server."""
         if self.thread and self.thread.is_alive():
