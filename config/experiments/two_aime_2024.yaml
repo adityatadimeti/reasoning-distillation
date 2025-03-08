@@ -1,7 +1,7 @@
 # Experiment configuration
-experiment_name: "summarization_test"
-results_dir: "./results"
-data_path: "./data/aime_2024.csv"
+experiment_name: "two_aime_2024"
+results_dir: "./results/two_aime_2024"
+data_path: "./data/two_aime_2024.csv"
 save_intermediate: true
 
 # Dashboard configuration
@@ -19,10 +19,7 @@ top_k: 40
 presence_penalty: 0.0
 frequency_penalty: 0.0
 
-# Prompt templates
-reasoning_prompt_template: |
-  Solve the following AIME math problem step by step. 
-  First, think through the problem carefully in <think> tags, then provide your final answer.
-  
-  PROBLEM:
-  {Problem} 
+# Prompt configurations
+prompts:
+  reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
+

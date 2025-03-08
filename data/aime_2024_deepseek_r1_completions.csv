@@ -1,4 +1,4 @@
-ID,Problem,Solution,Answer,model_completion,extracted_answer
+id,question,solution,answer,model_completion,extracted_answer
 2024-II-4,"Let $x,y$ and $z$ be positive real numbers that satisfy the following system of equations: 
 \[\log_2\left({x \over yz}\right) = {1 \over 2}\]
 \[\log_2\left({y \over xz}\right) = {1 \over 3}\]

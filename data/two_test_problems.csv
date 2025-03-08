@@ -1,4 +1,4 @@
-ID,question,solution,answer
+id,question,solution,answer
 TEST-001,"A box contains 4 red balls, 3 blue balls, and 5 green balls. If 3 balls are randomly selected without replacement, what is the probability that all 3 balls are the same color?","I need to find the probability of drawing 3 balls of the same color out of 12 balls total.
 
 Total number of ways to select 3 balls from 12 balls = $\binom{12}{3} = \frac{12!}{3!(12-3)!} = \frac{12 \cdot 11 \cdot 10}{3 \cdot 2 \cdot 1} = 220$
