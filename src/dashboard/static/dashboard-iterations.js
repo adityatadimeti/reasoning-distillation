@@ -2,11 +2,23 @@
 // Handles the new UI with collapsible iterations
 
 // Create or update the iterations UI
-function updateIterationsUI(problemId) {
+function updateIterationsUI(problemId, handleScroll = true) {
     console.log(`Updating iterations UI for problem ${problemId}`, {
         globalOutputs: window.problemOutputs,
         problemOutputs: window.problemOutputs[problemId]
     });
+    
+    // Remember scroll position (only if handleScroll is true)
+    let scrollTop = 0;
+    let wasAtBottom = false;
+    const container = document.getElementById('iterations-container');
+    
+    if (handleScroll && container) {
+        scrollTop = container.scrollTop;
+        const scrollHeight = container.scrollHeight;
+        const clientHeight = container.clientHeight;
+        wasAtBottom = scrollHeight - scrollTop <= clientHeight + 50; // 50px threshold
+    }
     
     // Use the global problemOutputs variable
     const outputs = window.problemOutputs && window.problemOutputs[problemId];
@@ -68,16 +80,26 @@ function updateIterationsUI(problemId) {
         // Show reasoning first (before summary)
         if (iterData.reasoning) {
             html += `<div class="iteration-reasoning">`;
+            html += `<div class="subsection-header" id="reasoning-${iteration}-header">`;
             html += `<h4>Reasoning</h4>`;
+            html += `<button class="toggle-btn" aria-expanded="true" title="Collapse section">−</button>`;
+            html += `</div>`;
+            html += `<div class="subsection-content" id="reasoning-${iteration}-content">`;
             html += `<div class="reasoning-content">${DashboardUI.formatReasoning(iterData.reasoning)}</div>`;
+            html += `</div>`; // End subsection-content
             html += `</div>`; // End iteration-reasoning
         }
         
         // Show summary if available
         if (iterData.summary) {
             html += `<div class="iteration-summary">`;
+            html += `<div class="subsection-header" id="summary-${iteration}-header">`;
             html += `<h4>Summary${iterData.summaryStreaming ? ' <span class="streaming-text">(streaming...)</span>' : ''}</h4>`;
+            html += `<button class="toggle-btn" aria-expanded="true" title="Collapse section">−</button>`;
+            html += `</div>`;
+            html += `<div class="subsection-content" id="summary-${iteration}-content">`;
             html += `<div class="summary-content">${iterData.summary}</div>`;
+            html += `</div>`; // End subsection-content
             html += `</div>`; // End iteration-summary
         }
         
@@ -102,7 +124,42 @@ function updateIterationsUI(problemId) {
         } else {
             console.error(`Failed to set up toggle listener for iteration ${iteration}`);
         }
+        
+        // Set up toggle listeners for reasoning section
+        const reasoningHeader = document.getElementById(`reasoning-${iteration}-header`);
+        const reasoningContent = document.getElementById(`reasoning-${iteration}-content`);
+        if (reasoningHeader && reasoningContent) {
+            const reasoningToggleBtn = reasoningHeader.querySelector('.toggle-btn');
+            if (reasoningToggleBtn) {
+                reasoningHeader.addEventListener('click', () => {
+                    DashboardUI.toggleSection(reasoningContent, reasoningToggleBtn);
+                });
+            }
+        }
+        
+        // Set up toggle listeners for summary section
+        const summaryHeader = document.getElementById(`summary-${iteration}-header`);
+        const summaryContent = document.getElementById(`summary-${iteration}-content`);
+        if (summaryHeader && summaryContent) {
+            const summaryToggleBtn = summaryHeader.querySelector('.toggle-btn');
+            if (summaryToggleBtn) {
+                summaryHeader.addEventListener('click', () => {
+                    DashboardUI.toggleSection(summaryContent, summaryToggleBtn);
+                });
+            }
+        }
     });
+    
+    // Restore scroll position only if handleScroll is true
+    if (handleScroll && container) {
+        setTimeout(() => {
+            if (wasAtBottom) {
+                container.scrollTop = container.scrollHeight; // Scroll to bottom
+            } else {
+                container.scrollTop = scrollTop; // Maintain scroll position
+            }
+        }, 50);
+    }
 }
 
 // Dashboard Iterations exports

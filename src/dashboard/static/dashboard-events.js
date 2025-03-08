@@ -76,6 +76,33 @@ function registerEventHandlers(socket) {
         }
     });
     
+    // Helper function to maintain scroll position when updating content
+    function updateUIWithScrollPreservation(problemId) {
+        // Only update if this is the active problem
+        if (problemId === DashboardCore.getActiveProblem()) {
+            // Store the current scroll position
+            const container = document.getElementById('iterations-container');
+            const scrollTop = container ? container.scrollTop : 0;
+            const scrollHeight = container ? container.scrollHeight : 0;
+            const clientHeight = container ? container.clientHeight : 0;
+            const wasAtBottom = scrollHeight - scrollTop <= clientHeight + 50; // 50px threshold
+            
+            // Update the UI
+            DashboardIterations.updateIterationsUI(problemId, false); // Pass false to not handle scroll in updateIterationsUI
+            
+            // Now restore scroll position with a slightly longer delay to ensure rendering is complete
+            setTimeout(() => {
+                if (container) {
+                    if (wasAtBottom) {
+                        container.scrollTop = container.scrollHeight; // Scroll to bottom
+                    } else {
+                        container.scrollTop = scrollTop; // Maintain scroll position
+                    }
+                }
+            }, 50); // Slightly longer delay to ensure content is fully rendered
+        }
+    }
+    
     // Handle model output chunks
     socket.on('model_output', (data) => {
         const { problem_id, chunk, iteration = 0 } = data;
@@ -99,7 +126,8 @@ function registerEventHandlers(socket) {
                 summary: '',
                 answer: '',
                 correct_answer: '',
-                is_correct: false
+                is_correct: false,
+                summaryStreaming: false
             };
         }
         
@@ -111,9 +139,20 @@ function registerEventHandlers(socket) {
             outputLength: window.problemOutputs[problem_id][iteration].reasoning.length
         });
         
-        // If this is the active problem, update the display
+        // Check if this is the active problem and the reasoning content element exists
         if (problem_id === DashboardCore.getActiveProblem()) {
-            DashboardIterations.updateIterationsUI(problem_id);
+            const reasoningContentElement = document.getElementById(`reasoning-${iteration}-content`);
+            if (reasoningContentElement) {
+                // Direct DOM update for content - much faster than rebuilding
+                const reasoningContent = reasoningContentElement.querySelector('.reasoning-content');
+                if (reasoningContent) {
+                    reasoningContent.innerHTML = DashboardUI.formatReasoning(window.problemOutputs[problem_id][iteration].reasoning);
+                    return; // Skip full UI rebuild if we updated directly
+                }
+            }
+            
+            // Fall back to full UI update if direct update wasn't possible
+            updateUIWithScrollPreservation(problem_id);
         }
     });
     
@@ -199,9 +238,20 @@ function registerEventHandlers(socket) {
         window.summaryInfo = window.summaryInfo || {};
         window.summaryInfo[problem_id] = window.problemOutputs[problem_id][iteration].summary;
         
-        // If this is the active problem, update the display
+        // Check if this is the active problem and the summary content element exists
         if (problem_id === DashboardCore.getActiveProblem()) {
-            DashboardIterations.updateIterationsUI(problem_id);
+            const summaryContentElement = document.getElementById(`summary-${iteration}-content`);
+            if (summaryContentElement) {
+                // Direct DOM update for content - much faster than rebuilding
+                const summaryContent = summaryContentElement.querySelector('.summary-content');
+                if (summaryContent) {
+                    summaryContent.textContent = window.problemOutputs[problem_id][iteration].summary;
+                    return; // Skip full UI rebuild if we updated directly
+                }
+            }
+            
+            // Fall back to full UI update if direct update wasn't possible
+            updateUIWithScrollPreservation(problem_id);
         }
     });
     
@@ -228,7 +278,8 @@ function registerEventHandlers(socket) {
                 summary: '',
                 answer: answer,
                 correct_answer: correct_answer,
-                is_correct: is_correct
+                is_correct: is_correct,
+                summaryStreaming: false
             };
         } else {
             window.problemOutputs[problem_id][iteration].answer = answer;
@@ -248,14 +299,12 @@ function registerEventHandlers(socket) {
         const status = is_correct ? 'correct' : 'incorrect';
         DashboardUI.createProblemCard(problem_id, problem_id, status);
         
-        // If this is the active problem, update the display
-        if (problem_id === DashboardCore.getActiveProblem()) {
-            DashboardIterations.updateIterationsUI(problem_id);
-        }
+        // Update UI with scroll preservation
+        updateUIWithScrollPreservation(problem_id);
     });
 }
 
 // Dashboard Events exports
 window.DashboardEvents = {
     registerEventHandlers
-}; 
+};

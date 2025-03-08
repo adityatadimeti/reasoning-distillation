@@ -546,4 +546,71 @@ h4 {
     0% { opacity: 0.6; }
     50% { opacity: 1; }
     100% { opacity: 0.6; }
+}
+
+/* Subsection styling within iterations */
+.subsection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    background-color: #f5f5f5;
+    cursor: pointer;
+    border-radius: 3px;
+    margin-bottom: 5px;
+}
+
+.subsection-header h4 {
+    margin: 0;
+    font-size: 1em;
+    color: #444;
+}
+
+.subsection-content {
+    padding: 0 5px;
+    max-height: 1000px;
+    overflow: auto;
+    transition: max-height 0.3s ease;
+}
+
+.subsection-content.collapsed {
+    max-height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Iteration Content - fix scrolling issues */
+.reasoning-content, .summary-content {
+    min-height: 50px; /* Provide a minimum height to reduce layout shifts */
+    overflow-y: auto;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+/* Make sure streaming content doesn't cause layout shifts */
+.iterations-container {
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin; /* For Firefox */
+    position: relative;
+}
+
+/* Fix for Chrome/Edge scrollbars */
+.iterations-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.iterations-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.iterations-container::-webkit-scrollbar-thumb {
+    background: #cccccc;
+    border-radius: 4px;
+}
+
+.iterations-container::-webkit-scrollbar-thumb:hover {
+    background: #aaaaaa;
 } 
