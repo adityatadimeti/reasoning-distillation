@@ -6,14 +6,14 @@ from dotenv import load_dotenv
 # Add the src directory to the path so we can import our modules
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.llm.fireworks_client import FireworksClient
+from src.llm.fireworks_client import FireworksModelClient
 
 # Load environment variables
 load_dotenv()
 
 def test_fireworks_client_initialization():
     """Test that the client initializes correctly."""
-    client = FireworksClient()
+    client = FireworksModelClient(model_name="accounts/fireworks/models/qwq-32b")
     assert client.model_name == "accounts/fireworks/models/qwq-32b"
     assert client.api_key is not None
 
@@ -21,7 +21,7 @@ def test_fireworks_client_initialization():
                    reason="API calls disabled")
 def test_streaming_completion():
     """Test streaming completion to verify streaming API functionality."""
-    client = FireworksClient()
+    client = FireworksModelClient(model_name="accounts/fireworks/models/qwq-32b")
     
     # Collect streamed chunks
     chunks = []
@@ -59,7 +59,7 @@ def test_streaming_completion():
                    reason="API calls disabled")
 def test_streaming_vs_non_streaming():
     """Compare streaming and non-streaming responses to ensure they're similar."""
-    client = FireworksClient()
+    client = FireworksModelClient(model_name="accounts/fireworks/models/qwq-32b")
     prompt = "What is the capital of France?"
     
     # Get non-streaming response
