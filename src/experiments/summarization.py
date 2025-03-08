@@ -158,7 +158,10 @@ class SummarizationExperiment(BaseExperiment):
             "timestamp": time.time()
         }
         
-        # Add convenience fields for backward compatibility
+        # NOTE: The following fields are duplicates of data already in iterations[0]
+        # They are kept for backward compatibility with existing dashboard code
+        # TODO: For a future refactor, remove these redundant fields and update dashboard
+        # to use iterations[0] directly
         result["initial_reasoning"] = iter0_reasoning
         result["initial_answer"] = iter0_answer
         result["initial_correct"] = iter0_correct
@@ -269,12 +272,14 @@ class SummarizationExperiment(BaseExperiment):
                 "correct": next_correct
             })
             
-            # Add convenience fields for the latest iteration
-            if next_iteration == 1:
-                result["summary"] = summary
-                result["improved_reasoning"] = next_reasoning
-                result["improved_answer"] = next_answer
-                result["improved_correct"] = next_correct
+            # NOTE: These are redundant fields duplicating data already in iterations[1]
+            # They are kept for backward compatibility with existing dashboard code
+            # TODO: For a future refactor, remove these redundant fields and update dashboard
+            # to use iterations[1] directly
+            result["summary"] = summary
+            result["improved_reasoning"] = next_reasoning
+            result["improved_answer"] = next_answer
+            result["improved_correct"] = next_correct
             
             # Update dashboard with answer information
             if self.dashboard:
