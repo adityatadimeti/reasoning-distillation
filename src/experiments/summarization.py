@@ -110,7 +110,7 @@ class SummarizationExperiment(BaseExperiment):
         if not reasoning_template:
             raise ValueError("reasoning_prompt_template must be specified in configuration")
         
-        initial_prompt = reasoning_template.format(question=question)
+        initial_prompt = reasoning_template.replace("{question}", question)
         
         # Generate initial reasoning with streaming
         if self.dashboard:
