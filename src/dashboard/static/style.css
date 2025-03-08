@@ -130,10 +130,48 @@ h2 {
 /* Add this to highlight the answer in the output */
 .answer-highlight {
     background-color: #e2f0ff;
-    font-weight: bold;
-    padding: 5px;
-    border-radius: 3px;
-    border: 1px solid #b8daff;
+    border-left: 3px solid #007bff;
+    padding: 5px 10px;
     margin: 5px 0;
     display: inline-block;
+    font-weight: bold;
+}
+
+/* Answer information display */
+.answer-info {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 5px;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.answer-info h3 {
+    margin-top: 0;
+    font-size: 16px;
+    color: #495057;
+}
+
+.answer-info .answer-pair {
+    display: flex;
+    margin-bottom: 5px;
+}
+
+.answer-info .answer-label {
+    font-weight: bold;
+    width: 150px;
+    color: #495057;
+}
+
+.answer-info .answer-value {
+    flex: 1;
+}
+
+.answer-info .correct {
+    color: #28a745;
+}
+
+.answer-info .incorrect {
+    color: #dc3545;
 } 

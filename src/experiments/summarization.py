@@ -153,6 +153,14 @@ class SummarizationExperiment(BaseExperiment):
                 problem_id, 
                 "correct" if initial_correct else "incorrect"
             )
+            
+            # Send answer information to the dashboard
+            self.dashboard.update_answer_info(
+                problem_id,
+                initial_answer or "No answer extracted",
+                correct_answer,
+                initial_correct
+            )
         
         return result
     

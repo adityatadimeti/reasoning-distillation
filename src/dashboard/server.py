@@ -107,6 +107,25 @@ class DashboardServer:
                 'chunk': chunk
             })
     
+    def update_answer_info(self, problem_id: str, extracted_answer: str, correct_answer: str, is_correct: bool):
+        """
+        Send answer information to the dashboard.
+        
+        Args:
+            problem_id: ID of the problem
+            extracted_answer: The answer extracted from the model's reasoning
+            correct_answer: The correct answer to the problem
+            is_correct: Whether the extracted answer matches the correct answer
+        """
+        logger.debug(f"Sending answer info to dashboard for problem ID: {problem_id}")
+        if self.thread and self.thread.is_alive() and self.client_ready:
+            self.socketio.emit('answer_info', {
+                'problem_id': problem_id,
+                'extracted_answer': extracted_answer,
+                'correct_answer': correct_answer,
+                'is_correct': is_correct
+            })
+    
     def stop(self):
         """Stop the dashboard server."""
         if self.thread and self.thread.is_alive():

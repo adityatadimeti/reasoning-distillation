@@ -5,11 +5,15 @@ const statusElem = document.getElementById('connection-status');
 const experimentsInfoElem = document.getElementById('experiment-details');
 const problemsListElem = document.getElementById('problems-list');
 const currentProblemElem = document.getElementById('current-problem');
+const answerInfoElem = document.getElementById('answer-info');
+const answerContentElem = document.querySelector('#answer-info .answer-content');
 
 // Current active problem
 let activeProblemId = null;
 // Store problem output by problem ID
 let problemOutputs = {};
+// Store answer information by problem ID
+let answerInfo = {};
 
 // Handle connection status
 socket.on('connect', () => {
@@ -90,6 +94,7 @@ socket.on('problem_status', (data) => {
             // Update output display
             currentProblemElem.textContent = problem_id;
             updateModelOutput(problem_id);
+            updateAnswerInfo(problem_id);
         });
         
         problemsListElem.appendChild(problemCard);
@@ -135,6 +140,25 @@ socket.on('model_output', (data) => {
     }
 });
 
+// Handle answer information
+socket.on('answer_info', (data) => {
+    const { problem_id, extracted_answer, correct_answer, is_correct } = data;
+    
+    console.log(`Received answer info for problem_id: ${problem_id}`);
+    
+    // Store the answer information
+    answerInfo[problem_id] = {
+        extractedAnswer: extracted_answer,
+        correctAnswer: correct_answer,
+        isCorrect: is_correct
+    };
+    
+    // If this is the active problem, update the display
+    if (problem_id === activeProblemId) {
+        updateAnswerInfo(problem_id);
+    }
+});
+
 // Format and display model output with answer highlighting
 function updateModelOutput(problemId) {
     if (!problemOutputs[problemId]) {
@@ -160,4 +184,35 @@ function updateModelOutput(problemId) {
     
     // Scroll to the bottom
     modelOutputElem.scrollTop = modelOutputElem.scrollHeight;
+}
+
+// Display answer information
+function updateAnswerInfo(problemId) {
+    if (!answerInfo[problemId]) {
+        answerInfoElem.style.display = 'none';
+        return;
+    }
+    
+    const { extractedAnswer, correctAnswer, isCorrect } = answerInfo[problemId];
+    
+    // Create HTML for answer information
+    let html = `
+        <div class="answer-pair">
+            <div class="answer-label">Extracted Answer:</div>
+            <div class="answer-value">${extractedAnswer}</div>
+        </div>
+        <div class="answer-pair">
+            <div class="answer-label">Correct Answer:</div>
+            <div class="answer-value">${correctAnswer}</div>
+        </div>
+        <div class="answer-pair">
+            <div class="answer-label">Status:</div>
+            <div class="answer-value ${isCorrect ? 'correct' : 'incorrect'}">
+                ${isCorrect ? 'Correct ✓' : 'Incorrect ✗'}
+            </div>
+        </div>
+    `;
+    
+    answerContentElem.innerHTML = html;
+    answerInfoElem.style.display = 'block';
 } 
