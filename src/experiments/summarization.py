@@ -164,7 +164,7 @@ class SummarizationExperiment(BaseExperiment):
         
         # If the initial answer is incorrect and summarization is enabled, try summarization
         # if not initial_correct and self.config.get("enable_summarization", True):
-        if self.config.get("enable_summarization", True): # TEMP: ALWAYS SUMMARIZE
+        if self.config.get("enable_summarization", True): # FOR: ALWAYS SUMMARIZE
             # Get the summarization prompt template
             summarize_template = self.config.get("summarize_prompt_template")
             if not summarize_template:
@@ -174,8 +174,8 @@ class SummarizationExperiment(BaseExperiment):
             logger.info(f"Generating summary for problem {problem_id}")
             
             # Ensure top_k is included in the config for FireworksModelClient
-            if not hasattr(self.summarizer, "top_k") and "top_k" not in self.config:
-                self.config["summary_top_k"] = 40  # Add top_k to config if using FireworksModelClient
+            if not hasattr(self.summarizer, "top_k"):
+                assert "top_k" in self.config, "top_k must be specified in config if using FireworksModelClient"
                 
             summary = summarize_reasoning(
                 initial_reasoning,

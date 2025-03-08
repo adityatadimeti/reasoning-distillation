@@ -1,12 +1,16 @@
 // Connect to WebSocket server
 const socket = io();
 const modelOutputElem = document.getElementById('model-output');
+const modelOutputHeaderElem = document.getElementById('model-output-header');
+const modelOutputContainerElem = document.getElementById('model-output-container');
 const statusElem = document.getElementById('connection-status');
 const experimentsInfoElem = document.getElementById('experiment-details');
 const problemsListElem = document.getElementById('problems-list');
 const currentProblemElem = document.getElementById('current-problem');
 const answerInfoElem = document.getElementById('answer-info');
 const answerContentElem = document.querySelector('#answer-info .answer-content');
+const summaryHeaderElem = document.getElementById('summary-header');
+const summaryContainerElem = document.getElementById('summary-container');
 const summaryInfoElem = document.getElementById('summary-info');
 const summaryContentElem = document.querySelector('#summary-info .summary-content');
 
@@ -18,6 +22,46 @@ let problemOutputs = {};
 let answerInfo = {};
 // Store summary information by problem ID
 let summaryInfo = {};
+
+// Setup collapsible sections
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup model output toggle
+    modelOutputHeaderElem.addEventListener('click', function() {
+        toggleSection(modelOutputContainerElem, modelOutputHeaderElem.querySelector('.toggle-btn'));
+    });
+    
+    // Setup summary toggle
+    summaryHeaderElem.addEventListener('click', function() {
+        toggleSection(summaryContainerElem, summaryHeaderElem.querySelector('.toggle-btn'));
+    });
+    
+    // Ensure toggle buttons have the correct initial symbols
+    document.querySelectorAll('.toggle-btn').forEach(button => {
+        const contentElement = button.closest('.section-header').nextElementSibling;
+        if (contentElement.classList.contains('collapsed')) {
+            button.textContent = '▼';
+            button.classList.add('collapsed');
+        } else {
+            button.textContent = '▲';
+            button.classList.remove('collapsed');
+        }
+    });
+});
+
+// Function to toggle collapsible sections
+function toggleSection(contentElement, buttonElement) {
+    if (contentElement.classList.contains('collapsed')) {
+        // Expand section
+        contentElement.classList.remove('collapsed');
+        buttonElement.classList.remove('collapsed');
+        buttonElement.textContent = '▲';
+    } else {
+        // Collapse section
+        contentElement.classList.add('collapsed');
+        buttonElement.classList.add('collapsed');
+        buttonElement.textContent = '▼';
+    }
+}
 
 // Handle connection status
 socket.on('connect', () => {
@@ -241,9 +285,17 @@ function updateAnswerInfo(problemId) {
 function updateSummaryInfo(problemId) {
     if (!summaryInfo[problemId]) {
         summaryInfoElem.style.display = 'none';
+        summaryContainerElem.classList.add('collapsed');
+        summaryHeaderElem.querySelector('.toggle-btn').classList.add('collapsed');
+        summaryHeaderElem.querySelector('.toggle-btn').textContent = '▼';
         return;
     }
     
     summaryContentElem.textContent = summaryInfo[problemId];
     summaryInfoElem.style.display = 'block';
+    
+    // Make sure the section is expanded when new content is available
+    summaryContainerElem.classList.remove('collapsed');
+    summaryHeaderElem.querySelector('.toggle-btn').classList.remove('collapsed');
+    summaryHeaderElem.querySelector('.toggle-btn').textContent = '▲';
 } 

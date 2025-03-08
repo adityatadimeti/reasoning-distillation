@@ -102,17 +102,15 @@ h2 {
 }
 
 #model-output {
-    background-color: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 5px;
     padding: 15px;
-    margin-top: 10px;
+    margin: 0;
+    background-color: #ffffff;
+    font-family: monospace;
     white-space: pre-wrap;
-    height: 500px;
-    overflow-y: auto;
-    font-family: "Courier New", Courier, monospace;
-    font-size: 14px;
-    line-height: 1.5;
+    overflow-x: auto;
+    height: auto;
+    max-height: 500px;
+    border: none;
 }
 
 #current-problem {
@@ -177,13 +175,14 @@ h2 {
 }
 
 /* Summary information display */
-.summary-info {
-    background-color: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 5px;
-    padding: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+#summary-info {
+    margin: 0;
+    border: none;
+    background-color: #ffffff;
+}
+
+#summary-container .summary-content {
+    padding: 15px;
 }
 
 .summary-info h3 {
@@ -196,4 +195,51 @@ h2 {
     white-space: pre-wrap;
     font-size: 14px;
     line-height: 1.5;
+}
+
+/* Collapsible sections */
+.collapsible-section {
+    margin: 10px 0;
+    border: 1px solid #e9ecef;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+.section-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #495057;
+}
+
+.toggle-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: #6c757d;
+    transition: transform 0.3s ease;
+}
+
+.toggle-btn.collapsed {
+    transform: rotate(180deg);
+}
+
+.section-content {
+    max-height: 1000px;
+    overflow-y: auto;
+    transition: max-height 0.3s ease;
+}
+
+.section-content.collapsed {
+    max-height: 0;
+    overflow: hidden;
 } 

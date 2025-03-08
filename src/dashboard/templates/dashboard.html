@@ -35,11 +35,28 @@
                 <h3>Answer Information</h3>
                 <div class="answer-content"></div>
             </div>
-            <div id="summary-info" class="summary-info" style="display: none;">
-                <h3>Reasoning Summary</h3>
-                <div class="summary-content"></div>
+            
+            <div class="collapsible-section">
+                <div class="section-header" id="model-output-header">
+                    <h3>Raw Reasoning Trace</h3>
+                    <button class="toggle-btn">▲</button>
+                </div>
+                <div class="section-content" id="model-output-container">
+                    <pre id="model-output"></pre>
+                </div>
             </div>
-            <pre id="model-output"></pre>
+            
+            <div class="collapsible-section">
+                <div class="section-header" id="summary-header">
+                    <h3>Reasoning Summary</h3>
+                    <button class="toggle-btn">▲</button>
+                </div>
+                <div class="section-content" id="summary-container">
+                    <div id="summary-info" class="summary-info" style="display: none;">
+                        <div class="summary-content"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
