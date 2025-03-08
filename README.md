@@ -1,47 +1,53 @@
-# Reasoning Distillation Research Project
+# Project Overview: Improving Reasoning Models through Self-Summarization
+
+We're working on a research project that aims to improve how AI reasoning models solve complex problems. Let me explain what the project is about and where we currently stand.
+
+## The Research Problem
+
+Modern AI reasoning models like DeepSeek-R1 can solve complex math and logic problems by generating detailed step-by-step reasoning (often marked with `<think>` tags). However, we've identified an interesting gap: when these models make a single attempt at a problem (pass@1), they achieve about 70% accuracy on mathematical benchmarks like AIME. But if allowed multiple attempts (pass@64), accuracy jumps to about 85%.
+
+Our research question: Can we close this gap without the computational expense of 64 separate attempts?
+
+## The Hypothesis
+
+Our hypothesis is that models can improve their reasoning by doing something humans naturally do: summarizing their own work, reflecting on it, and using that reflection to guide further reasoning.
+
+The key insight is that we could potentially achieve near pass@64 performance with significantly less computation by having the model:
+1. Generate an initial reasoning trace
+2. Summarize this reasoning
+3. Use this summary to continue or redo its reasoning
 
 ## Project Structure
 
-```
-reasoning-enhancement/
-├── README.md               # This file
-├── requirements.txt        # Python dependencies
-├── setup.py                # Package installation
-├── .gitignore              # Git ignore patterns
-├── .env.example            # Example environment variables
-├── configs/                # Configuration files
-├── src/                    # Source code
-├── scripts/                # Utility scripts
-├── experiments/            # Experiment runners
-├── notebooks/              # Analysis notebooks
-├── data/                   # Data storage
-├── results/                # Experiment results
-├── logs/                   # Experiment logs
-└── tests/                  # Unit tests
-```
+We've organized the project as a proper research codebase with:
 
-## Getting Started
+- Core modules for working with reasoning models, generating reasoning traces, creating summaries, and evaluating results
+- Configurable pipelines for different experimental approaches
+- Testing infrastructure to validate each component
+- Experiment runners for systematic evaluation
+- Clear separation of data, code, and results
 
-1. Clone this repository
-2. Install dependencies: `pip install -r requirements.txt`
-3. Set up environment variables: `cp .env.example .env` and edit as needed
-4. Run a baseline experiment: `./scripts/run_baseline.sh`
+## Pipeline Flow
 
-## GPT-4o Answer Extraction
+The basic flow of our approach is:
 
-For complex mathematical problems (like AIME), the standard regex-based answer extraction may not be sufficient. The project includes a GPT-4o-based extraction fallback that can be enabled with environment variables:
+1. Generate initial reasoning trace from model
+2. Extract and check answer for correctness
+3. For incorrect answers:
+   - Summarize the reasoning trace (either using the same model or GPT-4o)
+   - Generate new reasoning based on the summary
+   - Extract new answer and check if it's improved
 
-1. Set `ENABLE_GPT4O_EXTRACTION=1` to enable GPT-4o extraction
-2. Set `OPENAI_API_KEY=your_api_key` with your OpenAI API key
+## Current Status
 
-When enabled, the system will:
-1. First try standard regex-based extraction methods
-2. If those fail, fall back to GPT-4o to extract the answer
+We've completed the repository structure design and are about to start implementing the core components in an iterative, test-driven way. Our plan is to build up from fundamental utilities (configuration, logging) to the complete pipeline, testing each component as we go.
 
-To run tests with GPT-4o extraction:
+## Research Goals
 
-```bash
-ENABLE_GPT4O_EXTRACTION=1 OPENAI_API_KEY=your_api_key pytest tests/test_reasoning.py::TestReasoningGeneration::test_generate_with_aime_problem -v
-```
+If successful, this project could:
+1. Demonstrate a novel approach for improving reasoning model performance through reflection
+2. Create a more computationally efficient way to get high-quality reasoning
+3. Potentially lead to a paper at venues like NeurIPS or ICLR, especially if we develop the "summarize tag" approach
+4. Provide insights into how large language models can benefit from reviewing and reflecting on their own reasoning
 
-Note: Using GPT-4o extraction will incur OpenAI API costs.
+The project leverages existing state-of-the-art models while introducing a novel framework for enhancing their capabilities through a systematic approach to self-improvement.

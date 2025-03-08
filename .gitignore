@@ -70,3 +70,5 @@ wandb/
 # OS specific
 .DS_Store
 Thumbs.db
+
+v0
