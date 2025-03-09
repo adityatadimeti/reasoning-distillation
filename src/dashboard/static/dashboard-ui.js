@@ -167,29 +167,39 @@ function renderConfigSection(config) {
     
     html += '</div>';
     
-    // Prompt templates
+    // Prompt Templates Section
+    html += '<div class="config-section">';
+    html += '<h4>Prompt Templates</h4>';
+    
+    // Reasoning Prompt
     if (config.reasoning_prompt_template) {
-        html += '<div class="config-section">';
-        html += '<h4>Prompt Templates</h4>';
-        html += '<details>';
+        html += '<details class="prompt-details">';
         html += '<summary>Reasoning Prompt</summary>';
         html += `<pre class="prompt-template">${config.reasoning_prompt_template}</pre>`;
         html += '</details>';
-        html += '</div>';
     }
     
+    // Summarization Prompt
     if (config.summarize_prompt_template) {
-        html += '<div class="config-section">';
-        html += '<details>';
+        html += '<details class="prompt-details">';
         html += '<summary>Summarization Prompt</summary>';
         html += `<pre class="prompt-template">${config.summarize_prompt_template}</pre>`;
         html += '</details>';
-        html += '</div>';
     }
+    
+    // Improved Reasoning Prompt
+    if (config.improved_prompt_template) {
+        html += '<details class="prompt-details">';
+        html += '<summary>Improved Reasoning Prompt</summary>';
+        html += `<pre class="prompt-template">${config.improved_prompt_template}</pre>`;
+        html += '</details>';
+    }
+    
+    html += '</div>';
     
     // Raw config
     html += '<div class="config-section">';
-    html += '<details>';
+    html += '<details class="raw-config-details">';
     html += '<summary>Raw Configuration JSON</summary>';
     html += `<pre class="raw-config">${JSON.stringify(config, null, 2)}</pre>`;
     html += '</details>';

@@ -1,0 +1,78 @@
+{
+  "total_problems": 7,
+  "iteration_accuracy": {
+    "0": {
+      "accuracy": 0.14285714285714285,
+      "correct": 1,
+      "total": 7
+    },
+    "1": {
+      "accuracy": 0.2857142857142857,
+      "correct": 2,
+      "total": 7
+    }
+  },
+  "problems_improved": 1,
+  "problems_regressed": 0,
+  "avg_iterations_to_correct": 0.5,
+  "correct_distribution": {
+    "1": 1,
+    "0": 1
+  },
+  "problem_details": {
+    "2024-I-8": {
+      "initial_correct": false,
+      "final_correct": true,
+      "iterations_to_correct": 1,
+      "num_iterations": 2,
+      "cumulative_correct": [
+        1
+      ]
+    },
+    "2024-I-12": {
+      "initial_correct": false,
+      "final_correct": false,
+      "iterations_to_correct": -1,
+      "num_iterations": 2,
+      "cumulative_correct": []
+    },
+    "2024-I-11": {
+      "initial_correct": false,
+      "final_correct": false,
+      "iterations_to_correct": -1,
+      "num_iterations": 2,
+      "cumulative_correct": []
+    },
+    "2024-I-13": {
+      "initial_correct": false,
+      "final_correct": false,
+      "iterations_to_correct": -1,
+      "num_iterations": 2,
+      "cumulative_correct": []
+    },
+    "2024-II-15": {
+      "initial_correct": false,
+      "final_correct": false,
+      "iterations_to_correct": -1,
+      "num_iterations": 2,
+      "cumulative_correct": []
+    },
+    "2024-II-9": {
+      "initial_correct": false,
+      "final_correct": false,
+      "iterations_to_correct": -1,
+      "num_iterations": 2,
+      "cumulative_correct": []
+    },
+    "2024-I-14": {
+      "initial_correct": true,
+      "final_correct": true,
+      "iterations_to_correct": 0,
+      "num_iterations": 1,
+      "cumulative_correct": [
+        0,
+        1
+      ]
+    }
+  }
+}

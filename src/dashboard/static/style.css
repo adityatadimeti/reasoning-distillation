@@ -278,52 +278,67 @@ h2 {
 .config-section {
     margin-bottom: 15px;
     padding: 0 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.config-section:last-child {
+    border-bottom: none;
 }
 
 .config-section h4 {
     margin-top: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     padding: 5px 0;
     border-bottom: 1px solid #eee;
     color: #333;
     font-size: 1.1em;
 }
 
-.config-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9em;
-}
-
-.config-table tr:nth-child(even) {
-    background-color: #f8f9fa;
-}
-
-.config-table td {
-    padding: 6px 10px;
-    border: 1px solid #e0e0e0;
-}
-
-.config-table td:first-child {
-    font-weight: bold;
-    width: 40%;
-}
-
 .config-item {
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     padding: 3px 0;
+    display: flex;
+    align-items: flex-start;
 }
 
 .config-key {
     font-weight: bold;
     color: #555;
     display: inline-block;
-    width: 200px;
-    margin-right: 10px;
+    width: 250px;
+    margin-right: 15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .config-value {
     display: inline-block;
+    font-family: monospace;
+    background-color: #f7f7f7;
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: #333;
+    max-width: calc(100% - 265px); /* Account for label width plus margin */
+    word-break: break-all;
+}
+
+/* Additional fix for mobile views */
+@media (max-width: 768px) {
+    .config-item {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 10px;
+    }
+    
+    .config-key {
+        width: 100%;
+        margin-bottom: 3px;
+    }
+    
+    .config-value {
+        padding-left: 10px;
+    }
 }
 
 /* Prompt Templates */
@@ -659,4 +674,25 @@ h4 {
     white-space: pre-wrap;
     line-height: 1.5;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Ensure config sections handle long labels and values properly */
+.config-details {
+    margin-bottom: 15px;
+    border-radius: 4px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    overflow: hidden;
+}
+
+.config-summary {
+    padding: 10px 15px;
+    font-size: 1.1em;
+    background-color: #f5f5f5;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+}
+
+.config-content {
+    padding: 15px 0;
 } 
