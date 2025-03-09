@@ -16,7 +16,7 @@ summarizer_model: "accounts/fireworks/models/deepseek-v3"
 
 
 # Generation parameters
-max_tokens: 16384
+max_tokens: 50000
 temperature: 0.7
 top_p: 1.0
 top_k: 40
@@ -29,7 +29,7 @@ continue_after_correct: true  # Continue to iteration 1 even if iteration 0 is c
 
 # Summarization parameters
 enable_summarization: true
-summary_max_tokens: 16384
+summary_max_tokens: 10000
 summary_temperature: 0.7
 summary_top_p: 1.0
 summary_top_k: 40
@@ -39,5 +39,5 @@ summary_frequency_penalty: 0.0
 # Prompt configurations
 prompts:
   reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
-  summarize: "concise"  # This references the version in config/prompts/summarize.yaml
+  summarize: ""  # This references the version in config/prompts/summarize.yaml
   improved: "aime" # This references the version in config/prompts/improved.yaml
