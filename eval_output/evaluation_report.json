@@ -27,6 +27,18 @@
       "num_iterations": 2,
       "cumulative_correct": [
         1
+      ],
+      "answer_status": [
+        {
+          "has_answer": false,
+          "answer": null,
+          "is_correct": false
+        },
+        {
+          "has_answer": true,
+          "answer": "197",
+          "is_correct": true
+        }
       ]
     },
     "2024-I-12": {
@@ -34,35 +46,95 @@
       "final_correct": false,
       "iterations_to_correct": -1,
       "num_iterations": 2,
-      "cumulative_correct": []
+      "cumulative_correct": [],
+      "answer_status": [
+        {
+          "has_answer": true,
+          "answer": "64",
+          "is_correct": false
+        },
+        {
+          "has_answer": true,
+          "answer": "64",
+          "is_correct": false
+        }
+      ]
     },
     "2024-I-11": {
       "initial_correct": false,
       "final_correct": false,
       "iterations_to_correct": -1,
       "num_iterations": 2,
-      "cumulative_correct": []
+      "cumulative_correct": [],
+      "answer_status": [
+        {
+          "has_answer": true,
+          "answer": "483",
+          "is_correct": false
+        },
+        {
+          "has_answer": true,
+          "answer": "483",
+          "is_correct": false
+        }
+      ]
     },
     "2024-I-13": {
       "initial_correct": false,
       "final_correct": false,
       "iterations_to_correct": -1,
       "num_iterations": 2,
-      "cumulative_correct": []
+      "cumulative_correct": [],
+      "answer_status": [
+        {
+          "has_answer": true,
+          "answer": "134",
+          "is_correct": false
+        },
+        {
+          "has_answer": true,
+          "answer": "134",
+          "is_correct": false
+        }
+      ]
     },
     "2024-II-15": {
       "initial_correct": false,
       "final_correct": false,
       "iterations_to_correct": -1,
       "num_iterations": 2,
-      "cumulative_correct": []
+      "cumulative_correct": [],
+      "answer_status": [
+        {
+          "has_answer": false,
+          "answer": null,
+          "is_correct": false
+        },
+        {
+          "has_answer": false,
+          "answer": null,
+          "is_correct": false
+        }
+      ]
     },
     "2024-II-9": {
       "initial_correct": false,
       "final_correct": false,
       "iterations_to_correct": -1,
       "num_iterations": 2,
-      "cumulative_correct": []
+      "cumulative_correct": [],
+      "answer_status": [
+        {
+          "has_answer": false,
+          "answer": null,
+          "is_correct": false
+        },
+        {
+          "has_answer": false,
+          "answer": null,
+          "is_correct": false
+        }
+      ]
     },
     "2024-I-14": {
       "initial_correct": true,
@@ -72,6 +144,30 @@
       "cumulative_correct": [
         0,
         1
+      ],
+      "answer_status": [
+        {
+          "has_answer": true,
+          "answer": "104",
+          "is_correct": true
+        }
+      ]
+    }
+  },
+  "missing_answers": {
+    "0": {
+      "count": 3,
+      "problems": [
+        "2024-I-8",
+        "2024-II-15",
+        "2024-II-9"
+      ]
+    },
+    "1": {
+      "count": 2,
+      "problems": [
+        "2024-II-15",
+        "2024-II-9"
       ]
     }
   }

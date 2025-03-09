@@ -14,7 +14,6 @@ reasoning_model: "accounts/fireworks/models/deepseek-r1"
 summarizer_type: "external"
 summarizer_model: "accounts/fireworks/models/deepseek-v3"
 
-
 # Generation parameters
 max_tokens: 16384
 temperature: 0.7
@@ -24,7 +23,7 @@ presence_penalty: 0.0
 frequency_penalty: 0.0
 
 # Iteration parameters
-max_iterations: 1  # This will do initial (0) plus one more iteration (1)
+max_iterations: 2  # This will do initial (0) plus one more iteration (1)
 continue_after_correct: false  # Continue to iteration 1 even if iteration 0 is correct
 
 # Summarization parameters

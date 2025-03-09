@@ -10,7 +10,7 @@ def load_results(results_path: str) -> Dict:
     with open(results_path, 'r') as f:
         return json.load(f)
 
-def analyze_iterations(results: Dict) -> Tuple[Dict, Dict, List, Dict, Dict]:
+def analyze_iterations(results: Dict) -> Tuple[Dict, Dict, List, Dict, Dict, Dict]:
     """Analyze the effectiveness of iterations in improving answer correctness."""
     
     # Track metrics
@@ -19,6 +19,7 @@ def analyze_iterations(results: Dict) -> Tuple[Dict, Dict, List, Dict, Dict]:
     iterations_to_correct = []
     correct_distribution = defaultdict(int)
     problem_details = {}
+    missing_answers = defaultdict(list)  # Track problems with missing answers per iteration
     
     total_problems = len(results['results'])
     max_iterations = max(len(problem['iterations']) for problem in results['results'])
@@ -31,6 +32,7 @@ def analyze_iterations(results: Dict) -> Tuple[Dict, Dict, List, Dict, Dict]:
         initial_correct = None
         found_correct = False
         iterations_needed = -1
+        answer_status = []
         
         # For each possible iteration (even if this problem didn't reach it)
         for i in range(max_iterations):
@@ -39,7 +41,12 @@ def analyze_iterations(results: Dict) -> Tuple[Dict, Dict, List, Dict, Dict]:
             
             # If we have data for this iteration
             if i < len(iterations):
-                is_correct = iterations[i].get('correct', False)
+                iteration = iterations[i]
+                is_correct = iteration.get('correct', False)
+                has_answer = iteration.get('answer') is not None
+                
+                if not has_answer:
+                    missing_answers[i].append(problem_id)
                 
                 if is_correct and not found_correct:
                     found_correct = True
@@ -48,6 +55,12 @@ def analyze_iterations(results: Dict) -> Tuple[Dict, Dict, List, Dict, Dict]:
                 
                 if i == 0:
                     initial_correct = is_correct
+                
+                answer_status.append({
+                    'has_answer': has_answer,
+                    'answer': iteration.get('answer'),
+                    'is_correct': is_correct
+                })
             
             # If problem was correct in this or any previous iteration
             if found_correct:
@@ -72,7 +85,8 @@ def analyze_iterations(results: Dict) -> Tuple[Dict, Dict, List, Dict, Dict]:
             'iterations_to_correct': iterations_needed,
             'num_iterations': len(iterations),
             'cumulative_correct': [i for i in range(max_iterations) 
-                                 if i >= iterations_needed and iterations_needed != -1]
+                                 if i >= iterations_needed and iterations_needed != -1],
+            'answer_status': answer_status
         }
     
     # Convert sets to counts for the final report
@@ -83,11 +97,20 @@ def analyze_iterations(results: Dict) -> Tuple[Dict, Dict, List, Dict, Dict]:
         } for i, acc in iteration_accuracy.items()
     }
     
+    # Convert missing_answers to counts per iteration
+    missing_answers_summary = {
+        i: {
+            'count': len(problems),
+            'problems': problems
+        } for i, problems in missing_answers.items()
+    }
+    
     return (iteration_accuracy_counts, problem_progression, 
-            iterations_to_correct, correct_distribution, problem_details)
+            iterations_to_correct, correct_distribution, 
+            problem_details, missing_answers_summary)
 
 def plot_metrics(iteration_accuracy: Dict, correct_distribution: Dict, 
-                output_dir: str):
+                missing_answers: Dict, output_dir: str):
     """Generate plots for the metrics."""
     
     # Create output directory if it doesn't exist
@@ -119,6 +142,19 @@ def plot_metrics(iteration_accuracy: Dict, correct_distribution: Dict,
     plt.grid(True)
     plt.savefig(f'{output_dir}/correct_distribution.png')
     plt.close()
+    
+    # Plot missing answers by iteration
+    iterations = sorted(missing_answers.keys())
+    counts = [missing_answers[i]['count'] for i in iterations]
+    
+    plt.figure(figsize=(10, 6))
+    plt.bar(iterations, counts, color='red', alpha=0.6)
+    plt.title('Missing Answers by Iteration')
+    plt.xlabel('Iteration')
+    plt.ylabel('Count')
+    plt.grid(True)
+    plt.savefig(f'{output_dir}/missing_answers.png')
+    plt.close()
 
 def main():
     parser = argparse.ArgumentParser(description='Analyze iteration effectiveness')
@@ -132,7 +168,7 @@ def main():
     
     # Analyze iterations
     (iteration_accuracy, problem_progression, iterations_to_correct,
-     correct_distribution, problem_details) = analyze_iterations(results)
+     correct_distribution, problem_details, missing_answers) = analyze_iterations(results)
     
     # Calculate summary statistics
     total_problems = len(results['results'])
@@ -151,7 +187,8 @@ def main():
         'problems_regressed': len(problem_progression['regressed']),
         'avg_iterations_to_correct': avg_iterations_to_correct,
         'correct_distribution': correct_distribution,
-        'problem_details': problem_details
+        'problem_details': problem_details,
+        'missing_answers': missing_answers
     }
     
     # Save report
@@ -160,7 +197,7 @@ def main():
         json.dump(report, f, indent=2)
     
     # Generate plots
-    plot_metrics(iteration_accuracy, correct_distribution, args.output_dir)
+    plot_metrics(iteration_accuracy, correct_distribution, missing_answers, args.output_dir)
     
     # Print summary
     print("\nEvaluation Summary:")
@@ -183,6 +220,12 @@ def main():
     print("\nDistribution of first correct answers:")
     for i, count in sorted(correct_distribution.items()):
         print(f"Iteration {i}: {count} problems")
+    
+    print("\nMissing answers by iteration:")
+    for i, data in sorted(missing_answers.items()):
+        print(f"Iteration {i}: {data['count']} problems")
+        if data['count'] > 0:
+            print(f"  Problem IDs: {', '.join(data['problems'])}")
 
 if __name__ == '__main__':
     main() 
