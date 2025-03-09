@@ -94,12 +94,13 @@ class SummarizationExperiment(BaseExperiment):
                 
         return self.results
     
-    def _stream_summary_generation(self, problem_id: str, reasoning: str, prompt_template: str, iteration: int = 0) -> str:
+    def _stream_summary_generation(self, problem_id: str, question: str, reasoning: str, prompt_template: str, iteration: int = 0) -> str:
         """
         Stream the summary generation for a problem and update dashboard in real-time.
         
         Args:
             problem_id: ID of the problem
+            question: The question that the reasoning is for
             reasoning: The reasoning to summarize
             prompt_template: The template to use for summarization
             iteration: Iteration number
@@ -121,6 +122,7 @@ class SummarizationExperiment(BaseExperiment):
         try:
             # Stream the summary using the summarizer model
             summary_stream = summarize_reasoning(
+                question,
                 reasoning,
                 self.summarizer,
                 prompt_template,
@@ -276,6 +278,7 @@ class SummarizationExperiment(BaseExperiment):
             if self.dashboard:
                 summary = self._stream_summary_generation(
                     problem_id, 
+                    question,
                     current_reasoning, 
                     summarize_template, 
                     iteration=current_iteration
@@ -285,6 +288,7 @@ class SummarizationExperiment(BaseExperiment):
                 self.dashboard.update_summary(problem_id, summary, iteration=current_iteration)
             else:
                 summary = summarize_reasoning(
+                    question,
                     current_reasoning,
                     self.summarizer,
                     summarize_template,

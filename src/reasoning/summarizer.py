@@ -6,6 +6,7 @@ from src.llm.base_client import ModelClient
 logger = logging.getLogger(__name__)
 
 def summarize_reasoning(
+    question: str,
     reasoning: str,
     model,
     prompt_template: str,
@@ -41,6 +42,8 @@ def summarize_reasoning(
     
     # Create the prompt
     prompt = prompt_template.replace("{reasoning}", reasoning)
+    if "{question}" in prompt_template:
+        prompt = prompt.replace("{question}", question)
     
     # Generate the summary with the model
     # Build generation parameters dict based on model type

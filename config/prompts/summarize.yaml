@@ -9,22 +9,6 @@ v0:
     
     SUMMARY:
 
-comprehensive:
-  template: |
-    I need you to analyze the following mathematical reasoning and provide a comprehensive summary.
-    
-    Please include:
-    1. The main approach used
-    2. Key insights or clever observations
-    3. Critical steps in the solution
-    4. Any potential errors or misconceptions
-    5. Alternative approaches that could have been tried
-    
-    REASONING:
-    {reasoning}
-    
-    SUMMARY:
-
 concise:
   template: |
     Summarize the following mathematical reasoning trace. Be concise but ensure you capture:
@@ -38,26 +22,29 @@ concise:
     
     SUMMARY:
 
-error_focused:
-  template: |
-    Review the following mathematical reasoning and focus specifically on identifying errors.
-    Summarize:
-    
-    1. The approach taken
-    2. Specific errors or incorrect assumptions
-    3. How these errors affected the final result
-    4. What corrections should be made
-    
-    REASONING:
-    {reasoning}
-    
-    SUMMARY: 
-
 testing:
   template: |
     Please summarize the following thought process. Do not try to solve the problem. Your only goal is to summarize the thought process faithfully and very concisely.
     
     REASONING:
+    {reasoning}
+    
+    SUMMARY:
+  
+pure_summarization:
+  template: |
+    Summarize the following attempted solution to a mathematical problem into a concise outline of the main steps.
+    Focus only on compressing the key calculations and reasoning without adding any evaluation, analysis, or suggestions.
+    
+    Your summary should:
+    1. Extract only the essential steps in the problem-solving process
+    2. Maintain the same logical flow as the original solution
+    3. Be significantly shorter than the original while preserving critical information
+    
+    PROBLEM:
+    {question}
+
+    ATTEMPTED SOLUTION:
     {reasoning}
     
     SUMMARY:

@@ -1,7 +1,7 @@
 # Experiment configuration
-experiment_name: "wrong_one_deepseek_aime_2024"
-results_dir: "./results/wrong_one_deepseek_aime_2024"
-data_path: "./data/wrong_one_deepseek_aime_2024.csv"
+experiment_name: "wrong_seven_deepseek_aime_2024"
+results_dir: "./results/wrong_seven_deepseek_aime_2024"
+data_path: "./data/wrong_seven_deepseek_aime_2024.csv"
 save_intermediate: true
 
 # Dashboard configuration
@@ -25,7 +25,7 @@ frequency_penalty: 0.0
 
 # Iteration parameters
 max_iterations: 1  # This will do initial (0) plus one more iteration (1)
-continue_after_correct: true  # Continue to iteration 1 even if iteration 0 is correct
+continue_after_correct: false  # Continue to iteration 1 even if iteration 0 is correct
 
 # Summarization parameters
 enable_summarization: true
@@ -39,5 +39,5 @@ summary_frequency_penalty: 0.0
 # Prompt configurations
 prompts:
   reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
-  summarize: "concise"  # This references the version in config/prompts/summarize.yaml
+  summarize: "pure_summarization"  # This references the version in config/prompts/summarize.yaml
   improved: "aime" # This references the version in config/prompts/improved.yaml
