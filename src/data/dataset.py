@@ -5,8 +5,11 @@ import os
 import pandas as pd
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
+import logging
 
 from src.utils.config import Config, PROJECT_ROOT
+
+logger = logging.getLogger(__name__)
 
 class Dataset:
     """
@@ -21,37 +24,47 @@ class Dataset:
         """
         self.config = config
         self.dataset_config = config.get("dataset", {})
+        logger.info(f"Initializing dataset with config: {self.dataset_config}")
         
         # Dataset metadata
         self.name = self.dataset_config.get("name", "unknown")
         self.description = self.dataset_config.get("description", "")
+        logger.info(f"Dataset name: {self.name}")
         
         # File paths
         self.base_path = Path(self.dataset_config.get("base_path", "data"))
         if not self.base_path.is_absolute():
             self.base_path = PROJECT_ROOT / self.base_path
+        logger.info(f"Base path: {self.base_path}")
             
         self.raw_file = self.dataset_config.get("raw_file", "")
         self.raw_path = self.base_path / self.raw_file
+        logger.info(f"Raw file path: {self.raw_path}")
         
         # For archive data
         self.archive_path = PROJECT_ROOT / "archive" / "data"
+        logger.info(f"Archive path: {self.archive_path}")
         
         # Check for data in archive if not in base path
         if not self.raw_path.exists() and (self.archive_path / self.raw_file).exists():
             self.raw_path = self.archive_path / self.raw_file
+            logger.info(f"Found raw file in archive, using: {self.raw_path}")
         
         # Processed data paths
         self.processed_path = self.base_path / "processed"
         self.processed_file = f"{self.name}_processed.parquet"
+        logger.info(f"Processed path: {self.processed_path}")
+        logger.info(f"Processed file: {self.processed_file}")
         
         # Column mappings
         self.columns = self.dataset_config.get("columns", {})
+        logger.info(f"Column mappings: {self.columns}")
         
         # Processing options
         self.use_cached = self.dataset_config.get("use_cached", True)
         self.train_test_split = self.dataset_config.get("train_test_split", 0.8)
         self.random_seed = self.dataset_config.get("random_seed", 42)
+        logger.info(f"Processing options: cached={self.use_cached}, split={self.train_test_split}")
         
         # Initialize data storage
         self.data_raw = None
@@ -69,16 +82,29 @@ class Dataset:
         Raises:
             FileNotFoundError: If the raw data file doesn't exist
         """
+        logger.info(f"Attempting to load raw data from: {self.raw_path}")
+        logger.info(f"File exists: {self.raw_path.exists()}")
+        logger.info(f"File suffix: {self.raw_path.suffix}")
+        
         if not self.raw_path.exists():
             raise FileNotFoundError(f"Raw data file not found: {self.raw_path}")
         
         # Load based on file extension
-        if self.raw_path.suffix.lower() == '.csv':
-            self.data_raw = pd.read_csv(self.raw_path)
-        elif self.raw_path.suffix.lower() == '.parquet':
-            self.data_raw = pd.read_parquet(self.raw_path)
-        else:
-            raise ValueError(f"Unsupported file format: {self.raw_path.suffix}")
+        try:
+            if self.raw_path.suffix.lower() == '.csv':
+                logger.info("Loading CSV file...")
+                self.data_raw = pd.read_csv(self.raw_path)
+                logger.info(f"Successfully loaded CSV with shape: {self.data_raw.shape}")
+            elif self.raw_path.suffix.lower() == '.parquet':
+                logger.info("Loading Parquet file...")
+                self.data_raw = pd.read_parquet(self.raw_path)
+                logger.info(f"Successfully loaded Parquet with shape: {self.data_raw.shape}")
+            else:
+                logger.error(f"Unsupported file format: {self.raw_path.suffix}")
+                raise ValueError(f"Unsupported file format: {self.raw_path.suffix}")
+        except Exception as e:
+            logger.error(f"Error loading raw data: {str(e)}")
+            raise
         
         return self.data_raw
     

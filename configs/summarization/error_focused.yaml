@@ -1,0 +1,26 @@
+# Error-focused summarization configuration
+
+# Summarization settings
+summarization:
+  method: external
+  strategy: error_focused
+  prompt: error_focused
+  max_tokens: 1000
+  temperature: 0.7
+  
+  # Error-focused summarization settings
+  error_focused:
+    prompt: |
+      Review the following reasoning and identify:
+      1. Any mathematical errors or incorrect assumptions
+      2. Missing steps or incomplete explanations
+      3. Areas where the reasoning could be more precise
+      4. Alternative approaches that might be better
+      
+      Provide a concise summary focusing on these aspects.
+      
+      Reasoning to analyze:
+      {reasoning}
+    
+    max_tokens: 500
+    temperature: 0.5 

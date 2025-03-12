@@ -32,6 +32,7 @@ def create_model(config: Config, model_config_key: str = "model") -> Model:
     logger.info(f"Creating model with config key: {model_config_key}")
     logger.info(f"Full config: {config.config_dict}")
     
+    # Get model config
     model_config = config.get(model_config_key, {})
     logger.info(f"Model config: {model_config}")
     
@@ -57,7 +58,7 @@ def create_reasoning_model(config: Config) -> Model:
         Model instance for reasoning
     """
     logger.info("Creating reasoning model")
-    return create_model(config, "model")
+    return create_model(config, "reasoning_model")
 
 def create_summarization_model(config: Config) -> Optional[Model]:
     """

@@ -1,5 +1,22 @@
 # Configuration for DeepSeek R1 Distill Llama 8B
 
+# Pipeline configuration
+pipeline:
+  name: external_summary
+  type: summary
+  batch_size: 4
+  save_intermediates: true
+  max_iterations: 2
+  continuation_prompt: "Based on the summary of your previous reasoning, continue solving the problem. Try to correct any errors identified in the summary."
+
+# Summarization configuration
+summarization:
+  method: external
+  strategy: error_focused
+  prompt: error_focused
+  max_tokens: 1000
+  temperature: 0.7
+
 reasoning_model:
   name: deepseek-r1-distill-llama-8b
   model_id: accounts/fireworks/models/deepseek-r1-distill-llama-8b

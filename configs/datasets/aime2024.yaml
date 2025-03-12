@@ -6,7 +6,7 @@ dataset:
   
   # File paths
   base_path: data
-  raw_file: aime_2024_completions_updated.csv
+  raw_file: processed/reasoning_checkpoint_final.csv
   
   # Processing options
   use_cached: true  # Use cached processed data if available

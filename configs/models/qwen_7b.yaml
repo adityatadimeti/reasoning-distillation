@@ -59,3 +59,20 @@ reasoning:
     - "Let me ensure the reasoning so far is correct."
     - "Let me consider if there are any edge cases."
     - "I'll try a different way to solve this problem."
+
+# Pipeline configuration
+pipeline:
+  name: external_summary
+  type: summary
+  batch_size: 4
+  save_intermediates: true
+  max_iterations: 2
+  continuation_prompt: "Based on the summary of your previous reasoning, continue solving the problem. Try to correct any errors identified in the summary."
+
+# Summarization configuration
+summarization:
+  method: external
+  strategy: error_focused
+  prompt: error_focused
+  max_tokens: 1000
+  temperature: 0.7
