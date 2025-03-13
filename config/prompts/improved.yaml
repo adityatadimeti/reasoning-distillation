@@ -11,6 +11,25 @@ v0:
     PROBLEM:
     {question}
 
+qwq:
+  template: |
+    Solve the following problem. Please show ALL your work using <think> tags. First, wrap your entire reasoning process in <think> and </think> tags, and only after that provide your final answer in \boxed{} format.
+    
+    <instructions>
+    1. Begin your response with "<think>"
+    2. Show all your calculations and reasoning steps in detail
+    3. End your thinking with "</think>"
+    4. Only then provide your final answer using \boxed{answer} format
+    </instructions>
+    
+    You previously attempted to solve this problem and here are summaries of your approaches, including potential errors:
+    {summaries}
+    
+    Continue reasoning with these summaries in mind.
+    
+    PROBLEM:
+    {question}
+
 aime:
   template: |
     Please solve this AIME math problem:

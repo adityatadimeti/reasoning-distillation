@@ -36,6 +36,6 @@ summary_frequency_penalty: 0.0
 
 # Prompt configurations
 prompts:
-  reasoning: "v0"  # This references the version in config/prompts/reasoning.yaml
+  reasoning: "qwq"  # Use qwq-specific template that encourages think tags
   summarize: "pure_summarization"  # This references the version in config/prompts/summarize.yaml
-  improved: "v0"  # This references the version in config/prompts/improved.yaml
+  improved: "qwq"  # Use qwq-specific template for improved reasoning
