@@ -451,7 +451,7 @@ class SummarizationExperiment(BaseExperiment):
         """
         full_response = ""
         buffered_chunks = []
-        finish_reason = "streaming"  # Standard value for streaming mode
+        finish_reason = "unknown"  # Default value if we can't extract it
         
         # Add debug logging
         logger.debug(f"Streaming iteration {iteration} for problem ID: {problem_id}")
@@ -475,7 +475,9 @@ class SummarizationExperiment(BaseExperiment):
         )
         
         # Process each chunk as it comes in
+        last_chunk = None
         for chunk in stream:
+            # Get the content from the chunk
             full_response += chunk
             buffered_chunks.append(chunk)
             
@@ -483,6 +485,37 @@ class SummarizationExperiment(BaseExperiment):
             if self.dashboard:
                 logger.debug(f"Streaming iteration {iteration} chunk to problem ID: {problem_id}")
                 self.dashboard.stream_model_output(problem_id, chunk, iteration=iteration)
+        
+        # If using FireworksModelClient, make an API call to get the finish_reason
+        # This is more reliable than trying to extract it from streaming chunks
+        if hasattr(self.reasoning_model, 'generate_completion') and 'fireworks' in str(self.reasoning_model.__class__).lower():
+            try:
+                # Make a non-streaming API call with the same parameters but very small max_tokens
+                # We just want to get the finish_reason, not the full content again
+                logger.debug(f"Making non-streaming call to get finish_reason for problem {problem_id}, iteration {iteration}")
+                response = self.reasoning_model.generate_response(
+                    prompt,
+                    stream=False,
+                    max_tokens=self.config["max_tokens"],
+                    temperature=self.config["temperature"],
+                    top_p=self.config["top_p"],
+                    top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
+                    presence_penalty=self.config["presence_penalty"],
+                    frequency_penalty=self.config["frequency_penalty"],
+                    verbose=False  # Don't log this auxiliary call
+                )
+                
+                # Extract the finish_reason from the response
+                if isinstance(response, tuple):
+                    _, finish_reason = response
+                    logger.debug(f"Got finish_reason '{finish_reason}' for problem {problem_id}, iteration {iteration}")
+                
+            except Exception as e:
+                logger.warning(f"Error getting finish_reason: {str(e)}. Using 'unknown' instead.")
+                finish_reason = "unknown"
+        else:
+            # For non-Fireworks models, use 'streaming' as the finish_reason
+            finish_reason = "streaming"
                 
         # If the client wasn't ready, ensure all chunks are sent now
         if self.dashboard and hasattr(self.dashboard, 'client_ready') and self.dashboard.client_ready:
@@ -496,8 +529,5 @@ class SummarizationExperiment(BaseExperiment):
         if self.dashboard:
             status = f"iter{iteration}-completed"
             self.dashboard.update_problem_status(problem_id, status)
-        
-        # For streaming mode, we don't have direct access to finish_reason from the API
-        # We simply use "streaming" to indicate the response was generated in streaming mode
         
         return full_response, finish_reason

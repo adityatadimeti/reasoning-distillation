@@ -128,10 +128,21 @@ class FireworksModelClient(ModelClient):
             except (KeyError, IndexError) as e:
                 raise Exception(f"Failed to extract content from Fireworks response: {str(e)}")
     
-    def _extract_streaming_content(self, response_stream: Iterator[Dict[str, Any]]) -> Iterator[str]:
-        """Extract content from a streaming response."""
+    def _extract_streaming_content(self, response_stream: Iterator[Dict[str, Any]]) -> Union[Iterator[str], Tuple[Iterator[str], str]]:
+        """
+        Extract content from a streaming response.
+        
+        If stream=True, yields each content piece as it arrives.
+        If stream=False, collects all content and returns it along with the finish_reason from the last chunk.
+        """
+        finish_reason = "unknown"
+        last_chunk = None
+        
         for chunk in response_stream:
             try:
+                # Save the last chunk to extract finish_reason later
+                last_chunk = chunk
+                
                 content = chunk["choices"][0]["delta"].get("content", "")
                 if content:
                     yield content
@@ -139,7 +150,18 @@ class FireworksModelClient(ModelClient):
                 print(f"Error extracting content from chunk: {e}")
                 # Don't let errors break the stream, yield an empty string
                 yield ""
-                
+        
+        # Extract finish_reason from the last chunk if available
+        if last_chunk:
+            try:
+                if "choices" in last_chunk and last_chunk["choices"]:
+                    finish_reason = last_chunk["choices"][0].get("finish_reason", "unknown")
+            except Exception as e:
+                print(f"Error extracting finish_reason from last chunk: {e}")
+        
+        # In streaming mode, we can't return the finish_reason from here
+        # It will be accessible via the _stream_model_output method
+    
     def get_content_only(
         self, 
         prompt: str, 
