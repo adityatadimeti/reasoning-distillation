@@ -13,6 +13,11 @@ from src.dashboard.server import DashboardServer
 
 logger = logging.getLogger(__name__)
 
+# NOTE: When running experiments, you only need to specify the config name, not the full path.
+# Example: python run_experiment.py test --verbose
+# This will automatically look for config/experiments/test.yaml
+# DO NOT specify the full path like: python run_experiment.py config/experiments/test.yaml
+
 def setup_logging(level: str = "INFO"):
     """
     Set up logging.

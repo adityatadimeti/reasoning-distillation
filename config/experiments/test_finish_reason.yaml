@@ -1,0 +1,43 @@
+# Experiment configuration
+experiment_name: "test_finish_reason"
+results_dir: "./results/test_finish_reason"
+data_path: "./data/simple.csv"
+save_intermediate: true
+
+# Dashboard configuration
+dashboard_port: 8080
+
+# Model configuration
+reasoning_model: "accounts/fireworks/models/deepseek-r1"
+summarizer_type: "external"
+summarizer_model: "accounts/fireworks/models/deepseek-v3"
+
+# Generation parameters with very low max_tokens to trigger length finish_reason
+max_tokens: 50  # This is extremely low, will definitely trigger length
+temperature: 0.6
+top_p: 0.95
+top_k: 40
+presence_penalty: 0.0
+frequency_penalty: 0.0
+
+# Iteration parameters
+max_iterations: 1  # Just do one iteration to test finish_reason
+continue_after_correct: true
+
+# Summarization parameters
+enable_summarization: true
+summary_max_tokens: 50  # Also low for summarization
+summary_temperature: 0.6
+summary_top_p: 0.95
+summary_top_k: 40
+summary_presence_penalty: 0.0
+summary_frequency_penalty: 0.0
+
+# Extraction settings
+allow_fallback: true  # Allow fallback to use the full text when no <think> tags are found
+
+# Prompt configurations
+prompts:
+  reasoning: "v0"  # Use standard template that doesn't require think tags
+  summarize: "pure_summarization"  # This references the version in config/prompts/summarize.yaml
+  improved: "v0"  # Use standard template for improved reasoning 

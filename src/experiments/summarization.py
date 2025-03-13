@@ -1,4 +1,4 @@
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 import time
 import logging
 
@@ -190,10 +190,10 @@ class SummarizationExperiment(BaseExperiment):
         # Generate iteration 0 reasoning with streaming
         if self.dashboard:
             # Use streaming for dashboard updates
-            iter0_reasoning = self._stream_model_output(problem_id, initial_prompt, iteration=0)
+            iter0_reasoning, iter0_finish_reason = self._stream_model_output(problem_id, initial_prompt, iteration=0)
         else:
             # Without dashboard, just get the full response
-            iter0_reasoning = self.reasoning_model.generate_response(
+            response = self.reasoning_model.generate_response(
                 initial_prompt,
                 max_tokens=self.config["max_tokens"],
                 temperature=self.config["temperature"],
@@ -203,6 +203,16 @@ class SummarizationExperiment(BaseExperiment):
                 frequency_penalty=self.config["frequency_penalty"],
                 verbose=self.verbose
             )
+            
+            # Handle both tuple and string responses for backward compatibility
+            if isinstance(response, tuple):
+                iter0_reasoning, iter0_finish_reason = response
+            else:
+                iter0_reasoning = response
+                iter0_finish_reason = "unknown"  # Default if finish_reason is not available
+        
+        # Log the finish reason
+        logger.info(f"Problem {problem_id}, iteration 0 finish reason: {iter0_finish_reason}")
         
         # Extract answer from iteration 0 reasoning
         iter0_answer = extract_answer(iter0_reasoning)
@@ -222,7 +232,8 @@ class SummarizationExperiment(BaseExperiment):
                     "iteration": 0,
                     "reasoning": iter0_reasoning,
                     "answer": iter0_answer,
-                    "correct": iter0_correct
+                    "correct": iter0_correct,
+                    "finish_reason": iter0_finish_reason
                 }
             ],
             "timestamp": time.time()
@@ -235,6 +246,7 @@ class SummarizationExperiment(BaseExperiment):
         result["initial_reasoning"] = iter0_reasoning
         result["initial_answer"] = iter0_answer
         result["initial_correct"] = iter0_correct
+        result["initial_finish_reason"] = iter0_finish_reason
         
         # Update dashboard with answer information
         if self.dashboard:
@@ -283,6 +295,7 @@ class SummarizationExperiment(BaseExperiment):
                 assert "top_k" in self.config, "top_k must be specified in config if using FireworksModelClient"
                 
             # Stream the summary if we have a dashboard, otherwise generate normally
+            summary_finish_reason = "unknown"
             if self.dashboard:
                 summary = self._stream_summary_generation(
                     problem_id, 
@@ -296,12 +309,15 @@ class SummarizationExperiment(BaseExperiment):
                 self.dashboard.update_summary(problem_id, summary, iteration=current_iteration)
             else:
                 # Extract reasoning trace from the full reasoning
-                reasoning_trace = extract_reasoning_trace(current_reasoning, allow_fallback=False)
+                reasoning_trace = extract_reasoning_trace(
+                    current_reasoning, 
+                    allow_fallback=self.config.get("allow_fallback", False)
+                )
                 # If extraction failed, raise an error
                 if reasoning_trace is None:
                     raise ValueError(f"Could not extract reasoning trace for problem {problem_id}. Make sure the model output contains <think> tags.")
                 
-                summary = summarize_reasoning(
+                summary_response = summarize_reasoning(
                     question,
                     reasoning_trace,  # Use extracted reasoning trace instead of full reasoning
                     self.summarizer,
@@ -314,11 +330,21 @@ class SummarizationExperiment(BaseExperiment):
                     frequency_penalty=self.config.get("summary_frequency_penalty"),
                     verbose=self.verbose
                 )
+                
+                # Handle both tuple and string responses for backward compatibility
+                if isinstance(summary_response, tuple):
+                    summary, summary_finish_reason = summary_response
+                else:
+                    summary = summary_response
+            
+            # Log the finish reason for the summary
+            logger.info(f"Problem {problem_id}, summary {current_iteration} finish reason: {summary_finish_reason}")
             
             # Add summary to the collection with iteration number
             all_summaries.append({
                 "iteration": current_iteration,
-                "summary": summary
+                "summary": summary,
+                "finish_reason": summary_finish_reason
             })
             
             # Prepare for next iteration
@@ -338,12 +364,13 @@ class SummarizationExperiment(BaseExperiment):
             improved_prompt = improved_template.replace("{question}", question).replace("{summaries}", accumulated_summaries)
             
             # Generate reasoning for next iteration
+            next_finish_reason = "unknown"
             if self.dashboard:
                 # Use streaming for dashboard updates
-                next_reasoning = self._stream_model_output(problem_id, improved_prompt, iteration=next_iteration)
+                next_reasoning, next_finish_reason = self._stream_model_output(problem_id, improved_prompt, iteration=next_iteration)
             else:
                 # Without dashboard, just get the full response
-                next_reasoning = self.reasoning_model.generate_response(
+                next_response = self.reasoning_model.generate_response(
                     improved_prompt,
                     max_tokens=self.config["max_tokens"],
                     temperature=self.config["temperature"],
@@ -353,6 +380,15 @@ class SummarizationExperiment(BaseExperiment):
                     frequency_penalty=self.config["frequency_penalty"],
                     verbose=self.verbose
                 )
+                
+                # Handle both tuple and string responses for backward compatibility
+                if isinstance(next_response, tuple):
+                    next_reasoning, next_finish_reason = next_response
+                else:
+                    next_reasoning = next_response
+            
+            # Log the finish reason
+            logger.info(f"Problem {problem_id}, iteration {next_iteration} finish reason: {next_finish_reason}")
             
             # Extract answer from next iteration reasoning
             next_answer = extract_answer(next_reasoning)
@@ -367,9 +403,11 @@ class SummarizationExperiment(BaseExperiment):
             result["iterations"].append({
                 "iteration": next_iteration,
                 "summary": summary,
+                "summary_finish_reason": summary_finish_reason,
                 "reasoning": next_reasoning,
                 "answer": next_answer,
-                "correct": next_correct
+                "correct": next_correct,
+                "finish_reason": next_finish_reason
             })
             
             # NOTE: These are redundant fields duplicating data already in iterations[1]
@@ -377,9 +415,11 @@ class SummarizationExperiment(BaseExperiment):
             # TODO: For a future refactor, remove these redundant fields and update dashboard
             # to use iterations[1] directly
             result["summary"] = summary
+            result["summary_finish_reason"] = summary_finish_reason
             result["improved_reasoning"] = next_reasoning
             result["improved_answer"] = next_answer
             result["improved_correct"] = next_correct
+            result["improved_finish_reason"] = next_finish_reason
             
             # Update dashboard with answer information
             if self.dashboard:
@@ -397,7 +437,7 @@ class SummarizationExperiment(BaseExperiment):
         
         return result
     
-    def _stream_model_output(self, problem_id: str, prompt: str, iteration: int = 0) -> str:
+    def _stream_model_output(self, problem_id: str, prompt: str, iteration: int = 0) -> Tuple[str, str]:
         """
         Generic method to stream model output for any iteration and update dashboard in real-time.
         
@@ -407,10 +447,11 @@ class SummarizationExperiment(BaseExperiment):
             iteration: Iteration number (0 = initial, 1 = first improvement, etc.)
             
         Returns:
-            The full generated output
+            Tuple of (full_response, finish_reason)
         """
         full_response = ""
         buffered_chunks = []
+        finish_reason = "streaming"  # Standard value for streaming mode
         
         # Add debug logging
         logger.debug(f"Streaming iteration {iteration} for problem ID: {problem_id}")
@@ -456,4 +497,7 @@ class SummarizationExperiment(BaseExperiment):
             status = f"iter{iteration}-completed"
             self.dashboard.update_problem_status(problem_id, status)
         
-        return full_response
+        # For streaming mode, we don't have direct access to finish_reason from the API
+        # We simply use "streaming" to indicate the response was generated in streaming mode
+        
+        return full_response, finish_reason
