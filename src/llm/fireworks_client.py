@@ -2,7 +2,7 @@ import os
 import json
 import requests
 from dotenv import load_dotenv
-from typing import List, Dict, Any, Iterator, Optional, Union
+from typing import List, Dict, Any, Iterator, Optional, Union, Tuple
 
 from src.llm.base_client import ModelClient
 
@@ -101,8 +101,14 @@ class FireworksModelClient(ModelClient):
         stream: bool = False,
         verbose: bool = False,
         **kwargs
-    ) -> Union[str, Iterator[str]]:
-        """Get a response from the model for a specific prompt."""
+    ) -> Union[Tuple[str, str], Iterator[str]]:
+        """
+        Get a response from the model for a specific prompt.
+        
+        Returns:
+            If stream=False: A tuple of (content, finish_reason) where finish_reason indicates why generation stopped
+            If stream=True: An iterator yielding content chunks
+        """
         messages = [{"role": "user", "content": prompt}]
         
         if verbose:
@@ -116,7 +122,9 @@ class FireworksModelClient(ModelClient):
         else:
             response = self.generate_completion(messages, stream=False, **kwargs)
             try:
-                return response["choices"][0]["message"]["content"]
+                content = response["choices"][0]["message"]["content"]
+                finish_reason = response["choices"][0].get("finish_reason", "unknown")
+                return content, finish_reason
             except (KeyError, IndexError) as e:
                 raise Exception(f"Failed to extract content from Fireworks response: {str(e)}")
     
@@ -131,3 +139,23 @@ class FireworksModelClient(ModelClient):
                 print(f"Error extracting content from chunk: {e}")
                 # Don't let errors break the stream, yield an empty string
                 yield ""
+                
+    def get_content_only(
+        self, 
+        prompt: str, 
+        stream: bool = False,
+        verbose: bool = False,
+        **kwargs
+    ) -> Union[str, Iterator[str]]:
+        """
+        Get only the content response from the model (for backward compatibility).
+        
+        Returns:
+            If stream=False: Just the content string
+            If stream=True: An iterator yielding content chunks
+        """
+        if stream:
+            return self.generate_response(prompt, stream=True, verbose=verbose, **kwargs)
+        else:
+            content, _ = self.generate_response(prompt, stream=False, verbose=verbose, **kwargs)
+            return content

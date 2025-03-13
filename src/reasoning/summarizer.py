@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Dict, Any, Union, Iterator
+from typing import Optional, Dict, Any, Union, Iterator, Tuple
 
 from src.llm.base_client import ModelClient
 
@@ -18,7 +18,7 @@ def summarize_reasoning(
     frequency_penalty: float = None,
     verbose: bool = False,
     stream: bool = False
-) -> Union[str, Iterator[str]]:
+) -> Union[Tuple[str, str], Iterator[str]]:
     """
     Generate a summary of the reasoning trace.
     
@@ -36,7 +36,8 @@ def summarize_reasoning(
         stream: Whether to stream the summary in chunks
         
     Returns:
-        The summarized reasoning as a string or an iterator of chunks if streaming
+        If stream=False: Tuple of (summary, finish_reason) where finish_reason indicates why generation stopped
+        If stream=True: Iterator yielding summary chunks
     """
     logger.info("Generating summary of reasoning trace")
     
