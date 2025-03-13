@@ -3,13 +3,13 @@ v0:
   template: |
     Solve the following problem. Answer in \boxed{} format.
     
+    PROBLEM:
+    {question}
+
     You previously attempted to solve this problem and here are summaries of your approaches, including potential errors:
     {summaries}
     
     Continue reasoning with these summaries in mind.
-    
-    PROBLEM:
-    {question}
 
 qwq:
   template: |
@@ -32,11 +32,12 @@ qwq:
 
 aime:
   template: |
-    Please solve this AIME math problem:
+    Solve the following AIME problem. All answers are integers ranging from 0 to 999, inclusive.  Report your answer in \boxed{} format.
     
+    PROBLEM:
     {question}
     
-    Here are summaries of previous solution attempts:{summaries}
-    
-    Using these insights, please solve the problem correctly showing all your work.
-    Answer using LaTeX \boxed{} notation.
+    Here are summaries of previous solution attempts:
+    {summaries}
+
+    Continue reasoning with these summaries in mind.

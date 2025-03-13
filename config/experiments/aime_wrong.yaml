@@ -38,5 +38,5 @@ summary_frequency_penalty: 0.0
 # Prompt configurations
 prompts:
   reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
-  summarize: "pure_summarization"  # This references the version in config/prompts/summarize.yaml
+  summarize: "approach_focused_summarization"  # This references the version in config/prompts/summarize.yaml
   improved: "aime" # This references the version in config/prompts/improved.yaml
