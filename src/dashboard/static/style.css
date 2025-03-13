@@ -736,4 +736,49 @@ h4 {
     outline: none;
     border-color: #3498db;
     box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* Start Button Styling */
+.start-button-container {
+    position: relative;
+    z-index: 100; /* Ensure it's above other elements */
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    pointer-events: auto !important; /* Force pointer events */
+}
+
+.start-button {
+    background-color: #e74c3c; /* Make it bright red for visibility */
+    color: white;
+    border: none;
+    padding: 15px 30px; /* Make it larger */
+    border-radius: 4px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer !important; /* Force cursor */
+    transition: background-color 0.3s;
+    margin-top: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    pointer-events: auto !important; /* Force pointer events */
+}
+
+.start-button:hover {
+    background-color: #2ecc71;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.start-button:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+#experiment-status-message {
+    font-style: italic;
+    color: #7f8c8d;
+    margin-left: 10px;
+    display: inline-block;
+    vertical-align: middle;
 } 

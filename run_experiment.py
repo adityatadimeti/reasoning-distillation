@@ -83,6 +83,7 @@ def run_experiment(
     config_path: str, 
     use_dashboard: bool = False,
     verbose: bool = False,
+    model_params: Dict[str, str] = None,
     **kwargs
 ) -> Dict[str, Any]:
     """
@@ -92,6 +93,7 @@ def run_experiment(
         config_path: Path to configuration file
         use_dashboard: Whether to use the dashboard
         verbose: Whether to log all LLM calls
+        model_params: Dictionary of model parameters to override
         **kwargs: Additional configuration overrides
         
     Returns:
@@ -105,6 +107,20 @@ def run_experiment(
         if value is not None:
             config[key] = value
     
+    # Override with model parameters if provided
+    if model_params:
+        print(f"DEBUG: Applying model parameter overrides:")
+        for key, value in model_params.items():
+            if value is not None:
+                print(f"  - Overriding {key}: {config.get(key, 'None')} -> {value}")
+                config[key] = value
+        
+        # Ensure we print the final configuration
+        print(f"DEBUG: Final configuration after overrides:")
+        print(f"  - reasoning_model: {config.get('reasoning_model')}")
+        print(f"  - summarizer_type: {config.get('summarizer_type')}")
+        print(f"  - summarizer_model: {config.get('summarizer_model')}")
+    
     # Load prompt templates
     if "prompts" in config:
         for prompt_type, version in config["prompts"].items():
@@ -114,8 +130,7 @@ def run_experiment(
     # Start dashboard if requested
     dashboard = None
     if use_dashboard:
-        dashboard = DashboardServer(port=config.get("dashboard_port", 5000))
-        dashboard.start(open_browser=True)
+        dashboard = DashboardServer.get_instance(port=config.get("dashboard_port", 5000))
         
         # Initial status update
         logger.info("Sending initial experiment status with config")
@@ -124,9 +139,6 @@ def run_experiment(
             "status": "Starting",
             "config": config  # Send full config only once
         })
-        
-        # Give the dashboard client time to connect
-        time.sleep(2)
     
     # Load problems
     problems = load_problems(config["data_path"])
@@ -175,6 +187,7 @@ def main():
     parser = argparse.ArgumentParser(description="Run a reasoning enhancement experiment")
     parser.add_argument("config", help="Path to configuration file")
     parser.add_argument("--dashboard", action="store_true", help="Enable dashboard")
+    parser.add_argument("--dashboard-only", action="store_true", help="Start dashboard without running experiment")
     parser.add_argument("--verbose", action="store_true", help="log all LLM calls")
     
     args = parser.parse_args()
@@ -183,12 +196,58 @@ def main():
     setup_logging()
     
     try:
-        run_experiment(
-            args.config, 
-            use_dashboard=args.dashboard,
-            verbose=args.verbose
-        )
-        logger.info("Experiment completed successfully")
+        if args.dashboard_only:
+            # Just start the dashboard server
+            config_path = args.config
+            config = load_config(config_path)
+            dashboard = DashboardServer.get_instance(
+                port=config.get("dashboard_port", 5000),
+                config_path=config_path
+            )
+            dashboard.start(open_browser=True)
+            
+            # Keep the server running until interrupted
+            logger.info(f"Dashboard started on port {config.get('dashboard_port', 5000)}. Press Ctrl+C to exit.")
+            try:
+                while True:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                logger.info("Shutting down dashboard...")
+                dashboard.stop()
+        else:
+            # Original behavior - start dashboard first, then run experiment
+            config_path = args.config
+            config = load_config(config_path)
+            
+            if args.dashboard:
+                logger.info("Starting dashboard before running experiment...")
+                dashboard = DashboardServer.get_instance(
+                    port=config.get("dashboard_port", 5000),
+                    config_path=config_path
+                )
+                dashboard.start(open_browser=True)
+                
+                # Give time for browser to open and connect
+                logger.info("Waiting for dashboard to initialize...")
+                time.sleep(3)  # Give browser a chance to open and connect
+            
+            # Run the experiment
+            run_experiment(
+                args.config, 
+                use_dashboard=args.dashboard,
+                verbose=args.verbose
+            )
+            logger.info("Experiment completed successfully")
+            
+            # If dashboard is running, keep it alive
+            if args.dashboard:
+                logger.info("Experiment completed. Dashboard remains active. Press Ctrl+C to exit.")
+                try:
+                    while True:
+                        time.sleep(1)
+                except KeyboardInterrupt:
+                    logger.info("Shutting down...")
+                    dashboard.stop()
     except Exception as e:
         logger.error(f"Experiment failed: {e}")
         import traceback

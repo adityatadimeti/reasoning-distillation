@@ -32,7 +32,11 @@
     
     <!-- Load socket.io only in dynamic mode -->
     {% if not static_mode %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+    <script>
+        // Explicitly log socket.io availability
+        console.log("DEBUG: Socket.io script loaded, io defined:", typeof io !== 'undefined');
+    </script>
     {% endif %}
     
     <!-- Make static results available if present -->
@@ -55,6 +59,16 @@
     <script src="{{ url_for('static', filename='dashboard-iterations.js') }}"></script>
     <script src="{{ url_for('static', filename='dashboard-events.js') }}"></script>
     <script src="{{ url_for('static', filename='dashboard-core.js') }}"></script>
+    
+    <!-- Add experiment control script -->
+    <script src="{{ url_for('static', filename='dashboard-experiment.js') }}"></script>
+    
+    <!-- Add this right after loading dashboard-experiment.js -->
+    <script>
+        console.log('DEBUG: dashboard-experiment.js loaded');
+        // Create a global variable to track script loading
+        window.dashboardScriptsLoaded = true;
+    </script>
 </head>
 <body>
     <div class="container">
@@ -69,26 +83,38 @@
             </div>
         </header>
         
-        <!-- New Model Selection Container -->
+        <!-- New Model Selection Container with Start Button -->
         <div class="model-selection-container">
             <h2>Model Selection</h2>
             <div class="model-selection-grid">
                 <div class="model-dropdown">
                     <label for="reasoning-model">Reasoning Model:</label>
                     <select id="reasoning-model">
-                        <option value="deepseek-r1">DeepSeek-R1</option>
-                        <option value="qwq-32b">QWQ-32B</option>
+                        <option value="accounts/fireworks/models/deepseek-r1">DeepSeek-R1</option>
+                        <option value="accounts/fireworks/models/qwq-32b" selected>QWQ-32B</option>
+                        <option value="accounts/fireworks/models/llama-v3p1-405b-instruct">Llama 3.1 405B</option>
                     </select>
                 </div>
                 <div class="model-dropdown">
                     <label for="summarization-model">Summarization Model:</label>
                     <select id="summarization-model">
-                        <option value="gpt-4o">GPT-4o</option>
-                        <option value="claude-3-5">Claude 3.5</option>
-                        <option value="llama-3-7b">Llama 3 7B</option>
+                        <option value="accounts/fireworks/models/deepseek-v3">DeepSeek-V3</option>
+                        <option value="accounts/fireworks/models/llama-v3p1-405b-instruct">Llama 3.1 405B</option>
+                        <option value="accounts/fireworks/models/llama-v3p1-8b-instruct">Llama 3.1 8B</option>
+                        <option value="accounts/fireworks/models/llama-3-7b">Llama 3 7B</option>
                     </select>
                 </div>
             </div>
+            <div class="start-button-container">
+                <button id="start-experiment" class="start-button" onclick="console.log('Button clicked'); document.getElementById('start-experiment').disabled = true; fetch('/api/start_experiment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ reasoning_model: document.getElementById('reasoning-model').value, summarizer_model: document.getElementById('summarization-model').value }) }).then(r => r.json()).then(data => { console.log('Started:', data); }).catch(err => { console.error(err); document.getElementById('start-experiment').disabled = false; });">Start Run</button>
+                <span id="experiment-status-message"></span>
+            </div>
+        </div>
+        
+        <!-- Add this after the Model Selection Container -->
+        <div id="model-debug-panel" class="debug-panel" style="margin-top: 15px; background-color: #f8f9fa; padding: 10px; border-radius: 4px; display: none;">
+            <h3>Debug Information</h3>
+            <div id="model-debug-info" style="font-family: monospace; white-space: pre-wrap;"></div>
         </div>
         
         <div class="experiment-info">
@@ -144,5 +170,130 @@
             </div>
         </div>
     </div>
+    
+    <!-- Add this after the start button -->
+    <div id="experiment-debug-info" style="margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 4px; font-family: monospace; max-height: 200px; overflow-y: auto; display: none;">
+        <h4>Debug Information</h4>
+        <pre id="experiment-debug-content"></pre>
+    </div>
+    
+    <!-- Add this right before the closing </body> tag -->
+    <script>
+        // Function to append debug information
+        function appendDebugInfo(message) {
+            const debugInfo = document.getElementById('experiment-debug-info');
+            const debugContent = document.getElementById('experiment-debug-content');
+            
+            if (debugInfo && debugContent) {
+                debugInfo.style.display = 'block';
+                debugContent.textContent += message + '\n';
+                debugContent.scrollTop = debugContent.scrollHeight;
+            }
+        }
+        
+        // Function to add debug information
+        function addModelDebugInfo(info) {
+            const debugPanel = document.getElementById('model-debug-panel');
+            const debugInfo = document.getElementById('model-debug-info');
+            
+            if (debugPanel && debugInfo) {
+                debugPanel.style.display = 'block';
+                const timestamp = new Date().toLocaleTimeString();
+                debugInfo.innerHTML += `[${timestamp}] ${info}<br>`;
+            }
+        }
+        
+        // Enhance socket event listeners
+        if (typeof io !== 'undefined') {
+            const socket = io();
+            
+            socket.on('connect', function() {
+                appendDebugInfo('Socket connected');
+            });
+            
+            socket.on('disconnect', function() {
+                appendDebugInfo('Socket disconnected');
+            });
+            
+            socket.on('status', function(data) {
+                appendDebugInfo('Status update: ' + JSON.stringify(data));
+            });
+            
+            socket.on('experiment_status', function(data) {
+                appendDebugInfo('Experiment status: ' + (data.status || 'unknown'));
+                if (data.total) {
+                    appendDebugInfo(`Problems: ${data.completed || 0}/${data.total}`);
+                }
+            });
+            
+            socket.on('problem_status', function(data) {
+                appendDebugInfo('Problem update: ' + data.problem_id + ' - ' + data.status);
+            });
+            
+            // Override the existing click handler with this new one
+            document.getElementById('start-experiment').addEventListener('click', function() {
+                appendDebugInfo('Button clicked');
+                
+                const reasoningModel = document.getElementById('reasoning-model').value;
+                const summarizationModel = document.getElementById('summarization-model').value;
+                
+                addModelDebugInfo(`Starting experiment with models:
+- Reasoning: ${reasoningModel}
+- Summarization: ${summarizationModel}`);
+                
+                // Disable button
+                this.disabled = true;
+                this.textContent = 'Running...';
+                
+                // Call API
+                fetch('/api/start_experiment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        reasoning_model: reasoningModel,
+                        summarizer_model: summarizationModel,
+                        summarizer_type: 'external'
+                    })
+                })
+                .then(response => {
+                    addModelDebugInfo(`API Response status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    addModelDebugInfo(`API Response data: ${JSON.stringify(data)}`);
+                })
+                .catch(error => {
+                    addModelDebugInfo(`Error: ${error.message}`);
+                    // Re-enable button
+                    this.disabled = false;
+                    this.textContent = 'Start Run';
+                });
+            });
+        }
+        
+        // Listen for socket events to get backend updates
+        if (typeof io !== 'undefined') {
+            const socket = io();
+            
+            socket.on('status', function(data) {
+                addModelDebugInfo(`Server status: ${JSON.stringify(data)}`);
+            });
+            
+            socket.on('experiment_status', function(data) {
+                if (data.status) {
+                    addModelDebugInfo(`Experiment status: ${data.status}`);
+                }
+                
+                if (data.config) {
+                    addModelDebugInfo(`Using models:
+- Reasoning: ${data.config.reasoning_model || 'unknown'}
+- Summarizer: ${data.config.summarizer_model || 'unknown'}
+- Type: ${data.config.summarizer_type || 'unknown'}`);
+                }
+            });
+        }
+    </script>
 </body>
 </html> 
