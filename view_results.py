@@ -24,8 +24,8 @@ def main():
     parser.add_argument(
         "--port", 
         type=int, 
-        default=8080, 
-        help="Port to run the dashboard on (default: 8080)"
+        default=9080, 
+        help="Port to run the dashboard on (default: 9080)"
     )
     parser.add_argument(
         "--no-browser", 
