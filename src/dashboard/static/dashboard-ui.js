@@ -328,7 +328,27 @@ function showElement(selector) {
     }
 }
 
-// Set up UI event listeners
+// Handle model selection changes
+function setupModelSelectionListeners() {
+    const reasoningModelSelect = document.getElementById('reasoning-model');
+    const summarizationModelSelect = document.getElementById('summarization-model');
+    
+    if (reasoningModelSelect) {
+        reasoningModelSelect.addEventListener('change', function() {
+            console.log('Reasoning model changed to:', this.value);
+            // This would eventually update the backend configuration
+        });
+    }
+    
+    if (summarizationModelSelect) {
+        summarizationModelSelect.addEventListener('change', function() {
+            console.log('Summarization model changed to:', this.value);
+            // This would eventually update the backend configuration
+        });
+    }
+}
+
+// Update setupUIEventListeners to include model selection
 function setupUIEventListeners() {
     // Set up collapsible sections
     document.querySelectorAll('.section-header').forEach(header => {
@@ -339,6 +359,9 @@ function setupUIEventListeners() {
             toggleSection(contentElem, toggleBtn);
         });
     });
+    
+    // Set up model selection listeners
+    setupModelSelectionListeners();
 }
 
 // Dashboard UI exports
