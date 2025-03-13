@@ -14,8 +14,14 @@ def extract_answer(text: str) -> Optional[str]:
     Returns:
         The extracted answer as a string, or None if no answer is found
     """
+    # Handle None inputs
+    if text is None:
+        logger.warning("Input text is None, cannot extract answer")
+        return None
+    
     # Try to find content in a LaTeX \boxed{} environment
-    boxed_pattern = r'\\boxed\{([^{}]+)\}'
+    # This pattern handles nested braces by using a more complex regex
+    boxed_pattern = r'\\boxed\{((?:[^{}]|(?:\{[^{}]*\}))+)\}'
     
     # First search for the \boxed pattern
     boxed_matches = re.findall(boxed_pattern, text)
