@@ -2,6 +2,17 @@ import pytest
 import json
 from unittest.mock import MagicMock, patch
 from src.experiments.summarization import SummarizationExperiment
+from src.reasoning.extractor import extract_reasoning_trace
+
+# Patch the model clients at the class level to prevent real API calls
+@pytest.fixture(autouse=True)
+def mock_fireworks_client():
+    """Mock FireworksModelClient to prevent real API calls."""
+    with patch('src.llm.fireworks_client.FireworksModelClient') as mock:
+        # Configure the mock to return itself when instantiated
+        mock_instance = MagicMock()
+        mock.return_value = mock_instance
+        yield mock_instance
 
 @pytest.fixture
 def mock_config():
@@ -9,7 +20,9 @@ def mock_config():
     return {
         "experiment_name": "test_experiment",
         "results_dir": "./test_results",
-        "reasoning_model": "test_model",
+        "reasoning_model": "deepseek-r1",  # Use a recognized model name
+        "summarizer_model": "deepseek-v3", # Use a recognized model name
+        "summarizer_type": "external",     # Set to external to use the summarizer_model
         "max_tokens": 1000,
         "temperature": 0.7,
         "top_p": 1.0,
@@ -62,7 +75,7 @@ def mock_summary():
     return "The model incorrectly calculated 2+2=5."
 
 @patch('src.llm.model_factory.create_model_client')
-def test_accumulate_summaries(mock_create_client, mock_config, mock_problem, 
+def test_accumulate_summaries(mock_create_client, mock_fireworks_client, mock_config, mock_problem, 
                               mock_think_output, mock_think_output_wrong, mock_summary):
     """Test that summaries are accumulated across iterations correctly."""
     
@@ -70,7 +83,7 @@ def test_accumulate_summaries(mock_create_client, mock_config, mock_problem,
     mock_reasoning_model = MagicMock()
     mock_summarizer_model = MagicMock()
     
-    # Set up the mock model factory to return our mock models
+    # Set up create_model_client to return our mock models
     mock_create_client.side_effect = [mock_reasoning_model, mock_summarizer_model]
     
     # Configure mock responses
@@ -83,14 +96,23 @@ def test_accumulate_summaries(mock_create_client, mock_config, mock_problem,
     # Set up summarizer to return our mock summary
     mock_summarizer_model.generate_response.return_value = mock_summary
     
-    # Create the experiment
-    experiment = SummarizationExperiment(
-        experiment_name="test_summarization",
-        config=mock_config
-    )
-    
-    # Process the problem
-    result = experiment._process_problem(mock_problem)
+    # Mock extract_reasoning_trace to return properly extracted content
+    with patch('src.reasoning.extractor.extract_reasoning_trace') as mock_extract:
+        # First call: extract from wrong output
+        # Second call: extract from correct output
+        mock_extract.side_effect = [
+            "Let me solve this step by step.\n2 + 2 = 5\nHmm, that doesn't look right.",
+            "Let me solve this step by step.\n2 + 2 = 4"
+        ]
+        
+        # Create the experiment
+        experiment = SummarizationExperiment(
+            experiment_name="test_summarization",
+            config=mock_config
+        )
+        
+        # Process the problem
+        result = experiment._process_problem(mock_problem)
     
     # Verify the result structure
     assert result["problem_id"] == "test_problem_1"
@@ -116,12 +138,11 @@ def test_accumulate_summaries(mock_create_client, mock_config, mock_problem,
     improved_prompt = calls[1][0][0]  # First arg of second call
     
     # Verify that the improved prompt contains the summary from iteration 0
-    assert "ITERATION 0 SUMMARY" in improved_prompt
+    assert "ATTEMPT 0 SUMMARY" in improved_prompt
     assert mock_summary in improved_prompt
 
 @patch('src.llm.model_factory.create_model_client')
-@patch('src.reasoning.extractor.extract_reasoning_trace')
-def test_reasoning_trace_extraction(mock_extract, mock_create_client, mock_config, mock_problem):
+def test_reasoning_trace_extraction(mock_create_client, mock_fireworks_client, mock_config, mock_problem):
     """Test that reasoning traces are correctly extracted from model outputs."""
     
     # Create mock model instances
@@ -146,10 +167,6 @@ def test_reasoning_trace_extraction(mock_extract, mock_create_client, mock_confi
     The answer is \\boxed{4}.
     """
     
-    # Configure the mock extractor to return a properly extracted trace
-    extracted_trace = "First attempt: 2 + 2 = 5\n\nSecond attempt: 2 + 2 = 4"
-    mock_extract.return_value = extracted_trace
-    
     # Configure model responses
     mock_reasoning_model.generate_response.return_value = multi_think_output
     mock_summarizer_model.generate_response.return_value = "Summary of both attempts."
@@ -161,27 +178,28 @@ def test_reasoning_trace_extraction(mock_extract, mock_create_client, mock_confi
         config=mock_config
     )
     
-    # Process a sample problem with patched summarize_reasoning
-    with patch('src.reasoning.summarizer.summarize_reasoning') as mock_summarize:
-        mock_summarize.return_value = "Summary with extracted content"
+    # Mock the extraction function
+    extracted_trace = "First attempt: 2 + 2 = 5\n\nSecond attempt: 2 + 2 = 4"
+    with patch('src.reasoning.extractor.extract_reasoning_trace') as mock_extract:
+        mock_extract.return_value = extracted_trace
         
-        # Process the problem
-        experiment._process_problem(mock_problem)
-        
-        # Verify extract_reasoning_trace was called with allow_fallback=False
-        # For stream_summary_generation
-        if hasattr(experiment, '_stream_summary_generation'):
+        # Process a sample problem with patched summarize_reasoning
+        with patch('src.reasoning.summarizer.summarize_reasoning') as mock_summarize:
+            mock_summarize.return_value = "Summary with extracted content"
+            
+            # Process the problem
+            experiment._process_problem(mock_problem)
+            
+            # Verify extract_reasoning_trace was called with allow_fallback=False
             mock_extract.assert_called_with(multi_think_output, allow_fallback=False)
-        
-        # Check if summarize_reasoning was called with the extracted content
-        mock_summarize.assert_called()
-        if mock_summarize.call_args:
+            
+            # Check if summarize_reasoning was called with the extracted content
+            mock_summarize.assert_called()
             # The reasoning parameter should be the extracted trace
-            assert mock_summarize.call_args[0][1] == extracted_trace 
+            assert mock_summarize.call_args[0][1] == extracted_trace
 
 @patch('src.llm.model_factory.create_model_client')
-@patch('src.reasoning.extractor.extract_reasoning_trace')
-def test_extraction_failure_handling(mock_extract, mock_create_client, mock_config, mock_problem):
+def test_extraction_failure_handling(mock_create_client, mock_fireworks_client, mock_config, mock_problem):
     """Test that the experiment properly handles extraction failures."""
     
     # Create mock model instances
@@ -195,17 +213,18 @@ def test_extraction_failure_handling(mock_extract, mock_create_client, mock_conf
     no_think_output = "This is a response without any think tags. The answer is \\boxed{5}."
     mock_reasoning_model.generate_response.return_value = no_think_output
     
-    # Configure extract_reasoning_trace to return None (simulating extraction failure)
-    mock_extract.return_value = None
-    
     # Create the experiment
     experiment = SummarizationExperiment(
         experiment_name="test_extraction_failure",
         config=mock_config
     )
     
-    # Process should raise ValueError when extraction fails
-    with pytest.raises(ValueError, match="Could not extract reasoning trace for problem"):
-        # Ensure we disable dashboard to hit the non-dashboard code path
-        experiment.dashboard = None
-        experiment._process_problem(mock_problem) 
+    # Mock the extraction function to return None (simulating failure)
+    with patch('src.reasoning.extractor.extract_reasoning_trace') as mock_extract:
+        mock_extract.return_value = None
+        
+        # Process should raise ValueError when extraction fails
+        with pytest.raises(ValueError, match="Could not extract reasoning trace for problem"):
+            # Ensure we disable dashboard to hit the non-dashboard code path
+            experiment.dashboard = None
+            experiment._process_problem(mock_problem) 
