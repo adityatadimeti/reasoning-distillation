@@ -1,11 +1,16 @@
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional, Tuple, AsyncIterator
 import time
 import logging
+import asyncio
+import concurrent.futures
+from concurrent.futures import ThreadPoolExecutor
+from threading import Lock
+import copy
 
 from src.experiments.base import BaseExperiment
 from src.llm.model_factory import create_model_client
 from src.reasoning.extractor import extract_answer, extract_reasoning_trace
-from src.reasoning.summarizer import summarize_reasoning
+from src.reasoning.summarizer import summarize_reasoning, summarize_reasoning_async
 from src.dashboard.server import DashboardServer
 
 logger = logging.getLogger(__name__)
@@ -46,6 +51,9 @@ class SummarizationExperiment(BaseExperiment):
             if "summarizer_model" not in self.config:
                 raise ValueError("summarizer_model must be specified when summarizer_type is not 'self'")
             self.summarizer = create_model_client(self.config["summarizer_model"])
+        
+        # Add lock for thread safety when updating results
+        self.results_lock = Lock()
     
     def run(self, problems: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Run the summarization experiment on a list of problems."""
@@ -95,6 +103,309 @@ class SummarizationExperiment(BaseExperiment):
                 self.save_results()
                 
         return self.results
+    
+    async def run_parallel(self, problems: List[Dict[str, Any]], max_concurrency: int = 5) -> List[Dict[str, Any]]:
+        """
+        Run the summarization experiment on a list of problems in parallel.
+        
+        Args:
+            problems: List of problem dictionaries
+            max_concurrency: Maximum number of problems to process concurrently
+            
+        Returns:
+            List of results for all problems
+        """
+        total_problems = len(problems)
+        logger.info(f"Processing {total_problems} problems with max concurrency of {max_concurrency}")
+        
+        # Create a semaphore to limit concurrency
+        semaphore = asyncio.Semaphore(max_concurrency)
+        
+        # Create a list to store tasks
+        tasks = []
+        
+        # Process each problem asynchronously
+        for i, problem in enumerate(problems):
+            # Handle different case variations of 'id' field
+            problem_id = problem.get("id", problem.get("ID", str(i+1)))
+            
+            # Create a task for this problem
+            task = asyncio.create_task(self._process_problem_with_semaphore(semaphore, problem, i, total_problems))
+            tasks.append(task)
+        
+        # Wait for all tasks to complete
+        await asyncio.gather(*tasks)
+        
+        # Sort results by problem ID or index for consistent output
+        sorted_results = sorted(self.results, key=lambda x: x.get("problem_id", ""))
+        
+        # Save final results
+        self.results = sorted_results
+        self.save_results()
+        
+        return self.results
+    
+    async def _process_problem_with_semaphore(self, semaphore: asyncio.Semaphore, problem: Dict[str, Any], 
+                                             index: int, total: int) -> Dict[str, Any]:
+        """Process a problem with semaphore for concurrency control."""
+        async with semaphore:
+            # Handle different case variations of 'id' field
+            problem_id = problem.get("id", problem.get("ID", str(index+1)))
+            question = problem.get("question", "")
+            
+            logger.info(f"[{index+1}/{total}] Starting problem {problem_id}")
+            
+            try:
+                # Process the problem asynchronously
+                result = await self._process_problem_async(problem)
+                
+                # Thread-safe update of results
+                with self.results_lock:
+                    self.results.append(result)
+                    
+                logger.info(f"[{index+1}/{total}] Completed problem {problem_id}")
+                
+                # Save intermediate results
+                if self.config.get("save_intermediate", True):
+                    self.save_results()
+                    
+                return result
+                
+            except Exception as e:
+                logger.error(f"Error processing problem {problem_id}: {str(e)}")
+                
+                # Add error to results in a thread-safe way
+                error_result = {
+                    "problem_id": problem_id,
+                    "error": str(e),
+                    "status": "error"
+                }
+                
+                with self.results_lock:
+                    self.results.append(error_result)
+                
+                # Save intermediate results
+                if self.config.get("save_intermediate", True):
+                    self.save_results()
+                    
+                return error_result
+    
+    async def _process_problem_async(self, problem: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Process a single problem through the summarization pipeline asynchronously.
+        
+        Args:
+            problem: Problem dictionary with 'question' and 'answer' keys
+            
+        Returns:
+            Result dictionary with reasoning iterations
+        """
+        # Handle different case variations of 'id' field
+        problem_id = problem.get("id", problem.get("ID", "unknown"))
+        
+        question = problem["question"]
+        correct_answer = problem["answer"]
+        
+        # Create initial reasoning prompt (iteration 0)
+        reasoning_template = self.config.get("reasoning_prompt_template")
+        if not reasoning_template:
+            raise ValueError("reasoning_prompt_template must be specified in configuration")
+        
+        initial_prompt = reasoning_template.replace("{question}", question)
+        
+        # Generate iteration 0 reasoning asynchronously
+        response = await self.reasoning_model.generate_response_async(
+            initial_prompt,
+            max_tokens=self.config["max_tokens"],
+            temperature=self.config["temperature"],
+            top_p=self.config["top_p"],
+            top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
+            presence_penalty=self.config["presence_penalty"],
+            frequency_penalty=self.config["frequency_penalty"],
+            verbose=self.verbose
+        )
+        
+        # Handle both tuple and string responses for backward compatibility
+        if isinstance(response, tuple):
+            iter0_reasoning, iter0_finish_reason = response
+        else:
+            iter0_reasoning = response
+            iter0_finish_reason = "unknown"  # Default if finish_reason is not available
+        
+        # Log the finish reason
+        logger.info(f"Problem {problem_id}, iteration 0 finish reason: {iter0_finish_reason}")
+        
+        # Extract answer from iteration 0 reasoning
+        iter0_answer = extract_answer(iter0_reasoning)
+        
+        # Check if answer is correct (simple string comparison)
+        iter0_correct = False
+        if iter0_answer is not None:
+            iter0_correct = iter0_answer.strip() == correct_answer.strip()
+        
+        # Construct initial result dictionary
+        result = {
+            "problem_id": problem_id,
+            "question": question,
+            "correct_answer": correct_answer,
+            "iterations": [
+                {
+                    "iteration": 0,
+                    "reasoning": iter0_reasoning,
+                    "answer": iter0_answer,
+                    "correct": iter0_correct,
+                    "finish_reason": iter0_finish_reason
+                }
+            ],
+            "timestamp": time.time()
+        }
+        
+        # NOTE: The following fields are duplicates of data already in iterations[0]
+        # They are kept for backward compatibility with existing dashboard code
+        result["initial_reasoning"] = iter0_reasoning
+        result["initial_answer"] = iter0_answer
+        result["initial_correct"] = iter0_correct
+        result["initial_finish_reason"] = iter0_finish_reason
+        
+        # Maximum number of iterations to perform
+        max_iterations = self.config.get("max_iterations", 1)
+        
+        # Track if we've found the correct answer in any iteration
+        found_correct_answer = iter0_correct
+        
+        # Store all summaries to accumulate them across iterations
+        all_summaries = []
+        
+        # Perform additional iterations if enabled and we haven't found a correct answer yet
+        current_iteration = 0
+        current_reasoning = iter0_reasoning
+        
+        while (
+            current_iteration < max_iterations and 
+            self.config.get("enable_summarization", True) and
+            (not found_correct_answer or self.config.get("continue_after_correct", False))
+        ):
+            # Get the summarization prompt template
+            summarize_template = self.config.get("summarize_prompt_template")
+            if not summarize_template:
+                raise ValueError("summarize_prompt_template must be specified in configuration")
+            
+            # Generate summary of the current reasoning
+            logger.info(f"Generating summary for problem {problem_id}, iteration {current_iteration}")
+            
+            # Extract reasoning trace from the full reasoning
+            reasoning_trace = extract_reasoning_trace(
+                current_reasoning, 
+                allow_fallback=self.config.get("allow_fallback", False)
+            )
+            # If extraction failed, raise an error
+            if reasoning_trace is None:
+                raise ValueError(f"Could not extract reasoning trace for problem {problem_id}. Make sure the model output contains <think> tags.")
+            
+            # Generate the summary asynchronously
+            summary_response = await summarize_reasoning_async(
+                question,
+                reasoning_trace,  # Use extracted reasoning trace instead of full reasoning
+                self.summarizer,
+                summarize_template,
+                max_tokens=self.config.get("summary_max_tokens"),
+                temperature=self.config.get("summary_temperature"),
+                top_p=self.config.get("summary_top_p"),
+                top_k=self.config.get("summary_top_k"),
+                presence_penalty=self.config.get("summary_presence_penalty"),
+                frequency_penalty=self.config.get("summary_frequency_penalty"),
+                verbose=self.verbose
+            )
+            
+            # Handle both tuple and string responses for backward compatibility
+            if isinstance(summary_response, tuple):
+                summary, summary_finish_reason = summary_response
+            else:
+                summary = summary_response
+                summary_finish_reason = "unknown"
+            
+            # Log the finish reason for the summary
+            logger.info(f"Problem {problem_id}, summary {current_iteration} finish reason: {summary_finish_reason}")
+            
+            # Add summary to the collection with iteration number
+            all_summaries.append({
+                "iteration": current_iteration,
+                "summary": summary,
+                "finish_reason": summary_finish_reason
+            })
+            
+            # Prepare for next iteration
+            next_iteration = current_iteration + 1
+            
+            # Get improved reasoning prompt template
+            improved_template = self.config.get("improved_prompt_template")
+            if not improved_template:
+                raise ValueError("improved_prompt_template must be specified for additional iterations")
+            
+            # Build accumulated summaries text
+            accumulated_summaries = ""
+            for i, summary_item in enumerate(all_summaries):
+                accumulated_summaries += f"\n\nATTEMPT {summary_item['iteration']} SUMMARY:\n{summary_item['summary']}"
+            
+            # Create prompt for next iteration using accumulated summaries
+            improved_prompt = improved_template.replace("{question}", question).replace("{summaries}", accumulated_summaries)
+            
+            # Generate reasoning for next iteration asynchronously
+            next_response = await self.reasoning_model.generate_response_async(
+                improved_prompt,
+                max_tokens=self.config["max_tokens"],
+                temperature=self.config["temperature"],
+                top_p=self.config["top_p"],
+                top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
+                presence_penalty=self.config["presence_penalty"],
+                frequency_penalty=self.config["frequency_penalty"],
+                verbose=self.verbose
+            )
+            
+            # Handle both tuple and string responses for backward compatibility
+            if isinstance(next_response, tuple):
+                next_reasoning, next_finish_reason = next_response
+            else:
+                next_reasoning = next_response
+                next_finish_reason = "unknown"
+            
+            # Log the finish reason
+            logger.info(f"Problem {problem_id}, iteration {next_iteration} finish reason: {next_finish_reason}")
+            
+            # Extract answer from next iteration reasoning
+            next_answer = extract_answer(next_reasoning)
+            
+            # Check if answer is correct
+            next_correct = False
+            if next_answer is not None:
+                next_correct = next_answer.strip() == correct_answer.strip()
+                found_correct_answer = found_correct_answer or next_correct
+            
+            # Add this iteration to the results
+            result["iterations"].append({
+                "iteration": next_iteration,
+                "summary": summary,
+                "summary_finish_reason": summary_finish_reason,
+                "reasoning": next_reasoning,
+                "answer": next_answer,
+                "correct": next_correct,
+                "finish_reason": next_finish_reason
+            })
+            
+            # NOTE: These are redundant fields duplicating data already in iterations[1]
+            # They are kept for backward compatibility with existing dashboard code
+            result["summary"] = summary
+            result["summary_finish_reason"] = summary_finish_reason
+            result["improved_reasoning"] = next_reasoning
+            result["improved_answer"] = next_answer
+            result["improved_correct"] = next_correct
+            result["improved_finish_reason"] = next_finish_reason
+            
+            # Update for next potential iteration
+            current_iteration = next_iteration
+            current_reasoning = next_reasoning
+            
+        return result
     
     def _stream_summary_generation(self, problem_id: str, question: str, reasoning: str, prompt_template: str, iteration: int = 0) -> Tuple[str, str]:
         """

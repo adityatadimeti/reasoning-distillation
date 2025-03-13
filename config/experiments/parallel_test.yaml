@@ -1,16 +1,11 @@
 # Experiment configuration
-experiment_name: "summarization_8_iter_rzn-R1_summ-V3-approach_focused_wrong_seven_deepseek_aime_2024"
-results_dir: "./results/summarization_8_iter_rzn-R1_summ- 3_wrong_seven_deepseek_aime_2024"
-data_path: "./data/wrong_seven_deepseek_aime_2024.csv"
+experiment_name: "parallel_test_reasoning"
+results_dir: "./results/parallel_test"
+data_path: "./data/parallel_simple.csv"
 save_intermediate: true
 
-# Dashboard configuration
-dashboard_port: 8080
-
 # Model configuration
-# reasoning_model: "accounts/fireworks/models/qwq-32b"
 reasoning_model: "accounts/fireworks/models/deepseek-r1"
-# summarizer_type: "self"
 summarizer_type: "external"
 summarizer_model: "accounts/fireworks/models/deepseek-v3"
 
@@ -23,8 +18,8 @@ presence_penalty: 0.0
 frequency_penalty: 0.0
 
 # Iteration parameters
-max_iterations: 8  # This will do initial (0) plus one more iteration (1)
-continue_after_correct: true # Continue to iteration 1 even if iteration 0 is correct
+max_iterations: 2  # This will do initial (0) plus two more iterations (1, 2)
+continue_after_correct: true  # Continue iterations even if previous was correct
 
 # Summarization parameters
 enable_summarization: true
@@ -37,6 +32,6 @@ summary_frequency_penalty: 0.0
 
 # Prompt configurations
 prompts:
-  reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
+  reasoning: "v0"  # This references the version in config/prompts/reasoning.yaml
   summarize: "approach_focused_summarization"  # This references the version in config/prompts/summarize.yaml
-  improved: "aime" # This references the version in config/prompts/improved.yaml
+  improved: "v0"  # This references the version in config/prompts/improved.yaml 

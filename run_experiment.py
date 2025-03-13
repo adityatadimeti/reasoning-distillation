@@ -5,6 +5,7 @@ import csv
 import logging
 import time
 import yaml
+import asyncio
 from typing import Dict, Any
 
 from src.utils.config import load_config
@@ -88,6 +89,8 @@ def run_experiment(
     config_path: str, 
     use_dashboard: bool = False,
     verbose: bool = False,
+    parallel: bool = False,
+    max_concurrency: int = 4,
     **kwargs
 ) -> Dict[str, Any]:
     """
@@ -97,6 +100,8 @@ def run_experiment(
         config_path: Path to configuration file
         use_dashboard: Whether to use the dashboard
         verbose: Whether to log all LLM calls
+        parallel: Whether to process problems in parallel
+        max_concurrency: Maximum number of problems to process concurrently when parallel=True
         **kwargs: Additional configuration overrides
         
     Returns:
@@ -157,7 +162,18 @@ def run_experiment(
     )
     
     # Run experiment
-    results = experiment.run(problems)
+    if parallel and not use_dashboard:
+        # For parallel processing, we need to use asyncio
+        logger.info(f"Running experiment in parallel mode with max concurrency of {max_concurrency}")
+        
+        # Need to use asyncio.run to execute the coroutine
+        results = asyncio.run(experiment.run_parallel(problems, max_concurrency=max_concurrency))
+    else:
+        if parallel and use_dashboard:
+            logger.warning("Parallel processing is not compatible with dashboard. Using sequential processing.")
+            
+        # Run in sequential mode
+        results = experiment.run(problems)
     
     # Final completion status
     if dashboard:
@@ -175,12 +191,71 @@ def run_experiment(
         "config": config
     }
 
+async def run_experiment_async(
+    config_path: str, 
+    verbose: bool = False,
+    max_concurrency: int = 4,
+    **kwargs
+) -> Dict[str, Any]:
+    """
+    Run an experiment with the specified configuration asynchronously.
+    
+    Args:
+        config_path: Path to configuration file
+        verbose: Whether to log all LLM calls
+        max_concurrency: Maximum number of problems to process concurrently
+        **kwargs: Additional configuration overrides
+        
+    Returns:
+        Dictionary with experiment results
+    """
+    # Load configuration
+    config = load_config(config_path)
+    
+    # Override configuration with kwargs
+    for key, value in kwargs.items():
+        if value is not None:
+            config[key] = value
+    
+    # Load prompt templates
+    if "prompts" in config:
+        for prompt_type, version in config["prompts"].items():
+            template_key = f"{prompt_type}_prompt_template"
+            config[template_key] = load_prompt(prompt_type, version)
+    
+    # Load problems
+    problems = load_problems(config["data_path"])
+    
+    # Show problem count
+    logger.info(f"Loaded {len(problems)} problems")
+    
+    # Create experiment
+    experiment = SummarizationExperiment(
+        experiment_name=config.get("experiment_name", "summarization"),
+        config=config,
+        dashboard=None,  # No dashboard in async mode
+        verbose=verbose
+    )
+    
+    # Run experiment in parallel
+    results = await experiment.run_parallel(problems, max_concurrency=max_concurrency)
+    
+    # Save results
+    experiment.save_results()
+    
+    return {
+        "results": results,
+        "config": config
+    }
+
 def main():
     """Main entry point for running experiments."""
     parser = argparse.ArgumentParser(description="Run a reasoning enhancement experiment")
     parser.add_argument("config", help="Path to configuration file")
     parser.add_argument("--dashboard", action="store_true", help="Enable dashboard")
     parser.add_argument("--verbose", action="store_true", help="log all LLM calls")
+    parser.add_argument("--parallel", action="store_true", help="Process problems in parallel (incompatible with dashboard)")
+    parser.add_argument("--concurrency", type=int, default=4, help="Maximum number of problems to process concurrently when parallel=True")
     
     args = parser.parse_args()
     
@@ -191,7 +266,9 @@ def main():
         run_experiment(
             args.config, 
             use_dashboard=args.dashboard,
-            verbose=args.verbose
+            verbose=args.verbose,
+            parallel=args.parallel,
+            max_concurrency=args.concurrency
         )
         logger.info("Experiment completed successfully")
     except Exception as e:

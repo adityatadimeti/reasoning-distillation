@@ -1,8 +1,10 @@
 import os
 import json
 import requests
+import asyncio
+import aiohttp
 from dotenv import load_dotenv
-from typing import List, Dict, Any, Iterator, Optional, Union, Tuple
+from typing import List, Dict, Any, Iterator, Optional, Union, Tuple, AsyncIterator
 
 from src.llm.base_client import ModelClient
 
@@ -81,6 +83,50 @@ class FireworksModelClient(ModelClient):
         except requests.exceptions.RequestException as e:
             raise Exception(f"Fireworks API request failed: {str(e)}")
     
+    async def generate_completion_async(
+        self, 
+        messages: List[Dict[str, str]],
+        max_tokens: int,
+        temperature: float,
+        top_p: float,
+        top_k: int,
+        presence_penalty: float,
+        frequency_penalty: float,
+        stream: bool = False,   
+        **kwargs
+    ) -> Union[Dict[str, Any], AsyncIterator[Dict[str, Any]]]:
+        """
+        Generate a completion from the Fireworks model asynchronously.
+        """
+        payload = {
+            "model": self.model_name,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "top_p": top_p,
+            "top_k": top_k,
+            "presence_penalty": presence_penalty,
+            "frequency_penalty": frequency_penalty,
+            "messages": messages,
+            "stream": stream
+        }
+        
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    self.BASE_URL, 
+                    headers=self.headers, 
+                    json=payload
+                ) as response:
+                    response.raise_for_status()
+                    
+                    if stream:
+                        return self._process_stream_async(response)
+                    else:
+                        return await response.json()
+                    
+        except aiohttp.ClientError as e:
+            raise Exception(f"Fireworks API request failed: {str(e)}")
+    
     def _process_stream(self, response: requests.Response) -> Iterator[Dict[str, Any]]:
         """Process a streaming response from the API."""
         for line in response.iter_lines():
@@ -94,6 +140,20 @@ class FireworksModelClient(ModelClient):
                     yield json.loads(line)
                 except json.JSONDecodeError as e:
                     print(f"Error decoding JSON: {e}, Line: {line}")
+    
+    async def _process_stream_async(self, response: aiohttp.ClientResponse) -> AsyncIterator[Dict[str, Any]]:
+        """Process a streaming response from the API asynchronously."""
+        async for line in response.content:
+            if line:
+                line_str = line.decode('utf-8')
+                if line_str.startswith('data: '):
+                    line_str = line_str[6:]
+                if line_str == '[DONE]':
+                    break
+                try:
+                    yield json.loads(line_str)
+                except json.JSONDecodeError as e:
+                    print(f"Error decoding JSON: {e}, Line: {line_str}")
     
     def generate_response(
         self, 
@@ -121,6 +181,39 @@ class FireworksModelClient(ModelClient):
             return self._extract_streaming_content(response_stream)
         else:
             response = self.generate_completion(messages, stream=False, **kwargs)
+            try:
+                content = response["choices"][0]["message"]["content"]
+                finish_reason = response["choices"][0].get("finish_reason", "unknown")
+                return content, finish_reason
+            except (KeyError, IndexError) as e:
+                raise Exception(f"Failed to extract content from Fireworks response: {str(e)}")
+    
+    async def generate_response_async(
+        self, 
+        prompt: str, 
+        stream: bool = False,
+        verbose: bool = False,
+        **kwargs
+    ) -> Union[Tuple[str, str], AsyncIterator[str]]:
+        """
+        Get a response from the model for a specific prompt asynchronously.
+        
+        Returns:
+            If stream=False: A tuple of (content, finish_reason) where finish_reason indicates why generation stopped
+            If stream=True: An async iterator yielding content chunks
+        """
+        messages = [{"role": "user", "content": prompt}]
+        
+        if verbose:
+            print(f"\n[VERBOSE] Fireworks API Request to {self.model_name}")
+            print(f"[VERBOSE] Messages: {json.dumps(messages, indent=2)}")
+            print(f"[VERBOSE] Parameters: {json.dumps({k: v for k, v in kwargs.items()}, indent=2)}")
+        
+        if stream:
+            response_stream = await self.generate_completion_async(messages, stream=True, **kwargs)
+            return self._extract_streaming_content_async(response_stream)
+        else:
+            response = await self.generate_completion_async(messages, stream=False, **kwargs)
             try:
                 content = response["choices"][0]["message"]["content"]
                 finish_reason = response["choices"][0].get("finish_reason", "unknown")
@@ -158,9 +251,28 @@ class FireworksModelClient(ModelClient):
                     finish_reason = last_chunk["choices"][0].get("finish_reason", "unknown")
             except Exception as e:
                 print(f"Error extracting finish_reason from last chunk: {e}")
+    
+    async def _extract_streaming_content_async(self, response_stream: AsyncIterator[Dict[str, Any]]) -> AsyncIterator[str]:
+        """
+        Extract content from an async streaming response.
         
-        # In streaming mode, we can't return the finish_reason from here
-        # It will be accessible via the _stream_model_output method
+        Yields each content piece as it arrives.
+        """
+        finish_reason = "unknown"
+        last_chunk = None
+        
+        async for chunk in response_stream:
+            try:
+                # Save the last chunk to extract finish_reason later
+                last_chunk = chunk
+                
+                content = chunk["choices"][0]["delta"].get("content", "")
+                if content:
+                    yield content
+            except (KeyError, IndexError) as e:
+                print(f"Error extracting content from chunk: {e}")
+                # Don't let errors break the stream, yield an empty string
+                yield ""
     
     def get_content_only(
         self, 
@@ -180,4 +292,24 @@ class FireworksModelClient(ModelClient):
             return self.generate_response(prompt, stream=True, verbose=verbose, **kwargs)
         else:
             content, _ = self.generate_response(prompt, stream=False, verbose=verbose, **kwargs)
+            return content
+            
+    async def get_content_only_async(
+        self, 
+        prompt: str, 
+        stream: bool = False,
+        verbose: bool = False,
+        **kwargs
+    ) -> Union[str, AsyncIterator[str]]:
+        """
+        Get only the content response from the model asynchronously (for backward compatibility).
+        
+        Returns:
+            If stream=False: Just the content string
+            If stream=True: An async iterator yielding content chunks
+        """
+        if stream:
+            return await self.generate_response_async(prompt, stream=True, verbose=verbose, **kwargs)
+        else:
+            content, _ = await self.generate_response_async(prompt, stream=False, verbose=verbose, **kwargs)
             return content
