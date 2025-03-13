@@ -243,7 +243,7 @@ class DashboardServer:
                 'status': status
             })
     
-    def stream_model_output(self, problem_id: str, chunk: str, iteration: int = 0):
+    def stream_model_output(self, problem_id: str, chunk: str, iteration: int = 0, finish_reason: str = None):
         """
         Stream a chunk of model output to the dashboard.
         
@@ -251,15 +251,22 @@ class DashboardServer:
             problem_id: ID of the problem
             chunk: Text chunk from the model
             iteration: Iteration number (0 = initial, 1 = first improvement, etc.)
+            finish_reason: If provided, indicates why the model stopped generating (e.g., "length", "stop")
         """
         if self.thread and self.thread.is_alive():
-            self.socketio.emit('model_output', {
+            payload = {
                 'problem_id': problem_id,
                 'chunk': chunk,
                 'iteration': iteration
-            })
+            }
+            
+            # Only include finish_reason in the payload if it's provided
+            if finish_reason:
+                payload['finish_reason'] = finish_reason
+                
+            self.socketio.emit('model_output', payload)
     
-    def update_answer_info(self, problem_id: str, answer: str, correct_answer: str, is_correct: bool, iteration: int = 0):
+    def update_answer_info(self, problem_id: str, answer: str, correct_answer: str, is_correct: bool, iteration: int = 0, finish_reason: str = None):
         """
         Update answer information for a problem.
         
@@ -269,17 +276,23 @@ class DashboardServer:
             correct_answer: The correct answer
             is_correct: Whether the answer is correct
             iteration: Iteration number
+            finish_reason: Why the model stopped generating (e.g., "length", "stop")
         """
         if self.thread and self.thread.is_alive():
-            self.socketio.emit('answer_info', {
+            payload = {
                 'problem_id': problem_id,
                 'answer': answer,
                 'correct_answer': correct_answer,
                 'is_correct': is_correct,
                 'iteration': iteration
-            })
+            }
+            
+            if finish_reason:
+                payload['finish_reason'] = finish_reason
+                
+            self.socketio.emit('answer_info', payload)
     
-    def update_summary(self, problem_id: str, summary: str, iteration: int = 0):
+    def update_summary(self, problem_id: str, summary: str, iteration: int = 0, finish_reason: str = None):
         """
         Update summary for a problem.
         
@@ -287,15 +300,21 @@ class DashboardServer:
             problem_id: ID of the problem
             summary: The summary text
             iteration: The iteration this summary belongs to
+            finish_reason: Why the summary generation stopped (e.g., "length", "stop")
         """
         if self.thread and self.thread.is_alive():
-            self.socketio.emit('summary', {
+            payload = {
                 'problem_id': problem_id,
                 'summary': summary,
                 'iteration': iteration
-            })
+            }
+            
+            if finish_reason:
+                payload['finish_reason'] = finish_reason
+                
+            self.socketio.emit('summary', payload)
     
-    def stream_summary_chunk(self, problem_id: str, chunk: str, iteration: int = 0):
+    def stream_summary_chunk(self, problem_id: str, chunk: str, iteration: int = 0, finish_reason: str = None):
         """
         Stream a chunk of summary text to the dashboard.
         
@@ -303,13 +322,19 @@ class DashboardServer:
             problem_id: ID of the problem
             chunk: Text chunk of the summary
             iteration: The iteration this summary belongs to
+            finish_reason: If provided, indicates why the summary generation stopped
         """
         if self.thread and self.thread.is_alive():
-            self.socketio.emit('summary_chunk', {
+            payload = {
                 'problem_id': problem_id,
                 'chunk': chunk,
                 'iteration': iteration
-            })
+            }
+            
+            if finish_reason:
+                payload['finish_reason'] = finish_reason
+                
+            self.socketio.emit('summary_chunk', payload)
     
     def stop(self):
         """Stop the dashboard server."""

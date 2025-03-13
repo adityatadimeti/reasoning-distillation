@@ -94,7 +94,7 @@ class SummarizationExperiment(BaseExperiment):
                 
         return self.results
     
-    def _stream_summary_generation(self, problem_id: str, question: str, reasoning: str, prompt_template: str, iteration: int = 0) -> str:
+    def _stream_summary_generation(self, problem_id: str, question: str, reasoning: str, prompt_template: str, iteration: int = 0) -> Tuple[str, str]:
         """
         Stream the summary generation for a problem and update dashboard in real-time.
         
@@ -106,10 +106,11 @@ class SummarizationExperiment(BaseExperiment):
             iteration: Iteration number
             
         Returns:
-            The full summary
+            Tuple of (full_summary, finish_reason)
         """
         full_summary = ""
         buffered_chunks = []
+        finish_reason = "unknown"  # Default if we can't extract it
         
         # Add debug logging
         logger.debug(f"Streaming summary for iteration {iteration}, problem ID: {problem_id}")
@@ -120,7 +121,7 @@ class SummarizationExperiment(BaseExperiment):
             self.dashboard.update_problem_status(problem_id, status)
         
         # Extract the reasoning trace from within <think> tags
-        reasoning_trace = extract_reasoning_trace(reasoning, allow_fallback=False)
+        reasoning_trace = extract_reasoning_trace(reasoning, allow_fallback=self.config.get("allow_fallback", False))
         if reasoning_trace is None:
             raise ValueError(f"Could not extract reasoning trace for problem {problem_id}. Make sure the model output contains <think> tags.")
         
@@ -158,7 +159,44 @@ class SummarizationExperiment(BaseExperiment):
                 combined_chunk = "".join(buffered_chunks)
                 self.dashboard.stream_summary_chunk(problem_id, combined_chunk, iteration)
             
-            return full_summary
+            # Get finish_reason for the summary
+            # Make a non-streaming call with the same parameters to get finish_reason
+            if hasattr(self.summarizer, 'generate_completion') and 'fireworks' in str(self.summarizer.__class__).lower():
+                try:
+                    # Create the prompt
+                    summary_prompt = prompt_template.replace("{reasoning}", reasoning_trace)
+                    if "{question}" in prompt_template:
+                        summary_prompt = summary_prompt.replace("{question}", question)
+                        
+                    # Make a non-streaming API call to get finish_reason
+                    logger.debug(f"Making non-streaming call to get summary finish_reason for problem {problem_id}, iteration {iteration}")
+                    summary_response = self.summarizer.generate_response(
+                        summary_prompt,
+                        stream=False,
+                        max_tokens=self.config.get("summary_max_tokens"),
+                        temperature=self.config.get("summary_temperature"),
+                        top_p=self.config.get("summary_top_p"),
+                        top_k=self.config.get("summary_top_k"),
+                        presence_penalty=self.config.get("summary_presence_penalty"),
+                        frequency_penalty=self.config.get("summary_frequency_penalty"),
+                        verbose=False  # Don't log this auxiliary call
+                    )
+                    
+                    # Extract the finish_reason from the response
+                    if isinstance(summary_response, tuple):
+                        _, finish_reason = summary_response
+                        logger.debug(f"Got summary finish_reason '{finish_reason}' for problem {problem_id}, iteration {iteration}")
+                except Exception as e:
+                    logger.warning(f"Error getting summary finish_reason: {str(e)}. Using 'unknown' instead.")
+            
+            # Send a final empty chunk with the finish_reason
+            if self.dashboard:
+                self.dashboard.stream_summary_chunk(problem_id, "", iteration=iteration, finish_reason=finish_reason)
+                
+                # Send the final complete summary with finish_reason
+                self.dashboard.update_summary(problem_id, full_summary, iteration=iteration, finish_reason=finish_reason)
+            
+            return full_summary, finish_reason
             
         except Exception as e:
             logger.error(f"Error streaming summary: {str(e)}")
@@ -297,7 +335,7 @@ class SummarizationExperiment(BaseExperiment):
             # Stream the summary if we have a dashboard, otherwise generate normally
             summary_finish_reason = "unknown"
             if self.dashboard:
-                summary = self._stream_summary_generation(
+                summary, summary_finish_reason = self._stream_summary_generation(
                     problem_id, 
                     question,
                     current_reasoning, 
@@ -306,7 +344,7 @@ class SummarizationExperiment(BaseExperiment):
                 )
                 # The summary has already been streamed to the dashboard, 
                 # but we need to send a final update to indicate it's complete
-                self.dashboard.update_summary(problem_id, summary, iteration=current_iteration)
+                self.dashboard.update_summary(problem_id, summary, iteration=current_iteration, finish_reason=summary_finish_reason)
             else:
                 # Extract reasoning trace from the full reasoning
                 reasoning_trace = extract_reasoning_trace(
@@ -524,6 +562,10 @@ class SummarizationExperiment(BaseExperiment):
                 logger.info(f"Client is now ready, sending all buffered chunks for iteration {iteration} on problem {problem_id}")
                 # Send the complete output as one chunk
                 self.dashboard.stream_model_output(problem_id, ''.join(buffered_chunks), iteration=iteration)
+        
+        # Send a final empty chunk with the finish_reason
+        if self.dashboard:
+            self.dashboard.stream_model_output(problem_id, "", iteration=iteration, finish_reason=finish_reason)
                 
         # Update the problem status based on iteration
         if self.dashboard:

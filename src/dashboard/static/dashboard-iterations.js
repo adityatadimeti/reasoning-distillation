@@ -86,6 +86,22 @@ function updateIterationsUI(problemId, handleScroll = true) {
             html += `</div>`;
             html += `<div class="subsection-content" id="reasoning-${iteration}-content">`;
             html += `<div class="reasoning-content">${DashboardUI.formatReasoning(iterData.reasoning)}</div>`;
+            
+            // Add finish reason display if available
+            if (iterData.finish_reason) {
+                if (iterData.finish_reason === 'length') {
+                    html += `<div class="finish-reason warning">
+                        <span class="warning-icon">⚠️</span> 
+                        Output was cut off because it reached the maximum token limit.
+                        The reasoning and/or answer may be incomplete.
+                    </div>`;
+                } else if (iterData.finish_reason !== 'stop') {
+                    html += `<div class="finish-reason">
+                        Completion reason: ${iterData.finish_reason}
+                    </div>`;
+                }
+            }
+            
             html += `</div>`; // End subsection-content
             html += `</div>`; // End iteration-reasoning
         }
@@ -99,6 +115,22 @@ function updateIterationsUI(problemId, handleScroll = true) {
             html += `</div>`;
             html += `<div class="subsection-content" id="summary-${iteration}-content">`;
             html += `<div class="summary-content">${iterData.summary}</div>`;
+            
+            // Add summary finish reason display if available
+            if (iterData.summary_finish_reason) {
+                if (iterData.summary_finish_reason === 'length') {
+                    html += `<div class="finish-reason warning">
+                        <span class="warning-icon">⚠️</span> 
+                        Summary was cut off because it reached the maximum token limit.
+                        The summary may be incomplete.
+                    </div>`;
+                } else if (iterData.summary_finish_reason !== 'stop') {
+                    html += `<div class="finish-reason">
+                        Completion reason: ${iterData.summary_finish_reason}
+                    </div>`;
+                }
+            }
+            
             html += `</div>`; // End subsection-content
             html += `</div>`; // End iteration-summary
         }

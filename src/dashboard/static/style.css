@@ -659,4 +659,30 @@ h4 {
     white-space: pre-wrap;
     line-height: 1.5;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Add styling for finish reason displays */
+.finish-reason {
+    margin-top: 12px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.finish-reason.warning {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+}
+
+.warning-icon {
+    margin-right: 5px;
+}
+
+/* Streaming indication */
+.streaming-text {
+    font-size: 0.85em;
+    color: #666;
+    font-style: italic;
 } 

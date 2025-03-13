@@ -111,7 +111,7 @@ function registerEventHandlers(socket) {
     
     // Handle model output chunks
     socket.on('model_output', (data) => {
-        const { problem_id, chunk, iteration = 0 } = data;
+        const { problem_id, chunk, iteration = 0, finish_reason } = data;
         
         console.log(`Received model output chunk for problem ${problem_id}, iteration ${iteration}`);
         
@@ -140,6 +140,12 @@ function registerEventHandlers(socket) {
         // Add the chunk to the iteration's reasoning
         window.problemOutputs[problem_id][iteration].reasoning += chunk;
         
+        // If finish_reason is provided, store it (it will be in the last chunk)
+        if (finish_reason) {
+            console.log(`Problem ${problem_id}, iteration ${iteration} finished with reason: ${finish_reason}`);
+            window.problemOutputs[problem_id][iteration].finish_reason = finish_reason;
+        }
+        
         // Log output state for debugging
         console.log(`Problem ${problem_id}, iteration ${iteration} output updated`, {
             outputLength: window.problemOutputs[problem_id][iteration].reasoning.length
@@ -153,6 +159,29 @@ function registerEventHandlers(socket) {
                 const reasoningContent = reasoningContentElement.querySelector('.reasoning-content');
                 if (reasoningContent) {
                     reasoningContent.innerHTML = DashboardUI.formatReasoning(window.problemOutputs[problem_id][iteration].reasoning);
+                    
+                    // If finish_reason is provided, update finish reason display
+                    if (finish_reason) {
+                        const finishReasonElement = reasoningContentElement.querySelector('.finish-reason');
+                        if (!finishReasonElement) {
+                            // Create finish reason element if it doesn't exist
+                            const newFinishReasonElement = document.createElement('div');
+                            newFinishReasonElement.className = `finish-reason ${finish_reason === 'length' ? 'warning' : ''}`;
+                            
+                            if (finish_reason === 'length') {
+                                newFinishReasonElement.innerHTML = `
+                                    <span class="warning-icon">⚠️</span> 
+                                    Output was cut off because it reached the maximum token limit.
+                                    The reasoning and/or answer may be incomplete.
+                                `;
+                            } else if (finish_reason !== 'stop') {
+                                newFinishReasonElement.textContent = `Completion reason: ${finish_reason}`;
+                            }
+                            
+                            reasoningContent.after(newFinishReasonElement);
+                        }
+                    }
+                    
                     return; // Skip full UI rebuild if we updated directly
                 }
             }
@@ -164,7 +193,7 @@ function registerEventHandlers(socket) {
     
     // Handle summary updates
     socket.on('summary', (data) => {
-        const { problem_id, summary, iteration = 0 } = data;
+        const { problem_id, summary, iteration = 0, finish_reason } = data;
         
         console.log(`Received complete summary for problem ${problem_id}, iteration ${iteration}`);
         
@@ -193,6 +222,12 @@ function registerEventHandlers(socket) {
             window.problemOutputs[problem_id][iteration].summaryStreaming = false;  // Mark as not streaming
         }
         
+        // If finish_reason is provided, store it
+        if (finish_reason) {
+            console.log(`Problem ${problem_id}, summary ${iteration} finished with reason: ${finish_reason}`);
+            window.problemOutputs[problem_id][iteration].summary_finish_reason = finish_reason;
+        }
+        
         // Store summary info (for backward compatibility)
         window.summaryInfo = window.summaryInfo || {};
         window.summaryInfo[problem_id] = summary;
@@ -205,7 +240,7 @@ function registerEventHandlers(socket) {
     
     // Handle streaming summary chunks
     socket.on('summary_chunk', (data) => {
-        const { problem_id, chunk, iteration = 0 } = data;
+        const { problem_id, chunk, iteration = 0, finish_reason } = data;
         
         console.log(`Received summary chunk for problem ${problem_id}, iteration ${iteration}`);
         
@@ -235,6 +270,13 @@ function registerEventHandlers(socket) {
         window.problemOutputs[problem_id][iteration].summary += chunk;
         window.problemOutputs[problem_id][iteration].summaryStreaming = true;  // Mark as streaming
         
+        // If finish_reason is provided, store it (it will be in the last chunk)
+        if (finish_reason) {
+            console.log(`Problem ${problem_id}, summary ${iteration} finished with reason: ${finish_reason}`);
+            window.problemOutputs[problem_id][iteration].summary_finish_reason = finish_reason;
+            window.problemOutputs[problem_id][iteration].summaryStreaming = false;  // Not streaming anymore
+        }
+        
         // Log output state for debugging
         console.log(`Problem ${problem_id}, iteration ${iteration} summary updated`, {
             summaryLength: window.problemOutputs[problem_id][iteration].summary.length
@@ -252,6 +294,29 @@ function registerEventHandlers(socket) {
                 const summaryContent = summaryContentElement.querySelector('.summary-content');
                 if (summaryContent) {
                     summaryContent.textContent = window.problemOutputs[problem_id][iteration].summary;
+                    
+                    // If finish_reason is provided, update finish reason display
+                    if (finish_reason) {
+                        const finishReasonElement = summaryContentElement.querySelector('.finish-reason');
+                        if (!finishReasonElement) {
+                            // Create finish reason element if it doesn't exist
+                            const newFinishReasonElement = document.createElement('div');
+                            newFinishReasonElement.className = `finish-reason ${finish_reason === 'length' ? 'warning' : ''}`;
+                            
+                            if (finish_reason === 'length') {
+                                newFinishReasonElement.innerHTML = `
+                                    <span class="warning-icon">⚠️</span> 
+                                    Summary was cut off because it reached the maximum token limit.
+                                    The summary may be incomplete.
+                                `;
+                            } else if (finish_reason !== 'stop') {
+                                newFinishReasonElement.textContent = `Completion reason: ${finish_reason}`;
+                            }
+                            
+                            summaryContent.after(newFinishReasonElement);
+                        }
+                    }
+                    
                     return; // Skip full UI rebuild if we updated directly
                 }
             }
@@ -263,7 +328,7 @@ function registerEventHandlers(socket) {
     
     // Handle answer updates
     socket.on('answer_info', (data) => {
-        const { problem_id, answer, correct_answer, is_correct, iteration = 0 } = data;
+        const { problem_id, answer, correct_answer, is_correct, iteration = 0, finish_reason } = data;
         
         console.log(`Received answer for problem ${problem_id}, iteration ${iteration}:`, answer);
         
@@ -291,6 +356,12 @@ function registerEventHandlers(socket) {
             window.problemOutputs[problem_id][iteration].answer = answer;
             window.problemOutputs[problem_id][iteration].correct_answer = correct_answer;
             window.problemOutputs[problem_id][iteration].is_correct = is_correct;
+        }
+        
+        // If finish_reason is provided, store it
+        if (finish_reason) {
+            console.log(`Problem ${problem_id}, iteration ${iteration} finished with reason: ${finish_reason}`);
+            window.problemOutputs[problem_id][iteration].finish_reason = finish_reason;
         }
         
         // Update answer info (for backward compatibility)
