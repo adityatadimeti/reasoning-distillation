@@ -3,12 +3,10 @@ v0:
   template: |
     Solve the following problem. Answer in \boxed{} format.
     
-    You previously attempted to solve this problem and here is a summary of your approach, including potential errors:
+    You previously attempted to solve this problem and here are summaries of your approaches, including potential errors:
+    {summaries}
     
-    SUMMARY OF PREVIOUS ATTEMPT:
-    {summary}
-    
-    Continue reasoning with this summary in mind.
+    Continue reasoning with these summaries in mind.
     
     PROBLEM:
     {question}

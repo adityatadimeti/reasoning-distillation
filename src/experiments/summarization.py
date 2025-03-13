@@ -4,7 +4,7 @@ import logging
 
 from src.experiments.base import BaseExperiment
 from src.llm.model_factory import create_model_client
-from src.reasoning.extractor import extract_answer
+from src.reasoning.extractor import extract_answer, extract_reasoning_trace
 from src.reasoning.summarizer import summarize_reasoning
 from src.dashboard.server import DashboardServer
 
@@ -119,11 +119,16 @@ class SummarizationExperiment(BaseExperiment):
             status = f"iter{iteration}-summarizing"
             self.dashboard.update_problem_status(problem_id, status)
         
+        # Extract the reasoning trace from within <think> tags
+        reasoning_trace = extract_reasoning_trace(reasoning, allow_fallback=False)
+        if reasoning_trace is None:
+            raise ValueError(f"Could not extract reasoning trace for problem {problem_id}. Make sure the model output contains <think> tags.")
+        
         try:
             # Stream the summary using the summarizer model
             summary_stream = summarize_reasoning(
                 question,
-                reasoning,
+                reasoning_trace,  # Use extracted reasoning trace instead of full reasoning
                 self.summarizer,
                 prompt_template,
                 max_tokens=self.config.get("summary_max_tokens"),
@@ -253,6 +258,9 @@ class SummarizationExperiment(BaseExperiment):
         # Track if we've found the correct answer in any iteration
         found_correct_answer = iter0_correct
         
+        # Store all summaries to accumulate them across iterations
+        all_summaries = []
+        
         # Perform additional iterations if enabled and we haven't found a correct answer yet
         current_iteration = 0
         current_reasoning = iter0_reasoning
@@ -287,9 +295,15 @@ class SummarizationExperiment(BaseExperiment):
                 # but we need to send a final update to indicate it's complete
                 self.dashboard.update_summary(problem_id, summary, iteration=current_iteration)
             else:
+                # Extract reasoning trace from the full reasoning
+                reasoning_trace = extract_reasoning_trace(current_reasoning, allow_fallback=False)
+                # If extraction failed, raise an error
+                if reasoning_trace is None:
+                    raise ValueError(f"Could not extract reasoning trace for problem {problem_id}. Make sure the model output contains <think> tags.")
+                
                 summary = summarize_reasoning(
                     question,
-                    current_reasoning,
+                    reasoning_trace,  # Use extracted reasoning trace instead of full reasoning
                     self.summarizer,
                     summarize_template,
                     max_tokens=self.config.get("summary_max_tokens"),
@@ -301,6 +315,12 @@ class SummarizationExperiment(BaseExperiment):
                     verbose=self.verbose
                 )
             
+            # Add summary to the collection with iteration number
+            all_summaries.append({
+                "iteration": current_iteration,
+                "summary": summary
+            })
+            
             # Prepare for next iteration
             next_iteration = current_iteration + 1
             
@@ -309,8 +329,13 @@ class SummarizationExperiment(BaseExperiment):
             if not improved_template:
                 raise ValueError("improved_prompt_template must be specified for additional iterations")
             
-            # Create prompt for next iteration using simple string replacement
-            improved_prompt = improved_template.replace("{question}", question).replace("{summary}", summary)
+            # Build accumulated summaries text
+            accumulated_summaries = ""
+            for i, summary_item in enumerate(all_summaries):
+                accumulated_summaries += f"\n\nATTEMPT {summary_item['iteration']} SUMMARY:\n{summary_item['summary']}"
+            
+            # Create prompt for next iteration using accumulated summaries
+            improved_prompt = improved_template.replace("{question}", question).replace("{summaries}", accumulated_summaries)
             
             # Generate reasoning for next iteration
             if self.dashboard:
