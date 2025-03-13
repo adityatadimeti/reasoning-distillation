@@ -102,6 +102,7 @@ class SummarizationExperiment(BaseExperiment):
         
         Args:
             problem_id: ID of the problem
+            question: The question text for the problem
             reasoning: The reasoning to summarize
             prompt_template: The template to use for summarization
             iteration: Iteration number
@@ -115,13 +116,6 @@ class SummarizationExperiment(BaseExperiment):
         
         # Add debug logging
         logger.debug(f"Streaming summary for iteration {iteration}, problem ID: {problem_id}")
-        
-        # Get the question for this problem from the current results
-        question = None
-        for result in self.results:
-            if result.get("problem_id") == problem_id:
-                question = result.get("question", "")
-                break
         
         # Update the problem status to show it's summarizing
         if self.dashboard:
@@ -345,6 +339,7 @@ class SummarizationExperiment(BaseExperiment):
             if self.dashboard:
                 summary, summary_finish_reason = self._stream_summary_generation(
                     problem_id, 
+                    question,  # Pass the question directly
                     current_reasoning, 
                     summarize_template, 
                     iteration=current_iteration
