@@ -3,6 +3,7 @@ experiment_name: "wrong_seven_deepseek_aime_2024"
 results_dir: "./results/wrong_seven_deepseek_aime_2024"
 data_path: "./data/wrong_seven_deepseek_aime_2024.csv"
 save_intermediate: true
+experiment_type: "pass_k" # either pass_k or summarize
 
 # Dashboard configuration
 dashboard_port: 8080
@@ -24,10 +25,11 @@ frequency_penalty: 0.0
 
 # Iteration parameters
 max_iterations: 2  # This will do initial (0) plus one more iteration (1)
+pass_k_iterations: 8 # This will prompt the model k times
 continue_after_correct: false  # Continue to iteration 1 even if iteration 0 is correct
 
 # Summarization parameters
-enable_summarization: true
+enable_summarization: false
 summary_max_tokens: 32768
 summary_temperature: 0.6
 summary_top_p: 0.95
