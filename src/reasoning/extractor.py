@@ -7,7 +7,8 @@ logger = logging.getLogger(__name__)
 def extract_answer(text: str) -> Optional[str]:
     """
     Extract the answer from model output, focusing on LaTeX boxed expressions.
-    If no boxed answer is found, falls back to finding the last integer in the text.
+    If no boxed answer is found, falls back to finding numbers in \(NUMBER\) format.
+    If that fails too, falls back to finding the last integer in the text.
     
     Args:
         text: The full text output from the model
@@ -34,17 +35,26 @@ def extract_answer(text: str) -> Optional[str]:
         logger.info(f"Extracted answer from boxed expression: {answer}")
         return answer
     
-    # If no boxed answer is found, try to find the last integer in the text
+    # If no boxed answer is found, try to find numbers in \(NUMBER\) format
+    paren_pattern = r'\\\(\s*(\d+)\s*\\\)'
+    paren_matches = re.findall(paren_pattern, text)
+    
+    if paren_matches:
+        answer = paren_matches[-1].strip()
+        logger.info(f"No boxed answer found, using last number in \\(NUMBER\\) format: {answer}")
+        return answer
+    
+    # If no answer in \(NUMBER\) format is found, try to find the last integer in the text
     integer_pattern = r'\b\d+\b'
     integer_matches = re.findall(integer_pattern, text)
     
     if integer_matches:
         answer = integer_matches[-1].strip()
-        logger.info(f"No boxed answer found, using last integer as answer: {answer}")
+        logger.info(f"No boxed or parenthesized answer found, using last integer as answer: {answer}")
         return answer
     
     # If no answer is found at all, log a warning
-    logger.warning("No answer found in the output (neither boxed nor integer)")
+    logger.warning("No answer found in the output (neither boxed, parenthesized, nor integer)")
     
     # Return None to indicate no answer was found
     return None

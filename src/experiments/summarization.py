@@ -334,6 +334,10 @@ class SummarizationExperiment(BaseExperiment):
                 "finish_reason": summary_finish_reason
             })
             
+            # This way the summary is associated with the reasoning it summarized
+            result["iterations"][current_iteration]["summary"] = summary
+            result["iterations"][current_iteration]["summary_finish_reason"] = summary_finish_reason
+            
             # Prepare for next iteration
             next_iteration = current_iteration + 1
             
@@ -381,11 +385,10 @@ class SummarizationExperiment(BaseExperiment):
                 next_correct = next_answer.strip() == correct_answer.strip()
                 found_correct_answer = found_correct_answer or next_correct
             
-            # Add this iteration to the results
+            # Add the next iteration to the results - WITHOUT including a summary yet
+            # The summary will be added when it's generated in the next loop iteration
             result["iterations"].append({
                 "iteration": next_iteration,
-                "summary": summary,
-                "summary_finish_reason": summary_finish_reason,
                 "reasoning": next_reasoning,
                 "answer": next_answer,
                 "correct": next_correct,
@@ -394,7 +397,7 @@ class SummarizationExperiment(BaseExperiment):
             
             # NOTE: These are redundant fields duplicating data already in iterations[1]
             # They are kept for backward compatibility with existing dashboard code
-            result["summary"] = summary
+            result["summary"] = summary  # This is still needed for backwards compatibility
             result["summary_finish_reason"] = summary_finish_reason
             result["improved_reasoning"] = next_reasoning
             result["improved_answer"] = next_answer
@@ -404,7 +407,12 @@ class SummarizationExperiment(BaseExperiment):
             # Update for next potential iteration
             current_iteration = next_iteration
             current_reasoning = next_reasoning
-            
+        
+        # Update the problem status based on iteration
+        if self.dashboard:
+            status = f"iter{current_iteration}-completed"
+            self.dashboard.update_problem_status(problem_id, status, question)
+        
         return result
     
     def _stream_summary_generation(self, problem_id: str, question: str, reasoning: str, prompt_template: str, iteration: int = 0) -> Tuple[str, str]:
@@ -698,6 +706,11 @@ class SummarizationExperiment(BaseExperiment):
                 "finish_reason": summary_finish_reason
             })
             
+            # *** FIX: Update the current iteration with the summary before moving to the next iteration ***
+            # This way the summary is associated with the reasoning it summarized
+            result["iterations"][current_iteration]["summary"] = summary
+            result["iterations"][current_iteration]["summary_finish_reason"] = summary_finish_reason
+            
             # Prepare for next iteration
             next_iteration = current_iteration + 1
             
@@ -750,11 +763,10 @@ class SummarizationExperiment(BaseExperiment):
                 next_correct = next_answer.strip() == correct_answer.strip()
                 found_correct_answer = found_correct_answer or next_correct
             
-            # Add this iteration to the results
+            # Add the next iteration to the results - WITHOUT including a summary yet
+            # The summary will be added when it's generated in the next loop iteration
             result["iterations"].append({
                 "iteration": next_iteration,
-                "summary": summary,
-                "summary_finish_reason": summary_finish_reason,
                 "reasoning": next_reasoning,
                 "answer": next_answer,
                 "correct": next_correct,
@@ -765,7 +777,7 @@ class SummarizationExperiment(BaseExperiment):
             # They are kept for backward compatibility with existing dashboard code
             # TODO: For a future refactor, remove these redundant fields and update dashboard
             # to use iterations[1] directly
-            result["summary"] = summary
+            result["summary"] = summary  # This is still needed for backwards compatibility
             result["summary_finish_reason"] = summary_finish_reason
             result["improved_reasoning"] = next_reasoning
             result["improved_answer"] = next_answer
