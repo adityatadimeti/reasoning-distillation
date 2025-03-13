@@ -229,19 +229,26 @@ class DashboardServer:
             logger.info(f"Emitting experiment_status event. Status: {data.get('status')}, Has config: {has_config}")
             self.socketio.emit('experiment_status', data)
     
-    def update_problem_status(self, problem_id: str, status: str):
+    def update_problem_status(self, problem_id: str, status: str, question: str = None):
         """
         Update status for a specific problem.
         
         Args:
             problem_id: ID of the problem
             status: Status message
+            question: Optional question text
         """
         if self.thread and self.thread.is_alive():
-            self.socketio.emit('problem_status', {
+            data = {
                 'problem_id': problem_id,
                 'status': status
-            })
+            }
+            
+            # Include question text if provided
+            if question is not None:
+                data['question'] = question
+                
+            self.socketio.emit('problem_status', data)
     
     def stream_model_output(self, problem_id: str, chunk: str, iteration: int = 0, finish_reason: str = None):
         """

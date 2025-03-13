@@ -53,12 +53,14 @@ class SummarizationExperiment(BaseExperiment):
         for i, problem in enumerate(problems):
             # Handle different case variations of 'id' field
             problem_id = problem.get("id", problem.get("ID", str(i+1)))
+            # Get the question text
+            question = problem.get("question", "")
             
             logger.info(f"Processing problem {problem_id} ({i+1}/{total_problems})")
             
             # Update dashboard
             if self.dashboard:
-                self.dashboard.update_problem_status(problem_id, "in-progress")
+                self.dashboard.update_problem_status(problem_id, "in-progress", question)
                 self.dashboard.update_experiment_status({
                     "total": total_problems,
                     "completed": i,
@@ -72,14 +74,14 @@ class SummarizationExperiment(BaseExperiment):
                 
                 # Update dashboard
                 if self.dashboard:
-                    self.dashboard.update_problem_status(problem_id, "completed")
+                    self.dashboard.update_problem_status(problem_id, "completed", question)
             
             except Exception as e:
                 logger.error(f"Error processing problem {problem_id}: {str(e)}")
                 
                 # Update dashboard
                 if self.dashboard:
-                    self.dashboard.update_problem_status(problem_id, "error")
+                    self.dashboard.update_problem_status(problem_id, "error", question)
                 
                 # Add error to results
                 self.results.append({
@@ -100,7 +102,6 @@ class SummarizationExperiment(BaseExperiment):
         
         Args:
             problem_id: ID of the problem
-            question: The question that the reasoning is for
             reasoning: The reasoning to summarize
             prompt_template: The template to use for summarization
             iteration: Iteration number
@@ -114,6 +115,13 @@ class SummarizationExperiment(BaseExperiment):
         
         # Add debug logging
         logger.debug(f"Streaming summary for iteration {iteration}, problem ID: {problem_id}")
+        
+        # Get the question for this problem from the current results
+        question = None
+        for result in self.results:
+            if result.get("problem_id") == problem_id:
+                question = result.get("question", "")
+                break
         
         # Update the problem status to show it's summarizing
         if self.dashboard:
@@ -337,7 +345,6 @@ class SummarizationExperiment(BaseExperiment):
             if self.dashboard:
                 summary, summary_finish_reason = self._stream_summary_generation(
                     problem_id, 
-                    question,
                     current_reasoning, 
                     summarize_template, 
                     iteration=current_iteration
@@ -473,6 +480,11 @@ class SummarizationExperiment(BaseExperiment):
             current_iteration = next_iteration
             current_reasoning = next_reasoning
         
+        # Update the problem status based on iteration
+        if self.dashboard:
+            status = f"iter{current_iteration}-completed"
+            self.dashboard.update_problem_status(problem_id, status, question)
+        
         return result
     
     def _stream_model_output(self, problem_id: str, prompt: str, iteration: int = 0) -> Tuple[str, str]:
@@ -494,10 +506,17 @@ class SummarizationExperiment(BaseExperiment):
         # Add debug logging
         logger.debug(f"Streaming iteration {iteration} for problem ID: {problem_id}")
         
+        # Get the question for this problem from the current results
+        question = None
+        for result in self.results:
+            if result.get("problem_id") == problem_id:
+                question = result.get("question", "")
+                break
+        
         # Update the problem status to show it's processing
         if self.dashboard:
             status = f"iter{iteration}-in-progress"
-            self.dashboard.update_problem_status(problem_id, status)
+            self.dashboard.update_problem_status(problem_id, status, question)
         
         # Get streaming response with appropriate parameters
         stream = self.reasoning_model.generate_response(
@@ -570,6 +589,6 @@ class SummarizationExperiment(BaseExperiment):
         # Update the problem status based on iteration
         if self.dashboard:
             status = f"iter{iteration}-completed"
-            self.dashboard.update_problem_status(problem_id, status)
+            self.dashboard.update_problem_status(problem_id, status, question)
         
         return full_response, finish_reason

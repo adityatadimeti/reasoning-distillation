@@ -48,3 +48,20 @@ pure_summarization:
     {reasoning}
     
     SUMMARY:
+
+approach_focused_summarization:
+  template: |
+    Summarize the following attempted solution to an AIME math problem. Your summary should:
+    
+    1. Outline the complete solution strategy that was used (e.g., geometric approach, algebraic manipulation, etc.)
+    2. Include all key equations, formulations, and transformations
+    3. Highlight the critical assumptions made during the solution
+    4. Note any complex calculations or numerical work
+    5. Identify any points where the solution path branches or makes specific choices
+    
+    Create a comprehensive but concise summary that would allow someone to fully understand the approach that was taken, without needing to see the original work.
+    
+    ATTEMPTED SOLUTION:
+    {reasoning}
+    
+    SUMMARY:
