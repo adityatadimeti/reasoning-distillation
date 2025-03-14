@@ -21,7 +21,7 @@ presence_penalty: 0.0
 frequency_penalty: 0.0
 
 # Iteration parameters
-max_iterations: 1  # Just do one iteration to test finish_reason
+max_iterations: 8
 continue_after_correct: true
 
 # Summarization parameters

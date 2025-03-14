@@ -1,0 +1,37 @@
+# Experiment configuration
+experiment_name: "parallel_test_reasoning"
+results_dir: "./results/parallel_test"
+data_path: "./data/parallel_simple.csv"
+save_intermediate: true
+
+# Model configuration
+reasoning_model: "accounts/fireworks/models/deepseek-r1"
+summarizer_type: "external"
+summarizer_model: "accounts/fireworks/models/deepseek-v3"
+
+# Generation parameters
+max_tokens: 32768
+temperature: 0.6
+top_p: 0.95
+top_k: 40
+presence_penalty: 0.0
+frequency_penalty: 0.0
+
+# Iteration parameters
+max_iterations: 2  # This will do initial (0) plus two more iterations (1, 2)
+continue_after_correct: true  # Continue iterations even if previous was correct
+
+# Summarization parameters
+enable_summarization: true
+summary_max_tokens: 32768
+summary_temperature: 0.6
+summary_top_p: 0.95
+summary_top_k: 40
+summary_presence_penalty: 0.0
+summary_frequency_penalty: 0.0
+
+# Prompt configurations
+prompts:
+  reasoning: "v0"  # This references the version in config/prompts/reasoning.yaml
+  summarize: "approach_focused_summarization"  # This references the version in config/prompts/summarize.yaml
+  improved: "v0"  # This references the version in config/prompts/improved.yaml 
