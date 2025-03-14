@@ -10,6 +10,7 @@ from typing import Dict, Any
 
 from src.utils.config import load_config
 from src.experiments.summarization import SummarizationExperiment
+from src.experiments.passk import PassExperiment
 from src.dashboard.server import DashboardServer
 
 logger = logging.getLogger(__name__)
@@ -153,13 +154,24 @@ def run_experiment(
             "status": "Running"
         })
     
-    # Create experiment
-    experiment = SummarizationExperiment(
-        experiment_name=config.get("experiment_name", "summarization"),
-        config=config,
-        dashboard=dashboard,  # Pass dashboard to experiment
-        verbose=verbose
-    )
+    experiment = None
+    if config.get("experiment_type") == "pass_k":
+        # Create experiment
+        experiment = PassExperiment(
+            experiment_name=config.get("experiment_name", "pass_k"),
+            config=config,
+            dashboard=dashboard,  # Pass dashboard to experiment
+            verbose=verbose
+        )
+    else: # default to summarization, even if no experiment_type is specified
+        # Create experiment
+        experiment = SummarizationExperiment(
+            experiment_name=config.get("experiment_name", "summarization"),
+            config=config,
+            dashboard=dashboard,  # Pass dashboard to experiment
+            verbose=verbose
+        )
+    
     
     # Run experiment
     if parallel and not use_dashboard:

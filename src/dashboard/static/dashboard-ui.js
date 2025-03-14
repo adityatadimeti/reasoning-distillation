@@ -116,7 +116,6 @@ function updateSummaryInfo(problemId) {
     const toggleBtn = summaryHeaderElem.querySelector('.toggle-btn');
     updateToggleButton(toggleBtn, summaryContainerElem);
 }
-
 // Render configuration section
 function renderConfigSection(config) {
     if (!config) return '';
@@ -146,26 +145,50 @@ function renderConfigSection(config) {
     
     html += '</div>';
     
-    // Summarization configuration
-    html += '<div class="config-section">';
-    html += '<h4>Summarization Configuration</h4>';
+    // Summarization configuration - only show if experiment_type is summarize or not specified
+    const experimentType = config.experiment_type || 'summarization';
+    if (experimentType === 'summarization' || experimentType === 'summarize') {
+        html += '<div class="config-section">';
+        html += '<h4>Summarization Configuration</h4>';
+        
+        const summaryParamKeys = [
+            'enable_summarization', 'summary_max_tokens', 'summary_temperature',
+            'summary_top_p', 'summary_top_k', 'summary_presence_penalty',
+            'summary_frequency_penalty'
+        ];
+        
+        summaryParamKeys.forEach(key => {
+            if (key in config) {
+                html += `<div class="config-item">`;
+                html += `<span class="config-key">${key}:</span>`;
+                html += `<span class="config-value">${config[key]}</span>`;
+                html += `</div>`;
+            }
+        });
+        
+        html += '</div>';
+    }
     
-    const summaryParamKeys = [
-        'enable_summarization', 'summary_max_tokens', 'summary_temperature',
-        'summary_top_p', 'summary_top_k', 'summary_presence_penalty',
-        'summary_frequency_penalty'
-    ];
-    
-    summaryParamKeys.forEach(key => {
-        if (key in config) {
-            html += `<div class="config-item">`;
-            html += `<span class="config-key">${key}:</span>`;
-            html += `<span class="config-value">${config[key]}</span>`;
-            html += `</div>`;
-        }
-    });
-    
-    html += '</div>';
+    // Pass@k configuration - only show if experiment_type is pass_k
+    if (experimentType === 'pass_k') {
+        html += '<div class="config-section">';
+        html += '<h4>Pass@k Configuration</h4>';
+        
+        const passKParamKeys = [
+            'k_value', 'max_iterations', 'continue_after_correct'
+        ];
+        
+        passKParamKeys.forEach(key => {
+            if (key in config) {
+                html += `<div class="config-item">`;
+                html += `<span class="config-key">${key}:</span>`;
+                html += `<span class="config-value">${config[key]}</span>`;
+                html += `</div>`;
+            }
+        });
+        
+        html += '</div>';
+    }
     
     // Prompt Templates Section
     html += '<div class="config-section">';
@@ -179,8 +202,9 @@ function renderConfigSection(config) {
         html += '</details>';
     }
     
-    // Summarization Prompt
-    if (config.summarize_prompt_template) {
+    // Summarization Prompt - only show if experiment_type is summarize
+    if (config.summarize_prompt_template && 
+        (experimentType === 'summarization' || experimentType === 'summarize')) {
         html += '<details class="prompt-details">';
         html += '<summary>Summarization Prompt</summary>';
         html += `<pre class="prompt-template">${config.summarize_prompt_template}</pre>`;
