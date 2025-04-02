@@ -1,7 +1,7 @@
-# Experiment configuration
+# Experiment configuration for multiple-choice GPQA dataset
 experiment_name: "summarization_8_iter_rzn-R1_summ-V3-approach_focused_gpqa_diamond_mc"
 results_dir: "./results/summarization_8_iter_rzn-R1_summ-V3_gpqa_diamond_mc"
-data_path: "./data/gpqa_diamond_mc.csv"
+data_path: "./data/gpqa_diamond_multichoice.csv"
 save_intermediate: true
 
 # Dashboard configuration
@@ -34,12 +34,12 @@ summary_presence_penalty: 0.0
 summary_frequency_penalty: 0.0
 
 # Custom answer extraction for multiple-choice
-use_custom_extractor: true
-custom_extractor_path: "mc_answer_extractor.py"
-custom_extractor_function: "extract_mc_answer"
+use_multiple_choice_extractor: true
+answer_extractor_path: "mc_answer_extractor.py"
+answer_extractor_function: "extract_mc_answer"
 
 # Prompt configurations
 prompts:
-  reasoning: "gpqa"  # Uses the updated GPQA prompt in reasoning.yaml
+  reasoning: "gpqa_mc"  # Updated to use a multiple-choice prompt
   summarize: "approach_focused_summarization"  # This references the version in config/prompts/summarize.yaml
-  improved: "gpqa"  # Uses the updated GPQA prompt in improved.yaml 
+  improved: "gpqa_mc"  # Updated to use a multiple-choice prompt 
