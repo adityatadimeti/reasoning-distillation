@@ -41,3 +41,14 @@ aime:
     {summaries}
 
     Continue reasoning with these summaries in mind.
+
+gpqa:
+  template: |
+    {question}
+    
+    Here are summaries of previous solution attempts:
+    {summaries}
+
+    Continue reasoning with these summaries in mind.
+    
+    Provide your final answer in \boxed{answer} format.
