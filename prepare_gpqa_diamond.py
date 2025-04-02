@@ -10,18 +10,21 @@ print(f"Downloaded dataset with {df.shape[0]} rows and {df.shape[1]} columns")
 print("Reformatting data...")
 new_data = []
 
-for _, row in df.iterrows():
-    # Generate a unique ID
-    unique_id = str(uuid.uuid4())[:8]
+for i, row in enumerate(df.iterrows()):
+    # Generate a unique ID that includes the index for easier filtering
+    # Format: idx_{index}_{unique_id}
+    index = i  # 0-indexed
+    unique_part = str(uuid.uuid4())[:8]
+    unique_id = f"idx_{index:03d}_{unique_part}"
     
     # Extract the question
-    question = row['Question']
+    question = row[1]['Question']
     
     # Extract the correct answer
-    answer = row['Correct Answer']
+    answer = row[1]['Correct Answer']
     
     # Extract the explanation if available
-    explanation = row.get('Explanation', '')
+    explanation = row[1].get('Explanation', '')
     
     # Combine explanation and answer into solution
     solution = f"{explanation}\n\nThe answer is: {answer}"
