@@ -6,7 +6,7 @@ import logging
 import time
 import yaml
 import asyncio
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 
 from src.utils.config import load_config
 from src.experiments.summarization import SummarizationExperiment
@@ -62,6 +62,41 @@ def load_problems(data_path: str) -> list:
             problems.append(normalized_row)
     return problems
 
+def filter_problems(problems: List[Dict], question_ids: Optional[List[str]] = None, index_range: Optional[str] = None) -> List[Dict]:
+    """
+    Filter problems by question ID or index range.
+    
+    Args:
+        problems: List of problem dictionaries
+        question_ids: List of question IDs to include
+        index_range: Range of indices to include (e.g., "0-4" or "10-15")
+        
+    Returns:
+        Filtered list of problem dictionaries
+    """
+    if question_ids and index_range:
+        raise ValueError("Cannot specify both question_ids and index_range")
+    
+    if not question_ids and not index_range:
+        return problems
+    
+    if question_ids:
+        return [p for p in problems if p.get('id') in question_ids or p.get('ID') in question_ids]
+    
+    if index_range:
+        try:
+            start, end = map(int, index_range.split('-'))
+            # Ensure valid range
+            if start < 0 or end >= len(problems) or start > end:
+                raise ValueError(f"Invalid index range: {index_range}. Valid range is 0-{len(problems)-1}")
+            return problems[start:end+1]  # +1 to include the end index
+        except ValueError as e:
+            if "too many values to unpack" in str(e):
+                raise ValueError(f"Invalid index range format: {index_range}. Expected format: 'start-end'")
+            raise
+    
+    return problems
+
 def load_prompt(prompt_type: str, version: str) -> str:
     """
     Load a prompt template from the prompts configuration.
@@ -92,6 +127,8 @@ def run_experiment(
     verbose: bool = False,
     parallel: bool = False,
     max_concurrency: int = 4,
+    question_ids: Optional[List[str]] = None,
+    index_range: Optional[str] = None,
     **kwargs
 ) -> Dict[str, Any]:
     """
@@ -103,6 +140,8 @@ def run_experiment(
         verbose: Whether to log all LLM calls
         parallel: Whether to process problems in parallel
         max_concurrency: Maximum number of problems to process concurrently when parallel=True
+        question_ids: List of question IDs to run (optional)
+        index_range: Range of question indices to run (e.g., "0-4") (optional)
         **kwargs: Additional configuration overrides
         
     Returns:
@@ -140,10 +179,16 @@ def run_experiment(
         time.sleep(2)
     
     # Load problems
-    problems = load_problems(config["data_path"])
+    all_problems = load_problems(config["data_path"])
+    
+    # Filter problems if specified
+    problems = filter_problems(all_problems, question_ids, index_range)
     
     # Show problem count
-    logger.info(f"Loaded {len(problems)} problems")
+    if len(problems) == len(all_problems):
+        logger.info(f"Loaded {len(problems)} problems")
+    else:
+        logger.info(f"Loaded {len(problems)} of {len(all_problems)} problems")
     
     # When updating with problem count
     if dashboard:
@@ -207,6 +252,8 @@ async def run_experiment_async(
     config_path: str, 
     verbose: bool = False,
     max_concurrency: int = 4,
+    question_ids: Optional[List[str]] = None,
+    index_range: Optional[str] = None,
     **kwargs
 ) -> Dict[str, Any]:
     """
@@ -216,6 +263,8 @@ async def run_experiment_async(
         config_path: Path to configuration file
         verbose: Whether to log all LLM calls
         max_concurrency: Maximum number of problems to process concurrently
+        question_ids: List of question IDs to run (optional)
+        index_range: Range of question indices to run (e.g., "0-4") (optional)
         **kwargs: Additional configuration overrides
         
     Returns:
@@ -236,10 +285,16 @@ async def run_experiment_async(
             config[template_key] = load_prompt(prompt_type, version)
     
     # Load problems
-    problems = load_problems(config["data_path"])
+    all_problems = load_problems(config["data_path"])
+    
+    # Filter problems if specified
+    problems = filter_problems(all_problems, question_ids, index_range)
     
     # Show problem count
-    logger.info(f"Loaded {len(problems)} problems")
+    if len(problems) == len(all_problems):
+        logger.info(f"Loaded {len(problems)} problems")
+    else:
+        logger.info(f"Loaded {len(problems)} of {len(all_problems)} problems")
     
     # Create experiment
     experiment = SummarizationExperiment(
@@ -269,7 +324,16 @@ def main():
     parser.add_argument("--parallel", action="store_true", help="Process problems in parallel (incompatible with dashboard)")
     parser.add_argument("--concurrency", type=int, default=4, help="Maximum number of problems to process concurrently when parallel=True")
     
+    # Add arguments for filtering problems
+    parser.add_argument("--question-ids", type=str, help="Comma-separated list of question IDs to run")
+    parser.add_argument("--index-range", type=str, help="Range of question indices to run (e.g., '0-4' or '10-15')")
+    
     args = parser.parse_args()
+    
+    # Process question IDs if provided
+    question_ids = None
+    if args.question_ids:
+        question_ids = [id.strip() for id in args.question_ids.split(',')]
     
     # Set up logging
     setup_logging()
@@ -280,7 +344,9 @@ def main():
             use_dashboard=args.dashboard,
             verbose=args.verbose,
             parallel=args.parallel,
-            max_concurrency=args.concurrency
+            max_concurrency=args.concurrency,
+            question_ids=question_ids,
+            index_range=args.index_range
         )
         logger.info("Experiment completed successfully")
     except Exception as e:

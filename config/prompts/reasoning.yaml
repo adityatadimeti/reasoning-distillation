@@ -26,3 +26,9 @@ aime:
     
     PROBLEM:
     {question}
+
+gpqa:
+  template: |
+    {question}
+    
+    Provide your final answer in \boxed{X} format, where X is the letter of the correct choice.
