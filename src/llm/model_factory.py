@@ -3,6 +3,7 @@ from typing import Optional
 from src.llm.base_client import ModelClient
 from src.llm.fireworks_client import FireworksModelClient
 from src.llm.openai_client import OpenAIModelClient
+from src.llm.together_client import TogetherModelClient
 
 def create_model_client(
     model_name: str,
@@ -24,8 +25,11 @@ def create_model_client(
     if not provider:
         if "gpt" in model_name.lower():
             provider = "openai"
-        elif any(name in model_name.lower() for name in ["qwq", "fireworks", "deepseek", "llama", "qwen"]):
+        elif any(name in model_name.lower() for name in ["qwq", "fireworks", "deepseek", "qwen"]):
             provider = "fireworks"
+        elif any(name in model_name.lower() for name in ["together", "meta-llama", "mistral", "mixtral"]):
+            provider = "together"
+        # Note: llama models can be on both Fireworks and Together, so provider must be specified
         else:
             raise ValueError(f"Could not determine provider for model '{model_name}'. Please specify provider.")
     
@@ -34,5 +38,7 @@ def create_model_client(
         return FireworksModelClient(model_name, api_key)
     elif provider.lower() == "openai":
         return OpenAIModelClient(model_name, api_key)
+    elif provider.lower() == "together":
+        return TogetherModelClient(model_name, api_key)
     else:
         raise ValueError(f"Unsupported provider: {provider}")

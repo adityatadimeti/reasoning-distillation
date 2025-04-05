@@ -1,0 +1,44 @@
+# Example configuration for using Together AI models
+experiment_name: "together_ai_example"
+results_dir: "./results/together_ai_example"
+data_path: "./data/wrong_seven_deepseek_aime_2024.csv"
+save_intermediate: true
+experiment_type: "pass_k" # either pass_k or summarize
+
+# Dashboard configuration
+dashboard_port: 8080
+
+# Model configuration
+# Using Together AI models
+reasoning_model: "meta-llama/Meta-Llama-3-8B-Instruct"
+reasoning_model_provider: "together"  # Explicitly specify Together AI as the provider
+summarizer_type: "external"
+summarizer_model: "mistralai/Mixtral-8x7B-Instruct-v0.1"
+summarizer_model_provider: "together"  # Explicitly specify Together AI as the provider
+
+# Generation parameters
+max_tokens: 32768
+temperature: 0.6
+top_p: 0.95
+top_k: 40
+presence_penalty: 0.0
+frequency_penalty: 0.0
+
+# Iteration parameters
+max_iterations: 2  # This will do initial (0) plus one more iteration (1)
+continue_after_correct: false  # Continue to iteration 1 even if iteration 0 is correct
+
+# Summarization parameters
+enable_summarization: false
+summary_max_tokens: 32768
+summary_temperature: 0.6
+summary_top_p: 0.95
+summary_top_k: 40
+summary_presence_penalty: 0.0
+summary_frequency_penalty: 0.0
+
+# Prompt configurations
+prompts:
+  reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
+  summarize: "approach_focused_summarization"  # This references the version in config/prompts/summarize.yaml
+  improved: "aime" # This references the version in config/prompts/improved.yaml

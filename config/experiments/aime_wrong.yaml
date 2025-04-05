@@ -9,11 +9,22 @@ experiment_type: "pass_k" # either pass_k or summarize
 dashboard_port: 8080
 
 # Model configuration
-# reasoning_model: "accounts/fireworks/models/qwq-32b"
+# You can specify the model provider explicitly with the _provider suffix
+# Available providers: "fireworks", "together", "openai"
+
+# Fireworks AI configuration (default)
 reasoning_model: "accounts/fireworks/models/deepseek-r1"
-# summarizer_type: "self"
+reasoning_model_provider: "fireworks"  # Optional, defaults to fireworks based on model name
 summarizer_type: "external"
 summarizer_model: "accounts/fireworks/models/deepseek-v3"
+summarizer_model_provider: "fireworks"  # Optional, defaults to fireworks based on model name
+
+# Together AI configuration (alternative)
+# reasoning_model: "meta-llama/Meta-Llama-3-8B-Instruct"
+# reasoning_model_provider: "together"  # Required for models available on multiple providers
+# summarizer_type: "external"
+# summarizer_model: "mistralai/Mixtral-8x7B-Instruct-v0.1"
+# summarizer_model_provider: "together"  # Required for models available on multiple providers
 
 # Generation parameters
 max_tokens: 32768

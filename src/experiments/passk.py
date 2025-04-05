@@ -382,8 +382,12 @@ class PassExperiment(BaseExperiment):
             if param not in self.config:
                 raise ValueError(f"Required parameter '{param}' not found in configuration")
         
-        # Initialize reasoning model
-        self.reasoning_model = create_model_client(self.config["reasoning_model"])
+        # Initialize reasoning model with provider information if available
+        reasoning_provider = self.config.get("reasoning_model_provider", None)
+        self.reasoning_model = create_model_client(
+            self.config["reasoning_model"],
+            provider=reasoning_provider
+        )
         
         # Set the parallelism settings
         self.max_workers = min(self.config.get("max_parallel_workers", 10), 10)  # Default 10, max 10

@@ -40,8 +40,12 @@ class SummarizationExperiment(BaseExperiment):
             if param not in self.config:
                 raise ValueError(f"Required parameter '{param}' not found in configuration")
         
-        # Initialize reasoning model
-        self.reasoning_model = create_model_client(self.config["reasoning_model"])
+        # Initialize reasoning model with provider information if available
+        reasoning_provider = self.config.get("reasoning_model_provider", None)
+        self.reasoning_model = create_model_client(
+            self.config["reasoning_model"],
+            provider=reasoning_provider
+        )
         
         # Initialize summarizer model (could be the same model or a different one)
         summarizer_type = self.config.get("summarizer_type", "self")
@@ -50,7 +54,13 @@ class SummarizationExperiment(BaseExperiment):
         else:
             if "summarizer_model" not in self.config:
                 raise ValueError("summarizer_model must be specified when summarizer_type is not 'self'")
-            self.summarizer = create_model_client(self.config["summarizer_model"])
+            
+            # Use provider information if available
+            summarizer_provider = self.config.get("summarizer_model_provider", None)
+            self.summarizer = create_model_client(
+                self.config["summarizer_model"],
+                provider=summarizer_provider
+            )
         
         # Add lock for thread safety when updating results
         self.results_lock = Lock()
