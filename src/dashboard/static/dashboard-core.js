@@ -105,7 +105,8 @@ function initializeStaticDashboard(results) {
         window.problemStatuses[problemId] = result.initial_correct ? 'correct' : 'incorrect';
         
         // Create problem card
-        DashboardUI.createProblemCard(problemId, `${problemId}: ${result.question.substring(0, 50)}...`, 
+        const questionPreview = result.question ? `${problemId}: ${result.question.substring(0, 50)}...` : `${problemId}: [No question text]`;
+        DashboardUI.createProblemCard(problemId, questionPreview, 
             window.problemStatuses[problemId]);
         
         // Store problem outputs
@@ -122,33 +123,49 @@ function initializeStaticDashboard(results) {
 
 // Process static problem result
 function processStaticProblemResult(problemId, result) {
-    // Store problem data
+    // Store problem data with better error handling
     window.problemData[problemId] = {
-        question: result.question || ''
+        question: result.question || 'No question text available',
+        error: result.error || null,
+        status: result.status || 'unknown'
     };
 
     // Create iterations structure
     window.problemOutputs[problemId] = {};
     
-    // Process all iterations
-    if (result.iterations && result.iterations.length > 0) {
+    // Check if there was an error with this problem
+    if (result.error) {
+        // Create a special error iteration
+        window.problemOutputs[problemId][0] = {
+            reasoning: `Error: ${result.error}`,
+            summary: '',
+            answer: 'No answer due to error',
+            correct_answer: result.correct_answer || 'undefined',
+            is_correct: false
+        };
+        
+        // Set status to error
+        window.problemStatuses[problemId] = 'error';
+    }
+    // Process all iterations if they exist
+    else if (result.iterations && result.iterations.length > 0) {
         result.iterations.forEach(iteration => {
             window.problemOutputs[problemId][iteration.iteration] = {
-                reasoning: iteration.reasoning,
+                reasoning: iteration.reasoning || 'No reasoning available',
                 summary: iteration.summary || '',
-                answer: iteration.answer || '',
-                correct_answer: result.correct_answer,
-                is_correct: iteration.correct
+                answer: iteration.answer || 'No answer extracted',
+                correct_answer: result.correct_answer || 'undefined',
+                is_correct: iteration.correct || false
             };
         });
     } else {
         // Legacy format support
         window.problemOutputs[problemId][0] = {
-            reasoning: result.initial_reasoning,
+            reasoning: result.initial_reasoning || 'No reasoning available',
             summary: '',
-            answer: result.initial_answer,
-            correct_answer: result.correct_answer,
-            is_correct: result.initial_correct
+            answer: result.initial_answer || 'No answer extracted',
+            correct_answer: result.correct_answer || 'undefined',
+            is_correct: result.initial_correct || false
         };
         
         if (result.summary) {
@@ -156,11 +173,11 @@ function processStaticProblemResult(problemId, result) {
         }
     }
     
-    // Store answer info
+    // Store answer info with proper error handling
     window.answerInfo[problemId] = {
-        answer: result.initial_answer,
-        correct_answer: result.correct_answer,
-        is_correct: result.initial_correct
+        answer: result.initial_answer || 'No answer extracted',
+        correct_answer: result.correct_answer || 'undefined',
+        is_correct: result.initial_correct || false
     };
 }
 
