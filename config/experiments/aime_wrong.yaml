@@ -3,7 +3,7 @@ experiment_name: "summarization_8_iter_rzn-R1_summ-V3-approach_focused_wrong_sev
 results_dir: "./results/summarization_8_iter_rzn-R1_summ- 3_wrong_seven_deepseek_aime_2024"
 data_path: "./data/wrong_seven_deepseek_aime_2024.csv"
 save_intermediate: true
-experiment_type: "pass_k" # either pass_k or summarize
+experiment_type: "summarize" # either pass_k or summarize
 
 # Dashboard configuration
 dashboard_port: 8080
