@@ -101,12 +101,24 @@ class SummarizationExperiment(BaseExperiment):
                 if self.dashboard:
                     self.dashboard.update_problem_status(problem_id, "error", question)
                 
-                # Add error to results
-                self.results.append({
+                # Check if we have partial results to include
+                partial_result = {}
+                if hasattr(self, "_current_problem_result") and self._current_problem_result:
+                    partial_result = self._current_problem_result
+                
+                # Add error to results but preserve question information and any partial results
+                error_result = {
                     "problem_id": problem_id,
+                    "question": question,  # Preserve the question text
+                    "correct_answer": problem.get("answer", problem.get("correct_answer", "")),  # Preserve the correct answer
                     "error": str(e),
                     "status": "error"
-                })
+                }
+                
+                # Merge with any partial results we might have
+                error_result.update({k: v for k, v in partial_result.items() if k not in error_result})
+                
+                self.results.append(error_result)
             
             # Save intermediate results
             if self.config.get("save_intermediate", True):
@@ -548,6 +560,14 @@ class SummarizationExperiment(BaseExperiment):
         
         question = problem["question"]
         correct_answer = problem["answer"]
+        
+        # Initialize current problem result to track partial progress
+        self._current_problem_result = {
+            "problem_id": problem_id,
+            "question": question,
+            "correct_answer": correct_answer,
+            "iterations": []
+        }
         
         # Create initial reasoning prompt (iteration 0)
         reasoning_template = self.config.get("reasoning_prompt_template")

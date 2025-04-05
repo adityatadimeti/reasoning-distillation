@@ -118,11 +118,19 @@ def run_experiment(experiment, resume=True):
     completed_str = ",".join(completed_problems)
     
     # Build the command to run the experiment
+    # Determine appropriate concurrency based on provider
+    if "together" in config.lower():
+        concurrency = "4"  # Together API has lower rate limits
+    else:
+        concurrency = "32"  # Fireworks can handle up to 32 concurrent requests
+    
+    logger.info(f"Using concurrency {concurrency} for {name} based on API provider")
+    
     cmd = [
         "python", "run_experiment.py",
         config,
         "--parallel",
-        "--concurrency", "32",  # Fireworks can handle up to 32 concurrent requests
+        "--concurrency", concurrency,
         "--verbose"
     ]
     

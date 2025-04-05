@@ -28,7 +28,8 @@ max_iterations: 8
 continue_after_correct: true
 
 # Summarization parameters
-enable_summarization: false
+enable_summarization: true
+allow_fallback: true  # Enable fallback to use full response when think tags are missing
 summary_max_tokens: 32768
 summary_temperature: 0.6
 summary_top_p: 0.95
