@@ -62,13 +62,14 @@ def load_problems(data_path: str) -> list:
             problems.append(normalized_row)
     return problems
 
-def filter_problems(problems: List[Dict], question_ids: Optional[List[str]] = None, index_range: Optional[str] = None) -> List[Dict]:
+def filter_problems(problems: List[Dict], question_ids: Optional[List[str]] = None, exclude_question_ids: Optional[List[str]] = None, index_range: Optional[str] = None) -> List[Dict]:
     """
     Filter problems by question ID or index range.
     
     Args:
         problems: List of problem dictionaries
         question_ids: List of question IDs to include
+        exclude_question_ids: List of question IDs to exclude
         index_range: Range of indices to include (e.g., "0-4" or "10-15")
         
     Returns:
@@ -77,25 +78,46 @@ def filter_problems(problems: List[Dict], question_ids: Optional[List[str]] = No
     if question_ids and index_range:
         raise ValueError("Cannot specify both question_ids and index_range")
     
-    if not question_ids and not index_range:
-        return problems
+    filtered_problems = problems
     
+    # First, apply inclusion filter if specified
     if question_ids:
-        return [p for p in problems if p.get('id') in question_ids or p.get('ID') in question_ids]
+        filtered_problems = [p for p in filtered_problems if p.get('id') in question_ids or p.get('ID') in question_ids]
     
+    # Then, apply exclusion filter if specified
+    if exclude_question_ids:
+        filtered_problems = [p for p in filtered_problems if p.get('id') not in exclude_question_ids and p.get('ID') not in exclude_question_ids]
+    
+    # Finally, apply index range filter if specified
     if index_range:
         try:
             start, end = map(int, index_range.split('-'))
             # Ensure valid range
             if start < 0 or end >= len(problems) or start > end:
                 raise ValueError(f"Invalid index range: {index_range}. Valid range is 0-{len(problems)-1}")
-            return problems[start:end+1]  # +1 to include the end index
+            
+            # Apply index range filter to the already filtered problems
+            # This is tricky because indices are based on the original list
+            # So we need to map the indices to the filtered list
+            original_indices = list(range(start, end+1))  # +1 to include the end index
+            index_filtered = []
+            
+            for i, problem in enumerate(problems):
+                if i in original_indices:
+                    # Check if this problem is in the filtered list
+                    problem_id = problem.get('id', problem.get('ID'))
+                    for fp in filtered_problems:
+                        if fp.get('id', fp.get('ID')) == problem_id:
+                            index_filtered.append(fp)
+                            break
+            
+            filtered_problems = index_filtered
         except ValueError as e:
             if "too many values to unpack" in str(e):
                 raise ValueError(f"Invalid index range format: {index_range}. Expected format: 'start-end'")
             raise
     
-    return problems
+    return filtered_problems
 
 def load_prompt(prompt_type: str, version: str) -> str:
     """
@@ -128,6 +150,7 @@ def run_experiment(
     parallel: bool = False,
     max_concurrency: int = 4,
     question_ids: Optional[List[str]] = None,
+    exclude_question_ids: Optional[List[str]] = None,
     index_range: Optional[str] = None,
     **kwargs
 ) -> Dict[str, Any]:
@@ -182,7 +205,7 @@ def run_experiment(
     all_problems = load_problems(config["data_path"])
     
     # Filter problems if specified
-    problems = filter_problems(all_problems, question_ids, index_range)
+    problems = filter_problems(all_problems, question_ids, exclude_question_ids, index_range)
     
     # Show problem count
     if len(problems) == len(all_problems):
@@ -253,6 +276,7 @@ async def run_experiment_async(
     verbose: bool = False,
     max_concurrency: int = 4,
     question_ids: Optional[List[str]] = None,
+    exclude_question_ids: Optional[List[str]] = None,
     index_range: Optional[str] = None,
     **kwargs
 ) -> Dict[str, Any]:
@@ -288,7 +312,7 @@ async def run_experiment_async(
     all_problems = load_problems(config["data_path"])
     
     # Filter problems if specified
-    problems = filter_problems(all_problems, question_ids, index_range)
+    problems = filter_problems(all_problems, question_ids, exclude_question_ids, index_range)
     
     # Show problem count
     if len(problems) == len(all_problems):
@@ -326,6 +350,7 @@ def main():
     
     # Add arguments for filtering problems
     parser.add_argument("--question-ids", type=str, help="Comma-separated list of question IDs to run")
+    parser.add_argument("--exclude-question-ids", type=str, help="Comma-separated list of question IDs to exclude")
     parser.add_argument("--index-range", type=str, help="Range of question indices to run (e.g., '0-4' or '10-15')")
     
     args = parser.parse_args()
@@ -334,6 +359,11 @@ def main():
     question_ids = None
     if args.question_ids:
         question_ids = [id.strip() for id in args.question_ids.split(',')]
+        
+    # Process excluded question IDs if provided
+    exclude_question_ids = None
+    if args.exclude_question_ids:
+        exclude_question_ids = [id.strip() for id in args.exclude_question_ids.split(',')]
     
     # Set up logging
     setup_logging()
@@ -346,6 +376,7 @@ def main():
             parallel=args.parallel,
             max_concurrency=args.concurrency,
             question_ids=question_ids,
+            exclude_question_ids=exclude_question_ids,
             index_range=args.index_range
         )
         logger.info("Experiment completed successfully")

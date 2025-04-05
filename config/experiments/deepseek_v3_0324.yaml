@@ -1,0 +1,42 @@
+experiment_name: deepseek_v3_0324
+description: "Experiment using DeepSeek V3-0324 model on Fireworks API"
+
+# Data path
+data_path: "data/aime_2024_5.csv"
+
+# Model configuration
+reasoning_model: "accounts/fireworks/models/deepseek-v3-0324"
+reasoning_model_provider: "fireworks"  # Using Fireworks for higher concurrency (up to 32 concurrent requests)
+summarizer_type: "self"  # Use the same model for summarization
+# summarizer_model: "accounts/fireworks/models/deepseek-v3-0324"  # Not needed when summarizer_type is "self"
+# summarizer_model_provider: "fireworks"  # Not needed when summarizer_type is "self"
+
+# Generation parameters
+max_tokens: 32768
+temperature: 0.6
+top_p: 0.95
+top_k: 40
+presence_penalty: 0.0
+frequency_penalty: 0.0
+
+# Iteration parameters
+max_iterations: 2  # This will do initial (0) plus one more iteration (1)
+continue_after_correct: false  # Continue to iteration 1 even if iteration 0 is correct
+
+# Summarization parameters
+enable_summarization: true
+summary_max_tokens: 32768
+summary_temperature: 0.6
+summary_top_p: 0.95
+summary_top_k: 40
+summary_presence_penalty: 0.0
+summary_frequency_penalty: 0.0
+
+# Prompt configurations - using existing prompts
+prompts:
+  reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
+  summarize: "approach_focused_summarization"  # This references the version in config/prompts/summarize.yaml
+
+# Results configuration
+results_dir: "results"
+save_intermediate: true
