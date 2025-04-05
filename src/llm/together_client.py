@@ -1,10 +1,15 @@
 import os
 import json
+import time
+import random
+import logging
 import requests
 import asyncio
 import aiohttp
 from dotenv import load_dotenv
 from typing import List, Dict, Any, Iterator, Optional, Union, Tuple, AsyncIterator
+
+logger = logging.getLogger(__name__)
 
 from src.llm.base_client import ModelClient
 
@@ -49,10 +54,27 @@ class TogetherModelClient(ModelClient):
         presence_penalty: float,
         frequency_penalty: float,
         stream: bool = False,   
+        max_retries: int = 5,
         **kwargs
     ) -> Union[Dict[str, Any], Iterator[Dict[str, Any]]]:
         """
         Generate a completion from the Together model.
+        
+        Args:
+            messages: List of message dictionaries with 'role' and 'content'
+            max_tokens: Maximum number of tokens to generate
+            temperature: Sampling temperature
+            top_p: Nucleus sampling parameter
+            top_k: Top-k sampling parameter
+            presence_penalty: Presence penalty parameter
+            frequency_penalty: Frequency penalty parameter
+            stream: Whether to stream the response
+            max_retries: Maximum number of retries for rate limit errors
+            **kwargs: Additional parameters
+            
+        Returns:
+            If stream=False: The complete API response
+            If stream=True: An iterator yielding response chunks
         """
         payload = {
             "model": self.model_name,
@@ -66,22 +88,63 @@ class TogetherModelClient(ModelClient):
             "stream": stream
         }
         
-        try:
-            response = requests.post(
-                self.BASE_URL, 
-                headers=self.headers, 
-                data=json.dumps(payload),
-                stream=stream
-            )
-            response.raise_for_status()
-            
-            if stream:
-                return self._process_stream(response)
-            else:
-                return response.json()
+        # Initialize retry counter and backoff time
+        retry_count = 0
+        backoff_time = 1  # Start with 1 second
+        
+        while True:
+            try:
+                response = requests.post(
+                    self.BASE_URL, 
+                    headers=self.headers, 
+                    data=json.dumps(payload),
+                    stream=stream
+                )
                 
-        except requests.exceptions.RequestException as e:
-            raise Exception(f"Together API request failed: {str(e)}")
+                # Check for rate limit errors (429) or service unavailable (503)
+                if response.status_code in [429, 503]:
+                    retry_count += 1
+                    if retry_count > max_retries:
+                        raise Exception(f"Together API rate limit exceeded after {max_retries} retries")
+                    
+                    # Get retry-after header or use exponential backoff with jitter
+                    retry_after = response.headers.get('Retry-After')
+                    if retry_after:
+                        sleep_time = float(retry_after)
+                    else:
+                        # Exponential backoff with jitter
+                        sleep_time = backoff_time + random.uniform(0, 1)
+                        backoff_time *= 2  # Double the backoff time for next retry
+                    
+                    logger.warning(f"Rate limit hit, retrying in {sleep_time:.2f} seconds (retry {retry_count}/{max_retries})")
+                    time.sleep(sleep_time)
+                    continue
+                
+                # Raise exception for other HTTP errors
+                response.raise_for_status()
+                
+                if stream:
+                    return self._process_stream(response)
+                else:
+                    return response.json()
+                    
+            except requests.exceptions.RequestException as e:
+                # For connection errors, retry with backoff
+                if isinstance(e, (requests.exceptions.ConnectionError, requests.exceptions.Timeout)):
+                    retry_count += 1
+                    if retry_count > max_retries:
+                        raise Exception(f"Together API request failed after {max_retries} retries: {str(e)}")
+                    
+                    # Exponential backoff with jitter
+                    sleep_time = backoff_time + random.uniform(0, 1)
+                    backoff_time *= 2  # Double the backoff time for next retry
+                    
+                    logger.warning(f"Connection error, retrying in {sleep_time:.2f} seconds (retry {retry_count}/{max_retries})")
+                    time.sleep(sleep_time)
+                    continue
+                else:
+                    # For other types of exceptions, raise immediately
+                    raise Exception(f"Together API request failed: {str(e)}")
     
     async def generate_completion_async(
         self, 
@@ -93,10 +156,27 @@ class TogetherModelClient(ModelClient):
         presence_penalty: float,
         frequency_penalty: float,
         stream: bool = False,   
+        max_retries: int = 5,
         **kwargs
     ) -> Union[Dict[str, Any], AsyncIterator[Dict[str, Any]]]:
         """
         Generate a completion from the Together model asynchronously.
+        
+        Args:
+            messages: List of message dictionaries with 'role' and 'content'
+            max_tokens: Maximum number of tokens to generate
+            temperature: Sampling temperature
+            top_p: Nucleus sampling parameter
+            top_k: Top-k sampling parameter
+            presence_penalty: Presence penalty parameter
+            frequency_penalty: Frequency penalty parameter
+            stream: Whether to stream the response
+            max_retries: Maximum number of retries for rate limit errors
+            **kwargs: Additional parameters
+            
+        Returns:
+            If stream=False: The complete API response
+            If stream=True: An async iterator yielding response chunks
         """
         payload = {
             "model": self.model_name,
@@ -110,22 +190,63 @@ class TogetherModelClient(ModelClient):
             "stream": stream
         }
         
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
-                    self.BASE_URL, 
-                    headers=self.headers, 
-                    json=payload
-                ) as response:
-                    response.raise_for_status()
+        # Initialize retry counter and backoff time
+        retry_count = 0
+        backoff_time = 1  # Start with 1 second
+        
+        while True:
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.post(
+                        self.BASE_URL, 
+                        headers=self.headers, 
+                        json=payload
+                    ) as response:
+                        # Check for rate limit errors (429) or service unavailable (503)
+                        if response.status in [429, 503]:
+                            retry_count += 1
+                            if retry_count > max_retries:
+                                raise Exception(f"Together API rate limit exceeded after {max_retries} retries")
+                            
+                            # Get retry-after header or use exponential backoff with jitter
+                            retry_after = response.headers.get('Retry-After')
+                            if retry_after:
+                                sleep_time = float(retry_after)
+                            else:
+                                # Exponential backoff with jitter
+                                sleep_time = backoff_time + random.uniform(0, 1)
+                                backoff_time *= 2  # Double the backoff time for next retry
+                            
+                            logger.warning(f"Rate limit hit, retrying in {sleep_time:.2f} seconds (retry {retry_count}/{max_retries})")
+                            await asyncio.sleep(sleep_time)
+                            continue
+                        
+                        # Raise exception for other HTTP errors
+                        response.raise_for_status()
+                        
+                        if stream:
+                            return self._process_stream_async(response)
+                        else:
+                            return await response.json()
+                        
+            except aiohttp.ClientError as e:
+                # For connection errors, retry with backoff
+                if isinstance(e, (aiohttp.ClientConnectionError, aiohttp.ClientOSError, 
+                                 aiohttp.ServerDisconnectedError, asyncio.TimeoutError)):
+                    retry_count += 1
+                    if retry_count > max_retries:
+                        raise Exception(f"Together API request failed after {max_retries} retries: {str(e)}")
                     
-                    if stream:
-                        return self._process_stream_async(response)
-                    else:
-                        return await response.json()
+                    # Exponential backoff with jitter
+                    sleep_time = backoff_time + random.uniform(0, 1)
+                    backoff_time *= 2  # Double the backoff time for next retry
                     
-        except aiohttp.ClientError as e:
-            raise Exception(f"Together API request failed: {str(e)}")
+                    logger.warning(f"Connection error, retrying in {sleep_time:.2f} seconds (retry {retry_count}/{max_retries})")
+                    await asyncio.sleep(sleep_time)
+                    continue
+                else:
+                    # For other types of exceptions, raise immediately
+                    raise Exception(f"Together API request failed: {str(e)}")
     
     def _process_stream(self, response: requests.Response) -> Iterator[Dict[str, Any]]:
         """Process a streaming response from the API."""
