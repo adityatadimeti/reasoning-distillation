@@ -24,7 +24,7 @@ presence_penalty: 0.0
 frequency_penalty: 0.0
 
 # Iteration parameters
-max_iterations: 8
+max_iterations: 4 
 continue_after_correct: true
 
 # Summarization parameters
