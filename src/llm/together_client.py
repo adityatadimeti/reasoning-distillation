@@ -156,7 +156,7 @@ class TogetherModelClient(ModelClient):
         presence_penalty: float,
         frequency_penalty: float,
         stream: bool = False,   
-        max_retries: int = 5,
+        max_retries: int = 15,
         **kwargs
     ) -> Union[Dict[str, Any], AsyncIterator[Dict[str, Any]]]:
         """
