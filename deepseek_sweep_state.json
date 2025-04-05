@@ -4,6 +4,10 @@
       "last_problem": "2024-I-1",
       "completed": false,
       "completion_time": null
+    },
+    "DeepSeek R1 Distill Qwen 14B": {
+      "completed": true,
+      "completion_time": "2025-04-05T15:15:18.472336"
     }
   }
 }

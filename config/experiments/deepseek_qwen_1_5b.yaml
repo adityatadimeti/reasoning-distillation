@@ -12,7 +12,7 @@ dashboard_port: 8080
 reasoning_model: "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
 reasoning_model_provider: "together"
 summarizer_type: "external"
-summarizer_model: "accounts/fireworks/models/deepseek-v3"
+summarizer_model: "accounts/fireworks/models/deepseek-v3-0324"
 summarizer_model_provider: "fireworks"
 
 # Generation parameters

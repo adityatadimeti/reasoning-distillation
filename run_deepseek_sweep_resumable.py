@@ -36,8 +36,16 @@ logger = logging.getLogger(__name__)
 # Configuration for the experiments
 EXPERIMENTS = [
     {
-        "name": "DeepSeek V3-0324",
-        "config": "deepseek_v3_0324",
+        "name": "DeepSeek R1 Distill Qwen 1.5B",
+        "config": "deepseek_qwen_1_5b",
+    },
+    {
+        "name": "DeepSeek R1 Distill Qwen 14B",
+        "config": "deepseek_qwen_14b",
+    },
+    {
+        "name": "DeepSeek R1 Distill Llama 70B Free",
+        "config": "deepseek_llama_70b_free",
     }
 ]
 
