@@ -32,7 +32,7 @@ qwq:
 
 aime:
   template: |
-    Solve the following AIME problem. All answers are integers ranging from 0 to 999, inclusive.  Report your answer in \boxed{} format.
+    Solve the following AIME problem. All answers are integers ranging from 0 to 999, inclusive. Report your answer in \boxed{} format.
     
     PROBLEM:
     {question}
@@ -41,6 +41,18 @@ aime:
     {summaries}
 
     Continue reasoning with these summaries in mind.
+  
+aime_diff_approach:
+  template: |
+    Solve the following AIME problem. All answers are integers ranging from 0 to 999, inclusive. Report your answer in \boxed{} format.
+    
+    PROBLEM:
+    {question}
+    
+    Here are summaries of previous solution attempts:
+    {summaries}
+
+    Based on these previous solution attempts, evaluate whether the approach and answer are correct. If not, consider a different approach.
 
 gpqa:
   template: |

@@ -300,6 +300,9 @@ function updateProblemDisplay(problemId) {
         });
     }
     
+    // Update the answer progression section to show how answers change across iterations
+    DashboardIterations.updateAnswerProgressionUI(problemId);
+    
     // Use the new iterations UI
     DashboardIterations.updateIterationsUI(problemId);
     

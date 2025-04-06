@@ -1,6 +1,38 @@
 // Dashboard Iterations UI
 // Handles the new UI with collapsible iterations
 
+// Update the answer progression section to show how answers change across iterations
+function updateAnswerProgressionUI(problemId) {
+    const outputs = window.problemOutputs && window.problemOutputs[problemId];
+    const progressionContainer = document.querySelector('.progression-content');
+    
+    if (!outputs || Object.keys(outputs).length === 0) {
+        progressionContainer.innerHTML = '<div class="no-data">No answer progression available</div>';
+        return;
+    }
+    
+    // Sort iterations by their numerical iteration number
+    const sortedIterations = Object.keys(outputs)
+        .map(Number)
+        .sort((a, b) => a - b);
+    
+    let html = '';
+    
+    // Create a progression item for each iteration
+    sortedIterations.forEach(iteration => {
+        const iterData = outputs[iteration];
+        const answer = iterData.answer || 'No answer';
+        const isCorrect = iterData.correct === true;
+        
+        // Create a progression item with appropriate styling based on correctness
+        html += `<span class="progression-item ${isCorrect ? 'correct' : 'incorrect'}">`;
+        html += `Iter ${iteration}: ${answer}`;
+        html += `</span>`;
+    });
+    
+    progressionContainer.innerHTML = html || '<div class="no-data">No answer progression available</div>';
+}
+
 // Create or update the iterations UI
 function updateIterationsUI(problemId, handleScroll = true) {
     console.log(`Updating iterations UI for problem ${problemId}`, {
@@ -196,5 +228,6 @@ function updateIterationsUI(problemId, handleScroll = true) {
 
 // Dashboard Iterations exports
 window.DashboardIterations = {
-    updateIterationsUI
+    updateIterationsUI,
+    updateAnswerProgressionUI
 }; 
