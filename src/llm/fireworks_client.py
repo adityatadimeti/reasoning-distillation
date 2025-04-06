@@ -388,12 +388,12 @@ class FireworksModelClient(ModelClient):
         stream: bool = False,
         verbose: bool = False,
         **kwargs
-    ) -> Union[Tuple[str, str], AsyncIterator[str]]:
+    ) -> Union[Tuple[str, str, TokenUsage, CostInfo], AsyncIterator[str]]:
         """
         Get a response from the model for a specific prompt asynchronously.
         
         Returns:
-            If stream=False: A tuple of (content, finish_reason) where finish_reason indicates why generation stopped
+            If stream=False: A tuple of (content, finish_reason, token_usage, cost_info) where finish_reason indicates why generation stopped
             If stream=True: An async iterator yielding content chunks
         """
         messages = [{"role": "user", "content": prompt}]

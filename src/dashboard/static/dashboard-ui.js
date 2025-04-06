@@ -335,6 +335,29 @@ function updateExperimentInfoDisplay(experimentState) {
         html += '</div>';
     }
     
+    // Add token usage and cost information if available
+    if (experimentState.token_usage) {
+        html += '<div class="token-usage-section">';
+        html += '<h4>Token Usage</h4>';
+        html += '<div class="token-usage-content">';
+        html += `<div><strong>Prompt Tokens:</strong> ${experimentState.token_usage.prompt_tokens.toLocaleString()}</div>`;
+        html += `<div><strong>Completion Tokens:</strong> ${experimentState.token_usage.completion_tokens.toLocaleString()}</div>`;
+        html += `<div><strong>Total Tokens:</strong> ${experimentState.token_usage.total_tokens.toLocaleString()}</div>`;
+        html += '</div>';
+        html += '</div>';
+    }
+    
+    if (experimentState.cost_info) {
+        html += '<div class="cost-info-section">';
+        html += '<h4>Cost Information</h4>';
+        html += '<div class="cost-info-content">';
+        html += `<div><strong>Prompt Cost:</strong> $${experimentState.cost_info.prompt_cost.toFixed(4)}</div>`;
+        html += `<div><strong>Completion Cost:</strong> $${experimentState.cost_info.completion_cost.toFixed(4)}</div>`;
+        html += `<div><strong>Total Cost:</strong> $${experimentState.cost_info.total_cost.toFixed(4)}</div>`;
+        html += '</div>';
+        html += '</div>';
+    }
+    
     html += '</div>'; // End experiment-status
     
     // Add configuration section if available

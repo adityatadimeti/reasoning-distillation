@@ -224,9 +224,10 @@ class SummarizationExperiment(BaseExperiment):
         Returns:
             Result dictionary with reasoning iterations
         """
+        import traceback
+        
         # Handle different case variations of 'id' field
         problem_id = problem.get("id", problem.get("ID", "unknown"))
-        
         question = problem["question"]
         correct_answer = problem["answer"]
         
@@ -249,12 +250,11 @@ class SummarizationExperiment(BaseExperiment):
             verbose=self.verbose
         )
         
-        # Handle both tuple and string responses for backward compatibility
-        if isinstance(response, tuple):
-            iter0_reasoning, iter0_finish_reason = response
-        else:
-            iter0_reasoning = response
-            iter0_finish_reason = "unknown"  # Default if finish_reason is not available
+        # Unpack the tuple (content, finish_reason, token_usage, cost_info)
+        iter0_reasoning, iter0_finish_reason, token_usage, cost_info = response
+        
+        # Track token usage and cost for the initial reasoning
+        self.track_token_usage_and_cost(problem_id, token_usage, cost_info, 0, "reasoning")
         
         # Log the finish reason
         logger.info(f"Problem {problem_id}, iteration 0 finish reason: {iter0_finish_reason}")
@@ -327,25 +327,41 @@ class SummarizationExperiment(BaseExperiment):
                 raise ValueError(f"Could not extract reasoning trace for problem {problem_id}. Make sure the model output contains <think> tags.")
             
             # Generate the summary asynchronously
-            summary_response = await summarize_reasoning_async(
-                question,
-                reasoning_trace,  # Use extracted reasoning trace instead of full reasoning
-                self.summarizer,
-                summarize_template,
-                max_tokens=self.config.get("summary_max_tokens"),
-                temperature=self.config.get("summary_temperature"),
-                top_p=self.config.get("summary_top_p"),
-                top_k=self.config.get("summary_top_k"),
-                presence_penalty=self.config.get("summary_presence_penalty"),
-                frequency_penalty=self.config.get("summary_frequency_penalty"),
-                verbose=self.verbose
-            )
+            # Initialize default values in case of exception
+            summary = "Error generating summary"
+            summary_finish_reason = "error"
+            token_usage = None
+            cost_info = None
             
-            # Unpack the tuple (content, finish_reason, token_usage, cost_info)
-            summary, summary_finish_reason, token_usage, cost_info = summary_response
+            try:
+                summary_response = await summarize_reasoning_async(
+                    question,
+                    reasoning_trace,  # Use extracted reasoning trace instead of full reasoning
+                    self.summarizer,
+                    summarize_template,
+                    max_tokens=self.config.get("summary_max_tokens"),
+                    temperature=self.config.get("summary_temperature"),
+                    top_p=self.config.get("summary_top_p"),
+                    top_k=self.config.get("summary_top_k"),
+                    presence_penalty=self.config.get("summary_presence_penalty"),
+                    frequency_penalty=self.config.get("summary_frequency_penalty"),
+                    verbose=self.verbose
+                )
+                
+                # Print the type and value of summary_response for debugging
+                logger.info(f"DEBUG: summary_response type: {type(summary_response)}, value: {summary_response}")
+                
+                # Handle the response from summarize_reasoning_async
+                # The response is a tuple of (content, finish_reason, token_usage, cost_info)
+                summary, summary_finish_reason, token_usage, cost_info = summary_response
+            except Exception as e:
+                logger.error(f"Error unpacking summary_response: {str(e)}")
+                logger.error(f"Stack trace: {traceback.format_exc()}")
+                # Continue with default values set above
             
-            # Track token usage and cost for the summary
-            self.track_token_usage_and_cost(problem_id, token_usage, cost_info, current_iteration, "summary")
+            # Track token usage and cost for the summary only if we have valid data
+            if token_usage and cost_info:
+                self.track_token_usage_and_cost(problem_id, token_usage, cost_info, current_iteration, "summary")
             
             # Log the finish reason for the summary
             logger.info(f"Problem {problem_id}, summary {current_iteration} finish reason: {summary_finish_reason}")
@@ -391,7 +407,11 @@ class SummarizationExperiment(BaseExperiment):
             
             # Handle both tuple and string responses for backward compatibility
             if isinstance(next_response, tuple):
-                next_reasoning, next_finish_reason = next_response
+                # Unpack the tuple (content, finish_reason, token_usage, cost_info)
+                next_reasoning, next_finish_reason, token_usage, cost_info = next_response
+                
+                # Track token usage and cost
+                self.track_token_usage_and_cost(problem_id, token_usage, cost_info, next_iteration, "reasoning")
             else:
                 next_reasoning = next_response
                 next_finish_reason = "unknown"
@@ -450,7 +470,7 @@ class SummarizationExperiment(BaseExperiment):
             iteration: Iteration number
             
         Returns:
-            Tuple of (full_summary, finish_reason)
+            Tuple of (full_summary, finish_reason, token_usage, cost_info)
         """
         full_summary = ""
         buffered_chunks = []
@@ -854,7 +874,7 @@ class SummarizationExperiment(BaseExperiment):
             step: Step name (e.g., "reasoning", "summary")
             
         Returns:
-            Tuple of (full_response, finish_reason)
+            Tuple of (full_response, finish_reason, token_usage, cost_info)
         """
         full_response = ""
         buffered_chunks = []

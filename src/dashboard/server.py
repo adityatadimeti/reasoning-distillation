@@ -29,6 +29,8 @@ class DashboardServer:
         self.thread = None
         self.client_ready = False
         self.latest_status = None  # Store the latest experiment status
+        self.token_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+        self.cost_info = {"prompt_cost": 0.0, "completion_cost": 0.0, "total_cost": 0.0}
         self.setup_routes()
         self.setup_socketio()
         
@@ -232,6 +234,13 @@ class DashboardServer:
         # Store the latest status
         self.latest_status = data
         
+        # Add token usage and cost tracking if available
+        if 'token_usage' not in data and hasattr(self, 'token_usage'):
+            data['token_usage'] = self.token_usage
+            
+        if 'cost_info' not in data and hasattr(self, 'cost_info'):
+            data['cost_info'] = self.cost_info
+        
         if self.thread and self.thread.is_alive():
             has_config = 'config' in data
             logger.info(f"Emitting experiment_status event. Status: {data.get('status')}, Has config: {has_config}")
@@ -350,6 +359,31 @@ class DashboardServer:
                 payload['finish_reason'] = finish_reason
                 
             self.socketio.emit('summary_chunk', payload)
+    
+    def update_token_usage_and_cost(self, token_usage, cost_info):
+        """
+        Update token usage and cost information on the dashboard.
+        
+        Args:
+            token_usage: Dictionary with prompt_tokens, completion_tokens, and total_tokens
+            cost_info: Dictionary with prompt_cost, completion_cost, and total_cost
+        """
+        if token_usage:
+            self.token_usage["prompt_tokens"] += token_usage.get("prompt_tokens", 0)
+            self.token_usage["completion_tokens"] += token_usage.get("completion_tokens", 0)
+            self.token_usage["total_tokens"] += token_usage.get("total_tokens", 0)
+        
+        if cost_info:
+            self.cost_info["prompt_cost"] += cost_info.get("prompt_cost", 0.0)
+            self.cost_info["completion_cost"] += cost_info.get("completion_cost", 0.0)
+            self.cost_info["total_cost"] += cost_info.get("total_cost", 0.0)
+        
+        # Update the dashboard with the latest token usage and cost information
+        if self.latest_status:
+            updated_status = self.latest_status.copy()
+            updated_status["token_usage"] = self.token_usage
+            updated_status["cost_info"] = self.cost_info
+            self.update_experiment_status(updated_status)
     
     def stop(self):
         """Stop the dashboard server."""
