@@ -11,7 +11,7 @@ from typing import List, Dict, Any, Iterator, Optional, Union, Tuple, AsyncItera
 
 logger = logging.getLogger(__name__)
 
-from src.llm.base_client import ModelClient
+from src.llm.base_client import ModelClient, TokenUsage, CostInfo
 
 class TogetherModelClient(ModelClient):
     """
@@ -20,18 +20,21 @@ class TogetherModelClient(ModelClient):
     
     BASE_URL = "https://api.together.xyz/v1/chat/completions"
     
-    def __init__(self, model_name: str, api_key: Optional[str] = None):
+    def __init__(self, model_name: str, api_key: Optional[str] = None, input_price_per_million: float = None, output_price_per_million: float = None):
         """
         Initialize the Together API client.
         
         Args:
             model_name: The name of the model to use
             api_key: API key for Together (if None, will use environment variable)
+            input_price_per_million: Price per million input tokens (if None, will use default pricing)
+            output_price_per_million: Price per million output tokens (if None, will use default pricing)
         """
+        # Initialize the base class
+        super().__init__(model_name, api_key)
+        
         # Load environment variables
         load_dotenv()
-        
-        self.model_name = model_name
         
         # Get API key from args or environment
         self.api_key = api_key or os.getenv("TOGETHER_API_KEY")
@@ -43,6 +46,45 @@ class TogetherModelClient(ModelClient):
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.api_key}"
         }
+        
+        # Set pricing based on model or use provided pricing
+        self._set_model_pricing(input_price_per_million, output_price_per_million)
+    
+    def _set_model_pricing(self, input_price_per_million: Optional[float] = None, output_price_per_million: Optional[float] = None):
+        """
+        Set pricing for the model based on the model name or provided pricing.
+        
+        Args:
+            input_price_per_million: Price per million input tokens
+            output_price_per_million: Price per million output tokens
+        """
+        # Use provided pricing if available
+        if input_price_per_million is not None and output_price_per_million is not None:
+            self.input_price_per_million_tokens = input_price_per_million
+            self.output_price_per_million_tokens = output_price_per_million
+            return
+        
+        # Default pricing for known models
+        model_pricing = {
+            # Together AI models pricing
+            "togethercomputer/llama-2-70b": {"input": 0.9, "output": 0.9},
+            "togethercomputer/llama-2-7b": {"input": 0.2, "output": 0.2},
+            "mistralai/Mixtral-8x7B-Instruct-v0.1": {"input": 0.6, "output": 0.6},
+            "meta-llama/Llama-2-70b-chat-hf": {"input": 0.9, "output": 0.9},
+            "meta-llama/Llama-2-13b-chat-hf": {"input": 0.225, "output": 0.225},
+            "meta-llama/Llama-2-7b-chat-hf": {"input": 0.2, "output": 0.2},
+            "NousResearch/Nous-Hermes-2-Yi-34B": {"input": 0.9, "output": 0.9},
+            # Default pricing for unknown models
+            "default": {"input": 1.00, "output": 1.00}
+        }
+        
+        # Get pricing for the model or use default
+        pricing = model_pricing.get(self.model_name, model_pricing["default"])
+        
+        self.input_price_per_million_tokens = pricing["input"]
+        self.output_price_per_million_tokens = pricing["output"]
+        
+        logger.info(f"Set pricing for {self.model_name}: ${self.input_price_per_million_tokens}/M input tokens, ${self.output_price_per_million_tokens}/M output tokens")
     
     def generate_completion(
         self, 
@@ -55,8 +97,9 @@ class TogetherModelClient(ModelClient):
         frequency_penalty: float,
         stream: bool = False,   
         max_retries: int = 500,  # Increased from 15 to 50 for better handling of rate limits
+        return_usage: bool = False,  # Whether to return token usage and cost information
         **kwargs
-    ) -> Union[Dict[str, Any], Iterator[Dict[str, Any]]]:
+    ) -> Union[Dict[str, Any], Iterator[Dict[str, Any]], Tuple[Dict[str, Any], TokenUsage, CostInfo]]:
         """
         Generate a completion from the Together model.
         
@@ -129,7 +172,17 @@ class TogetherModelClient(ModelClient):
                 if stream:
                     return self._process_stream(response)
                 else:
-                    return response.json()
+                    response_json = response.json()
+                    
+                    # If usage tracking is requested, extract and return token usage and cost
+                    if return_usage:
+                        token_usage = self.get_token_usage(response_json)
+                        cost_info = self.calculate_cost(token_usage)
+                        logger.info(f"Token usage: {token_usage.prompt_tokens} prompt, {token_usage.completion_tokens} completion, {token_usage.total_tokens} total")
+                        logger.info(f"Cost: ${cost_info.total_cost:.6f} (${cost_info.prompt_cost:.6f} prompt, ${cost_info.completion_cost:.6f} completion)")
+                        return response_json, token_usage, cost_info
+                    
+                    return response_json
                     
             except requests.exceptions.RequestException as e:
                 # For connection errors, retry with backoff
@@ -159,9 +212,10 @@ class TogetherModelClient(ModelClient):
         presence_penalty: float,
         frequency_penalty: float,
         stream: bool = False,   
-        max_retries: int = 50,  # Increased from 15 to 50 for better handling of rate limits
+        max_retries: int = 500,  # Increased from 50 to 500 for better handling of rate limits
+        return_usage: bool = False,  # Whether to return token usage and cost information
         **kwargs
-    ) -> Union[Dict[str, Any], AsyncIterator[Dict[str, Any]]]:
+    ) -> Union[Dict[str, Any], AsyncIterator[Dict[str, Any]], Tuple[Dict[str, Any], TokenUsage, CostInfo]]:
         """
         Generate a completion from the Together model asynchronously.
         
@@ -233,7 +287,17 @@ class TogetherModelClient(ModelClient):
                         if stream:
                             return self._process_stream_async(response)
                         else:
-                            return await response.json()
+                            response_json = await response.json()
+                            
+                            # If usage tracking is requested, extract and return token usage and cost
+                            if return_usage:
+                                token_usage = self.get_token_usage(response_json)
+                                cost_info = self.calculate_cost(token_usage)
+                                logger.info(f"Token usage: {token_usage.prompt_tokens} prompt, {token_usage.completion_tokens} completion, {token_usage.total_tokens} total")
+                                logger.info(f"Cost: ${cost_info.total_cost:.6f} (${cost_info.prompt_cost:.6f} prompt, ${cost_info.completion_cost:.6f} completion)")
+                                return response_json, token_usage, cost_info
+                            
+                            return response_json
                         
             except aiohttp.ClientError as e:
                 # For connection errors, retry with backoff

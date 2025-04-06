@@ -11,7 +11,7 @@ from typing import List, Dict, Any, Iterator, Optional, Union, Tuple, AsyncItera
 
 logger = logging.getLogger(__name__)
 
-from src.llm.base_client import ModelClient
+from src.llm.base_client import ModelClient, TokenUsage, CostInfo
 
 class FireworksModelClient(ModelClient):
     """
@@ -20,18 +20,21 @@ class FireworksModelClient(ModelClient):
     
     BASE_URL = "https://api.fireworks.ai/inference/v1/chat/completions"
     
-    def __init__(self, model_name: str, api_key: Optional[str] = None):
+    def __init__(self, model_name: str, api_key: Optional[str] = None, input_price_per_million: float = None, output_price_per_million: float = None):
         """
         Initialize the Fireworks API client.
         
         Args:
             model_name: The name of the model to use
             api_key: API key for Fireworks (if None, will use environment variable)
+            input_price_per_million: Price per million input tokens (if None, will use default pricing)
+            output_price_per_million: Price per million output tokens (if None, will use default pricing)
         """
+        # Initialize the base class
+        super().__init__(model_name, api_key)
+        
         # Load environment variables
         load_dotenv()
-        
-        self.model_name = model_name
         
         # Get API key from args or environment
         self.api_key = api_key or os.getenv("FIREWORKS_API_KEY")
@@ -43,6 +46,44 @@ class FireworksModelClient(ModelClient):
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.api_key}"
         }
+        
+        # Set pricing based on model or use provided pricing
+        self._set_model_pricing(input_price_per_million, output_price_per_million)
+    
+    def _set_model_pricing(self, input_price_per_million: Optional[float] = None, output_price_per_million: Optional[float] = None):
+        """
+        Set pricing for the model based on the model name or provided pricing.
+        
+        Args:
+            input_price_per_million: Price per million input tokens
+            output_price_per_million: Price per million output tokens
+        """
+        # Use provided pricing if available
+        if input_price_per_million is not None and output_price_per_million is not None:
+            self.input_price_per_million_tokens = input_price_per_million
+            self.output_price_per_million_tokens = output_price_per_million
+            return
+        
+        # Default pricing for known models
+        model_pricing = {
+            # Llama 4 models
+            "accounts/fireworks/models/llama-v4-7b": {"input": 0.27, "output": 0.85},
+            "accounts/fireworks/models/llama-v4-7b-instruct": {"input": 0.27, "output": 0.85},
+            "accounts/fireworks/models/llama-v4-70b": {"input": 1.70, "output": 2.50},
+            "accounts/fireworks/models/llama-v4-70b-instruct": {"input": 1.70, "output": 2.50},
+            # DeepSeek models
+            "accounts/fireworks/models/deepseek-v2": {"input": 0.90, "output": 0.90},
+            # Default pricing for unknown models
+            "default": {"input": 1.00, "output": 1.00}
+        }
+        
+        # Get pricing for the model or use default
+        pricing = model_pricing.get(self.model_name, model_pricing["default"])
+        
+        self.input_price_per_million_tokens = pricing["input"]
+        self.output_price_per_million_tokens = pricing["output"]
+        
+        logger.info(f"Set pricing for {self.model_name}: ${self.input_price_per_million_tokens}/M input tokens, ${self.output_price_per_million_tokens}/M output tokens")
     
     def generate_completion(
         self, 
@@ -54,9 +95,10 @@ class FireworksModelClient(ModelClient):
         presence_penalty: float,
         frequency_penalty: float,
         stream: bool = False,   
-        max_retries: int = 50,  # Increased from 15 to 50 for better handling of rate limits
+        max_retries: int = 500,  # Increased from 15 to 50 for better handling of rate limits
+        return_usage: bool = False,  # Whether to return token usage and cost information
         **kwargs
-    ) -> Union[Dict[str, Any], Iterator[Dict[str, Any]]]:
+    ) -> Union[Dict[str, Any], Iterator[Dict[str, Any]], Tuple[Dict[str, Any], TokenUsage, CostInfo]]:
         """
         Generate a completion from the Fireworks model.
         
@@ -129,7 +171,17 @@ class FireworksModelClient(ModelClient):
                 if stream:
                     return self._process_stream(response)
                 else:
-                    return response.json()
+                    response_json = response.json()
+                    
+                    # If usage tracking is requested, extract and return token usage and cost
+                    if return_usage:
+                        token_usage = self.get_token_usage(response_json)
+                        cost_info = self.calculate_cost(token_usage)
+                        logger.info(f"Token usage: {token_usage.prompt_tokens} prompt, {token_usage.completion_tokens} completion, {token_usage.total_tokens} total")
+                        logger.info(f"Cost: ${cost_info.total_cost:.6f} (${cost_info.prompt_cost:.6f} prompt, ${cost_info.completion_cost:.6f} completion)")
+                        return response_json, token_usage, cost_info
+                    
+                    return response_json
                     
             except requests.exceptions.RequestException as e:
                 # For connection errors, retry with backoff
@@ -159,9 +211,10 @@ class FireworksModelClient(ModelClient):
         presence_penalty: float,
         frequency_penalty: float,
         stream: bool = False,   
-        max_retries: int = 50,  # Increased from 15 to 50 for better handling of rate limits
+        max_retries: int = 500,  # Increased from 15 to 50 for better handling of rate limits
+        return_usage: bool = False,  # Whether to return token usage and cost information
         **kwargs
-    ) -> Union[Dict[str, Any], AsyncIterator[Dict[str, Any]]]:
+    ) -> Union[Dict[str, Any], AsyncIterator[Dict[str, Any]], Tuple[Dict[str, Any], TokenUsage, CostInfo]]:
         """
         Generate a completion from the Fireworks model asynchronously.
         
@@ -233,7 +286,17 @@ class FireworksModelClient(ModelClient):
                         if stream:
                             return self._process_stream_async(response)
                         else:
-                            return await response.json()
+                            response_json = await response.json()
+                            
+                            # If usage tracking is requested, extract and return token usage and cost
+                            if return_usage:
+                                token_usage = self.get_token_usage(response_json)
+                                cost_info = self.calculate_cost(token_usage)
+                                logger.info(f"Token usage: {token_usage.prompt_tokens} prompt, {token_usage.completion_tokens} completion, {token_usage.total_tokens} total")
+                                logger.info(f"Cost: ${cost_info.total_cost:.6f} (${cost_info.prompt_cost:.6f} prompt, ${cost_info.completion_cost:.6f} completion)")
+                                return response_json, token_usage, cost_info
+                            
+                            return response_json
                         
             except aiohttp.ClientError as e:
                 # For connection errors, retry with backoff

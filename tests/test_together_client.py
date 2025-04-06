@@ -8,6 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.llm.together_client import TogetherModelClient
 from src.llm.model_factory import create_model_client
+from src.llm.base_client import TokenUsage, CostInfo
 
 # Load environment variables
 load_dotenv()
@@ -117,6 +118,54 @@ def test_deepseek_r1_distill_llama_70b_free():
     print(f"DeepSeek R1 Distill Llama 70B Free Response: {response}")
     print(f"Finish reason: {finish_reason}")
 
+@pytest.mark.skipif(os.getenv("ENABLE_API_CALLS") != "1", 
+                   reason="API calls disabled")
+def test_token_counting_and_cost():
+    """Test token counting and cost tracking functionality."""
+    client = TogetherModelClient(model_name="deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free")
+    
+    # Ensure pricing is set
+    assert client.input_price_per_million_tokens > 0
+    assert client.output_price_per_million_tokens > 0
+    
+    # Test with return_usage=True
+    response, token_usage, cost_info = client.generate_completion(
+        messages=[{"role": "user", "content": "What is 2+2?"}],
+        max_tokens=100,
+        temperature=0.7,
+        top_p=0.9,
+        top_k=40,
+        presence_penalty=0.0,
+        frequency_penalty=0.0,
+        return_usage=True
+    )
+    
+    # Check response structure
+    assert "choices" in response
+    assert "usage" in response
+    
+    # Check token usage
+    assert isinstance(token_usage, TokenUsage)
+    assert token_usage.prompt_tokens > 0
+    assert token_usage.completion_tokens > 0
+    assert token_usage.total_tokens == token_usage.prompt_tokens + token_usage.completion_tokens
+    
+    # Check cost info
+    assert isinstance(cost_info, CostInfo)
+    assert cost_info.prompt_cost >= 0
+    assert cost_info.completion_cost >= 0
+    assert abs(cost_info.total_cost - (cost_info.prompt_cost + cost_info.completion_cost)) < 1e-10  # Account for floating point precision
+    
+    # Verify that the cost calculation is correct
+    expected_prompt_cost = (token_usage.prompt_tokens / 1_000_000) * client.input_price_per_million_tokens
+    expected_completion_cost = (token_usage.completion_tokens / 1_000_000) * client.output_price_per_million_tokens
+    
+    assert abs(cost_info.prompt_cost - expected_prompt_cost) < 1e-10
+    assert abs(cost_info.completion_cost - expected_completion_cost) < 1e-10
+    
+    print(f"Token usage: {token_usage.prompt_tokens} prompt, {token_usage.completion_tokens} completion, {token_usage.total_tokens} total")
+    print(f"Cost: ${cost_info.total_cost:.6f} (${cost_info.prompt_cost:.6f} prompt, ${cost_info.completion_cost:.6f} completion)")
+
 def run_all_tests():
     """Run all API tests sequentially."""
     print("Testing Together client initialization...")
@@ -138,6 +187,9 @@ def run_all_tests():
     
     print("\nTesting DeepSeek R1 Distill Llama 70B Free...")
     test_deepseek_r1_distill_llama_70b_free()
+    
+    print("\nTesting token counting and cost tracking...")
+    test_token_counting_and_cost()
     
     print("\n✅ All tests completed successfully!")
 
