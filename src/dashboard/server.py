@@ -65,8 +65,12 @@ class DashboardServer:
                 with open(results_file, 'r') as f:
                     results_data = json.load(f)
                 
+                # Add the results path to the data for display in the UI
+                results_data['results_path'] = result_path
+                
                 # Log loaded results
                 logger.info(f"Loaded static results with {len(results_data.get('results', []))} problems")
+                logger.info(f"Added results_path to data: {result_path}")
                 
                 # Don't convert to JSON string here - let Flask/Jinja handle it with the tojson filter
                 logger.info(f"Passing static_results to template")
@@ -185,8 +189,12 @@ class DashboardServer:
                 with open(results_file, 'r') as f:
                     results_data = json.load(f)
                 
+                # Add the results path to the data for display in the UI
+                results_data['results_path'] = result_path
+                
                 # Log loaded results
                 logger.info(f"Loaded static results with {len(results_data.get('results', []))} problems")
+                logger.info(f"Added results_path to data: {result_path}")
                 
                 # Don't convert to JSON string here - let Flask/Jinja handle it with the tojson filter
                 logger.info(f"Passing static_results to template")

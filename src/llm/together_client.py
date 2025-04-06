@@ -54,7 +54,7 @@ class TogetherModelClient(ModelClient):
         presence_penalty: float,
         frequency_penalty: float,
         stream: bool = False,   
-        max_retries: int = 50,  # Increased from 15 to 50 for better handling of rate limits
+        max_retries: int = 500,  # Increased from 15 to 50 for better handling of rate limits
         **kwargs
     ) -> Union[Dict[str, Any], Iterator[Dict[str, Any]]]:
         """
@@ -111,8 +111,9 @@ class TogetherModelClient(ModelClient):
                     retry_after = response.headers.get('Retry-After')
                     if retry_after:
                         # Add jitter to the Retry-After value to avoid synchronized retries
+                        # Only add positive jitter to ensure we never go below the server's requested wait time
                         base_sleep_time = float(retry_after)
-                        sleep_time = base_sleep_time + random.uniform(0, 3)  # Add up to 3 seconds of jitter
+                        sleep_time = base_sleep_time + random.uniform(0, 3)  # Add 0-3 seconds of jitter
                     else:
                         # Exponential backoff with jitter, capped at 60 seconds (1 minute)
                         sleep_time = backoff_time + random.uniform(0, 1)
@@ -214,8 +215,9 @@ class TogetherModelClient(ModelClient):
                             retry_after = response.headers.get('Retry-After')
                             if retry_after:
                                 # Add jitter to the Retry-After value to avoid synchronized retries
+                                # Only add positive jitter to ensure we never go below the server's requested wait time
                                 base_sleep_time = float(retry_after)
-                                sleep_time = base_sleep_time + random.uniform(0, 3)  # Add up to 3 seconds of jitter
+                                sleep_time = base_sleep_time + random.uniform(0, 3)  # Add 0-3 seconds of jitter
                             else:
                                 # Exponential backoff with jitter, capped at 60 seconds (1 minute)
                                 sleep_time = backoff_time + random.uniform(0, 1)

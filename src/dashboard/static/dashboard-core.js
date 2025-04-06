@@ -86,12 +86,22 @@ function initializeStaticDashboard(results) {
     
     const { experiment_name, config, results: problemResults } = results;
     
+    // Extract experiment ID from the experiment_name or results path
+    let experiment_id = experiment_name;
+    
+    // If there's a results_path in the data, use the last part of the path as the experiment ID
+    if (results.results_path) {
+        const pathParts = results.results_path.split('/');
+        experiment_id = pathParts[pathParts.length - 1];
+    }
+    
     // Set experiment state
     experimentState = {
         status: 'Completed',
         totalProblems: problemResults.length,
         completedProblems: problemResults.length,
-        config: config || {}
+        config: config || {},
+        experiment_id: experiment_id
     };
     
     // Update experiment info display

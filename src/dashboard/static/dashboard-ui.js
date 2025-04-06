@@ -315,6 +315,12 @@ function updateProblemDisplay(problemId) {
 // Update experiment information display
 function updateExperimentInfoDisplay(experimentState) {
     const experimentDetails = document.getElementById('experiment-details');
+    const experimentHeader = document.getElementById('experiment-header');
+    
+    // Update the header with the experiment ID if available
+    if (experimentState.experiment_id) {
+        experimentHeader.textContent = `Experiment: ${experimentState.experiment_id}`;
+    }
     
     let html = '<div class="experiment-status">';
     html += `<div><strong>Status:</strong> <span class="status-value">${experimentState.status}</span></div>`;
