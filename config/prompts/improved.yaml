@@ -52,7 +52,7 @@ aime_diff_approach:
     Here are summaries of previous solution attempts:
     {summaries}
 
-    Based on these previous solution attempts, evaluate whether the approach and answer are correct. If not, consider a different approach.
+    Based on these previous solution attempts, evaluate whether the most recent approach and answer are correct. If not, consider a different approach.
 
 gpqa:
   template: |
