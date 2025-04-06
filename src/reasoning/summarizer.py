@@ -1,7 +1,7 @@
 import logging
 from typing import Optional, Dict, Any, Union, Iterator, Tuple, AsyncIterator
 
-from src.llm.base_client import ModelClient
+from src.llm.base_client import ModelClient, TokenUsage, CostInfo
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ def summarize_reasoning(
     frequency_penalty: float = None,
     verbose: bool = False,
     stream: bool = False
-) -> Union[Tuple[str, str], Iterator[str]]:
+) -> Union[Tuple[str, str, TokenUsage, CostInfo], Iterator[str]]:
     """
     Generate a summary of the reasoning trace.
     
@@ -36,7 +36,7 @@ def summarize_reasoning(
         stream: Whether to stream the summary in chunks
         
     Returns:
-        If stream=False: Tuple of (summary, finish_reason) where finish_reason indicates why generation stopped
+        If stream=False: Tuple of (summary, finish_reason, token_usage, cost_info) where finish_reason indicates why generation stopped
         If stream=True: Iterator yielding summary chunks
     """
     logger.info("Generating summary of reasoning trace")
@@ -97,7 +97,7 @@ async def summarize_reasoning_async(
     frequency_penalty: float = None,
     verbose: bool = False,
     stream: bool = False
-) -> Union[Tuple[str, str], AsyncIterator[str]]:
+) -> Union[Tuple[str, str, TokenUsage, CostInfo], AsyncIterator[str]]:
     """
     Generate a summary of the reasoning trace asynchronously.
     
@@ -115,7 +115,7 @@ async def summarize_reasoning_async(
         stream: Whether to stream the summary in chunks
         
     Returns:
-        If stream=False: Tuple of (summary, finish_reason) where finish_reason indicates why generation stopped
+        If stream=False: Tuple of (summary, finish_reason, token_usage, cost_info) where finish_reason indicates why generation stopped
         If stream=True: AsyncIterator yielding summary chunks
     """
     logger.info("Generating summary of reasoning trace asynchronously")

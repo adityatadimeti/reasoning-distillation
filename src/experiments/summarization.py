@@ -7,6 +7,8 @@ from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
 import copy
 
+from src.llm.base_client import TokenUsage, CostInfo
+
 from src.experiments.base import BaseExperiment
 from src.llm.model_factory import create_model_client
 from src.reasoning.extractor import extract_answer, extract_reasoning_trace
@@ -339,12 +341,11 @@ class SummarizationExperiment(BaseExperiment):
                 verbose=self.verbose
             )
             
-            # Handle both tuple and string responses for backward compatibility
-            if isinstance(summary_response, tuple):
-                summary, summary_finish_reason = summary_response
-            else:
-                summary = summary_response
-                summary_finish_reason = "unknown"
+            # Unpack the tuple (content, finish_reason, token_usage, cost_info)
+            summary, summary_finish_reason, token_usage, cost_info = summary_response
+            
+            # Track token usage and cost for the summary
+            self.track_token_usage_and_cost(problem_id, token_usage, cost_info, current_iteration, "summary")
             
             # Log the finish reason for the summary
             logger.info(f"Problem {problem_id}, summary {current_iteration} finish reason: {summary_finish_reason}")
@@ -437,7 +438,7 @@ class SummarizationExperiment(BaseExperiment):
         
         return result
     
-    def _stream_summary_generation(self, problem_id: str, question: str, reasoning: str, prompt_template: str, iteration: int = 0) -> Tuple[str, str]:
+    def _stream_summary_generation(self, problem_id: str, question: str, reasoning: str, prompt_template: str, iteration: int = 0) -> Tuple[str, str, TokenUsage, CostInfo]:
         """
         Stream the summary generation for a problem and update dashboard in real-time.
         
@@ -525,19 +526,18 @@ class SummarizationExperiment(BaseExperiment):
                         top_k=self.config.get("summary_top_k"),
                         presence_penalty=self.config.get("summary_presence_penalty"),
                         frequency_penalty=self.config.get("summary_frequency_penalty"),
-                        verbose=False,  # Don't log this auxiliary call
-                        return_usage=True  # Request token usage information
+                        verbose=False  # Don't log this auxiliary call
                     )
                     
                     # Extract the finish_reason, token usage, and cost info from the response
-                    if isinstance(summary_response, tuple) and len(summary_response) >= 3:
-                        _, finish_reason, token_usage, cost_info = summary_response
-                        logger.debug(f"Got summary finish_reason '{finish_reason}' for problem {problem_id}, iteration {iteration}")
-                        logger.info(f"Summary token usage for problem {problem_id}, iteration {iteration}: {token_usage}")
-                        logger.info(f"Summary cost info for problem {problem_id}, iteration {iteration}: {cost_info}")
-                        
-                        # Track token usage and cost for the summary
-                        self.track_token_usage_and_cost(problem_id, token_usage, cost_info, iteration, "summary")
+                    # Unpack the tuple (content, finish_reason, token_usage, cost_info)
+                    _, finish_reason, token_usage, cost_info = summary_response
+                    logger.debug(f"Got summary finish_reason '{finish_reason}' for problem {problem_id}, iteration {iteration}")
+                    logger.info(f"Summary token usage for problem {problem_id}, iteration {iteration}: {token_usage}")
+                    logger.info(f"Summary cost info for problem {problem_id}, iteration {iteration}: {cost_info}")
+                    
+                    # Track token usage and cost for the summary
+                    self.track_token_usage_and_cost(problem_id, token_usage, cost_info, iteration, "summary")
                 except Exception as e:
                     logger.warning(f"Error getting summary finish_reason and token usage: {str(e)}. Using 'unknown' instead.")
             
@@ -548,7 +548,7 @@ class SummarizationExperiment(BaseExperiment):
                 # Send the final complete summary with finish_reason
                 self.dashboard.update_summary(problem_id, full_summary, iteration=iteration, finish_reason=finish_reason)
             
-            return full_summary, finish_reason
+            return full_summary, finish_reason, token_usage, cost_info
             
         except Exception as e:
             logger.error(f"Error streaming summary: {str(e)}")
@@ -588,7 +588,7 @@ class SummarizationExperiment(BaseExperiment):
         # Generate iteration 0 reasoning with streaming
         if self.dashboard:
             # Use streaming for dashboard updates
-            iter0_reasoning, iter0_finish_reason = self._stream_model_output(problem_id, initial_prompt, iteration=0)
+            iter0_reasoning, iter0_finish_reason, token_usage, cost_info = self._stream_model_output(problem_id, initial_prompt, iteration=0)
         else:
             # Without dashboard, just get the full response
             response = self.reasoning_model.generate_response(
@@ -602,12 +602,11 @@ class SummarizationExperiment(BaseExperiment):
                 verbose=self.verbose
             )
             
-            # Handle both tuple and string responses for backward compatibility
-            if isinstance(response, tuple):
-                iter0_reasoning, iter0_finish_reason = response
-            else:
-                iter0_reasoning = response
-                iter0_finish_reason = "unknown"  # Default if finish_reason is not available
+            # Unpack the tuple (content, finish_reason, token_usage, cost_info)
+            iter0_reasoning, iter0_finish_reason, token_usage, cost_info = response
+            
+            # Track token usage and cost
+            self.track_token_usage_and_cost(problem_id, token_usage, cost_info, 0, "reasoning")
         
         # Log the finish reason
         logger.info(f"Problem {problem_id}, iteration 0 finish reason: {iter0_finish_reason}")
@@ -695,7 +694,7 @@ class SummarizationExperiment(BaseExperiment):
             # Stream the summary if we have a dashboard, otherwise generate normally
             summary_finish_reason = "unknown"
             if self.dashboard:
-                summary, summary_finish_reason = self._stream_summary_generation(
+                summary, summary_finish_reason, token_usage, cost_info = self._stream_summary_generation(
                     problem_id, 
                     question,  # Pass the question directly
                     current_reasoning, 
@@ -729,11 +728,11 @@ class SummarizationExperiment(BaseExperiment):
                     verbose=self.verbose
                 )
                 
-                # Handle both tuple and string responses for backward compatibility
-                if isinstance(summary_response, tuple):
-                    summary, summary_finish_reason = summary_response
-                else:
-                    summary = summary_response
+                # Unpack the tuple (content, finish_reason, token_usage, cost_info)
+                summary, summary_finish_reason, token_usage, cost_info = summary_response
+                
+                # Track token usage and cost for the summary
+                self.track_token_usage_and_cost(problem_id, token_usage, cost_info, current_iteration, "summary")
             
             # Log the finish reason for the summary
             logger.info(f"Problem {problem_id}, summary {current_iteration} finish reason: {summary_finish_reason}")
@@ -770,7 +769,7 @@ class SummarizationExperiment(BaseExperiment):
             next_finish_reason = "unknown"
             if self.dashboard:
                 # Use streaming for dashboard updates
-                next_reasoning, next_finish_reason = self._stream_model_output(problem_id, improved_prompt, iteration=next_iteration)
+                next_reasoning, next_finish_reason, token_usage, cost_info = self._stream_model_output(problem_id, improved_prompt, iteration=next_iteration)
             else:
                 # Without dashboard, just get the full response
                 next_response = self.reasoning_model.generate_response(
@@ -784,11 +783,11 @@ class SummarizationExperiment(BaseExperiment):
                     verbose=self.verbose
                 )
                 
-                # Handle both tuple and string responses for backward compatibility
-                if isinstance(next_response, tuple):
-                    next_reasoning, next_finish_reason = next_response
-                else:
-                    next_reasoning = next_response
+                # Unpack the tuple (content, finish_reason, token_usage, cost_info)
+                next_reasoning, next_finish_reason, token_usage, cost_info = next_response
+                
+                # Track token usage and cost
+                self.track_token_usage_and_cost(problem_id, token_usage, cost_info, next_iteration, "reasoning")
             
             # Log the finish reason
             logger.info(f"Problem {problem_id}, iteration {next_iteration} finish reason: {next_finish_reason}")
@@ -844,7 +843,7 @@ class SummarizationExperiment(BaseExperiment):
         
         return result
     
-    def _stream_model_output(self, problem_id: str, prompt: str, iteration: int = 0, step: str = "reasoning") -> Tuple[str, str]:
+    def _stream_model_output(self, problem_id: str, prompt: str, iteration: int = 0, step: str = "reasoning") -> Tuple[str, str, TokenUsage, CostInfo]:
         """
         Generic method to stream model output for any iteration and update dashboard in real-time.
         
@@ -921,12 +920,12 @@ class SummarizationExperiment(BaseExperiment):
                     top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
                     presence_penalty=self.config["presence_penalty"],
                     frequency_penalty=self.config["frequency_penalty"],
-                    verbose=False,  # Don't log this auxiliary call
-                    return_usage=True  # Request token usage information
+                    verbose=False  # Don't log this auxiliary call
                 )
                 
                 # Extract the finish_reason and token usage from the response
-                if isinstance(response, tuple) and len(response) >= 3:
+                if isinstance(response, tuple) and len(response) >= 4:
+                    # Unpack the tuple (content, finish_reason, token_usage, cost_info)
                     _, finish_reason, token_usage, cost_info = response
                     logger.debug(f"Got finish_reason '{finish_reason}' for problem {problem_id}, iteration {iteration}")
                     logger.info(f"Token usage for problem {problem_id}, iteration {iteration}: {token_usage}")
@@ -953,11 +952,11 @@ class SummarizationExperiment(BaseExperiment):
                     top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
                     presence_penalty=self.config["presence_penalty"],
                     frequency_penalty=self.config["frequency_penalty"],
-                    verbose=False,
-                    return_usage=True
+                    verbose=False
                 )
                 
-                if isinstance(response, tuple) and len(response) >= 3:
+                if isinstance(response, tuple) and len(response) >= 4:
+                    # Unpack the tuple (content, finish_reason, token_usage, cost_info)
                     _, _, token_usage, cost_info = response
                     logger.info(f"Token usage for problem {problem_id}, iteration {iteration}: {token_usage}")
                     logger.info(f"Cost info for problem {problem_id}, iteration {iteration}: {cost_info}")
@@ -984,4 +983,4 @@ class SummarizationExperiment(BaseExperiment):
             status = f"iter{iteration}-completed"
             self.dashboard.update_problem_status(problem_id, status, question)
         
-        return full_response, finish_reason
+        return full_response, finish_reason, token_usage, cost_info

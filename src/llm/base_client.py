@@ -37,7 +37,7 @@ class ModelClient(ABC):
         temperature: float,
         stream: bool = False,
         **kwargs
-    ) -> Union[Dict[str, Any], Iterator[Dict[str, Any]]]:
+    ) -> Union[Tuple[Dict[str, Any], TokenUsage, CostInfo], Iterator[Dict[str, Any]]]:
         """
         Generate a completion from the model.
         
@@ -49,7 +49,7 @@ class ModelClient(ABC):
             **kwargs: Additional provider-specific parameters
             
         Returns:
-            If stream=False: The complete API response
+            If stream=False: A tuple of (response, token_usage, cost_info)
             If stream=True: An iterator yielding response chunks
         """
         pass
@@ -60,7 +60,7 @@ class ModelClient(ABC):
         prompt: str, 
         stream: bool = False,
         **kwargs
-    ) -> Union[str, Iterator[str]]:
+    ) -> Union[Tuple[str, str, TokenUsage, CostInfo], Iterator[str]]:
         """
         Get a complete response from the model for a specific prompt.
         
@@ -70,7 +70,7 @@ class ModelClient(ABC):
             **kwargs: Additional parameters to pass to generate_completion
             
         Returns:
-            If stream=False: The model's complete response content as a string
+            If stream=False: A tuple of (content, finish_reason, token_usage, cost_info)
             If stream=True: An iterator yielding response content chunks
         """
         pass

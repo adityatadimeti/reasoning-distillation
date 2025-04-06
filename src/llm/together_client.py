@@ -97,9 +97,8 @@ class TogetherModelClient(ModelClient):
         frequency_penalty: float,
         stream: bool = False,   
         max_retries: int = 500,  # Increased from 15 to 50 for better handling of rate limits
-        return_usage: bool = False,  # Whether to return token usage and cost information
         **kwargs
-    ) -> Union[Dict[str, Any], Iterator[Dict[str, Any]], Tuple[Dict[str, Any], TokenUsage, CostInfo]]:
+    ) -> Union[Tuple[Dict[str, Any], TokenUsage, CostInfo], Iterator[Dict[str, Any]]]:
         """
         Generate a completion from the Together model.
         
@@ -174,15 +173,12 @@ class TogetherModelClient(ModelClient):
                 else:
                     response_json = response.json()
                     
-                    # If usage tracking is requested, extract and return token usage and cost
-                    if return_usage:
-                        token_usage = self.get_token_usage(response_json)
-                        cost_info = self.calculate_cost(token_usage)
-                        logger.info(f"Token usage: {token_usage.prompt_tokens} prompt, {token_usage.completion_tokens} completion, {token_usage.total_tokens} total")
-                        logger.info(f"Cost: ${cost_info.total_cost:.6f} (${cost_info.prompt_cost:.6f} prompt, ${cost_info.completion_cost:.6f} completion)")
-                        return response_json, token_usage, cost_info
-                    
-                    return response_json
+                    # Always extract and return token usage and cost information
+                    token_usage = self.get_token_usage(response_json)
+                    cost_info = self.calculate_cost(token_usage)
+                    logger.info(f"Token usage: {token_usage.prompt_tokens} prompt, {token_usage.completion_tokens} completion, {token_usage.total_tokens} total")
+                    logger.info(f"Cost: ${cost_info.total_cost:.6f} (${cost_info.prompt_cost:.6f} prompt, ${cost_info.completion_cost:.6f} completion)")
+                    return response_json, token_usage, cost_info
                     
             except requests.exceptions.RequestException as e:
                 # For connection errors, retry with backoff
@@ -213,9 +209,8 @@ class TogetherModelClient(ModelClient):
         frequency_penalty: float,
         stream: bool = False,   
         max_retries: int = 500,  # Increased from 50 to 500 for better handling of rate limits
-        return_usage: bool = False,  # Whether to return token usage and cost information
         **kwargs
-    ) -> Union[Dict[str, Any], AsyncIterator[Dict[str, Any]], Tuple[Dict[str, Any], TokenUsage, CostInfo]]:
+    ) -> Union[Tuple[Dict[str, Any], TokenUsage, CostInfo], AsyncIterator[Dict[str, Any]]]:
         """
         Generate a completion from the Together model asynchronously.
         
@@ -289,15 +284,12 @@ class TogetherModelClient(ModelClient):
                         else:
                             response_json = await response.json()
                             
-                            # If usage tracking is requested, extract and return token usage and cost
-                            if return_usage:
-                                token_usage = self.get_token_usage(response_json)
-                                cost_info = self.calculate_cost(token_usage)
-                                logger.info(f"Token usage: {token_usage.prompt_tokens} prompt, {token_usage.completion_tokens} completion, {token_usage.total_tokens} total")
-                                logger.info(f"Cost: ${cost_info.total_cost:.6f} (${cost_info.prompt_cost:.6f} prompt, ${cost_info.completion_cost:.6f} completion)")
-                                return response_json, token_usage, cost_info
-                            
-                            return response_json
+                            # Always extract and return token usage and cost information
+                            token_usage = self.get_token_usage(response_json)
+                            cost_info = self.calculate_cost(token_usage)
+                            logger.info(f"Token usage: {token_usage.prompt_tokens} prompt, {token_usage.completion_tokens} completion, {token_usage.total_tokens} total")
+                            logger.info(f"Cost: ${cost_info.total_cost:.6f} (${cost_info.prompt_cost:.6f} prompt, ${cost_info.completion_cost:.6f} completion)")
+                            return response_json, token_usage, cost_info
                         
             except aiohttp.ClientError as e:
                 # For connection errors, retry with backoff
@@ -351,12 +343,18 @@ class TogetherModelClient(ModelClient):
         stream: bool = False,
         verbose: bool = False,
         **kwargs
-    ) -> Union[Tuple[str, str], Iterator[str]]:
+    ) -> Union[Tuple[str, str, TokenUsage, CostInfo], Iterator[str]]:
         """
         Get a response from the model for a specific prompt.
         
+        Args:
+            prompt: The prompt to send to the model
+            stream: Whether to stream the response
+            verbose: Whether to print verbose output
+            **kwargs: Additional parameters to pass to the model
+            
         Returns:
-            If stream=False: A tuple of (content, finish_reason) where finish_reason indicates why generation stopped
+            If stream=False: A tuple of (content, finish_reason, token_usage, cost_info)
             If stream=True: An iterator yielding content chunks
         """
         # Format the prompt as a message
@@ -366,7 +364,7 @@ class TogetherModelClient(ModelClient):
             print(f"Sending prompt to Together model {self.model_name}: {prompt[:100]}...")
         
         # Generate completion
-        response = self.generate_completion(
+        result = self.generate_completion(
             messages=messages,
             stream=stream,
             **kwargs
@@ -374,12 +372,15 @@ class TogetherModelClient(ModelClient):
         
         # Extract content based on whether we're streaming
         if stream:
-            return self._extract_streaming_content(response)
+            return self._extract_streaming_content(result)
         else:
+            # Unpack the tuple (response_json, token_usage, cost_info)
+            response, token_usage, cost_info = result
+            
             try:
                 content = response["choices"][0]["message"]["content"]
                 finish_reason = response["choices"][0].get("finish_reason", "unknown")
-                return content, finish_reason
+                return content, finish_reason, token_usage, cost_info
             except (KeyError, IndexError) as e:
                 raise Exception(f"Failed to extract content from Together response: {str(e)}")
     
@@ -414,10 +415,12 @@ class TogetherModelClient(ModelClient):
         if stream:
             return self._extract_streaming_content_async(response)
         else:
+            # Unpack the tuple (response_json, token_usage, cost_info)
+            response, token_usage, cost_info = response
             try:
                 content = response["choices"][0]["message"]["content"]
                 finish_reason = response["choices"][0].get("finish_reason", "unknown")
-                return content, finish_reason
+                return content, finish_reason, token_usage, cost_info
             except (KeyError, IndexError) as e:
                 raise Exception(f"Failed to extract content from Together response: {str(e)}")
     

@@ -40,11 +40,7 @@ class BaseExperiment:
                 "completion_tokens": 0,
                 "total_tokens": 0
             },
-            "problems": defaultdict(lambda: {
-                "prompt_tokens": 0,
-                "completion_tokens": 0,
-                "total_tokens": 0
-            })
+            "problems": defaultdict(lambda: defaultdict(int))
         }
         
         self.cost_info = {
@@ -53,11 +49,7 @@ class BaseExperiment:
                 "completion_cost": 0.0,
                 "total_cost": 0.0
             },
-            "problems": defaultdict(lambda: {
-                "prompt_cost": 0.0,
-                "completion_cost": 0.0,
-                "total_cost": 0.0
-            })
+            "problems": defaultdict(lambda: defaultdict(float))
         }
         
         # Create results directory
@@ -116,13 +108,9 @@ class BaseExperiment:
         
         # Update problem-specific token usage
         problem_tokens = self.token_usage["problems"][problem_id]
-        if isinstance(problem_tokens, defaultdict):
-            problem_tokens = dict(problem_tokens)
-            self.token_usage["problems"][problem_id] = problem_tokens
-            
-        problem_tokens["prompt_tokens"] = problem_tokens.get("prompt_tokens", 0) + token_usage.prompt_tokens
-        problem_tokens["completion_tokens"] = problem_tokens.get("completion_tokens", 0) + token_usage.completion_tokens
-        problem_tokens["total_tokens"] = problem_tokens.get("total_tokens", 0) + token_usage.total_tokens
+        problem_tokens["prompt_tokens"] += token_usage.prompt_tokens
+        problem_tokens["completion_tokens"] += token_usage.completion_tokens
+        problem_tokens["total_tokens"] += token_usage.total_tokens
         
         # Update total cost
         self.cost_info["total"]["prompt_cost"] += cost_info.prompt_cost
@@ -131,13 +119,9 @@ class BaseExperiment:
         
         # Update problem-specific cost
         problem_cost = self.cost_info["problems"][problem_id]
-        if isinstance(problem_cost, defaultdict):
-            problem_cost = dict(problem_cost)
-            self.cost_info["problems"][problem_id] = problem_cost
-            
-        problem_cost["prompt_cost"] = problem_cost.get("prompt_cost", 0.0) + cost_info.prompt_cost
-        problem_cost["completion_cost"] = problem_cost.get("completion_cost", 0.0) + cost_info.completion_cost
-        problem_cost["total_cost"] = problem_cost.get("total_cost", 0.0) + cost_info.total_cost
+        problem_cost["prompt_cost"] += cost_info.prompt_cost
+        problem_cost["completion_cost"] += cost_info.completion_cost
+        problem_cost["total_cost"] += cost_info.total_cost
         
         # Store iteration-specific information in the results
         for result in self.results:

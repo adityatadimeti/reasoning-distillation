@@ -1,7 +1,7 @@
 # Experiment configuration for DeepSeek R1 Distill Qwen 1.5B
-experiment_name: "deepseek_qwen_1_5b_aime_2024_5"
-results_dir: "./results/deepseek_qwen_1_5b_aime_2024_5"
-data_path: "./data/aime_2024_5.csv"
+experiment_name: "testing_deepseek_qwen_1_5b_aime_2024_5_diff"
+results_dir: "./results/testing_deepseek_qwen_1_5b_aime_2024_5_diff"
+data_path: "./data/simple.csv"
 save_intermediate: true
 experiment_type: "summarize"
 
@@ -16,7 +16,7 @@ summarizer_model: "accounts/fireworks/models/deepseek-v3-0324"
 summarizer_model_provider: "fireworks"
 
 # Generation parameters
-max_tokens: 32768
+max_tokens: 10000
 temperature: 0.6
 top_p: 0.95
 top_k: 40
@@ -24,7 +24,7 @@ presence_penalty: 0.0
 frequency_penalty: 0.0
 
 # Iteration parameters
-max_iterations: 4 
+max_iterations: 2
 continue_after_correct: true
 
 # Summarization parameters
