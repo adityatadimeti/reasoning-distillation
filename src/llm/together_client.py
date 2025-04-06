@@ -110,7 +110,9 @@ class TogetherModelClient(ModelClient):
                     # Get retry-after header or use exponential backoff with jitter
                     retry_after = response.headers.get('Retry-After')
                     if retry_after:
-                        sleep_time = float(retry_after)
+                        # Add jitter to the Retry-After value to avoid synchronized retries
+                        base_sleep_time = float(retry_after)
+                        sleep_time = base_sleep_time + random.uniform(0, 3)  # Add up to 3 seconds of jitter
                     else:
                         # Exponential backoff with jitter, capped at 60 seconds (1 minute)
                         sleep_time = backoff_time + random.uniform(0, 1)
@@ -211,7 +213,9 @@ class TogetherModelClient(ModelClient):
                             # Get retry-after header or use exponential backoff with jitter
                             retry_after = response.headers.get('Retry-After')
                             if retry_after:
-                                sleep_time = float(retry_after)
+                                # Add jitter to the Retry-After value to avoid synchronized retries
+                                base_sleep_time = float(retry_after)
+                                sleep_time = base_sleep_time + random.uniform(0, 3)  # Add up to 3 seconds of jitter
                             else:
                                 # Exponential backoff with jitter, capped at 60 seconds (1 minute)
                                 sleep_time = backoff_time + random.uniform(0, 1)
