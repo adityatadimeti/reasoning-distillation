@@ -54,7 +54,7 @@ class TogetherModelClient(ModelClient):
         presence_penalty: float,
         frequency_penalty: float,
         stream: bool = False,   
-        max_retries: int = 15,
+        max_retries: int = 50,  # Increased from 15 to 50 for better handling of rate limits
         **kwargs
     ) -> Union[Dict[str, Any], Iterator[Dict[str, Any]]]:
         """
@@ -112,9 +112,9 @@ class TogetherModelClient(ModelClient):
                     if retry_after:
                         sleep_time = float(retry_after)
                     else:
-                        # Exponential backoff with jitter
+                        # Exponential backoff with jitter, capped at 60 seconds (1 minute)
                         sleep_time = backoff_time + random.uniform(0, 1)
-                        backoff_time *= 2  # Double the backoff time for next retry
+                        backoff_time = min(backoff_time * 2, 60)  # Double the backoff time but cap at 60 seconds
                     
                     logger.warning(f"Rate limit hit, retrying in {sleep_time:.2f} seconds (retry {retry_count}/{max_retries})")
                     time.sleep(sleep_time)
@@ -156,7 +156,7 @@ class TogetherModelClient(ModelClient):
         presence_penalty: float,
         frequency_penalty: float,
         stream: bool = False,   
-        max_retries: int = 15,
+        max_retries: int = 50,  # Increased from 15 to 50 for better handling of rate limits
         **kwargs
     ) -> Union[Dict[str, Any], AsyncIterator[Dict[str, Any]]]:
         """
@@ -213,9 +213,9 @@ class TogetherModelClient(ModelClient):
                             if retry_after:
                                 sleep_time = float(retry_after)
                             else:
-                                # Exponential backoff with jitter
+                                # Exponential backoff with jitter, capped at 60 seconds (1 minute)
                                 sleep_time = backoff_time + random.uniform(0, 1)
-                                backoff_time *= 2  # Double the backoff time for next retry
+                                backoff_time = min(backoff_time * 2, 60)  # Double the backoff time but cap at 60 seconds
                             
                             logger.warning(f"Rate limit hit, retrying in {sleep_time:.2f} seconds (retry {retry_count}/{max_retries})")
                             await asyncio.sleep(sleep_time)
