@@ -109,6 +109,17 @@ h2 {
     background-color: #f8d7da;
 }
 
+/* New problem status colors based on answer progression */
+.problem-card.improved {
+    border-left-color: #007bff;
+    background-color: #cce5ff;
+}
+
+.problem-card.regressed {
+    border-left-color: #6f42c1;
+    background-color: #e2d9f3;
+}
+
 #model-output {
     padding: 15px;
     margin: 0;
@@ -173,15 +184,18 @@ h2 {
     display: inline-block;
     margin-right: 15px;
     padding: 3px 8px;
-    background-color: #e9f7ef;
+    background-color: #f8f9fa;
     border-radius: 4px;
-    border: 1px solid #d5f5e3;
+    border: 1px solid #dee2e6;
+    color: #495057;
 }
 
 .progression-item.correct {
     background-color: #d4edda;
     border-color: #c3e6cb;
     color: #155724;
+    font-weight: bold;
+    box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.25);
 }
 
 .progression-item.incorrect {

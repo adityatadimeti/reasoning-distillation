@@ -18,11 +18,29 @@ function updateAnswerProgressionUI(problemId) {
     
     let html = '';
     
+    // Track correctness across iterations for problem card coloring
+    let firstIterationCorrect = false;
+    let anyLaterIterationCorrect = false;
+    let anyLaterIterationIncorrect = false;
+    let allCorrect = true;
+    let allIncorrect = true;
+    
     // Create a progression item for each iteration
-    sortedIterations.forEach(iteration => {
+    sortedIterations.forEach((iteration, index) => {
         const iterData = outputs[iteration];
         const answer = iterData.answer || 'No answer';
-        const isCorrect = iterData.correct === true;
+        const isCorrect = iterData.is_correct === true;
+        
+        // Update tracking variables for problem card coloring
+        if (index === 0) {
+            firstIterationCorrect = isCorrect;
+        } else {
+            if (isCorrect) anyLaterIterationCorrect = true;
+            if (!isCorrect) anyLaterIterationIncorrect = true;
+        }
+        
+        if (isCorrect) allIncorrect = false;
+        if (!isCorrect) allCorrect = false;
         
         // Create a progression item with appropriate styling based on correctness
         html += `<span class="progression-item ${isCorrect ? 'correct' : 'incorrect'}">`;
@@ -31,6 +49,63 @@ function updateAnswerProgressionUI(problemId) {
     });
     
     progressionContainer.innerHTML = html || '<div class="no-data">No answer progression available</div>';
+    
+    // Update problem card color based on answer progression
+    const problemCard = document.getElementById(`problem-${problemId}`);
+    if (problemCard) {
+        // Log debugging information
+        console.log(`Problem ${problemId} status:`, {
+            firstIterationCorrect,
+            anyLaterIterationCorrect,
+            anyLaterIterationIncorrect,
+            allCorrect,
+            allIncorrect,
+            currentClasses: [...problemCard.classList],
+            iterations: sortedIterations.map(iter => ({
+                iteration: iter,
+                isCorrect: outputs[iter].is_correct === true,
+                answer: outputs[iter].answer,
+                correctAnswer: outputs[iter].correct_answer,
+                rawData: outputs[iter]
+            }))
+        });
+        
+        // Log each iteration's correctness explicitly
+        sortedIterations.forEach((iter, idx) => {
+            const iterData = outputs[iter];
+            console.log(`Problem ${problemId}, Iteration ${iter}: `, {
+                isCorrect: iterData.is_correct === true,
+                answer: iterData.answer,
+                correctAnswer: iterData.correct_answer,
+                rawIsCorrect: iterData.is_correct
+            });
+        });
+        
+        // Remove existing status classes
+        problemCard.classList.remove('correct', 'incorrect', 'improved', 'regressed');
+        
+        // Apply new status class based on progression
+        if (allCorrect) {
+            problemCard.classList.add('correct');
+            console.log(`Problem ${problemId}: Setting to 'correct' (all iterations correct)`);
+        } else if (allIncorrect) {
+            problemCard.classList.add('incorrect');
+            console.log(`Problem ${problemId}: Setting to 'incorrect' (all iterations incorrect)`);
+        } else if (!firstIterationCorrect && anyLaterIterationCorrect) {
+            // Started incorrect but improved to correct in later iterations
+            problemCard.classList.add('improved');
+            console.log(`Problem ${problemId}: Setting to 'improved' (started incorrect, became correct)`);
+        } else if (firstIterationCorrect && anyLaterIterationIncorrect) {
+            // Started correct but regressed to incorrect in later iterations
+            problemCard.classList.add('regressed');
+            console.log(`Problem ${problemId}: Setting to 'regressed' (started correct, became incorrect)`);
+        } else {
+            console.log(`Problem ${problemId}: No condition matched, keeping current styling`);
+        }
+        
+        // Log final classes
+        console.log(`Problem ${problemId} final classes:`, [...problemCard.classList]);
+    }
 }
 
 // Create or update the iterations UI

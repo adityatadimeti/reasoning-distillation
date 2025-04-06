@@ -119,6 +119,11 @@ function initializeStaticDashboard(results) {
         activeProblemId = firstProblemId;
         DashboardUI.updateProblemDisplay(firstProblemId);
     }
+    
+    // Analyze problem correctness patterns after a short delay to ensure everything is loaded
+    setTimeout(() => {
+        analyzeAllProblemsCorrectness();
+    }, 1000);
 }
 
 // Process static problem result
@@ -204,6 +209,90 @@ function updateExperimentState(data) {
     }
 }
 
+// Analyze all problems to find ones with mixed correctness
+function analyzeAllProblemsCorrectness() {
+    console.log('Analyzing correctness patterns for all problems...');
+    const improvedProblems = [];
+    const regressedProblems = [];
+    const allCorrectProblems = [];
+    const allIncorrectProblems = [];
+    
+    // Loop through all problems
+    for (const problemId in window.problemOutputs) {
+        const outputs = window.problemOutputs[problemId];
+        if (!outputs) continue;
+        
+        // Sort iterations
+        const sortedIterations = Object.keys(outputs)
+            .map(Number)
+            .sort((a, b) => a - b);
+        
+        if (sortedIterations.length === 0) continue;
+        
+        // Track correctness patterns
+        let firstIterationCorrect = false;
+        let anyLaterIterationCorrect = false;
+        let anyLaterIterationIncorrect = false;
+        let allCorrect = true;
+        let allIncorrect = true;
+        
+        // Check each iteration
+        sortedIterations.forEach((iteration, index) => {
+            const iterData = outputs[iteration];
+            if (!iterData) return;
+            
+            const isCorrect = iterData.is_correct === true;
+            
+            // Update tracking variables
+            if (index === 0) {
+                firstIterationCorrect = isCorrect;
+            } else {
+                if (isCorrect) anyLaterIterationCorrect = true;
+                if (!isCorrect) anyLaterIterationIncorrect = true;
+            }
+            
+            if (isCorrect) allIncorrect = false;
+            if (!isCorrect) allCorrect = false;
+        });
+        
+        // Categorize the problem
+        if (allCorrect) {
+            allCorrectProblems.push(problemId);
+        } else if (allIncorrect) {
+            allIncorrectProblems.push(problemId);
+        } else if (!firstIterationCorrect && anyLaterIterationCorrect) {
+            improvedProblems.push(problemId);
+        } else if (firstIterationCorrect && anyLaterIterationIncorrect) {
+            regressedProblems.push(problemId);
+        }
+    }
+    
+    // Log the results
+    console.log('Correctness Analysis Results:', {
+        improvedProblems,
+        regressedProblems,
+        allCorrectProblems,
+        allIncorrectProblems
+    });
+    
+    // Force update the problem cards for improved and regressed problems
+    improvedProblems.forEach(problemId => {
+        const problemCard = document.getElementById(`problem-${problemId}`);
+        if (problemCard) {
+            problemCard.classList.remove('correct', 'incorrect');
+            problemCard.classList.add('improved');
+        }
+    });
+    
+    regressedProblems.forEach(problemId => {
+        const problemCard = document.getElementById(`problem-${problemId}`);
+        if (problemCard) {
+            problemCard.classList.remove('correct', 'incorrect');
+            problemCard.classList.add('regressed');
+        }
+    });
+}
+
 // Dashboard Core exports
 window.DashboardCore = {
     initializeDashboard,
@@ -211,7 +300,8 @@ window.DashboardCore = {
     setActiveProblem,
     getActiveProblem,
     getExperimentState,
-    updateExperimentState
+    updateExperimentState,
+    analyzeAllProblemsCorrectness
 };
 
 // Initialize when the document is ready
