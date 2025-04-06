@@ -1,0 +1,24 @@
+{
+   "accounts/fireworks/models/llama4-maverick-instruct-basic": {"input": 0.22, "output": 0.88},
+    "accounts/fireworks/models/llama4-scout-instruct-basic": {"input": 0.15, "output": 0.60},
+    "accounts/fireworks/models/deepseek-r1-fast": {"input": 3.00, "output": 8.00},
+    "accounts/fireworks/models/llama-v3p1-405b-instruct": {"input": 3.00, "output": 3.00},
+    "accounts/fireworks/models/deepseek-v3": {"input": 0.90, "output": 0.90},
+    "accounts/fireworks/models/deepseek-v3-0324": {"input": 0.90, "output": 0.90},
+    "accounts/fireworks/models/llama-v3p1-70b-instruct": {"input": 0.90, "output": 0.90},
+    "accounts/fireworks/models/qwen2p5-coder-32b-instruct": {"input": 0.90, "output": 0.90},
+    "accounts/fireworks/models/yi-large": {"input": 3.00, "output": 3.00},
+    "accounts/fireworks/models/deepseek-r1-basic": {"input": 0.55, "output": 2.19},
+    "accounts/fireworks/models/llama-v3p1-70b-instruct-long": {"input": 0.90, "output": 0.90},
+    "accounts/fireworks/models/qwq-32b-instruct": {"input": 0.90, "output": 0.90},
+    "accounts/fireworks/models/qwen2p5-v1-32b-instruct": {"input": 0.90, "output": 0.90},
+    "accounts/fireworks/models/qwen-v3p1-405b-instruct-long": {"input": 3.00, "output": 3.00},
+    "accounts/fireworks/models/llama-v3p2-90b-vision-instruct": {"input": 0.90, "output": 0.90},
+    "accounts/fireworks/models/qwen2p5-v2-72b-instruct": {"input": 0.90, "output": 0.90},
+    "accounts/fireworks/models/llama-guard-3-8b-instruct-basic": {"input": 0.20, "output": 0.20},
+    "accounts/fireworks/models/phi-3p5-vision-instruct-basic": {"input": 0.20, "output": 0.20},
+    "accounts/fireworks/models/dobby-unhinged-llama-v3p1-70b-instruct-basic": {"input": 0.90, "output": 0.90},
+    "accounts/fireworks/models/mixtral-moe-8x22b-instruct-basic": {"input": 1.20, "output": 1.20},
+    "accounts/fireworks/models/llama-v3p1-70b-instruct-basic-long-contexts-enabled": {"input": 0.90, "output": 0.90}
+ 
+}

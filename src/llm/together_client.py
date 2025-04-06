@@ -57,6 +57,9 @@ class TogetherModelClient(ModelClient):
         Args:
             input_price_per_million: Price per million input tokens
             output_price_per_million: Price per million output tokens
+            
+        Raises:
+            ValueError: If pricing information is not available for the model
         """
         # Use provided pricing if available
         if input_price_per_million is not None and output_price_per_million is not None:
@@ -64,22 +67,19 @@ class TogetherModelClient(ModelClient):
             self.output_price_per_million_tokens = output_price_per_million
             return
         
-        # Default pricing for known models
-        model_pricing = {
-            # Together AI models pricing
-            "togethercomputer/llama-2-70b": {"input": 0.9, "output": 0.9},
-            "togethercomputer/llama-2-7b": {"input": 0.2, "output": 0.2},
-            "mistralai/Mixtral-8x7B-Instruct-v0.1": {"input": 0.6, "output": 0.6},
-            "meta-llama/Llama-2-70b-chat-hf": {"input": 0.9, "output": 0.9},
-            "meta-llama/Llama-2-13b-chat-hf": {"input": 0.225, "output": 0.225},
-            "meta-llama/Llama-2-7b-chat-hf": {"input": 0.2, "output": 0.2},
-            "NousResearch/Nous-Hermes-2-Yi-34B": {"input": 0.9, "output": 0.9},
-            # Default pricing for unknown models
-            "default": {"input": 1.00, "output": 1.00}
-        }
+        # Load pricing from JSON file
+        pricing_file = os.path.join(os.path.dirname(__file__), "pricing", "together_prices.json")
+        try:
+            with open(pricing_file, "r") as f:
+                model_pricing = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            raise ValueError(f"Error loading pricing information: {str(e)}")
         
-        # Get pricing for the model or use default
-        pricing = model_pricing.get(self.model_name, model_pricing["default"])
+        # Get pricing for the model
+        if self.model_name not in model_pricing:
+            raise ValueError(f"Pricing information not available for model: {self.model_name}")
+            
+        pricing = model_pricing[self.model_name]
         
         self.input_price_per_million_tokens = pricing["input"]
         self.output_price_per_million_tokens = pricing["output"]

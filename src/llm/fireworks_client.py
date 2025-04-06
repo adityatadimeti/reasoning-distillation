@@ -57,6 +57,9 @@ class FireworksModelClient(ModelClient):
         Args:
             input_price_per_million: Price per million input tokens
             output_price_per_million: Price per million output tokens
+            
+        Raises:
+            ValueError: If pricing information is not available for the model
         """
         # Use provided pricing if available
         if input_price_per_million is not None and output_price_per_million is not None:
@@ -64,21 +67,19 @@ class FireworksModelClient(ModelClient):
             self.output_price_per_million_tokens = output_price_per_million
             return
         
-        # Default pricing for known models
-        model_pricing = {
-            # Llama 4 models
-            "accounts/fireworks/models/llama-v4-7b": {"input": 0.27, "output": 0.85},
-            "accounts/fireworks/models/llama-v4-7b-instruct": {"input": 0.27, "output": 0.85},
-            "accounts/fireworks/models/llama-v4-70b": {"input": 1.70, "output": 2.50},
-            "accounts/fireworks/models/llama-v4-70b-instruct": {"input": 1.70, "output": 2.50},
-            # DeepSeek models
-            "accounts/fireworks/models/deepseek-v2": {"input": 0.90, "output": 0.90},
-            # Default pricing for unknown models
-            "default": {"input": 1.00, "output": 1.00}
-        }
+        # Load pricing from JSON file
+        pricing_file = os.path.join(os.path.dirname(__file__), "pricing", "fireworks_prices.json")
+        try:
+            with open(pricing_file, "r") as f:
+                model_pricing = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            raise ValueError(f"Error loading pricing information: {str(e)}")
         
-        # Get pricing for the model or use default
-        pricing = model_pricing.get(self.model_name, model_pricing["default"])
+        # Get pricing for the model
+        if self.model_name not in model_pricing:
+            raise ValueError(f"Pricing information not available for model: {self.model_name}")
+            
+        pricing = model_pricing[self.model_name]
         
         self.input_price_per_million_tokens = pricing["input"]
         self.output_price_per_million_tokens = pricing["output"]
