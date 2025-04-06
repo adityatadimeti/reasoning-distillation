@@ -255,12 +255,21 @@ def run_experiment(
         # Run in sequential mode
         results = experiment.run(problems)
     
-    # Final completion status
+    # Calculate metrics including token usage and cost
+    metrics = experiment.calculate_metrics()
+    
+    # Log token usage and cost information
+    logger.info(f"Total token usage: {metrics['token_usage']}")
+    logger.info(f"Total cost: ${metrics['cost_info']['total_cost']:.4f}")
+    
+    # Final completion status with token usage and cost
     if dashboard:
-        logger.info("Sending completion status update with config")
+        logger.info("Sending completion status update with metrics")
         dashboard.update_experiment_status({
             "status": "Completed",
-            "completed": len(problems)
+            "completed": len(problems),
+            "token_usage": metrics['token_usage'],
+            "cost_info": metrics['cost_info']
         })
     
     # Save results
@@ -268,7 +277,8 @@ def run_experiment(
     
     return {
         "results": results,
-        "config": config
+        "config": config,
+        "metrics": metrics
     }
 
 async def run_experiment_async(
@@ -331,12 +341,20 @@ async def run_experiment_async(
     # Run experiment in parallel
     results = await experiment.run_parallel(problems, max_concurrency=max_concurrency)
     
+    # Calculate metrics including token usage and cost
+    metrics = experiment.calculate_metrics()
+    
+    # Log token usage and cost information
+    logger.info(f"Total token usage: {metrics['token_usage']}")
+    logger.info(f"Total cost: ${metrics['cost_info']['total_cost']:.4f}")
+    
     # Save results
     experiment.save_results()
     
     return {
         "results": results,
-        "config": config
+        "config": config,
+        "metrics": metrics
     }
 
 def main():

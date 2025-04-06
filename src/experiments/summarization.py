@@ -502,17 +502,20 @@ class SummarizationExperiment(BaseExperiment):
                 combined_chunk = "".join(buffered_chunks)
                 self.dashboard.stream_summary_chunk(problem_id, combined_chunk, iteration)
             
-            # Get finish_reason for the summary
-            # Make a non-streaming call with the same parameters to get finish_reason
-            if hasattr(self.summarizer, 'generate_completion') and 'fireworks' in str(self.summarizer.__class__).lower():
+            # Get finish_reason for the summary and track token usage and cost
+            # Make a non-streaming call with the same parameters
+            token_usage = None
+            cost_info = None
+            
+            if hasattr(self.summarizer, 'generate_completion'):
                 try:
                     # Create the prompt
                     summary_prompt = prompt_template.replace("{reasoning}", reasoning_trace)
                     if "{question}" in prompt_template:
                         summary_prompt = summary_prompt.replace("{question}", question)
                         
-                    # Make a non-streaming API call to get finish_reason
-                    logger.debug(f"Making non-streaming call to get summary finish_reason for problem {problem_id}, iteration {iteration}")
+                    # Make a non-streaming API call to get finish_reason and token usage
+                    logger.debug(f"Making non-streaming call to get summary finish_reason and token usage for problem {problem_id}, iteration {iteration}")
                     summary_response = self.summarizer.generate_response(
                         summary_prompt,
                         stream=False,
@@ -522,15 +525,21 @@ class SummarizationExperiment(BaseExperiment):
                         top_k=self.config.get("summary_top_k"),
                         presence_penalty=self.config.get("summary_presence_penalty"),
                         frequency_penalty=self.config.get("summary_frequency_penalty"),
-                        verbose=False  # Don't log this auxiliary call
+                        verbose=False,  # Don't log this auxiliary call
+                        return_usage=True  # Request token usage information
                     )
                     
-                    # Extract the finish_reason from the response
-                    if isinstance(summary_response, tuple):
-                        _, finish_reason = summary_response
+                    # Extract the finish_reason, token usage, and cost info from the response
+                    if isinstance(summary_response, tuple) and len(summary_response) >= 3:
+                        _, finish_reason, token_usage, cost_info = summary_response
                         logger.debug(f"Got summary finish_reason '{finish_reason}' for problem {problem_id}, iteration {iteration}")
+                        logger.info(f"Summary token usage for problem {problem_id}, iteration {iteration}: {token_usage}")
+                        logger.info(f"Summary cost info for problem {problem_id}, iteration {iteration}: {cost_info}")
+                        
+                        # Track token usage and cost for the summary
+                        self.track_token_usage_and_cost(problem_id, token_usage, cost_info, iteration, "summary")
                 except Exception as e:
-                    logger.warning(f"Error getting summary finish_reason: {str(e)}. Using 'unknown' instead.")
+                    logger.warning(f"Error getting summary finish_reason and token usage: {str(e)}. Using 'unknown' instead.")
             
             # Send a final empty chunk with the finish_reason
             if self.dashboard:
@@ -835,7 +844,7 @@ class SummarizationExperiment(BaseExperiment):
         
         return result
     
-    def _stream_model_output(self, problem_id: str, prompt: str, iteration: int = 0) -> Tuple[str, str]:
+    def _stream_model_output(self, problem_id: str, prompt: str, iteration: int = 0, step: str = "reasoning") -> Tuple[str, str]:
         """
         Generic method to stream model output for any iteration and update dashboard in real-time.
         
@@ -843,6 +852,7 @@ class SummarizationExperiment(BaseExperiment):
             problem_id: ID of the problem
             prompt: The prompt to send to the model
             iteration: Iteration number (0 = initial, 1 = first improvement, etc.)
+            step: Step name (e.g., "reasoning", "summary")
             
         Returns:
             Tuple of (full_response, finish_reason)
@@ -891,13 +901,17 @@ class SummarizationExperiment(BaseExperiment):
                 logger.debug(f"Streaming iteration {iteration} chunk to problem ID: {problem_id}")
                 self.dashboard.stream_model_output(problem_id, chunk, iteration=iteration)
         
-        # If using FireworksModelClient, make an API call to get the finish_reason
+        # For streaming responses, we need to make a non-streaming call to get token usage and cost info
+        token_usage = None
+        cost_info = None
+        
+        # If using FireworksModelClient, make an API call to get the finish_reason and token usage
         # This is more reliable than trying to extract it from streaming chunks
         if hasattr(self.reasoning_model, 'generate_completion') and 'fireworks' in str(self.reasoning_model.__class__).lower():
             try:
-                # Make a non-streaming API call with the same parameters but very small max_tokens
-                # We just want to get the finish_reason, not the full content again
-                logger.debug(f"Making non-streaming call to get finish_reason for problem {problem_id}, iteration {iteration}")
+                # Make a non-streaming API call with the same parameters
+                # We want to get the finish_reason and token usage information
+                logger.debug(f"Making non-streaming call to get finish_reason and token usage for problem {problem_id}, iteration {iteration}")
                 response = self.reasoning_model.generate_response(
                     prompt,
                     stream=False,
@@ -907,20 +921,51 @@ class SummarizationExperiment(BaseExperiment):
                     top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
                     presence_penalty=self.config["presence_penalty"],
                     frequency_penalty=self.config["frequency_penalty"],
-                    verbose=False  # Don't log this auxiliary call
+                    verbose=False,  # Don't log this auxiliary call
+                    return_usage=True  # Request token usage information
                 )
                 
-                # Extract the finish_reason from the response
-                if isinstance(response, tuple):
-                    _, finish_reason = response
+                # Extract the finish_reason and token usage from the response
+                if isinstance(response, tuple) and len(response) >= 3:
+                    _, finish_reason, token_usage, cost_info = response
                     logger.debug(f"Got finish_reason '{finish_reason}' for problem {problem_id}, iteration {iteration}")
+                    logger.info(f"Token usage for problem {problem_id}, iteration {iteration}: {token_usage}")
+                    logger.info(f"Cost info for problem {problem_id}, iteration {iteration}: {cost_info}")
+                    
+                    # Track token usage and cost
+                    self.track_token_usage_and_cost(problem_id, token_usage, cost_info, iteration, step)
                 
             except Exception as e:
-                logger.warning(f"Error getting finish_reason: {str(e)}. Using 'unknown' instead.")
+                logger.warning(f"Error getting finish_reason and token usage: {str(e)}. Using 'unknown' instead.")
                 finish_reason = "unknown"
         else:
             # For non-Fireworks models, use 'streaming' as the finish_reason
+            # and try to get token usage information if available
             finish_reason = "streaming"
+            try:
+                # Make a non-streaming call to get token usage
+                response = self.reasoning_model.generate_response(
+                    prompt,
+                    stream=False,
+                    max_tokens=self.config["max_tokens"],
+                    temperature=self.config["temperature"],
+                    top_p=self.config["top_p"],
+                    top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
+                    presence_penalty=self.config["presence_penalty"],
+                    frequency_penalty=self.config["frequency_penalty"],
+                    verbose=False,
+                    return_usage=True
+                )
+                
+                if isinstance(response, tuple) and len(response) >= 3:
+                    _, _, token_usage, cost_info = response
+                    logger.info(f"Token usage for problem {problem_id}, iteration {iteration}: {token_usage}")
+                    logger.info(f"Cost info for problem {problem_id}, iteration {iteration}: {cost_info}")
+                    
+                    # Track token usage and cost
+                    self.track_token_usage_and_cost(problem_id, token_usage, cost_info, iteration, step)
+            except Exception as e:
+                logger.warning(f"Error getting token usage: {str(e)}")
                 
         # If the client wasn't ready, ensure all chunks are sent now
         if self.dashboard and hasattr(self.dashboard, 'client_ready') and self.dashboard.client_ready:

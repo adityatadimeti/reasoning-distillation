@@ -2,18 +2,8 @@
     "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo": {"input": 0.88, "output": 0.88},
     "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8": {"input": 0.27, "output": 0.85},
     "meta-llama/Llama-4-Scout-17B-16E-Instruct-FP8": {"input": 0.18, "output": 0.59},
-    "meta-llama/Llama-3.1-405B-Instruct-Turbo": {"input": 3.00, "output": 3.00},
-    "deepseek/DeepSeek-V3": {"input": 0.90, "output": 0.90},
-    "deepseek/DeepSeek-V3-0324": {"input": 0.90, "output": 0.90},
-    "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free": {"input": 0.90, "output": 0.90},
-    "qwen/Qwen2p5-Coder-32B-Instruct": {"input": 0.90, "output": 0.90},
-    "deepseek/Yi-Large": {"input": 3.00, "output": 3.00},
-    "deepseek/DeepSeek-R1-Basic-Llama70B-Free": {"input": 0.55, "output": 2.19},
-    "meta-llama/Llama-3.1-70B-Instruct-Turbo-FP8-Free": {"input": 0.90, "output": 0.90},
-    "qwen/QwQ-32B-Instruct-Free": {"input": 0.90, "output": 0.90},
-    "qwen/Qwen2p5-V1-32B-Instruct-Free": {"input": 0.90, "output": 0.90},
-    "meta-llama/Llama-V3p1-405B-Instruct-Turbo-FP8-Free": {"input": 3.00, "output": 3.00},
-    "meta-llama/Llama-V3p2-90B-Vision-Instruct-Free-FP8-Free": {"input": 0.90, "output": 0.90},
-    "qwen/Qwen2p5-VL72B-Instruct-Free-FP8-Free": {"input": 1.95, "output": 8.00},
-    "meta-llama/Llama-Guard-V3p1-8B-Instruct-Basic-Free-FP8-Free": {"input": 0.20, "output": 0.20}
+    "deepseek/DeepSeek-V3-0324": {"input": 1.25, "output": 1.25},
+    "deepseek-ai/DeepSeek-R1-Distill-Llama-70B": {"input": 2.00, "output": 2.00},
+    "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B": {"input": 1.60, "output": 1.60},
+    "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B": {"input": 0.18, "output": 0.18}
 }
