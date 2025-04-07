@@ -56,10 +56,11 @@ aime_diff_approach:
 
 gpqa_diff_approach:
   template: |
-    Solve the following problem. Provide your final answer in \boxed{X} format, where X is the letter of the correct choice.
+    What is the correct answer to this question:
     
-    PROBLEM:
     {question}
+
+    Answer in the format "The correct answer is (insert answer here)."
     
     Here are summaries of previous solution attempts:
     {summaries}

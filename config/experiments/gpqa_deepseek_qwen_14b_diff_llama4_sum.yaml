@@ -5,6 +5,9 @@ data_path: "./data/gpqa_diamond_mc.csv"
 save_intermediate: true
 experiment_type: "summarize"
 
+# Answer extraction configuration
+answer_extractor: "gpqa_mc"  # Use the GPQA multiple choice extractor
+
 # Dashboard configuration
 dashboard_port: 8080
 
@@ -42,3 +45,6 @@ prompts:
   reasoning: "gpqa_mc"  # This references the version in config/prompts/reasoning.yaml
   summarize: "approach_focused_summarization"  # This references the version in config/prompts/summarize.yaml
   improved: "gpqa_diff_approach" # This references the version in config/prompts/improved.yaml
+
+# Prompt format for GPQA multiple choice
+# Format: What is the correct answer to this question: [QUESTION] Answer in the format "The correct answer is (insert answer here)."
