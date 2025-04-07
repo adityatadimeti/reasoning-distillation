@@ -28,6 +28,7 @@ continue_after_correct: true
 # Summarization parameters
 enable_summarization: true
 allow_fallback: true  # Enable fallback to use full response when think tags are missing
+extract_post_think_summary: true  # Extract and use only the post-think text from summary outputs
 summary_max_tokens: 32768
 summary_temperature: 0.6
 summary_top_p: 0.95

@@ -202,3 +202,35 @@ def extract_reasoning_trace(text: str, allow_fallback: bool = False) -> Optional
         # If fallback is not allowed, return None
         logger.warning("Fallback is disabled, returning None instead of original text")
         return None
+
+def extract_post_think_content(text: str) -> Optional[str]:
+    """
+    Extract content that appears after the last </think> tag in the model output.
+    This is useful when the model generates reasoning in <think> tags followed by a summary or answer.
+    
+    Args:
+        text: The full text output from the model
+        
+    Returns:
+        The extracted post-think content as a string, or None if no </think> tag is found
+    """
+    if not text:
+        return None
+    
+    # Find the last occurrence of </think>
+    last_think_end = text.rfind('</think>')
+    
+    if last_think_end == -1:
+        # No </think> tag found
+        logger.warning("No </think> tag found in the text")
+        return None
+    
+    # Extract everything after the last </think> tag
+    post_think_content = text[last_think_end + len('</think>'):].strip()
+    
+    if post_think_content:
+        logger.info(f"Successfully extracted post-think content: {len(post_think_content)} characters")
+        return post_think_content
+    else:
+        logger.warning("No content found after the last </think> tag")
+        return None

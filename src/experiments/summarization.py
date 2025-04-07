@@ -11,7 +11,7 @@ from src.llm.base_client import TokenUsage, CostInfo
 
 from src.experiments.base import BaseExperiment
 from src.llm.model_factory import create_model_client
-from src.reasoning.extractor import extract_answer, extract_reasoning_trace, extract_answer_with_config
+from src.reasoning.extractor import extract_reasoning_trace, extract_answer_with_config, extract_post_think_content
 from src.reasoning.summarizer import summarize_reasoning, summarize_reasoning_async
 from src.dashboard.server import DashboardServer
 
@@ -366,15 +366,27 @@ class SummarizationExperiment(BaseExperiment):
             # Log the finish reason for the summary
             logger.info(f"Problem {problem_id}, summary {current_iteration} finish reason: {summary_finish_reason}")
             
+            # Extract post-think content from summary if enabled
+            post_think_summary = summary
+            if self.config.get("extract_post_think_summary", False):
+                extracted = extract_post_think_content(summary)
+                if extracted is not None:
+                    post_think_summary = extracted
+                    logger.info(f"Extracted post-think content from summary for problem {problem_id}, iteration {current_iteration}")
+                else:
+                    logger.info(f"No post-think content found in summary for problem {problem_id}, iteration {current_iteration}. Using full summary.")
+            
             # Add summary to the collection with iteration number
             all_summaries.append({
                 "iteration": current_iteration,
                 "summary": summary,
+                "post_think_summary": post_think_summary,
                 "finish_reason": summary_finish_reason
             })
             
             # This way the summary is associated with the reasoning it summarized
             result["iterations"][current_iteration]["summary"] = summary
+            result["iterations"][current_iteration]["post_think_summary"] = post_think_summary
             result["iterations"][current_iteration]["summary_finish_reason"] = summary_finish_reason
             
             # Prepare for next iteration
@@ -388,7 +400,9 @@ class SummarizationExperiment(BaseExperiment):
             # Build accumulated summaries text
             accumulated_summaries = ""
             for i, summary_item in enumerate(all_summaries):
-                accumulated_summaries += f"\n\nATTEMPT {summary_item['iteration']} SUMMARY:\n{summary_item['summary']}"
+                # Use post_think_summary if available and extract_post_think_summary is enabled
+                summary_text = summary_item.get("post_think_summary", summary_item["summary"]) if self.config.get("extract_post_think_summary", False) else summary_item["summary"]
+                accumulated_summaries += f"\n\nATTEMPT {summary_item['iteration']} SUMMARY:\n{summary_text}"
             
             # Create prompt for next iteration using accumulated summaries
             improved_prompt = improved_template.replace("{question}", question).replace("{summaries}", accumulated_summaries)
@@ -757,16 +771,28 @@ class SummarizationExperiment(BaseExperiment):
             # Log the finish reason for the summary
             logger.info(f"Problem {problem_id}, summary {current_iteration} finish reason: {summary_finish_reason}")
             
+            # Extract post-think content from summary if enabled
+            post_think_summary = summary
+            if self.config.get("extract_post_think_summary", False):
+                extracted = extract_post_think_content(summary)
+                if extracted is not None:
+                    post_think_summary = extracted
+                    logger.info(f"Extracted post-think content from summary for problem {problem_id}, iteration {current_iteration}")
+                else:
+                    logger.info(f"No post-think content found in summary for problem {problem_id}, iteration {current_iteration}. Using full summary.")
+            
             # Add summary to the collection with iteration number
             all_summaries.append({
                 "iteration": current_iteration,
                 "summary": summary,
+                "post_think_summary": post_think_summary,
                 "finish_reason": summary_finish_reason
             })
             
             # *** FIX: Update the current iteration with the summary before moving to the next iteration ***
             # This way the summary is associated with the reasoning it summarized
             result["iterations"][current_iteration]["summary"] = summary
+            result["iterations"][current_iteration]["post_think_summary"] = post_think_summary
             result["iterations"][current_iteration]["summary_finish_reason"] = summary_finish_reason
             
             # Prepare for next iteration
@@ -780,7 +806,9 @@ class SummarizationExperiment(BaseExperiment):
             # Build accumulated summaries text
             accumulated_summaries = ""
             for i, summary_item in enumerate(all_summaries):
-                accumulated_summaries += f"\n\nATTEMPT {summary_item['iteration']} SUMMARY:\n{summary_item['summary']}"
+                # Use post_think_summary if available and extract_post_think_summary is enabled
+                summary_text = summary_item.get("post_think_summary", summary_item["summary"]) if self.config.get("extract_post_think_summary", False) else summary_item["summary"]
+                accumulated_summaries += f"\n\nATTEMPT {summary_item['iteration']} SUMMARY:\n{summary_text}"
             
             # Create prompt for next iteration using accumulated summaries
             improved_prompt = improved_template.replace("{question}", question).replace("{summaries}", accumulated_summaries)
