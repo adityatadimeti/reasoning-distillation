@@ -49,12 +49,21 @@ function updateModelOutput(problemId) {
 function formatReasoning(text) {
     if (!text) return '';
     
-    // Replace special patterns
+    // Escape <think> and </think> tags to display them as raw text instead of HTML
     let formatted = text
+        // First preserve the <think> and </think> tags by replacing them with special markers
+        .replace(/<think>/g, '##THINK_OPEN##')
+        .replace(/<\/think>/g, '##THINK_CLOSE##')
+        
+        // Apply regular formatting patterns
         .replace(/\\boxed\{(.*?)\}/g, '<span class="boxed">$1</span>')
         .replace(/\\begin\{align\}([\s\S]*?)\\end\{align\}/g, '<div class="math-align">$1</div>')
         .replace(/\$(.*?)\$/g, '<span class="inline-math">$1</span>')
-        .replace(/\n/g, '<br>');
+        .replace(/\n/g, '<br>')
+        
+        // Restore the <think> and </think> tags with escaped characters so they display as text
+        .replace(/##THINK_OPEN##/g, '&lt;think&gt;')
+        .replace(/##THINK_CLOSE##/g, '&lt;/think&gt;');
     
     return formatted;
 }
@@ -108,7 +117,7 @@ function updateSummaryInfo(problemId) {
         return;
     }
     
-    summaryContentElem.textContent = summaryInfo;
+    summaryContentElem.innerHTML = formatReasoning(summaryInfo);
     summaryInfoElem.style.display = 'block';
     
     // Expand the summary section

@@ -238,7 +238,7 @@ function updateIterationsUI(problemId, handleScroll = true) {
             html += `<button class="toggle-btn" aria-expanded="true" title="Collapse section">−</button>`;
             html += `</div>`;
             html += `<div class="subsection-content" id="summary-${iteration}-content">`;
-            html += `<div class="summary-content">${iterData.summary}</div>`;
+            html += `<div class="summary-content">${DashboardUI.formatReasoning(iterData.summary)}</div>`;
             
             // Add summary finish reason display if available
             if (iterData.summary_finish_reason) {

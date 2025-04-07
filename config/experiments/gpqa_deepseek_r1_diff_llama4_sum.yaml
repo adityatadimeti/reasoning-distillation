@@ -1,0 +1,50 @@
+# Experiment configuration for DeepSeek R1 Distill Qwen 14B
+experiment_name: "gpqa_deepseek_r1_diff_llama4_sum"
+results_dir: "./results/gpqa_deepseek_r1_diff_llama4_sum"
+data_path: "./data/gpqa_diamond_mc.csv"
+save_intermediate: true
+experiment_type: "summarize"
+
+# Dashboard configuration
+dashboard_port: 8080
+
+# Model configuration
+reasoning_model: "accounts/fireworks/models/deepseek-r1"
+reasoning_model_provider: "fireworks"
+summarizer_type: "external"
+summarizer_model: "accounts/fireworks/models/llama4-maverick-instruct-basic"
+summarizer_model_provider: "fireworks"
+
+# Generation parameters
+max_tokens: 32768
+temperature: 0.6
+top_p: 0.95
+top_k: 40
+presence_penalty: 0.0
+frequency_penalty: 0.0
+
+# Iteration parameters
+max_iterations: 4
+continue_after_correct: true
+
+# Summarization parameters
+enable_summarization: true
+allow_fallback: true  # Enable fallback to use full response when think tags are missing
+summary_max_tokens: 32768
+summary_temperature: 0.6
+summary_top_p: 0.95
+summary_top_k: 40
+summary_presence_penalty: 0.0
+summary_frequency_penalty: 0.0
+
+# Prompt configurations
+prompts:
+  reasoning: "gpqa_mc"  # This references the version in config/prompts/reasoning.yaml
+  summarize: "approach_focused_summarization"  # This references the version in config/prompts/summarize.yaml
+  improved: "gpqa_diff_approach" # This references the version in config/prompts/improved.yaml
+
+# Answer extraction configuration
+answer_extractor: "gpqa_mc"  # Use the GPQA multiple choice extractor
+
+# Prompt format for GPQA multiple choice
+# Format: What is the correct answer to this question: [QUESTION] Answer in the format "The correct answer is (insert answer here)."
