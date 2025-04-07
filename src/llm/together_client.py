@@ -254,11 +254,15 @@ class TogetherModelClient(ModelClient):
                         headers=self.headers, 
                         json=payload
                     ) as response:
-                        # Check for rate limit errors (429) or service unavailable (503)
-                        if response.status in [429, 503]:
+                        # Check for rate limit errors (429) or server errors (5xx)
+                        if response.status == 429 or 500 <= response.status < 600:
                             retry_count += 1
                             if retry_count > max_retries:
-                                raise Exception(f"Together API rate limit exceeded after {max_retries} retries")
+                                # Different error message for rate limits vs server errors
+                                if response.status == 429:
+                                    raise Exception(f"Together API rate limit exceeded after {max_retries} retries")
+                                else:
+                                    raise Exception(f"Together API server error ({response.status}) persisted after {max_retries} retries")
                             
                             # Get retry-after header or use exponential backoff with jitter
                             retry_after = response.headers.get('Retry-After')
@@ -272,7 +276,8 @@ class TogetherModelClient(ModelClient):
                                 sleep_time = backoff_time + random.uniform(0, 1)
                                 backoff_time = min(backoff_time * 2, 60)  # Double the backoff time but cap at 60 seconds
                             
-                            logger.warning(f"Rate limit hit, retrying in {sleep_time:.2f} seconds (retry {retry_count}/{max_retries})")
+                            error_type = "Rate limit" if response.status == 429 else f"Server error {response.status}"
+                            logger.warning(f"{error_type} encountered, retrying in {sleep_time:.2f} seconds (retry {retry_count}/{max_retries})")
                             await asyncio.sleep(sleep_time)
                             continue
                         

@@ -349,7 +349,7 @@ class SummarizationExperiment(BaseExperiment):
                 )
                 
                 # Print the type and value of summary_response for debugging
-                logger.info(f"DEBUG: summary_response type: {type(summary_response)}, value: {summary_response}")
+                # logger.info(f"DEBUG: summary_response type: {type(summary_response)}, value: {summary_response}")
                 
                 # Handle the response from summarize_reasoning_async
                 # The response is a tuple of (content, finish_reason, token_usage, cost_info)

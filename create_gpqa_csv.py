@@ -8,8 +8,10 @@ from typing import List
 
 def format_question_with_choices(question_text: str, choices: List[str]) -> str:
     """Formats the question text with lettered choices."""
-    formatted_choices = "\n".join([f"({chr(65 + i)}) {choice}" for i, choice in enumerate(choices)])
-    return f"{question_text}\n\nChoices:\n{formatted_choices}"
+    # Strip each choice here during formatting
+    formatted_choices = "\n".join([f"({chr(65 + i)}) {choice.strip()}" for i, choice in enumerate(choices)])
+    # Also strip the main question text just in case
+    return f"{question_text.strip()}\n\nChoices:\n{formatted_choices}"
 
 def create_experiment_csv():
     """Loads the GPQA diamond dataset, formats it, and saves it to CSV."""
@@ -39,16 +41,35 @@ def create_experiment_csv():
                  print(f"Warning: Skipping example {i} due to missing data.")
                  continue
 
-            # Combine and shuffle choices
+            # Combine choices
             all_choices = incorrect_answers + [correct_answer_text]
-            random.shuffle(all_choices)
             
-            # Find the index and letter of the correct answer
-            correct_index = all_choices.index(correct_answer_text)
+            # --- Start Strip --- 
+            # Strip whitespace from each choice *before* shuffling and finding index
+            # Handle potential None values just in case
+            all_choices_stripped = [str(choice).strip() if choice is not None else "" for choice in all_choices]
+            correct_answer_text_stripped = correct_answer_text.strip()
+            question_text_stripped = question_text.strip()
+            # --- End Strip --- 
+            
+            # Shuffle the stripped choices
+            random.shuffle(all_choices_stripped)
+            
+            # Find the index and letter of the correct answer in the *stripped* list
+            try:
+                correct_index = all_choices_stripped.index(correct_answer_text_stripped)
+            except ValueError:
+                # This might happen if stripping somehow made the correct answer unrecognizable
+                print(f"Error: Stripped correct answer '{correct_answer_text_stripped}' not found in stripped choices for original index {i}.")
+                print(f"Original correct answer: {repr(correct_answer_text)}")
+                print(f"Stripped choices: {all_choices_stripped}")
+                continue # Skip this problematic entry
+
             correct_letter = chr(65 + correct_index) # A=0, B=1, C=2, D=3
             
-            # Format the question with choices
-            formatted_question = format_question_with_choices(question_text, all_choices)
+            # Format the question using the *stripped* question text and *stripped* choices
+            # The formatting function itself also applies strip for double safety
+            formatted_question = format_question_with_choices(question_text_stripped, all_choices_stripped)
             
             # Create the ID
             # Using a simple index-based ID for now. Adjust if the dataset has a unique ID field.
@@ -58,7 +79,7 @@ def create_experiment_csv():
             processed_data.append({
                 "id": problem_id,
                 "question": formatted_question,
-                "solution": correct_answer_text, # Using the text of the correct answer as the solution
+                "solution": correct_answer_text_stripped, # Use the stripped solution
                 "answer": correct_letter
             })
 
