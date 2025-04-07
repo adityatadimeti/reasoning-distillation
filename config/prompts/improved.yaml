@@ -54,13 +54,15 @@ aime_diff_approach:
 
     Based on these previous solution attempts, evaluate whether the most recent approach and answer are correct. If not, consider a different approach.
 
-gpqa:
+gpqa_diff_approach:
   template: |
+    Solve the following problem. Provide your final answer in \boxed{X} format, where X is the letter of the correct choice.
+    
+    PROBLEM:
     {question}
     
     Here are summaries of previous solution attempts:
     {summaries}
 
-    Continue reasoning with these summaries in mind.
+    Based on these previous solution attempts, evaluate whether the most recent approach and answer are correct. If not, consider a different approach. 
     
-    Provide your final answer in \boxed{X} format, where X is the letter of the correct choice.

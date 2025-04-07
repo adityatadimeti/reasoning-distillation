@@ -27,8 +27,10 @@ aime:
     PROBLEM:
     {question}
 
-gpqa:
+gpqa_mc:
   template: |
-    {question}
+    What is the correct answer to this question:
     
-    Provide your final answer in \boxed{X} format, where X is the letter of the correct choice.
+    {question}
+
+    Answer in the format "The correct answer is (insert answer here)."

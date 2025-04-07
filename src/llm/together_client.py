@@ -96,7 +96,7 @@ class TogetherModelClient(ModelClient):
         presence_penalty: float,
         frequency_penalty: float,
         stream: bool = False,   
-        max_retries: int = 500,  # Increased from 15 to 50 for better handling of rate limits
+        max_retries: int = 2000,  # Increased from 15 to 50 for better handling of rate limits
         **kwargs
     ) -> Union[Tuple[Dict[str, Any], TokenUsage, CostInfo], Iterator[Dict[str, Any]]]:
         """
@@ -208,7 +208,7 @@ class TogetherModelClient(ModelClient):
         presence_penalty: float,
         frequency_penalty: float,
         stream: bool = False,   
-        max_retries: int = 500,  # Increased from 50 to 500 for better handling of rate limits
+        max_retries: int = 2000,
         **kwargs
     ) -> Union[Tuple[Dict[str, Any], TokenUsage, CostInfo], AsyncIterator[Dict[str, Any]]]:
         """
