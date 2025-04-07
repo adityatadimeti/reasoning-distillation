@@ -409,10 +409,10 @@ function updateProblemStatistics(stats) {
     const categories = [
         { key: 'correct', label: 'All Correct', className: 'correct' },
         { key: 'incorrect', label: 'All Incorrect', className: 'incorrect' },
-        { key: 'improved', label: 'Improved (Not Final)', className: 'improved' },
-        { key: 'improvedFinal', label: 'Improved (Final)', className: 'improved-final' },
-        { key: 'regressed', label: 'Regressed (Not Final)', className: 'regressed' },
-        { key: 'regressedFinal', label: 'Regressed (Final)', className: 'regressed-final' }
+        { key: 'improved', label: 'Improved (Final Incorrect)', className: 'improved' },
+        { key: 'improvedFinal', label: 'Improved (Final Correct)', className: 'improved-final' },
+        { key: 'regressed', label: 'Regressed (Final Incorrect)', className: 'regressed' },
+        { key: 'regressedFinal', label: 'Regressed (Final Correct)', className: 'regressed-final' }
     ];
     
     // Only show categories with non-zero counts
