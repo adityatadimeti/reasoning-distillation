@@ -11,7 +11,7 @@ from src.llm.base_client import TokenUsage, CostInfo
 
 from src.experiments.base import BaseExperiment
 from src.llm.model_factory import create_model_client
-from src.reasoning.extractor import extract_answer, extract_reasoning_trace
+from src.reasoning.extractor import extract_answer, extract_reasoning_trace, extract_answer_with_config
 from src.reasoning.summarizer import summarize_reasoning, summarize_reasoning_async
 from src.dashboard.server import DashboardServer
 
@@ -259,8 +259,8 @@ class SummarizationExperiment(BaseExperiment):
         # Log the finish reason
         logger.info(f"Problem {problem_id}, iteration 0 finish reason: {iter0_finish_reason}")
         
-        # Extract answer from iteration 0 reasoning
-        iter0_answer = extract_answer(iter0_reasoning)
+        # Extract answer from iteration 0 reasoning using the configured extractor
+        iter0_answer = extract_answer_with_config(iter0_reasoning, self.config)
         
         # Check if answer is correct (simple string comparison)
         iter0_correct = False
@@ -349,7 +349,7 @@ class SummarizationExperiment(BaseExperiment):
                 )
                 
                 # Print the type and value of summary_response for debugging
-                logger.info(f"DEBUG: summary_response type: {type(summary_response)}, value: {summary_response}")
+                # logger.info(f"DEBUG: summary_response type: {type(summary_response)}, value: {summary_response}")
                 
                 # Handle the response from summarize_reasoning_async
                 # The response is a tuple of (content, finish_reason, token_usage, cost_info)
@@ -419,8 +419,8 @@ class SummarizationExperiment(BaseExperiment):
             # Log the finish reason
             logger.info(f"Problem {problem_id}, iteration {next_iteration} finish reason: {next_finish_reason}")
             
-            # Extract answer from next iteration reasoning
-            next_answer = extract_answer(next_reasoning)
+            # Extract answer from next iteration reasoning using the configured extractor
+            next_answer = extract_answer_with_config(next_reasoning, self.config)
             
             # Check if answer is correct
             next_correct = False
@@ -631,8 +631,8 @@ class SummarizationExperiment(BaseExperiment):
         # Log the finish reason
         logger.info(f"Problem {problem_id}, iteration 0 finish reason: {iter0_finish_reason}")
         
-        # Extract answer from iteration 0 reasoning
-        iter0_answer = extract_answer(iter0_reasoning)
+        # Extract answer from iteration 0 reasoning using the configured extractor
+        iter0_answer = extract_answer_with_config(iter0_reasoning, self.config)
         
         # Check if answer is correct (simple string comparison)
         iter0_correct = False
@@ -812,8 +812,8 @@ class SummarizationExperiment(BaseExperiment):
             # Log the finish reason
             logger.info(f"Problem {problem_id}, iteration {next_iteration} finish reason: {next_finish_reason}")
             
-            # Extract answer from next iteration reasoning
-            next_answer = extract_answer(next_reasoning)
+            # Extract answer from next iteration reasoning using the configured extractor
+            next_answer = extract_answer_with_config(next_reasoning, self.config)
             
             # Check if answer is correct
             next_correct = False
