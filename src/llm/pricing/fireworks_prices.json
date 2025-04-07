@@ -2,5 +2,5 @@
     "accounts/fireworks/models/deepseek-v3-0324": {"input": 0.90, "output": 0.90},
     "accounts/fireworks/models/deepseek-r1": {"input": 3.00, "output": 8.00},
     "accounts/fireworks/models/llama4-maverick-instruct-basic": {"input": 0.22, "output": 0.88},
-    "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-7b-081998a7": {"input": 0.0, "output": 0.0}
+    "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-7b-4d3348ac": {"input": 0.1, "output": 0.1}
 }
