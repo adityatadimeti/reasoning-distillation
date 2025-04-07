@@ -39,6 +39,11 @@ function updateAnswerProgressionUI(problemId) {
             if (!isCorrect) anyLaterIterationIncorrect = true;
         }
         
+        // If this is the last iteration, track its correctness
+        if (index === sortedIterations.length - 1) {
+            lastIterationCorrect = isCorrect;
+        }
+        
         if (isCorrect) allIncorrect = false;
         if (!isCorrect) allCorrect = false;
         
@@ -82,7 +87,7 @@ function updateAnswerProgressionUI(problemId) {
         });
         
         // Remove existing status classes
-        problemCard.classList.remove('correct', 'incorrect', 'improved', 'regressed');
+        problemCard.classList.remove('correct', 'incorrect', 'improved', 'improved-final', 'regressed', 'regressed-final');
         
         // Apply new status class based on progression
         if (allCorrect) {
@@ -92,13 +97,25 @@ function updateAnswerProgressionUI(problemId) {
             problemCard.classList.add('incorrect');
             console.log(`Problem ${problemId}: Setting to 'incorrect' (all iterations incorrect)`);
         } else if (!firstIterationCorrect && anyLaterIterationCorrect) {
-            // Started incorrect but improved to correct in later iterations
-            problemCard.classList.add('improved');
-            console.log(`Problem ${problemId}: Setting to 'improved' (started incorrect, became correct)`);
+            if (lastIterationCorrect) {
+                // Started incorrect, had correct answers, and ended with correct answer
+                problemCard.classList.add('improved-final');
+                console.log(`Problem ${problemId}: Setting to 'improved-final' (started incorrect, ended correct)`);
+            } else {
+                // Started incorrect, had correct answers, but ended with incorrect answer
+                problemCard.classList.add('improved');
+                console.log(`Problem ${problemId}: Setting to 'improved' (started incorrect, had correct answers, but ended incorrect)`);
+            }
         } else if (firstIterationCorrect && anyLaterIterationIncorrect) {
-            // Started correct but regressed to incorrect in later iterations
-            problemCard.classList.add('regressed');
-            console.log(`Problem ${problemId}: Setting to 'regressed' (started correct, became incorrect)`);
+            if (lastIterationCorrect) {
+                // Started correct, had incorrect answers, but ended with correct answer
+                problemCard.classList.add('regressed-final');
+                console.log(`Problem ${problemId}: Setting to 'regressed-final' (started correct, had incorrect answers, ended correct)`);
+            } else {
+                // Started correct, had incorrect answers, and ended with incorrect answer
+                problemCard.classList.add('regressed');
+                console.log(`Problem ${problemId}: Setting to 'regressed' (started correct, had incorrect answers, ended incorrect)`);
+            }
         } else {
             console.log(`Problem ${problemId}: No condition matched, keeping current styling`);
         }

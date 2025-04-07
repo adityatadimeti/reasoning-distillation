@@ -397,6 +397,43 @@ function setupUIEventListeners() {
     });
 }
 
+// Update problem statistics display
+function updateProblemStatistics(stats) {
+    const statsContainer = document.getElementById('problem-stats');
+    if (!statsContainer) return;
+    
+    // Clear existing content
+    statsContainer.innerHTML = '';
+    
+    // Create stat items with appropriate labels and colors
+    const categories = [
+        { key: 'correct', label: 'All Correct', className: 'correct' },
+        { key: 'incorrect', label: 'All Incorrect', className: 'incorrect' },
+        { key: 'improved', label: 'Improved (Not Final)', className: 'improved' },
+        { key: 'improvedFinal', label: 'Improved (Final)', className: 'improved-final' },
+        { key: 'regressed', label: 'Regressed (Not Final)', className: 'regressed' },
+        { key: 'regressedFinal', label: 'Regressed (Final)', className: 'regressed-final' }
+    ];
+    
+    // Only show categories with non-zero counts
+    categories.forEach(category => {
+        const count = stats[category.key] || 0;
+        if (count > 0) {
+            const statItem = document.createElement('div');
+            statItem.className = `stat-item ${category.className}`;
+            statItem.innerHTML = `${category.label}: <span class="count">${count}</span>`;
+            statsContainer.appendChild(statItem);
+        }
+    });
+    
+    // Add total count
+    const total = Object.values(stats).reduce((sum, count) => sum + count, 0);
+    const totalItem = document.createElement('div');
+    totalItem.className = 'stat-item';
+    totalItem.innerHTML = `Total: <span class="count">${total}</span>`;
+    statsContainer.appendChild(totalItem);
+}
+
 // Dashboard UI exports
 window.DashboardUI = {
     toggleSection,
@@ -411,7 +448,8 @@ window.DashboardUI = {
     updateExperimentInfoDisplay,
     hideElement,
     showElement,
-    setupUIEventListeners
+    setupUIEventListeners,
+    updateProblemStatistics
 };
 
 // Initialize UI event listeners

@@ -1,4 +1,5 @@
 {
     "accounts/fireworks/models/deepseek-v3-0324": {"input": 0.90, "output": 0.90},
-    "accounts/fireworks/models/deepseek-r1": {"input": 3.00, "output": 8.00}
+    "accounts/fireworks/models/deepseek-r1": {"input": 3.00, "output": 8.00},
+    "accounts/fireworks/models/llama4-maverick-instruct-basic": {"input": 0.22, "output": 0.88}
 }

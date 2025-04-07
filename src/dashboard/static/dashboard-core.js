@@ -223,7 +223,9 @@ function updateExperimentState(data) {
 function analyzeAllProblemsCorrectness() {
     console.log('Analyzing correctness patterns for all problems...');
     const improvedProblems = [];
+    const improvedFinalProblems = []; // Problems that started incorrect, had correct answers, and ended correct
     const regressedProblems = [];
+    const regressedFinalProblems = []; // Problems that started correct, had incorrect answers, and ended correct
     const allCorrectProblems = [];
     const allIncorrectProblems = [];
     
@@ -245,6 +247,7 @@ function analyzeAllProblemsCorrectness() {
         let anyLaterIterationIncorrect = false;
         let allCorrect = true;
         let allIncorrect = true;
+        let lastIterationCorrect = false; // Track if the final iteration is correct
         
         // Check each iteration
         sortedIterations.forEach((iteration, index) => {
@@ -261,6 +264,11 @@ function analyzeAllProblemsCorrectness() {
                 if (!isCorrect) anyLaterIterationIncorrect = true;
             }
             
+            // If this is the last iteration, track its correctness
+            if (index === sortedIterations.length - 1) {
+                lastIterationCorrect = isCorrect;
+            }
+            
             if (isCorrect) allIncorrect = false;
             if (!isCorrect) allCorrect = false;
         });
@@ -271,34 +279,72 @@ function analyzeAllProblemsCorrectness() {
         } else if (allIncorrect) {
             allIncorrectProblems.push(problemId);
         } else if (!firstIterationCorrect && anyLaterIterationCorrect) {
-            improvedProblems.push(problemId);
+            // Split improved problems into two categories based on final iteration
+            if (lastIterationCorrect) {
+                improvedFinalProblems.push(problemId);
+            } else {
+                improvedProblems.push(problemId);
+            }
         } else if (firstIterationCorrect && anyLaterIterationIncorrect) {
-            regressedProblems.push(problemId);
+            // Split regressed problems into two categories based on final iteration
+            if (lastIterationCorrect) {
+                regressedFinalProblems.push(problemId);
+            } else {
+                regressedProblems.push(problemId);
+            }
         }
     }
     
     // Log the results
     console.log('Correctness Analysis Results:', {
         improvedProblems,
+        improvedFinalProblems,
         regressedProblems,
+        regressedFinalProblems,
         allCorrectProblems,
         allIncorrectProblems
+    });
+    
+    // Update the problem statistics display
+    updateProblemStatistics({
+        correct: allCorrectProblems.length,
+        incorrect: allIncorrectProblems.length,
+        improved: improvedProblems.length,
+        improvedFinal: improvedFinalProblems.length,
+        regressed: regressedProblems.length,
+        regressedFinal: regressedFinalProblems.length
     });
     
     // Force update the problem cards for improved and regressed problems
     improvedProblems.forEach(problemId => {
         const problemCard = document.getElementById(`problem-${problemId}`);
         if (problemCard) {
-            problemCard.classList.remove('correct', 'incorrect');
+            problemCard.classList.remove('correct', 'incorrect', 'improved-final', 'regressed');
             problemCard.classList.add('improved');
+        }
+    });
+    
+    improvedFinalProblems.forEach(problemId => {
+        const problemCard = document.getElementById(`problem-${problemId}`);
+        if (problemCard) {
+            problemCard.classList.remove('correct', 'incorrect', 'improved', 'regressed');
+            problemCard.classList.add('improved-final');
         }
     });
     
     regressedProblems.forEach(problemId => {
         const problemCard = document.getElementById(`problem-${problemId}`);
         if (problemCard) {
-            problemCard.classList.remove('correct', 'incorrect');
+            problemCard.classList.remove('correct', 'incorrect', 'improved', 'improved-final', 'regressed-final');
             problemCard.classList.add('regressed');
+        }
+    });
+    
+    regressedFinalProblems.forEach(problemId => {
+        const problemCard = document.getElementById(`problem-${problemId}`);
+        if (problemCard) {
+            problemCard.classList.remove('correct', 'incorrect', 'improved', 'improved-final', 'regressed');
+            problemCard.classList.add('regressed-final');
         }
     });
 }

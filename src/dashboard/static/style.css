@@ -115,9 +115,68 @@ h2 {
     background-color: #cce5ff;
 }
 
+.problem-card.improved-final {
+    border-left-color: #ffc107; /* Gold/amber color */
+    background-color: #fff3cd; /* Light gold background */
+}
+
 .problem-card.regressed {
     border-left-color: #6f42c1;
     background-color: #e2d9f3;
+}
+
+.problem-card.regressed-final {
+    border-left-color: #008080; /* Teal color, more blue than green */
+    background-color: #e0f2f1; /* Light teal background */
+}
+
+/* Problem statistics styling */
+.problem-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.stat-item {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+.stat-item .count {
+    margin-left: 5px;
+    font-size: 1.1em;
+}
+
+.stat-item.correct {
+    color: #155724;
+}
+
+.stat-item.incorrect {
+    color: #721c24;
+}
+
+.stat-item.improved {
+    color: #007bff;
+}
+
+.stat-item.improved-final {
+    color: #ff9900;
+}
+
+.stat-item.regressed {
+    color: #6f42c1;
+}
+
+.stat-item.regressed-final {
+    color: #20c997; /* Teal color */
 }
 
 #model-output {
