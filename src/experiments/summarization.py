@@ -41,7 +41,8 @@ class SummarizationExperiment(BaseExperiment):
                 raise ValueError(f"Required parameter '{param}' not found in configuration")
         
         # Initialize reasoning model
-        self.reasoning_model = create_model_client(self.config["reasoning_model"])
+        self.reasoning_model = create_model_client(self.config["reasoning_model"], provider=self.config.get("provider", "fireworks")) # default provider is fireworks
+       
         
         # Initialize summarizer model (could be the same model or a different one)
         summarizer_type = self.config.get("summarizer_type", "self")

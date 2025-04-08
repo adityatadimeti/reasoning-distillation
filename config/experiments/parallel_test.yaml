@@ -5,7 +5,10 @@ data_path: "./data/parallel_simple.csv"
 save_intermediate: true
 
 # Model configuration
-reasoning_model: "accounts/fireworks/models/deepseek-r1"
+#reasoning_model: "accounts/fireworks/models/deepseek-r1"
+#reasoning_model: "accounts/fireworks/models/deepseek-r1-distill-qwen-7b"
+provider: "together"
+reasoning_model: "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
 summarizer_type: "external"
 summarizer_model: "accounts/fireworks/models/deepseek-v3"
 

@@ -134,6 +134,7 @@ python run_experiment.py test --verbose
   - `llm/`: LLM client implementations
     - `openai_client.py`: OpenAI API client
     - `fireworks_client.py`: Fireworks AI API client
+    - `together_client.py`: Together AI API client
   - `reasoning/`: Reasoning and summarization utilities
     - `extractor.py`: Extracts answers from reasoning texts
     - `summarizer.py`: Summarizes reasoning traces
