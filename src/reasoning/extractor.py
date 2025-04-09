@@ -193,8 +193,19 @@ def extract_reasoning_trace(text: str, allow_fallback: bool = False) -> Optional
         logger.info(f"Successfully extracted reasoning trace: found {len(matches)} <think> blocks")
         return reasoning_trace
     
-    # If no <think> tags are found, log a warning
-    logger.warning("No reasoning trace found between <think> tags")
+    # If no <think> tags are found, check if there's just an ending </think> tag
+    think_end_pos = text.find('</think>')
+    if think_end_pos > 0:  # Found an ending </think> tag without a matching opening tag
+        # Extract everything before the </think> tag
+        content_before_think_end = text[:think_end_pos].strip()
+        
+        # Only use this content if it's not trivially short
+        if len(content_before_think_end) > 10:  # Minimum reasonable length for a reasoning trace
+            logger.info("Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.")
+            return content_before_think_end
+    
+    # If no valid reasoning trace found, log a warning
+    logger.warning("No reasoning trace found between <think> tags or before </think> tag")
     
     if allow_fallback:
         # If fallback is allowed, return the original text
