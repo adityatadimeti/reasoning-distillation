@@ -2,6 +2,8 @@ import re
 import logging
 from typing import Optional, Callable, Dict, Any
 
+from src.reasoning.math import last_boxed_only_string, remove_boxed
+
 logger = logging.getLogger(__name__)
 
 # Dictionary of available extractors
@@ -191,8 +193,19 @@ def extract_reasoning_trace(text: str, allow_fallback: bool = False) -> Optional
         logger.info(f"Successfully extracted reasoning trace: found {len(matches)} <think> blocks")
         return reasoning_trace
     
-    # If no <think> tags are found, log a warning
-    logger.warning("No reasoning trace found between <think> tags")
+    # If no <think> tags are found, check if there's just an ending </think> tag
+    think_end_pos = text.find('</think>')
+    if think_end_pos > 0:  # Found an ending </think> tag without a matching opening tag
+        # Extract everything before the </think> tag
+        content_before_think_end = text[:think_end_pos].strip()
+        
+        # Only use this content if it's not trivially short
+        if len(content_before_think_end) > 10:  # Minimum reasonable length for a reasoning trace
+            logger.info("Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.")
+            return content_before_think_end
+    
+    # If no valid reasoning trace found, log a warning
+    logger.warning("No reasoning trace found between <think> tags or before </think> tag")
     
     if allow_fallback:
         # If fallback is allowed, return the original text
@@ -202,6 +215,42 @@ def extract_reasoning_trace(text: str, allow_fallback: bool = False) -> Optional
         # If fallback is not allowed, return None
         logger.warning("Fallback is disabled, returning None instead of original text")
         return None
+
+@register_extractor('math')
+def extract_math_answer(text: str) -> Optional[str]:
+    """
+    Extract the answer from model output using math.py's last_boxed_only_string function.
+    This extractor focuses only on extracting the boxed answer from LaTeX expressions.
+    
+    Args:
+        text: The full text output from the model
+        
+    Returns:
+        The extracted answer as a string, or None if no boxed answer is found
+    """
+    # Handle None inputs
+    if text is None:
+        logger.warning("Input text is None, cannot extract answer")
+        return None
+    
+    try:
+        # Try to find the last boxed content using the math.py function
+        boxed_content = last_boxed_only_string(text)
+        
+        if boxed_content is not None:
+            # Remove the boxed annotation
+            answer = remove_boxed(boxed_content)
+            logger.info(f"Extracted math answer from boxed expression: {answer}")
+            return answer
+    except Exception as e:
+        logger.warning(f"Error extracting math answer: {e}")
+    
+    # If no boxed answer is found, log a warning
+    logger.warning("No boxed answer found using math extractor")
+    
+    # Return None to indicate no answer was found
+    return None
+
 
 def extract_post_think_content(text: str) -> Optional[str]:
     """

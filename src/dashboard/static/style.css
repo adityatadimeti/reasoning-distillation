@@ -213,6 +213,22 @@ h2 {
     font-weight: bold;
 }
 
+/* Raw text display for showing LaTeX and boxed content */
+.raw-text {
+    font-family: monospace;
+    white-space: pre-wrap;
+    background-color: #f8f9fa;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    line-height: 1.5;
+    font-size: 14px;
+    overflow-x: auto;
+    color: #212529;
+    max-height: none;
+    margin: 0;
+}
+
 /* Answer progression display */
 .answer-progression {
     background-color: #f0fff0;
