@@ -14,7 +14,7 @@ reasoning_model_provider: "fireworks"
 summarizer_type: "self"
 
 # Generation parameters
-max_tokens: 32768
+max_tokens: 200000
 temperature: 0.6
 top_p: 0.95
 top_k: 40
@@ -22,7 +22,7 @@ presence_penalty: 0.0
 frequency_penalty: 0.0
 
 # Iteration parameters
-max_iterations: 2
+max_iterations: 4
 continue_after_correct: true
 
 # Summarization parameters
