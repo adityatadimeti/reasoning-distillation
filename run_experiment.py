@@ -367,9 +367,9 @@ def main():
     parser.add_argument("--concurrency", type=int, default=4, help="Maximum number of problems to process concurrently when parallel=True")
     
     # Add arguments for filtering problems
-    parser.add_argument("--question-ids", type=str, help="Comma-separated list of question IDs to run")
-    parser.add_argument("--exclude-question-ids", type=str, help="Comma-separated list of question IDs to exclude")
-    parser.add_argument("--index-range", type=str, help="Range of question indices to run (e.g., '0-4' or '10-15')")
+    parser.add_argument("--question_ids", type=str, help="Comma-separated list of question IDs to run")
+    parser.add_argument("--exclude_question_ids", type=str, help="Comma-separated list of question IDs to exclude")
+    parser.add_argument("--index_range", type=str, help="Range of question indices to run (e.g., '0-4' or '10-15')")
     
     args = parser.parse_args()
     

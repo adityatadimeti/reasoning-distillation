@@ -1,7 +1,7 @@
 # Experiment configuration for DeepSeek R1 Distill Qwen 1.5B
-experiment_name: "testing_deepseek_qwen_1_5b_aime_2024_5_diff"
-results_dir: "./results/testing_deepseek_qwen_1_5b_aime_2024_5_diff"
-data_path: "./data/simple.csv"
+experiment_name: "deepseek_qwen_1_5b_aime_2024_5"
+results_dir: "./results/deepseek_qwen_1_5b_aime_2024_5"
+data_path: "./data/aime_2024_5.csv"
 save_intermediate: true
 experiment_type: "summarize"
 
@@ -9,14 +9,12 @@ experiment_type: "summarize"
 dashboard_port: 8080
 
 # Model configuration
-reasoning_model: "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
-reasoning_model_provider: "together"
-summarizer_type: "external"
-summarizer_model: "accounts/fireworks/models/deepseek-v3-0324"
-summarizer_model_provider: "fireworks"
+reasoning_model: "accounts/fireworks/models/qwq-32b"
+reasoning_model_provider: "fireworks"
+summarizer_type: "self"
 
 # Generation parameters
-max_tokens: 10000
+max_tokens: 32768
 temperature: 0.6
 top_p: 0.95
 top_k: 40
@@ -24,7 +22,7 @@ presence_penalty: 0.0
 frequency_penalty: 0.0
 
 # Iteration parameters
-max_iterations: 2
+max_iterations: 4
 continue_after_correct: true
 
 # Summarization parameters
@@ -36,6 +34,8 @@ summary_top_p: 0.95
 summary_top_k: 40
 summary_presence_penalty: 0.0
 summary_frequency_penalty: 0.0
+
+answer_extractor: "math"
 
 # Prompt configurations
 prompts:
