@@ -1,0 +1,48 @@
+# Example configuration for using Together AI models
+experiment_name: "aime_2024_pass_consensus_update"
+results_dir: "./results/aime_2024_consensus_update"
+data_path: "./data/aime_2024_5.csv"
+save_intermediate: true
+experiment_type: "pass_k" # either pass_k or summarize
+
+# Dashboard configuration
+dashboard_port: 8080
+
+# Model configuration
+# Using Together AI models
+# Model configuration
+
+reasoning_model: "accounts/adityatadimeti-d6565b/deployedModels/deepseek-r1-distill-qwen-14b-97aea0bc"
+#reasoning_model: "accounts/fireworks/models/deepseek-r1"
+reasoning_model_provider: "fireworks"
+summarizer_type: "external"
+summarizer_model: "accounts/fireworks/models/deepseek-v3-0324"
+summarizer_model_provider: "fireworks"
+
+
+# Generation parameters
+max_tokens: 32768
+temperature: 0.6
+top_p: 0.95
+top_k: 40
+presence_penalty: 0.0
+frequency_penalty: 0.0
+
+# Iteration parameters
+max_iterations: 2  # This will do initial (0) plus one more iteration (1)
+continue_after_correct: false  # Continue to iteration 1 even if iteration 0 is correct
+
+# Summarization parameters
+enable_summarization: false
+summary_max_tokens: 32768
+summary_temperature: 0.6
+summary_top_p: 0.95
+summary_top_k: 40
+summary_presence_penalty: 0.0
+summary_frequency_penalty: 0.0
+
+# Prompt configurations
+prompts:
+  reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
+  summarize: "approach_focused_summarization"  # This references the version in config/prompts/summarize.yaml
+  improved: "aime" # This references the version in config/prompts/improved.yaml
