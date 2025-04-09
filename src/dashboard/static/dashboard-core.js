@@ -112,10 +112,16 @@ function initializeStaticDashboard(results) {
         const problemId = result.problem_id;
         
         // Store problem status
-        window.problemStatuses[problemId] = result.initial_correct ? 'correct' : 'incorrect';
+        if (result.status === 'error' || result.error) {
+            window.problemStatuses[problemId] = 'error';
+            console.log(`Problem ${problemId} marked as error due to status or error field`);
+        } else {
+            window.problemStatuses[problemId] = result.initial_correct ? 'correct' : 'incorrect';
+        }
         
         // Create problem card
         const questionPreview = result.question ? `${problemId}: ${result.question.substring(0, 50)}...` : `${problemId}: [No question text]`;
+        console.log(`Creating problem card for ${problemId} with status: ${window.problemStatuses[problemId]}`, result);
         DashboardUI.createProblemCard(problemId, questionPreview, 
             window.problemStatuses[problemId]);
         
@@ -149,7 +155,7 @@ function processStaticProblemResult(problemId, result) {
     window.problemOutputs[problemId] = {};
     
     // Check if there was an error with this problem
-    if (result.error) {
+    if (result.error !== undefined || result.status === 'error') {
         // Create a special error iteration
         window.problemOutputs[problemId][0] = {
             reasoning: `Error: ${result.error}`,
@@ -228,11 +234,18 @@ function analyzeAllProblemsCorrectness() {
     const regressedFinalProblems = []; // Problems that started correct, had incorrect answers, and ended correct
     const allCorrectProblems = [];
     const allIncorrectProblems = [];
+    const errorProblems = []; // Problems that resulted in an error
     
     // Loop through all problems
     for (const problemId in window.problemOutputs) {
         const outputs = window.problemOutputs[problemId];
         if (!outputs) continue;
+        
+        // Check if this problem has error status
+        if (window.problemStatuses[problemId] === 'error') {
+            errorProblems.push(problemId);
+            continue; // Skip further analysis for error problems
+        }
         
         // Sort iterations
         const sortedIterations = Object.keys(outputs)
@@ -302,7 +315,8 @@ function analyzeAllProblemsCorrectness() {
         regressedProblems,
         regressedFinalProblems,
         allCorrectProblems,
-        allIncorrectProblems
+        allIncorrectProblems,
+        errorProblems
     });
     
     // Update the problem statistics display
@@ -312,7 +326,8 @@ function analyzeAllProblemsCorrectness() {
         improved: improvedProblems.length,
         improvedFinal: improvedFinalProblems.length,
         regressed: regressedProblems.length,
-        regressedFinal: regressedFinalProblems.length
+        regressedFinal: regressedFinalProblems.length,
+        error: errorProblems.length
     });
     
     // Force update the problem cards for improved and regressed problems
@@ -345,6 +360,15 @@ function analyzeAllProblemsCorrectness() {
         if (problemCard) {
             problemCard.classList.remove('correct', 'incorrect', 'improved', 'improved-final', 'regressed');
             problemCard.classList.add('regressed-final');
+        }
+    });
+    
+    // Update error problem cards
+    errorProblems.forEach(problemId => {
+        const problemCard = document.getElementById(`problem-${problemId}`);
+        if (problemCard) {
+            problemCard.classList.remove('correct', 'incorrect', 'improved', 'improved-final', 'regressed', 'regressed-final');
+            problemCard.classList.add('error');
         }
     });
 }

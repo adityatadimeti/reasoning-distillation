@@ -130,6 +130,11 @@ h2 {
     background-color: #e0f2f1; /* Light teal background */
 }
 
+.problem-card.error {
+    border-left-color: #343a40; /* Dark gray/black color */
+    background-color: #e9ecef; /* Light gray background */
+}
+
 /* Problem statistics styling */
 .problem-stats {
     display: flex;
@@ -177,6 +182,10 @@ h2 {
 
 .stat-item.regressed-final {
     color: #20c997; /* Teal color */
+}
+
+.stat-item.error {
+    color: #343a40; /* Dark gray/black color */
 }
 
 #model-output {

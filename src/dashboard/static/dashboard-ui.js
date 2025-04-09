@@ -436,6 +436,7 @@ function updateProblemStatistics(stats) {
     const categories = [
         { key: 'correct', label: 'All Correct', className: 'correct' },
         { key: 'incorrect', label: 'All Incorrect', className: 'incorrect' },
+        { key: 'error', label: 'Error', className: 'error' },
         { key: 'improved', label: 'Improved (Final Incorrect)', className: 'improved' },
         { key: 'improvedFinal', label: 'Improved (Final Correct)', className: 'improved-final' },
         { key: 'regressed', label: 'Regressed (Final Incorrect)', className: 'regressed' },
