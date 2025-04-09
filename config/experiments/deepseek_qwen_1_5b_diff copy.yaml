@@ -24,7 +24,7 @@ presence_penalty: 0.0
 frequency_penalty: 0.0
 
 # Iteration parameters
-max_iterations: 2 
+max_iterations: 4 
 continue_after_correct: true
 
 # Summarization parameters
@@ -41,4 +41,4 @@ summary_frequency_penalty: 0.0
 prompts:
   reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
   summarize: "approach_focused_summarization"  # This references the version in config/prompts/summarize.yaml
-  improved: "aime" # This references the version in config/prompts/improved.yaml
+  improved: "aime_diff_approach" # This references the version in config/prompts/improved.yaml
