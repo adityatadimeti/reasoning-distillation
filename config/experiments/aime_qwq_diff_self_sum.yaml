@@ -1,6 +1,6 @@
-# Experiment configuration for DeepSeek R1 Distill Qwen 1.5B
-experiment_name: "deepseek_qwen_1_5b_aime_2024_5"
-results_dir: "./results/deepseek_qwen_1_5b_aime_2024_5"
+# Experiment configuration for Qwen 32B
+experiment_name: "qwq_32b_aime_2024_5"
+results_dir: "./results/qwq_32b_aime_2024_5"
 data_path: "./data/aime_2024_5.csv"
 save_intermediate: true
 experiment_type: "summarize"

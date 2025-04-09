@@ -49,23 +49,41 @@ function updateModelOutput(problemId) {
 function formatReasoning(text) {
     if (!text) return '';
     
-    // Escape <think> and </think> tags to display them as raw text instead of HTML
-    let formatted = text
-        // First preserve the <think> and </think> tags by replacing them with special markers
-        .replace(/<think>/g, '##THINK_OPEN##')
-        .replace(/<\/think>/g, '##THINK_CLOSE##')
-        
-        // Apply regular formatting patterns
-        .replace(/\\boxed\{(.*?)\}/g, '<span class="boxed">$1</span>')
-        .replace(/\\begin\{align\}([\s\S]*?)\\end\{align\}/g, '<div class="math-align">$1</div>')
-        .replace(/\$(.*?)\$/g, '<span class="inline-math">$1</span>')
-        .replace(/\n/g, '<br>')
-        
-        // Restore the <think> and </think> tags with escaped characters so they display as text
-        .replace(/##THINK_OPEN##/g, '&lt;think&gt;')
-        .replace(/##THINK_CLOSE##/g, '&lt;/think&gt;');
+    // Option to show raw text for debugging
+    const showRawText = true;
     
-    return formatted;
+    if (showRawText) {
+        // For raw text display, just escape HTML and preserve line breaks
+        let formatted = text
+            // Escape HTML characters
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;')
+            // Convert line breaks to <br> tags
+            .replace(/\n/g, '<br>');
+        
+        return `<pre class="raw-text">${formatted}</pre>`;
+    } else {
+        // Original formatting logic (kept for future reference)
+        let formatted = text
+            // First preserve the <think> and </think> tags by replacing them with special markers
+            .replace(/<think>/g, '##THINK_OPEN##')
+            .replace(/<\/think>/g, '##THINK_CLOSE##')
+            
+            // Apply regular formatting patterns
+            .replace(/\\boxed\{(.*?)\}/g, '<span class="boxed">$1</span>')
+            .replace(/\\begin\{align\}([\s\S]*?)\\end\{align\}/g, '<div class="math-align">$1</div>')
+            .replace(/\$(.*?)\$/g, '<span class="inline-math">$1</span>')
+            .replace(/\n/g, '<br>')
+            
+            // Restore the <think> and </think> tags with escaped characters so they display as text
+            .replace(/##THINK_OPEN##/g, '&lt;think&gt;')
+            .replace(/##THINK_CLOSE##/g, '&lt;/think&gt;');
+        
+        return formatted;
+    }
 }
 
 // Update answer information display (legacy)
