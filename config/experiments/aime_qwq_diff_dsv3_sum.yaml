@@ -1,6 +1,6 @@
 # Experiment configuration for Qwen 32B
-experiment_name: "qwq_32b_aime_2024_5_diff_self_sum"
-results_dir: "./results/qwq_32b_aime_2024_5_diff_self_sum"
+experiment_name: "qwq_32b_aime_2024_5_diff_dsv3_sum"
+results_dir: "./results/qwq_32b_aime_2024_5_diff_dsv3_sum"
 data_path: "./data/aime_2024_5.csv"
 save_intermediate: true
 experiment_type: "summarize"
@@ -11,7 +11,9 @@ dashboard_port: 8080
 # Model configuration
 reasoning_model: "accounts/fireworks/models/qwq-32b"
 reasoning_model_provider: "fireworks"
-summarizer_type: "self"
+summarizer_type: "external"
+summarizer_model: "accounts/fireworks/models/deepseek-v3-0324"
+summarizer_model_provider: "fireworks"
 
 # Generation parameters
 max_tokens: 131072
@@ -27,8 +29,8 @@ continue_after_correct: true
 
 # Summarization parameters
 enable_summarization: true
-allow_fallback: false  # Enable fallback to use full response when think tags are missing
-extract_post_think_summary: true  # Enable extraction of content after </think> tag for post-think summary
+allow_fallback: true  # Enable fallback to use full response when think tags are missing
+extract_post_think_summary: false  # Enable extraction of content after </think> tag for post-think summary
 summary_max_tokens: 32768
 summary_temperature: 0.6
 summary_top_p: 0.95
