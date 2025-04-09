@@ -100,7 +100,9 @@ class SummarizationExperiment(BaseExperiment):
                     self.dashboard.update_problem_status(problem_id, "completed", question)
             
             except Exception as e:
-                logger.error(f"Error processing problem {problem_id}: {str(e)}")
+                import traceback
+                error_traceback = traceback.format_exc()
+                logger.error(f"Error processing problem {problem_id}: {str(e)}\n{error_traceback}")
                 
                 # Update dashboard
                 if self.dashboard:
@@ -199,7 +201,9 @@ class SummarizationExperiment(BaseExperiment):
                 return result
                 
             except Exception as e:
-                logger.error(f"Error processing problem {problem_id}: {str(e)}")
+                import traceback
+                error_traceback = traceback.format_exc()
+                logger.error(f"Error processing problem {problem_id}: {str(e)}\n{error_traceback}")
                 
                 # Add error to results in a thread-safe way
                 error_result = {
