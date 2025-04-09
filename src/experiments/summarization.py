@@ -53,6 +53,9 @@ class SummarizationExperiment(BaseExperiment):
         summarizer_type = self.config.get("summarizer_type", "self")
         if summarizer_type == "self":
             self.summarizer = self.reasoning_model
+            # Auto-enable post-think extraction for self-summarization if not explicitly set
+            if "extract_post_think_summary" not in self.config:
+                self.config["extract_post_think_summary"] = True
         else:
             if "summarizer_model" not in self.config:
                 raise ValueError("summarizer_model must be specified when summarizer_type is not 'self'")

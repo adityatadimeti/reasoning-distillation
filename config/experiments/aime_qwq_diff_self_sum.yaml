@@ -22,12 +22,13 @@ presence_penalty: 0.0
 frequency_penalty: 0.0
 
 # Iteration parameters
-max_iterations: 4
+max_iterations: 2
 continue_after_correct: true
 
 # Summarization parameters
 enable_summarization: true
 allow_fallback: true  # Enable fallback to use full response when think tags are missing
+extract_post_think_summary: true  # Enable extraction of content after </think> tag for post-think summary
 summary_max_tokens: 32768
 summary_temperature: 0.6
 summary_top_p: 0.95
