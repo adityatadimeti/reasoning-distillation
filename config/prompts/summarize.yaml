@@ -93,3 +93,24 @@ solution_evaluation_and_guidance:
     
     SUMMARY:
     
+aime_approach_and_answer:
+  template: |
+    Summarize the following attempted solution to the problem. Your summary should:
+    
+    1. Outline the complete solution strategy that was used
+    2. Include all key equations, formulations, and transformations
+    3. Highlight the critical assumptions made during the solution
+    4. Note any calculations or numerical work
+    5. Identify any points where the solution path branches or makes specific choices
+    
+    Create a comprehensive but concise summary that would allow someone to fully understand the approach that was taken, without needing to see the original work.
+
+    After the summary, include the final answer reached by the solution in \boxed{} format.
+    
+    PROBLEM:
+    {question}
+
+    ATTEMPTED SOLUTION:
+    {reasoning}
+    
+    SUMMARY:

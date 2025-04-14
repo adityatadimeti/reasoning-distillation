@@ -960,22 +960,34 @@ class SummarizationExperiment(BaseExperiment):
         cost_info = None
         
         # If using FireworksModelClient, make an API call to get the finish_reason and token usage
-        # This is more reliable than trying to extract it from streaming chunks
-        if hasattr(self.reasoning_model, 'generate_completion') and 'fireworks' in str(self.reasoning_model.__class__).lower():
+        # Check if we're using the updated FireworksModelClient with continuation support
+        if hasattr(self.reasoning_model, 'generate_response_async') and 'fireworks' in str(self.reasoning_model.__class__).lower():
             try:
-                # Make a non-streaming API call with the same parameters
-                # We want to get the finish_reason and token usage information
-                logger.debug(f"Making non-streaming call to get finish_reason and token usage for problem {problem_id}, iteration {iteration}")
-                response = self.reasoning_model.generate_response(
-                    prompt,
-                    stream=False,
-                    max_tokens=self.config["max_tokens"],
-                    temperature=self.config["temperature"],
-                    top_p=self.config["top_p"],
-                    top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
-                    presence_penalty=self.config["presence_penalty"],
-                    frequency_penalty=self.config["frequency_penalty"],
-                    verbose=False  # Don't log this auxiliary call
+                # Use the async method with continuation support
+                logger.debug(f"Making async call with continuation support for problem {problem_id}, iteration {iteration}")
+                
+                # Extract continuation-specific parameters from config
+                enable_continuation = self.config.get("enable_continuation", True)
+                max_total_tokens = self.config.get("max_total_tokens", 131072)
+                max_continuations = self.config.get("max_continuations", 16)
+                
+                # Use asyncio to run the async method
+                import asyncio
+                loop = asyncio.get_event_loop()
+                response = loop.run_until_complete(
+                    self.reasoning_model.generate_response_async(
+                        prompt=prompt,
+                        max_tokens=self.config["max_tokens"],
+                        temperature=self.config["temperature"],
+                        top_p=self.config["top_p"],
+                        top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
+                        presence_penalty=self.config["presence_penalty"],
+                        frequency_penalty=self.config["frequency_penalty"],
+                        enable_continuation=enable_continuation,
+                        max_total_tokens=max_total_tokens,
+                        max_continuations=max_continuations,
+                        verbose=self.verbose
+                    )
                 )
                 
                 # Extract the finish_reason and token usage from the response

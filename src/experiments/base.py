@@ -181,15 +181,39 @@ class BaseExperiment:
             Dictionary of metrics
         """
         # Default implementation: count problems processed and include token/cost metrics
-        return {
+        metrics = {
             "total_problems": len(self.results),
             "token_usage": self.token_usage["total"],
             "cost_info": self.cost_info["total"],
-            "problems": {
-                problem_id: {
-                    "token_usage": tokens,
-                    "cost_info": self.cost_info["problems"][problem_id]
-                }
-                for problem_id, tokens in self.token_usage["problems"].items()
-            }
+            "problems": {}
         }
+        
+        # Include detailed iteration-level metrics for each problem
+        for result in self.results:
+            problem_id = result.get("problem_id")
+            if not problem_id:
+                continue  # Skip results without a problem_id
+                
+            # Initialize problem entry with totals from the experiment-level tracking
+            # Use empty dictionaries as fallbacks if the problem isn't in the tracking
+            metrics["problems"][problem_id] = {
+                "token_usage": {
+                    "total": dict(self.token_usage["problems"].get(problem_id, {}))
+                },
+                "cost_info": {
+                    "total": dict(self.cost_info["problems"].get(problem_id, {}))
+                }
+            }
+            
+            # Add iteration-level metrics if available
+            if "token_usage" in result and isinstance(result["token_usage"], dict):
+                for key, usage in result["token_usage"].items():
+                    if key != "total" and usage:  # Skip the total and empty values
+                        metrics["problems"][problem_id]["token_usage"][key] = usage
+            
+            if "cost_info" in result and isinstance(result["cost_info"], dict):
+                for key, cost in result["cost_info"].items():
+                    if key != "total" and cost:  # Skip the total and empty values
+                        metrics["problems"][problem_id]["cost_info"][key] = cost
+        
+        return metrics

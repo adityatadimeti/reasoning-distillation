@@ -8,13 +8,12 @@ save_intermediate: true
 dashboard_port: 8080
 
 # Model configuration
-reasoning_model: "accounts/fireworks/models/deepseek-r1"
-# summarizer_type: "self"
-summarizer_type: "external"
-summarizer_model: "accounts/fireworks/models/deepseek-v3"
+reasoning_model_provider: "fireworks"
+reasoning_model: "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-32b-e518f295"
+summarizer_type: "self"
 
 # Generation parameters
-max_tokens: 32768
+max_tokens: 131072
 temperature: 0.6
 top_p: 0.95
 top_k: 40
@@ -22,11 +21,11 @@ presence_penalty: 0.0
 frequency_penalty: 0.0
 
 # Iteration parameters
-max_iterations: 2  # This will do initial (0) plus one more iteration (1)
-continue_after_correct: true  # Continue to iteration 1 even if iteration 0 is correct
+max_iterations: 0  # This will do initial (0) plus one more iteration (1)
+continue_after_correct: false  # Continue to iteration 1 even if iteration 0 is correct
 
 # Summarization parameters
-enable_summarization: true
+enable_summarization: false
 summary_max_tokens: 32768
 summary_temperature: 0.6
 summary_top_p: 0.95
