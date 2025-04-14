@@ -96,7 +96,11 @@ async def summarize_reasoning_async(
     presence_penalty: float = None,
     frequency_penalty: float = None,
     verbose: bool = False,
-    stream: bool = False
+    stream: bool = False,
+    # Continuation parameters
+    enable_continuation: bool = True,
+    max_total_tokens: int = None,
+    max_continuations: int = None
 ) -> Union[Tuple[str, str, TokenUsage, CostInfo], AsyncIterator[str]]:
     """
     Generate a summary of the reasoning trace asynchronously.
@@ -127,7 +131,7 @@ async def summarize_reasoning_async(
     
     # Generate the summary with the model
     # Build generation parameters dict based on model type
-    if hasattr(model, 'generate_completion_async') and 'fireworks' in str(model.__class__).lower():
+    if hasattr(model, 'generate_response_async') and 'fireworks' in str(model.__class__).lower():
         # FireworksModelClient requires top_k
         if top_k is None:
             raise ValueError("top_k is required for FireworksModelClient")
@@ -140,7 +144,11 @@ async def summarize_reasoning_async(
             "presence_penalty": presence_penalty,
             "frequency_penalty": frequency_penalty,
             "verbose": verbose,
-            "stream": stream
+            "stream": stream,
+            # Add continuation parameters for the new API
+            "enable_continuation": enable_continuation,
+            "max_total_tokens": max_total_tokens,
+            "max_continuations": max_continuations
         }
     else:
         # Other model clients

@@ -9,24 +9,29 @@ dashboard_port: 8080
 
 # Model configuration
 reasoning_model_provider: "fireworks"
-reasoning_model: "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-32b-e518f295"
+reasoning_model: "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-14b-61e7dbf1"
 summarizer_type: "self"
 
 # Generation parameters
-max_tokens: 131072
+max_tokens: 10  # Deliberately small to trigger continuation
 temperature: 0.6
 top_p: 0.95
 top_k: 40
 presence_penalty: 0.0
 frequency_penalty: 0.0
 
+# Continuation parameters (for Fireworks API)
+enable_continuation: true  # Enable continuation mechanism
+max_total_tokens: 16384    # Total tokens across all continuations
+max_continuations: 20       # Allow up to 5 continuation attempts
+
 # Iteration parameters
-max_iterations: 0  # This will do initial (0) plus one more iteration (1)
-continue_after_correct: false  # Continue to iteration 1 even if iteration 0 is correct
+max_iterations: 1  # This will do initial (0) plus one more iteration (1)
+continue_after_correct: true  # Continue to iteration 1 even if iteration 0 is correct
 
 # Summarization parameters
-enable_summarization: false
-summary_max_tokens: 32768
+enable_summarization: true
+summary_max_tokens: 8192
 summary_temperature: 0.6
 summary_top_p: 0.95
 summary_top_k: 40

@@ -183,15 +183,15 @@ def extract_reasoning_trace(text: str, allow_fallback: bool = False) -> Optional
         return None
     
     # Look for content between <think> and </think> tags
-    pattern = r'<think>(.*?)</think>'
-    # Use re.DOTALL to allow matching across multiple lines
-    matches = re.findall(pattern, text, re.DOTALL)
+    # pattern = r'<think>(.*?)</think>'
+    # # Use re.DOTALL to allow matching across multiple lines
+    # matches = re.findall(pattern, text, re.DOTALL)
     
-    if matches:
-        # Join all <think> blocks with newlines if there are multiple
-        reasoning_trace = "\n\n".join([match.strip() for match in matches])
-        logger.info(f"Successfully extracted reasoning trace: found {len(matches)} <think> blocks")
-        return reasoning_trace
+    # if matches:
+    #     # Join all <think> blocks with newlines if there are multiple
+    #     reasoning_trace = "\n\n".join([match.strip() for match in matches])
+    #     logger.info(f"Successfully extracted reasoning trace: found {len(matches)} <think> blocks")
+    #     return reasoning_trace
     
     # If no <think> tags are found, check if there's just an ending </think> tag
     think_end_pos = text.find('</think>')

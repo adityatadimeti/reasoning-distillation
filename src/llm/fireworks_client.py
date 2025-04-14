@@ -151,7 +151,7 @@ class FireworksModelClient(ModelClient):
                 if verbose:
                     logger.info(f"Making API request to {self.BASE_URL}")
                 # Set timeout to prevent infinite waiting
-                timeout = aiohttp.ClientTimeout(total=60)  # 60 second timeout
+                timeout = aiohttp.ClientTimeout(total=600)  # 10 minute timeout
                 
                 async with aiohttp.ClientSession(timeout=timeout) as session:
                     if verbose:
@@ -327,7 +327,7 @@ class FireworksModelClient(ModelClient):
                     break
                 
                 if verbose:
-                    logger.info(f"Continuing generation (iteration {iteration+1})")
+                    logger.info(f"Continuing generation (continuation {iteration+1})")
                 
                 # Make continuation request
                 try:

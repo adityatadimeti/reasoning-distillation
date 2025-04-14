@@ -341,6 +341,15 @@ class SummarizationExperiment(BaseExperiment):
             cost_info = None
             
             try:
+                # Extract continuation parameters for summary generation
+                enable_continuation = self.config.get("enable_continuation", True)
+                max_total_tokens = self.config.get("max_total_tokens", 131072)
+                max_continuations = self.config.get("max_continuations", 16)
+                
+                # For summaries, use summary-specific total tokens if specified
+                summary_total_tokens = self.config.get("summary_max_total_tokens", max_total_tokens)
+                summary_continuations = self.config.get("summary_max_continuations", max_continuations)
+                
                 summary_response = await summarize_reasoning_async(
                     question,
                     reasoning_trace,  # Use extracted reasoning trace instead of full reasoning
@@ -352,7 +361,11 @@ class SummarizationExperiment(BaseExperiment):
                     top_k=self.config.get("summary_top_k"),
                     presence_penalty=self.config.get("summary_presence_penalty"),
                     frequency_penalty=self.config.get("summary_frequency_penalty"),
-                    verbose=self.verbose
+                    verbose=self.verbose,
+                    # Add continuation parameters
+                    enable_continuation=enable_continuation,
+                    max_total_tokens=summary_total_tokens,
+                    max_continuations=summary_continuations
                 )
                 
                 # Print the type and value of summary_response for debugging
@@ -479,122 +492,6 @@ class SummarizationExperiment(BaseExperiment):
         
         return result
     
-    def _stream_summary_generation(self, problem_id: str, question: str, reasoning: str, prompt_template: str, iteration: int = 0) -> Tuple[str, str, TokenUsage, CostInfo]:
-        """
-        Stream the summary generation for a problem and update dashboard in real-time.
-        
-        Args:
-            problem_id: ID of the problem
-            question: The question text for the problem
-            reasoning: The reasoning to summarize
-            prompt_template: The template to use for summarization
-            iteration: Iteration number
-            
-        Returns:
-            Tuple of (full_summary, finish_reason, token_usage, cost_info)
-        """
-        full_summary = ""
-        buffered_chunks = []
-        finish_reason = "unknown"  # Default if we can't extract it
-        
-        # Add debug logging
-        logger.debug(f"Streaming summary for iteration {iteration}, problem ID: {problem_id}")
-        
-        # Update the problem status to show it's summarizing
-        if self.dashboard:
-            status = f"iter{iteration}-summarizing"
-            self.dashboard.update_problem_status(problem_id, status)
-        
-        # Extract the reasoning trace from within <think> tags
-        reasoning_trace = extract_reasoning_trace(reasoning, allow_fallback=self.config.get("allow_fallback", False))
-        if reasoning_trace is None:
-            raise ValueError(f"Could not extract reasoning trace for problem {problem_id}. Make sure the model output contains <think> tags.")
-        
-        try:
-            # Stream the summary using the summarizer model
-            summary_stream = summarize_reasoning(
-                question,
-                reasoning_trace,  # Use extracted reasoning trace instead of full reasoning
-                self.summarizer,
-                prompt_template,
-                max_tokens=self.config.get("summary_max_tokens"),
-                temperature=self.config.get("summary_temperature"),
-                top_p=self.config.get("summary_top_p"),
-                top_k=self.config.get("summary_top_k"),
-                presence_penalty=self.config.get("summary_presence_penalty"),
-                frequency_penalty=self.config.get("summary_frequency_penalty"),
-                verbose=self.verbose,
-                stream=True
-            )
-            
-            # Process the streaming output
-            for chunk in summary_stream:
-                # Add to full response
-                full_summary += chunk
-                buffered_chunks.append(chunk)
-                
-                # Stream to dashboard if available
-                if self.dashboard and len(buffered_chunks) >= 1:
-                    combined_chunk = "".join(buffered_chunks)
-                    self.dashboard.stream_summary_chunk(problem_id, combined_chunk, iteration)
-                    buffered_chunks = []
-            
-            # Send any remaining buffered chunks
-            if self.dashboard and buffered_chunks:
-                combined_chunk = "".join(buffered_chunks)
-                self.dashboard.stream_summary_chunk(problem_id, combined_chunk, iteration)
-            
-            # Get finish_reason for the summary and track token usage and cost
-            # Make a non-streaming call with the same parameters
-            token_usage = None
-            cost_info = None
-            
-            if hasattr(self.summarizer, 'generate_completion'):
-                try:
-                    # Create the prompt
-                    summary_prompt = prompt_template.replace("{reasoning}", reasoning_trace)
-                    if "{question}" in prompt_template:
-                        summary_prompt = summary_prompt.replace("{question}", question)
-                        
-                    # Make a non-streaming API call to get finish_reason and token usage
-                    logger.debug(f"Making non-streaming call to get summary finish_reason and token usage for problem {problem_id}, iteration {iteration}")
-                    summary_response = self.summarizer.generate_response(
-                        summary_prompt,
-                        stream=False,
-                        max_tokens=self.config.get("summary_max_tokens"),
-                        temperature=self.config.get("summary_temperature"),
-                        top_p=self.config.get("summary_top_p"),
-                        top_k=self.config.get("summary_top_k"),
-                        presence_penalty=self.config.get("summary_presence_penalty"),
-                        frequency_penalty=self.config.get("summary_frequency_penalty"),
-                        verbose=False  # Don't log this auxiliary call
-                    )
-                    
-                    # Extract the finish_reason, token usage, and cost info from the response
-                    # Unpack the tuple (content, finish_reason, token_usage, cost_info)
-                    _, finish_reason, token_usage, cost_info = summary_response
-                    logger.debug(f"Got summary finish_reason '{finish_reason}' for problem {problem_id}, iteration {iteration}")
-                    logger.info(f"Summary token usage for problem {problem_id}, iteration {iteration}: {token_usage}")
-                    logger.info(f"Summary cost info for problem {problem_id}, iteration {iteration}: {cost_info}")
-                    
-                    # Track token usage and cost for the summary
-                    self.track_token_usage_and_cost(problem_id, token_usage, cost_info, iteration, "summary")
-                except Exception as e:
-                    logger.warning(f"Error getting summary finish_reason and token usage: {str(e)}. Using 'unknown' instead.")
-            
-            # Send a final empty chunk with the finish_reason
-            if self.dashboard:
-                self.dashboard.stream_summary_chunk(problem_id, "", iteration=iteration, finish_reason=finish_reason)
-                
-                # Send the final complete summary with finish_reason
-                self.dashboard.update_summary(problem_id, full_summary, iteration=iteration, finish_reason=finish_reason)
-            
-            return full_summary, finish_reason, token_usage, cost_info
-            
-        except Exception as e:
-            logger.error(f"Error streaming summary: {str(e)}")
-            raise
-    
     def _process_problem(self, problem: Dict[str, Any]) -> Dict[str, Any]:
         """
         Process a single problem through the summarization pipeline.
@@ -629,6 +526,7 @@ class SummarizationExperiment(BaseExperiment):
         # Generate iteration 0 reasoning with streaming
         if self.dashboard:
             # Use streaming for dashboard updates
+            raise NotImplementedError("not maintaining dashboard streaming")
             iter0_reasoning, iter0_finish_reason, token_usage, cost_info = self._stream_model_output(problem_id, initial_prompt, iteration=0)
         else:
             # Without dashboard, just get the full response
@@ -897,157 +795,3 @@ class SummarizationExperiment(BaseExperiment):
             self.dashboard.update_problem_status(problem_id, status, question)
         
         return result
-    
-    def _stream_model_output(self, problem_id: str, prompt: str, iteration: int = 0, step: str = "reasoning") -> Tuple[str, str, TokenUsage, CostInfo]:
-        """
-        Generic method to stream model output for any iteration and update dashboard in real-time.
-        
-        Args:
-            problem_id: ID of the problem
-            prompt: The prompt to send to the model
-            iteration: Iteration number (0 = initial, 1 = first improvement, etc.)
-            step: Step name (e.g., "reasoning", "summary")
-            
-        Returns:
-            Tuple of (full_response, finish_reason, token_usage, cost_info)
-        """
-        full_response = ""
-        buffered_chunks = []
-        finish_reason = "unknown"  # Default value if we can't extract it
-        
-        # Add debug logging
-        logger.debug(f"Streaming iteration {iteration} for problem ID: {problem_id}")
-        
-        # Get the question for this problem from the current results
-        question = None
-        for result in self.results:
-            if result.get("problem_id") == problem_id:
-                question = result.get("question", "")
-                break
-        
-        # Update the problem status to show it's processing
-        if self.dashboard:
-            status = f"iter{iteration}-in-progress"
-            self.dashboard.update_problem_status(problem_id, status, question)
-        
-        # Get streaming response with appropriate parameters
-        stream = self.reasoning_model.generate_response(
-            prompt,
-            stream=True,
-            max_tokens=self.config["max_tokens"],
-            temperature=self.config["temperature"],
-            top_p=self.config["top_p"],
-            top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
-            presence_penalty=self.config["presence_penalty"],
-            frequency_penalty=self.config["frequency_penalty"],
-            verbose=self.verbose
-        )
-        
-        # Process each chunk as it comes in
-        last_chunk = None
-        for chunk in stream:
-            # Get the content from the chunk
-            full_response += chunk
-            buffered_chunks.append(chunk)
-            
-            # Send chunk to dashboard with debug
-            if self.dashboard:
-                logger.debug(f"Streaming iteration {iteration} chunk to problem ID: {problem_id}")
-                self.dashboard.stream_model_output(problem_id, chunk, iteration=iteration)
-        
-        # For streaming responses, we need to make a non-streaming call to get token usage and cost info
-        token_usage = None
-        cost_info = None
-        
-        # If using FireworksModelClient, make an API call to get the finish_reason and token usage
-        # Check if we're using the updated FireworksModelClient with continuation support
-        if hasattr(self.reasoning_model, 'generate_response_async') and 'fireworks' in str(self.reasoning_model.__class__).lower():
-            try:
-                # Use the async method with continuation support
-                logger.debug(f"Making async call with continuation support for problem {problem_id}, iteration {iteration}")
-                
-                # Extract continuation-specific parameters from config
-                enable_continuation = self.config.get("enable_continuation", True)
-                max_total_tokens = self.config.get("max_total_tokens", 131072)
-                max_continuations = self.config.get("max_continuations", 16)
-                
-                # Use asyncio to run the async method
-                import asyncio
-                loop = asyncio.get_event_loop()
-                response = loop.run_until_complete(
-                    self.reasoning_model.generate_response_async(
-                        prompt=prompt,
-                        max_tokens=self.config["max_tokens"],
-                        temperature=self.config["temperature"],
-                        top_p=self.config["top_p"],
-                        top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
-                        presence_penalty=self.config["presence_penalty"],
-                        frequency_penalty=self.config["frequency_penalty"],
-                        enable_continuation=enable_continuation,
-                        max_total_tokens=max_total_tokens,
-                        max_continuations=max_continuations,
-                        verbose=self.verbose
-                    )
-                )
-                
-                # Extract the finish_reason and token usage from the response
-                if isinstance(response, tuple) and len(response) >= 4:
-                    # Unpack the tuple (content, finish_reason, token_usage, cost_info)
-                    _, finish_reason, token_usage, cost_info = response
-                    logger.debug(f"Got finish_reason '{finish_reason}' for problem {problem_id}, iteration {iteration}")
-                    logger.info(f"Token usage for problem {problem_id}, iteration {iteration}: {token_usage}")
-                    logger.info(f"Cost info for problem {problem_id}, iteration {iteration}: {cost_info}")
-                    
-                    # Track token usage and cost
-                    self.track_token_usage_and_cost(problem_id, token_usage, cost_info, iteration, step)
-                
-            except Exception as e:
-                logger.warning(f"Error getting finish_reason and token usage: {str(e)}. Using 'unknown' instead.")
-                finish_reason = "unknown"
-        else:
-            # For non-Fireworks models, use 'streaming' as the finish_reason
-            # and try to get token usage information if available
-            finish_reason = "streaming"
-            try:
-                # Make a non-streaming call to get token usage
-                response = self.reasoning_model.generate_response(
-                    prompt,
-                    stream=False,
-                    max_tokens=self.config["max_tokens"],
-                    temperature=self.config["temperature"],
-                    top_p=self.config["top_p"],
-                    top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
-                    presence_penalty=self.config["presence_penalty"],
-                    frequency_penalty=self.config["frequency_penalty"],
-                    verbose=False
-                )
-                
-                if isinstance(response, tuple) and len(response) >= 4:
-                    # Unpack the tuple (content, finish_reason, token_usage, cost_info)
-                    _, _, token_usage, cost_info = response
-                    logger.info(f"Token usage for problem {problem_id}, iteration {iteration}: {token_usage}")
-                    logger.info(f"Cost info for problem {problem_id}, iteration {iteration}: {cost_info}")
-                    
-                    # Track token usage and cost
-                    self.track_token_usage_and_cost(problem_id, token_usage, cost_info, iteration, step)
-            except Exception as e:
-                logger.warning(f"Error getting token usage: {str(e)}")
-                
-        # If the client wasn't ready, ensure all chunks are sent now
-        if self.dashboard and hasattr(self.dashboard, 'client_ready') and self.dashboard.client_ready:
-            # Check if we need to resend all chunks 
-            if buffered_chunks and not self.dashboard.client_ready:
-                logger.info(f"Client is now ready, sending all buffered chunks for iteration {iteration} on problem {problem_id}")
-                # Send the complete output as one chunk
-                self.dashboard.stream_model_output(problem_id, ''.join(buffered_chunks), iteration=iteration)
-        
-        # Send a final empty chunk with the finish_reason
-        if self.dashboard:
-            self.dashboard.stream_model_output(problem_id, "", iteration=iteration, finish_reason=finish_reason)
-                
-        # Update the problem status based on iteration
-        if self.dashboard:
-            status = f"iter{iteration}-completed"
-            self.dashboard.update_problem_status(problem_id, status, question)
-        
-        return full_response, finish_reason, token_usage, cost_info
