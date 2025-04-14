@@ -3,22 +3,30 @@ import json
 import time
 import random
 import logging
-import requests
 import asyncio
 import aiohttp
 from dotenv import load_dotenv
-from typing import List, Dict, Any, Iterator, Optional, Union, Tuple, AsyncIterator
+from typing import List, Dict, Any, Optional, Union, Tuple, AsyncIterator
+
+from src.llm.base_client import ModelClient, TokenUsage, CostInfo
+from src.llm.tokenization import format_chat_for_completions, create_continuation_prompt, count_tokens
 
 logger = logging.getLogger(__name__)
 
-from src.llm.base_client import ModelClient, TokenUsage, CostInfo
-
 class FireworksModelClient(ModelClient):
     """
-    Client for making API calls to Fireworks AI models.
+    Client for making API calls to Fireworks AI models using the completions API with continuation support.
+    
+    This client implements the asynchronous interface of ModelClient and does not support
+    synchronous operations. All generation requests use the Completions API endpoint rather than
+    the Chat API to enable better token limit handling and continuation mechanisms.
     """
     
-    BASE_URL = "https://api.fireworks.ai/inference/v1/chat/completions"
+    # Completions API endpoint
+    BASE_URL = "https://api.fireworks.ai/inference/v1/completions"
+    
+    # Known token limit per request
+    MAX_TOKENS_PER_REQUEST = 8192
     
     def __init__(self, model_name: str, api_key: Optional[str] = None, input_price_per_million: float = None, output_price_per_million: float = None):
         """
@@ -86,38 +94,38 @@ class FireworksModelClient(ModelClient):
         
         logger.info(f"Set pricing for {self.model_name}: ${self.input_price_per_million_tokens}/M input tokens, ${self.output_price_per_million_tokens}/M output tokens")
     
-    def generate_completion(
-        self, 
-        messages: List[Dict[str, str]],
-        max_tokens: int,
-        temperature: float,
-        top_p: float,
-        top_k: int,
-        presence_penalty: float,
-        frequency_penalty: float,
-        stream: bool = False,   
-        max_retries: int = 500,  # Increased from 15 to 50 for better handling of rate limits
-        **kwargs
-    ) -> Union[Tuple[Dict[str, Any], TokenUsage, CostInfo], Iterator[Dict[str, Any]]]:
+    async def _call_completions_api(
+        self,
+        prompt: str,
+        max_tokens: int = MAX_TOKENS_PER_REQUEST,
+        temperature: float = 0.7,
+        top_p: float = 0.95,
+        top_k: int = 40,
+        presence_penalty: float = 0.0,
+        frequency_penalty: float = 0.0,
+        max_retries: int = 500,
+        verbose: bool = False
+    ) -> Tuple[Dict[str, Any], TokenUsage, CostInfo]:
         """
-        Generate a completion from the Fireworks model.
+        Make a direct call to the Fireworks Completions API
         
         Args:
-            messages: List of message dictionaries with 'role' and 'content'
-            max_tokens: Maximum number of tokens to generate
+            prompt: The full formatted prompt string
+            max_tokens: Maximum tokens to generate (capped at MAX_TOKENS_PER_REQUEST)
             temperature: Sampling temperature
             top_p: Nucleus sampling parameter
             top_k: Top-k sampling parameter
             presence_penalty: Presence penalty parameter
             frequency_penalty: Frequency penalty parameter
-            stream: Whether to stream the response
             max_retries: Maximum number of retries for rate limit errors
-            **kwargs: Additional parameters
+            verbose: Whether to log verbose output
             
         Returns:
-            If stream=False: The complete API response
-            If stream=True: An iterator yielding response chunks
+            Tuple of (response_json, token_usage, cost_info)
         """
+        # Cap max_tokens at the known limit
+        max_tokens = min(max_tokens, self.MAX_TOKENS_PER_REQUEST)
+        
         payload = {
             "model": self.model_name,
             "max_tokens": max_tokens,
@@ -126,9 +134,13 @@ class FireworksModelClient(ModelClient):
             "top_k": top_k,
             "presence_penalty": presence_penalty,
             "frequency_penalty": frequency_penalty,
-            "messages": messages,
-            "stream": stream
+            "prompt": prompt,
+            "stream": False
         }
+        
+        if verbose:
+            logger.debug(f"Completions API request for {self.model_name}")
+            logger.debug(f"Prompt tokens (approx): {count_tokens(prompt)}")
         
         # Initialize retry counter and backoff time
         retry_count = 0
@@ -136,145 +148,39 @@ class FireworksModelClient(ModelClient):
         
         while True:
             try:
-                response = requests.post(
-                    self.BASE_URL, 
-                    headers=self.headers, 
-                    data=json.dumps(payload),
-                    stream=stream
-                )
+                if verbose:
+                    logger.info(f"Making API request to {self.BASE_URL}")
+                # Set timeout to prevent infinite waiting
+                timeout = aiohttp.ClientTimeout(total=600)  # 10 minute timeout
                 
-                # Check for rate limit errors (429) or service unavailable (503)
-                if response.status_code in [429, 503]:
-                    retry_count += 1
-                    if retry_count > max_retries:
-                        raise Exception(f"Fireworks API rate limit exceeded after {max_retries} retries")
-                    
-                    # Get retry-after header or use exponential backoff with jitter
-                    retry_after = response.headers.get('Retry-After')
-                    if retry_after:
-                        # Add jitter to the Retry-After value to avoid synchronized retries
-                        # Only add positive jitter to ensure we never go below the server's requested wait time
-                        base_sleep_time = float(retry_after)
-                        sleep_time = base_sleep_time + random.uniform(0, 3)  # Add 0-3 seconds of jitter
-                    else:
-                        # Exponential backoff with jitter, capped at 60 seconds (1 minute)
-                        sleep_time = backoff_time + random.uniform(0, 1)
-                        backoff_time = min(backoff_time * 2, 60)  # Double the backoff time but cap at 60 seconds
-                    
-                    logger.warning(f"Rate limit hit, retrying in {sleep_time:.2f} seconds (retry {retry_count}/{max_retries})")
-                    time.sleep(sleep_time)
-                    continue
-                
-                # Raise exception for other HTTP errors
-                response.raise_for_status()
-                
-                if stream:
-                    return self._process_stream(response)
-                else:
-                    response_json = response.json()
-                    
-                    # Always extract and return token usage and cost information
-                    token_usage = self.get_token_usage(response_json)
-                    cost_info = self.calculate_cost(token_usage)
-                    logger.info(f"Token usage: {token_usage.prompt_tokens} prompt, {token_usage.completion_tokens} completion, {token_usage.total_tokens} total")
-                    logger.info(f"Cost: ${cost_info.total_cost:.6f} (${cost_info.prompt_cost:.6f} prompt, ${cost_info.completion_cost:.6f} completion)")
-                    return response_json, token_usage, cost_info
-                    
-            except requests.exceptions.RequestException as e:
-                # For connection errors, retry with backoff
-                if isinstance(e, (requests.exceptions.ConnectionError, requests.exceptions.Timeout)):
-                    retry_count += 1
-                    if retry_count > max_retries:
-                        raise Exception(f"Fireworks API request failed after {max_retries} retries: {str(e)}")
-                    
-                    # Exponential backoff with jitter
-                    sleep_time = backoff_time + random.uniform(0, 1)
-                    backoff_time *= 2  # Double the backoff time for next retry
-                    
-                    logger.warning(f"Connection error, retrying in {sleep_time:.2f} seconds (retry {retry_count}/{max_retries})")
-                    time.sleep(sleep_time)
-                    continue
-                else:
-                    # For other types of exceptions, raise immediately
-                    raise Exception(f"Fireworks API request failed: {str(e)}")
-    
-    async def generate_completion_async(
-        self, 
-        messages: List[Dict[str, str]],
-        max_tokens: int,
-        temperature: float,
-        top_p: float,
-        top_k: int,
-        presence_penalty: float,
-        frequency_penalty: float,
-        stream: bool = False,   
-        max_retries: int = 500,  # Increased from 15 to 50 for better handling of rate limits
-        **kwargs
-    ) -> Union[Tuple[Dict[str, Any], TokenUsage, CostInfo], AsyncIterator[Dict[str, Any]]]:
-        """
-        Generate a completion from the Fireworks model asynchronously.
-        
-        Args:
-            messages: List of message dictionaries with 'role' and 'content'
-            max_tokens: Maximum number of tokens to generate
-            temperature: Sampling temperature
-            top_p: Nucleus sampling parameter
-            top_k: Top-k sampling parameter
-            presence_penalty: Presence penalty parameter
-            frequency_penalty: Frequency penalty parameter
-            stream: Whether to stream the response
-            max_retries: Maximum number of retries for rate limit errors
-            **kwargs: Additional parameters
-            
-        Returns:
-            If stream=False: The complete API response
-            If stream=True: An async iterator yielding response chunks
-        """
-        payload = {
-            "model": self.model_name,
-            "max_tokens": max_tokens,
-            "temperature": temperature,
-            "top_p": top_p,
-            "top_k": top_k,
-            "presence_penalty": presence_penalty,
-            "frequency_penalty": frequency_penalty,
-            "messages": messages,
-            "stream": stream
-        }
-        
-        # Initialize retry counter and backoff time
-        retry_count = 0
-        backoff_time = 1  # Start with 1 second
-        
-        while True:
-            try:
-                async with aiohttp.ClientSession() as session:
+                async with aiohttp.ClientSession(timeout=timeout) as session:
+                    if verbose:
+                        logger.info("Session created, sending request...")
                     async with session.post(
                         self.BASE_URL, 
                         headers=self.headers, 
                         json=payload
                     ) as response:
+                        if verbose:
+                            logger.info(f"Received response with status {response.status}")
                         # Check for rate limit errors (429) or server errors (5xx)
                         if response.status == 429 or 500 <= response.status < 600:
                             retry_count += 1
                             if retry_count > max_retries:
-                                # Different error message for rate limits vs server errors
                                 if response.status == 429:
-                                    raise Exception(f"Fireworks API rate limit exceeded after {max_retries} retries")
+                                    raise ValueError(f"Fireworks API rate limit exceeded after {max_retries} retries")
                                 else:
-                                    raise Exception(f"Fireworks API server error ({response.status}) persisted after {max_retries} retries")
+                                    raise ValueError(f"Fireworks API server error ({response.status}) persisted after {max_retries} retries")
                             
                             # Get retry-after header or use exponential backoff with jitter
                             retry_after = response.headers.get('Retry-After')
                             if retry_after:
-                                # Add jitter to the Retry-After value to avoid synchronized retries
-                                # Only add positive jitter to ensure we never go below the server's requested wait time
                                 base_sleep_time = float(retry_after)
                                 sleep_time = base_sleep_time + random.uniform(0, 3)  # Add 0-3 seconds of jitter
                             else:
-                                # Exponential backoff with jitter, capped at 60 seconds (1 minute)
+                                # Exponential backoff with jitter, capped at 60 seconds
                                 sleep_time = backoff_time + random.uniform(0, 1)
-                                backoff_time = min(backoff_time * 2, 60)  # Double the backoff time but cap at 60 seconds
+                                backoff_time = min(backoff_time * 2, 60)
                             
                             error_type = "Rate limit" if response.status == 429 else f"Server error {response.status}"
                             logger.warning(f"{error_type} encountered, retrying in {sleep_time:.2f} seconds (retry {retry_count}/{max_retries})")
@@ -284,17 +190,23 @@ class FireworksModelClient(ModelClient):
                         # Raise exception for other HTTP errors
                         response.raise_for_status()
                         
-                        if stream:
-                            return self._process_stream_async(response)
-                        else:
-                            response_json = await response.json()
-                            
-                            # Always extract and return token usage and cost information
-                            token_usage = self.get_token_usage(response_json)
-                            cost_info = self.calculate_cost(token_usage)
+                        # Parse response
+                        response_json = await response.json()
+                        
+                        # Extract token usage and cost information
+                        token_usage = await self.get_token_usage(response_json)
+                        cost_info = self.calculate_cost(token_usage)
+                        
+                        if verbose:
                             logger.info(f"Token usage: {token_usage.prompt_tokens} prompt, {token_usage.completion_tokens} completion, {token_usage.total_tokens} total")
                             logger.info(f"Cost: ${cost_info.total_cost:.6f} (${cost_info.prompt_cost:.6f} prompt, ${cost_info.completion_cost:.6f} completion)")
-                            return response_json, token_usage, cost_info
+                            
+                            # Log if response was truncated
+                            finish_reason = response_json["choices"][0]["finish_reason"] if "choices" in response_json else "unknown"
+                            if finish_reason == "length":
+                                logger.info(f"Response was truncated due to token limit ({max_tokens} tokens)")
+                        
+                        return response_json, token_usage, cost_info
                         
             except aiohttp.ClientError as e:
                 # For connection errors, retry with backoff
@@ -302,7 +214,7 @@ class FireworksModelClient(ModelClient):
                                  aiohttp.ServerDisconnectedError, asyncio.TimeoutError)):
                     retry_count += 1
                     if retry_count > max_retries:
-                        raise Exception(f"Fireworks API request failed after {max_retries} retries: {str(e)}")
+                        raise ValueError(f"Fireworks API request failed after {max_retries} retries: {str(e)}")
                     
                     # Exponential backoff with jitter
                     sleep_time = backoff_time + random.uniform(0, 1)
@@ -313,203 +225,295 @@ class FireworksModelClient(ModelClient):
                     continue
                 else:
                     # For other types of exceptions, raise immediately
-                    raise Exception(f"Fireworks API request failed: {str(e)}")
+                    raise ValueError(f"Fireworks API request failed: {str(e)}")
     
-    def _process_stream(self, response: requests.Response) -> Iterator[Dict[str, Any]]:
-        """Process a streaming response from the API."""
-        for line in response.iter_lines():
-            if line:
-                line = line.decode('utf-8')
-                if line.startswith('data: '):
-                    line = line[6:]
-                if line == '[DONE]':
-                    break
-                try:
-                    yield json.loads(line)
-                except json.JSONDecodeError as e:
-                    print(f"Error decoding JSON: {e}, Line: {line}")
-    
-    async def _process_stream_async(self, response: aiohttp.ClientResponse) -> AsyncIterator[Dict[str, Any]]:
-        """Process a streaming response from the API asynchronously."""
-        async for line in response.content:
-            if line:
-                line_str = line.decode('utf-8')
-                if line_str.startswith('data: '):
-                    line_str = line_str[6:]
-                if line_str == '[DONE]':
-                    break
-                try:
-                    yield json.loads(line_str)
-                except json.JSONDecodeError as e:
-                    print(f"Error decoding JSON: {e}, Line: {line_str}")
-    
-    def generate_response(
-        self, 
-        prompt: str, 
-        stream: bool = False,
+    async def generate_response_async(
+        self,
+        prompt: str,
+        max_tokens: int = 8192,
+        temperature: float = 0.7,
+        top_p: float = 0.95,
+        top_k: int = 40,
+        presence_penalty: float = 0.0,
+        frequency_penalty: float = 0.0,
         verbose: bool = False,
+        enable_continuation: bool = True,
+        max_total_tokens: int = 24576,  # Allow up to 3x the single request limit
+        max_continuations: int = 3,
+        track_token_callback = None,  # Callback function for token usage tracking with additional metadata
+        track_token_callback_args = None,  # Extra args for the token tracking callback
         **kwargs
-    ) -> Union[Tuple[str, str, TokenUsage, CostInfo], Iterator[str]]:
+    ) -> Tuple[str, str, TokenUsage, CostInfo, List[Dict]]:
         """
-        Get a response from the model for a specific prompt.
+        Generate a response from the model for a prompt with automatic continuation.
         
         Args:
             prompt: The prompt to send to the model
-            stream: Whether to stream the response
-            verbose: Whether to print verbose output
+            max_tokens: Maximum tokens to generate per request
+            temperature: Sampling temperature
+            top_p: Nucleus sampling parameter
+            top_k: Top-k sampling parameter
+            presence_penalty: Presence penalty parameter
+            frequency_penalty: Frequency penalty parameter
+            verbose: Whether to log verbose output
+            enable_continuation: Whether to enable automatic continuation for long outputs
+            max_total_tokens: Maximum total tokens to generate across all continuations
+            max_continuations: Maximum number of continuations to attempt
             **kwargs: Additional parameters to pass to the model
             
         Returns:
-            If stream=False: A tuple of (content, finish_reason, token_usage, cost_info)
-            If stream=True: An iterator yielding content chunks
+            Tuple of (content, finish_reason, token_usage, cost_info)
         """
+        # Convert prompt to chat format
         messages = [{"role": "user", "content": prompt}]
         
         if verbose:
-            print(f"\n[VERBOSE] Fireworks API Request to {self.model_name}")
-            print(f"[VERBOSE] Messages: {json.dumps(messages, indent=2)}")
-            print(f"[VERBOSE] Parameters: {json.dumps({k: v for k, v in kwargs.items()}, indent=2)}")
+            logger.info(f"Generating response for prompt (length: {len(prompt)} chars)")
         
-        if stream:
-            response_stream = self.generate_completion(messages, stream=True, **kwargs)
-            return self._extract_streaming_content(response_stream)
-        else:
-            # Generate completion always returns token usage and cost info
-            result = self.generate_completion(messages, stream=False, **kwargs)
-            
-            # Unpack the tuple (response_json, token_usage, cost_info)
-            response, token_usage, cost_info = result
-            
-            try:
-                content = response["choices"][0]["message"]["content"]
-                finish_reason = response["choices"][0].get("finish_reason", "unknown")
-                return content, finish_reason, token_usage, cost_info
-            except (KeyError, IndexError) as e:
-                raise Exception(f"Failed to extract content from Fireworks response: {str(e)}")
-    
-    async def generate_response_async(
-        self, 
-        prompt: str, 
-        stream: bool = False,
-        verbose: bool = False,
-        **kwargs
-    ) -> Union[Tuple[str, str, TokenUsage, CostInfo], AsyncIterator[str]]:
-        """
-        Get a response from the model for a specific prompt asynchronously.
+        # Format the initial prompt for completions API
+        formatted_prompt = format_chat_for_completions(messages, self.model_name)
         
-        Returns:
-            If stream=False: A tuple of (content, finish_reason, token_usage, cost_info) where finish_reason indicates why generation stopped
-            If stream=True: An async iterator yielding content chunks
-        """
-        messages = [{"role": "user", "content": prompt}]
+        # Initialize tracking variables
+        all_text = ""
+        total_prompt_tokens = 0
+        total_completion_tokens = 0
+        total_prompt_cost = 0.0
+        total_completion_cost = 0.0
+        final_finish_reason = "unknown"
+        detailed_api_calls = []  # Track individual API calls for detailed metrics
+        
+        # First API call
+        response, token_usage, cost_info = await self._call_completions_api(
+            prompt=formatted_prompt,
+            max_tokens=min(max_tokens, self.MAX_TOKENS_PER_REQUEST),
+            temperature=temperature,
+            top_p=top_p,
+            top_k=top_k,
+            presence_penalty=presence_penalty,
+            frequency_penalty=frequency_penalty,
+            verbose=verbose
+        )
+        
+        # Extract text and finish reason
+        if "choices" in response and response["choices"]:
+            current_text = response["choices"][0]["text"]
+            finish_reason = response["choices"][0].get("finish_reason", "unknown")
+            final_finish_reason = finish_reason
+            all_text += current_text
+            
+            # Update token usage
+            total_prompt_tokens += token_usage.prompt_tokens
+            total_completion_tokens += token_usage.completion_tokens
+            total_prompt_cost += cost_info.prompt_cost
+            total_completion_cost += cost_info.completion_cost
+            
+            # Record detailed metrics for initial API call
+            initial_call_info = {
+                "call_index": 0,
+                "continuation_index": None,
+                "token_usage": {
+                    "prompt_tokens": token_usage.prompt_tokens,
+                    "completion_tokens": token_usage.completion_tokens,
+                    "total_tokens": token_usage.total_tokens
+                },
+                "cost_info": {
+                    "prompt_cost": cost_info.prompt_cost,
+                    "completion_cost": cost_info.completion_cost,
+                    "total_cost": cost_info.total_cost
+                },
+                "finish_reason": finish_reason,
+                "text_length": len(current_text)
+            }
+            detailed_api_calls.append(initial_call_info)
+            
+            # If a token tracking callback is provided, call it with the initial API metrics
+            if track_token_callback:
+                callback_args = track_token_callback_args or {}
+                track_token_callback(
+                    problem_id=callback_args.get("problem_id", "unknown"),
+                    token_usage=token_usage,
+                    cost_info=cost_info,
+                    iteration=callback_args.get("iteration", 0),
+                    step=callback_args.get("step", "reasoning"),
+                    continuation_idx=None,
+                    api_call_idx=0
+                )
+            
+            # Continue generating if needed
+            iteration = 0
+            
+            while (enable_continuation and 
+                   finish_reason == "length" and 
+                   iteration < max_continuations and 
+                   total_completion_tokens < max_total_tokens):
+                
+                # Create continuation prompt
+                continuation_prompt = create_continuation_prompt(
+                    original_messages=messages,
+                    generated_text=all_text,
+                    model_name=self.model_name
+                )
+                
+                # Calculate remaining tokens allowed
+                remaining_tokens = max_total_tokens - total_completion_tokens
+                tokens_to_generate = min(remaining_tokens, self.MAX_TOKENS_PER_REQUEST)
+                
+                if tokens_to_generate <= 0:
+                    break
+                
+                if verbose:
+                    logger.info(f"Continuing generation (continuation {iteration+1})")
+                
+                # Make continuation request
+                try:
+                    cont_response, cont_token_usage, cont_cost_info = await self._call_completions_api(
+                        prompt=continuation_prompt,
+                        max_tokens=tokens_to_generate,
+                        temperature=temperature,
+                        top_p=top_p,
+                        top_k=top_k,
+                        presence_penalty=presence_penalty,
+                        frequency_penalty=frequency_penalty,
+                        verbose=verbose
+                    )
+                    
+                    # Extract continuation text and finish reason
+                    if "choices" in cont_response and cont_response["choices"]:
+                        cont_text = cont_response["choices"][0]["text"]
+                        finish_reason = cont_response["choices"][0].get("finish_reason", "unknown")
+                        final_finish_reason = finish_reason
+                        all_text += cont_text
+                        
+                        # Update token usage
+                        total_prompt_tokens += cont_token_usage.prompt_tokens
+                        total_completion_tokens += cont_token_usage.completion_tokens
+                        total_prompt_cost += cont_cost_info.prompt_cost
+                        total_completion_cost += cont_cost_info.completion_cost
+                        
+                        # Record detailed metrics for continuation API call
+                        continuation_call_info = {
+                            "call_index": iteration + 1,  # +1 because the initial call is index 0
+                            "continuation_index": iteration,
+                            "token_usage": {
+                                "prompt_tokens": cont_token_usage.prompt_tokens,
+                                "completion_tokens": cont_token_usage.completion_tokens,
+                                "total_tokens": cont_token_usage.total_tokens
+                            },
+                            "cost_info": {
+                                "prompt_cost": cont_cost_info.prompt_cost,
+                                "completion_cost": cont_cost_info.completion_cost,
+                                "total_cost": cont_cost_info.total_cost
+                            },
+                            "finish_reason": finish_reason,
+                            "text_length": len(cont_text)
+                        }
+                        detailed_api_calls.append(continuation_call_info)
+                        
+                        # If a token tracking callback is provided, call it with the continuation API metrics
+                        if track_token_callback:
+                            callback_args = track_token_callback_args or {}
+                            track_token_callback(
+                                problem_id=callback_args.get("problem_id", "unknown"),
+                                token_usage=cont_token_usage,
+                                cost_info=cont_cost_info,
+                                iteration=callback_args.get("iteration", 0),
+                                step=callback_args.get("step", "reasoning"),
+                                continuation_idx=iteration,
+                                api_call_idx=iteration + 1
+                            )
+                        
+                        if finish_reason != "length" or total_completion_tokens >= max_total_tokens:
+                            break
+                    
+                except Exception as e:
+                    if verbose:
+                        logger.warning(f"Continuation failed: {str(e)}")
+                    break
+                
+                # Increment iteration counter
+                iteration += 1
+                
+        # Create combined token usage and cost info
+        combined_token_usage = TokenUsage(
+            prompt_tokens=total_prompt_tokens,
+            completion_tokens=total_completion_tokens,
+            total_tokens=total_prompt_tokens + total_completion_tokens
+        )
+        
+        combined_cost_info = CostInfo(
+            prompt_cost=total_prompt_cost,
+            completion_cost=total_completion_cost,
+            total_cost=total_prompt_cost + total_completion_cost
+        )
+        
+        # Add summary statistics to detailed API calls
+        generation_summary = {
+            "num_api_calls": len(detailed_api_calls),
+            "num_continuations": sum(1 for call in detailed_api_calls if call.get("continuation_index") is not None),
+            "total_token_usage": {
+                "prompt_tokens": total_prompt_tokens,
+                "completion_tokens": total_completion_tokens,
+                "total_tokens": total_prompt_tokens + total_completion_tokens
+            },
+            "total_cost_info": {
+                "prompt_cost": total_prompt_cost,
+                "completion_cost": total_completion_cost,
+                "total_cost": total_prompt_cost + total_completion_cost
+            },
+            "total_text_length": len(all_text),
+            "final_finish_reason": final_finish_reason
+        }
+        detailed_api_calls.append(generation_summary)
         
         if verbose:
-            print(f"\n[VERBOSE] Fireworks API Request to {self.model_name}")
-            print(f"[VERBOSE] Messages: {json.dumps(messages, indent=2)}")
-            print(f"[VERBOSE] Parameters: {json.dumps({k: v for k, v in kwargs.items()}, indent=2)}")
+            continuations = "with continuation" if enable_continuation else "without continuation"
+            continuation_info = f" ({generation_summary['num_continuations']} continuations)" if generation_summary['num_continuations'] > 0 else ""
+            logger.info(f"Generation complete {continuations}{continuation_info}: {combined_token_usage.total_tokens} total tokens")
         
-        if stream:
-            response_stream = await self.generate_completion_async(messages, stream=True, **kwargs)
-            return self._extract_streaming_content_async(response_stream)
-        else:
-            # Unpack the tuple (response_json, token_usage, cost_info)
-            response, token_usage, cost_info = await self.generate_completion_async(messages, stream=False, **kwargs)
-            try:
-                content = response["choices"][0]["message"]["content"]
-                finish_reason = response["choices"][0].get("finish_reason", "unknown")
-                return content, finish_reason, token_usage, cost_info
-            except (KeyError, IndexError) as e:
-                raise Exception(f"Failed to extract content from Fireworks response: {str(e)}")
+        return all_text, final_finish_reason, combined_token_usage, combined_cost_info, detailed_api_calls
     
-    def _extract_streaming_content(self, response_stream: Iterator[Dict[str, Any]]) -> Union[Iterator[str], Tuple[Iterator[str], str]]:
-        """
-        Extract content from a streaming response.
+    async def get_token_usage(self, response_json: Dict[str, Any]) -> TokenUsage:
+        """Extract token usage from a Fireworks API response."""
+        usage = response_json.get("usage", {})
         
-        If stream=True, yields each content piece as it arrives.
-        If stream=False, collects all content and returns it along with the finish_reason from the last chunk.
-        """
-        finish_reason = "unknown"
-        last_chunk = None
-        
-        for chunk in response_stream:
-            try:
-                # Save the last chunk to extract finish_reason later
-                last_chunk = chunk
-                
-                content = chunk["choices"][0]["delta"].get("content", "")
-                if content:
-                    yield content
-            except (KeyError, IndexError) as e:
-                print(f"Error extracting content from chunk: {e}")
-                # Don't let errors break the stream, yield an empty string
-                yield ""
-        
-        # Extract finish_reason from the last chunk if available
-        if last_chunk:
-            try:
-                if "choices" in last_chunk and last_chunk["choices"]:
-                    finish_reason = last_chunk["choices"][0].get("finish_reason", "unknown")
-            except Exception as e:
-                print(f"Error extracting finish_reason from last chunk: {e}")
+        return TokenUsage(
+            prompt_tokens=usage.get("prompt_tokens", 0),
+            completion_tokens=usage.get("completion_tokens", 0),
+            total_tokens=usage.get("total_tokens", 0)
+        )
     
-    async def _extract_streaming_content_async(self, response_stream: AsyncIterator[Dict[str, Any]]) -> AsyncIterator[str]:
-        """
-        Extract content from an async streaming response.
+    def calculate_cost(self, token_usage: TokenUsage) -> CostInfo:
+        """Calculate cost based on token usage and model pricing."""
+        prompt_cost = (token_usage.prompt_tokens / 1_000_000) * self.input_price_per_million_tokens
+        completion_cost = (token_usage.completion_tokens / 1_000_000) * self.output_price_per_million_tokens
         
-        Yields each content piece as it arrives.
-        """
-        finish_reason = "unknown"
-        last_chunk = None
-        
-        async for chunk in response_stream:
-            try:
-                # Save the last chunk to extract finish_reason later
-                last_chunk = chunk
-                
-                content = chunk["choices"][0]["delta"].get("content", "")
-                if content:
-                    yield content
-            except (KeyError, IndexError) as e:
-                print(f"Error extracting content from chunk: {e}")
-                # Don't let errors break the stream, yield an empty string
-                yield ""
+        return CostInfo(
+            prompt_cost=prompt_cost,
+            completion_cost=completion_cost,
+            total_cost=prompt_cost + completion_cost
+        )
     
-    def get_content_only(
-        self, 
-        prompt: str, 
-        stream: bool = False,
-        verbose: bool = False,
-        **kwargs
-    ) -> Union[str, Iterator[str]]:
-        """
-        Get only the content response from the model (for backward compatibility).
+    # Implement the base class interface
+    
+    def generate_completion(self, *args, **kwargs):
+        """Not implemented - this client only supports async operations."""
+        raise NotImplementedError("FireworksModelClient only supports asynchronous operations")
+    
+    def generate_response(self, *args, **kwargs):
+        """Not implemented - this client only supports async operations."""
+        raise NotImplementedError("FireworksModelClient only supports asynchronous operations")
+    
+    async def generate_completion_async(self, messages: List[Dict[str, str]], max_tokens: int, temperature: float, **kwargs) -> Tuple[Dict[str, Any], TokenUsage, CostInfo]:
+        """Generate a completion using the chat format converted to completions API format."""
+        # Convert chat messages to a completions API format
+        prompt = format_chat_for_completions(messages)
         
-        Returns:
-            If stream=False: Just the content string
-            If stream=True: An iterator yielding content chunks
-        """
-        if stream:
-            return self.generate_response(prompt, stream=True, verbose=verbose, **kwargs)
-        else:
-            content, _ = self.generate_response(prompt, stream=False, verbose=verbose, **kwargs)
-            return content
-            
-    async def get_content_only_async(
-        self, 
-        prompt: str, 
-        stream: bool = False,
-        verbose: bool = False,
-        **kwargs
-    ) -> Union[str, AsyncIterator[str]]:
-        """
-        Get only the content response from the model asynchronously (for backward compatibility).
+        # Call the completions API and return only the response part
+        response, token_usage, cost_info = await self._call_completions_api(
+            prompt=prompt,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            **kwargs
+        )
         
-        Returns:
-            If stream=False: Just the content string
-            If stream=True: An async iterator yielding content chunks
-        """
-        if stream:
-            return await self.generate_response_async(prompt, stream=True, verbose=verbose, **kwargs)
-        else:
-            content, _ = await self.generate_response_async(prompt, stream=False, verbose=verbose, **kwargs)
-            return content
+        return response, token_usage, cost_info

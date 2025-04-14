@@ -90,9 +90,11 @@ class BaseExperiment:
             
         logger.info(f"Results saved to {self.results_dir}")
     
-    def track_token_usage_and_cost(self, problem_id: str, token_usage: TokenUsage, cost_info: CostInfo, iteration: int = 0, step: str = "reasoning") -> None:
+    def track_token_usage_and_cost(self, problem_id: str, token_usage: TokenUsage, cost_info: CostInfo, 
+                             iteration: int = 0, step: str = "reasoning", 
+                             continuation_idx: int = None, api_call_idx: int = None) -> None:
         """
-        Track token usage and cost for a specific problem and iteration.
+        Track token usage and cost for a specific problem and iteration with much more granular detail.
         
         Args:
             problem_id: ID of the problem
@@ -100,6 +102,8 @@ class BaseExperiment:
             cost_info: CostInfo object with cost information
             iteration: Iteration number (0 = initial, 1 = first improvement, etc.)
             step: Step name (e.g., "reasoning", "summary")
+            continuation_idx: Optional index for continuation calls (0, 1, 2, etc.)
+            api_call_idx: Optional index for API call within a continuation sequence
         """
         # Update total token usage
         self.token_usage["total"]["prompt_tokens"] += token_usage.prompt_tokens
@@ -123,7 +127,7 @@ class BaseExperiment:
         problem_cost["completion_cost"] += cost_info.completion_cost
         problem_cost["total_cost"] += cost_info.total_cost
         
-        # Store iteration-specific information in the results
+        # Store detailed information in the results
         for result in self.results:
             if result.get("problem_id") == problem_id:
                 # Initialize token usage and cost tracking for this result if not present
@@ -132,24 +136,146 @@ class BaseExperiment:
                 if "cost_info" not in result:
                     result["cost_info"] = {}
                 
-                # Create a key for this iteration and step
-                iter_key = f"iter{iteration}_{step}"
+                # Create a hierarchical structure for detailed metrics
+                # 1. First level: iteration
+                iter_key = f"iteration_{iteration}"
+                if iter_key not in result["token_usage"]:
+                    result["token_usage"][iter_key] = {}
+                    result["cost_info"][iter_key] = {}
                 
-                # Store token usage for this iteration
-                result["token_usage"][iter_key] = {
+                # 2. Second level: step (reasoning or summary)
+                if step not in result["token_usage"][iter_key]:
+                    result["token_usage"][iter_key][step] = {}
+                    result["cost_info"][iter_key][step] = {}
+                
+                # 3. Third level: continuations (if applicable)
+                if continuation_idx is not None:
+                    cont_key = f"continuation_{continuation_idx}"
+                    if cont_key not in result["token_usage"][iter_key][step]:
+                        result["token_usage"][iter_key][step][cont_key] = {}
+                        result["cost_info"][iter_key][step][cont_key] = {}
+                    
+                    # 4. Fourth level: API calls (if applicable)
+                    if api_call_idx is not None:
+                        api_key = f"api_call_{api_call_idx}"
+                        # Store individual API call details
+                        result["token_usage"][iter_key][step][cont_key][api_key] = {
+                            "prompt_tokens": token_usage.prompt_tokens,
+                            "completion_tokens": token_usage.completion_tokens,
+                            "total_tokens": token_usage.total_tokens,
+                            "timestamp": datetime.now().isoformat()
+                        }
+                        result["cost_info"][iter_key][step][cont_key][api_key] = {
+                            "prompt_cost": cost_info.prompt_cost,
+                            "completion_cost": cost_info.completion_cost,
+                            "total_cost": cost_info.total_cost
+                        }
+                        
+                        # Update continuation totals
+                        if "total" not in result["token_usage"][iter_key][step][cont_key]:
+                            result["token_usage"][iter_key][step][cont_key]["total"] = {
+                                "prompt_tokens": 0,
+                                "completion_tokens": 0,
+                                "total_tokens": 0
+                            }
+                            result["cost_info"][iter_key][step][cont_key]["total"] = {
+                                "prompt_cost": 0.0,
+                                "completion_cost": 0.0,
+                                "total_cost": 0.0
+                            }
+                        
+                        # Update continuation totals
+                        result["token_usage"][iter_key][step][cont_key]["total"]["prompt_tokens"] += token_usage.prompt_tokens
+                        result["token_usage"][iter_key][step][cont_key]["total"]["completion_tokens"] += token_usage.completion_tokens
+                        result["token_usage"][iter_key][step][cont_key]["total"]["total_tokens"] += token_usage.total_tokens
+                        
+                        result["cost_info"][iter_key][step][cont_key]["total"]["prompt_cost"] += cost_info.prompt_cost
+                        result["cost_info"][iter_key][step][cont_key]["total"]["completion_cost"] += cost_info.completion_cost
+                        result["cost_info"][iter_key][step][cont_key]["total"]["total_cost"] += cost_info.total_cost
+                    else:
+                        # Just store continuation info if no API call index
+                        result["token_usage"][iter_key][step][cont_key] = {
+                            "prompt_tokens": token_usage.prompt_tokens,
+                            "completion_tokens": token_usage.completion_tokens,
+                            "total_tokens": token_usage.total_tokens
+                        }
+                        result["cost_info"][iter_key][step][cont_key] = {
+                            "prompt_cost": cost_info.prompt_cost,
+                            "completion_cost": cost_info.completion_cost,
+                            "total_cost": cost_info.total_cost
+                        }
+                else:
+                    # Just store step info if no continuation
+                    result["token_usage"][iter_key][step] = {
+                        "prompt_tokens": token_usage.prompt_tokens,
+                        "completion_tokens": token_usage.completion_tokens,
+                        "total_tokens": token_usage.total_tokens
+                    }
+                    result["cost_info"][iter_key][step] = {
+                        "prompt_cost": cost_info.prompt_cost,
+                        "completion_cost": cost_info.completion_cost,
+                        "total_cost": cost_info.total_cost
+                    }
+                
+                # Update step totals
+                if "total" not in result["token_usage"][iter_key][step]:
+                    result["token_usage"][iter_key][step]["total"] = {
+                        "prompt_tokens": 0,
+                        "completion_tokens": 0,
+                        "total_tokens": 0
+                    }
+                    result["cost_info"][iter_key][step]["total"] = {
+                        "prompt_cost": 0.0,
+                        "completion_cost": 0.0,
+                        "total_cost": 0.0
+                    }
+                
+                # Update step totals (unless we already counted this in a continuation)
+                if continuation_idx is None or "total" not in result["token_usage"][iter_key][step]:
+                    result["token_usage"][iter_key][step]["total"]["prompt_tokens"] += token_usage.prompt_tokens
+                    result["token_usage"][iter_key][step]["total"]["completion_tokens"] += token_usage.completion_tokens
+                    result["token_usage"][iter_key][step]["total"]["total_tokens"] += token_usage.total_tokens
+                    
+                    result["cost_info"][iter_key][step]["total"]["prompt_cost"] += cost_info.prompt_cost
+                    result["cost_info"][iter_key][step]["total"]["completion_cost"] += cost_info.completion_cost
+                    result["cost_info"][iter_key][step]["total"]["total_cost"] += cost_info.total_cost
+                
+                # Update iteration totals
+                if "total" not in result["token_usage"][iter_key]:
+                    result["token_usage"][iter_key]["total"] = {
+                        "prompt_tokens": 0,
+                        "completion_tokens": 0,
+                        "total_tokens": 0
+                    }
+                    result["cost_info"][iter_key]["total"] = {
+                        "prompt_cost": 0.0,
+                        "completion_cost": 0.0,
+                        "total_cost": 0.0
+                    }
+                
+                # Update iteration totals
+                result["token_usage"][iter_key]["total"]["prompt_tokens"] += token_usage.prompt_tokens
+                result["token_usage"][iter_key]["total"]["completion_tokens"] += token_usage.completion_tokens
+                result["token_usage"][iter_key]["total"]["total_tokens"] += token_usage.total_tokens
+                
+                result["cost_info"][iter_key]["total"]["prompt_cost"] += cost_info.prompt_cost
+                result["cost_info"][iter_key]["total"]["completion_cost"] += cost_info.completion_cost
+                result["cost_info"][iter_key]["total"]["total_cost"] += cost_info.total_cost
+                
+                # Also maintain the old format for backward compatibility
+                old_iter_key = f"iter{iteration}_{step}"
+                result["token_usage"][old_iter_key] = {
                     "prompt_tokens": token_usage.prompt_tokens,
                     "completion_tokens": token_usage.completion_tokens,
                     "total_tokens": token_usage.total_tokens
                 }
-                
-                # Store cost info for this iteration
-                result["cost_info"][iter_key] = {
+                result["cost_info"][old_iter_key] = {
                     "prompt_cost": cost_info.prompt_cost,
                     "completion_cost": cost_info.completion_cost,
                     "total_cost": cost_info.total_cost
                 }
                 
-                # Update total for this problem
+                # Update overall problem totals
                 if "total" not in result["token_usage"]:
                     result["token_usage"]["total"] = {
                         "prompt_tokens": 0,
@@ -181,15 +307,39 @@ class BaseExperiment:
             Dictionary of metrics
         """
         # Default implementation: count problems processed and include token/cost metrics
-        return {
+        metrics = {
             "total_problems": len(self.results),
             "token_usage": self.token_usage["total"],
             "cost_info": self.cost_info["total"],
-            "problems": {
-                problem_id: {
-                    "token_usage": tokens,
-                    "cost_info": self.cost_info["problems"][problem_id]
-                }
-                for problem_id, tokens in self.token_usage["problems"].items()
-            }
+            "problems": {}
         }
+        
+        # Include detailed iteration-level metrics for each problem
+        for result in self.results:
+            problem_id = result.get("problem_id")
+            if not problem_id:
+                continue  # Skip results without a problem_id
+                
+            # Initialize problem entry with totals from the experiment-level tracking
+            # Use empty dictionaries as fallbacks if the problem isn't in the tracking
+            metrics["problems"][problem_id] = {
+                "token_usage": {
+                    "total": dict(self.token_usage["problems"].get(problem_id, {}))
+                },
+                "cost_info": {
+                    "total": dict(self.cost_info["problems"].get(problem_id, {}))
+                }
+            }
+            
+            # Add iteration-level metrics if available
+            if "token_usage" in result and isinstance(result["token_usage"], dict):
+                for key, usage in result["token_usage"].items():
+                    if key != "total" and usage:  # Skip the total and empty values
+                        metrics["problems"][problem_id]["token_usage"][key] = usage
+            
+            if "cost_info" in result and isinstance(result["cost_info"], dict):
+                for key, cost in result["cost_info"].items():
+                    if key != "total" and cost:  # Skip the total and empty values
+                        metrics["problems"][problem_id]["cost_info"][key] = cost
+        
+        return metrics

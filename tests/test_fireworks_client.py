@@ -14,15 +14,15 @@ load_dotenv()
 
 def test_fireworks_client_initialization():
     """Test that the client initializes correctly."""
-    client = FireworksModelClient(model_name="accounts/fireworks/models/qwq-32b")
-    assert client.model_name == "accounts/fireworks/models/qwq-32b"
+    client = FireworksModelClient(model_name="accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-14b-61e7dbf1")
+    assert client.model_name == "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-14b-61e7dbf1"
     assert client.api_key is not None
 
 @pytest.mark.skipif(os.getenv("ENABLE_API_CALLS") != "1", 
                    reason="API calls disabled")
 def test_simple_completion():
     """Test a simple completion to verify API connectivity."""
-    client = FireworksModelClient(model_name="accounts/fireworks/models/qwq-32b")
+    client = FireworksModelClient(model_name="accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-14b-61e7dbf1")
     response = client.generate_response(
         "What is 2+2?",
         max_tokens=1024,
@@ -42,7 +42,7 @@ def test_simple_completion():
                    reason="API calls disabled")
 def test_token_counting_and_cost():
     """Test token counting and cost tracking functionality."""
-    client = FireworksModelClient(model_name="accounts/fireworks/models/llama-v4-7b")
+    client = FireworksModelClient(model_name="accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-14b-61e7dbf1")
     
     # Ensure pricing is set
     assert client.input_price_per_million_tokens > 0
@@ -87,6 +87,6 @@ if __name__ == "__main__":
     # If run directly, execute the API tests
     if os.getenv("ENABLE_API_CALLS") == "1":
         test_simple_completion()
-        test_token_counting_and_cost()
+        # test_token_counting_and_cost()
     else:
         print("API calls disabled. Set ENABLE_API_CALLS=1 to run.")

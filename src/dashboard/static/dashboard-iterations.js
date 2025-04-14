@@ -15,6 +15,15 @@ function updateAnswerProgressionUI(problemId) {
     const sortedIterations = Object.keys(outputs)
         .map(Number)
         .sort((a, b) => a - b);
+        
+    // Check if we have a final answer in the problem data
+    const problemData = window.problemData && window.problemData[problemId];
+    const hasFinalAnswer = problemData && 'final_answer' in problemData && problemData.final_answer !== null;
+    
+    // If we have a final answer, prepare to show it in the progression
+    if (hasFinalAnswer) {
+        console.log(`Problem ${problemId} has final answer: ${problemData.final_answer}`); 
+    }
     
     let html = '';
     
@@ -30,6 +39,11 @@ function updateAnswerProgressionUI(problemId) {
         const iterData = outputs[iteration];
         const answer = iterData.answer || 'No answer';
         const isCorrect = iterData.is_correct === true;
+        
+        // Mark if this is using the answer from final summary
+        const isFromFinalSummary = hasFinalAnswer && 
+                                   index === sortedIterations.length - 1 && 
+                                   problemData.final_answer === answer;
         
         // Update tracking variables for problem card coloring
         if (index === 0) {
@@ -48,9 +62,21 @@ function updateAnswerProgressionUI(problemId) {
         if (!isCorrect) allCorrect = false;
         
         // Create a progression item with appropriate styling based on correctness
-        html += `<span class="progression-item ${isCorrect ? 'correct' : 'incorrect'}">`;
+        html += `<span class="progression-item ${isCorrect ? 'correct' : 'incorrect'} ${isFromFinalSummary ? 'final-summary' : ''}">`;
         html += `Iter ${iteration}: ${answer}`;
+        html += isFromFinalSummary ? ' (final summary)' : '';
         html += `</span>`;
+        
+        // If we're at the last iteration and there's a final summary answer different from the iteration answer
+        if (hasFinalAnswer && 
+            index === sortedIterations.length - 1 && 
+            problemData.final_answer !== answer) {
+            const finalIsCorrect = problemData.final_correct === true;
+            html += `<span class="progression-item ${finalIsCorrect ? 'correct' : 'incorrect'} final-summary">`;
+            html += `Final: ${problemData.final_answer}`;
+            html += ` (final summary)`;
+            html += `</span>`;
+        }
     });
     
     progressionContainer.innerHTML = html || '<div class="no-data">No answer progression available</div>';
@@ -259,6 +285,43 @@ function updateIterationsUI(problemId, handleScroll = true) {
             html += `</div>`; // End iteration-summary
         }
         
+        // Check if this is the last iteration and we have a final summary
+        if (iteration === sortedIterations[sortedIterations.length - 1] && iterData.final_summary) {
+            html += `<div class="iteration-final-summary">`;
+            html += `<div class="subsection-header" id="final-summary-${iteration}-header">`;
+            html += `<h4>Final Summary</h4>`;
+            html += `<button class="toggle-btn" aria-expanded="true" title="Collapse section">−</button>`;
+            html += `</div>`;
+            html += `<div class="subsection-content" id="final-summary-${iteration}-content">`;
+            html += `<div class="summary-content">${DashboardUI.formatReasoning(iterData.final_summary)}</div>`;
+            
+            // Add final summary answer if available
+            if (iterData.final_summary_answer) {
+                const isCorrect = iterData.final_summary_correct === true;
+                html += `<div class="summary-answer ${isCorrect ? 'correct' : 'incorrect'}">`;
+                html += `<strong>Final Summary Answer:</strong> ${iterData.final_summary_answer}`;
+                html += `</div>`;
+            }
+            
+            // Add finish reason display if available
+            if (iterData.summary_finish_reason) {
+                if (iterData.summary_finish_reason === 'length') {
+                    html += `<div class="finish-reason warning">
+                        <span class="warning-icon">⚠️</span> 
+                        Final summary was cut off because it reached the maximum token limit.
+                        The summary may be incomplete.
+                    </div>`;
+                } else if (iterData.summary_finish_reason !== 'stop') {
+                    html += `<div class="finish-reason">
+                        Completion reason: ${iterData.summary_finish_reason}
+                    </div>`;
+                }
+            }
+            
+            html += `</div>`; // End subsection-content
+            html += `</div>`; // End iteration-final-summary
+        }
+        
         html += `</div>`; // End section-content
         html += `</div>`; // End iteration-section
     });
@@ -301,6 +364,18 @@ function updateIterationsUI(problemId, handleScroll = true) {
             if (summaryToggleBtn) {
                 summaryHeader.addEventListener('click', () => {
                     DashboardUI.toggleSection(summaryContent, summaryToggleBtn);
+                });
+            }
+        }
+        
+        // Set up toggle listeners for final summary section if it exists
+        const finalSummaryHeader = document.getElementById(`final-summary-${iteration}-header`);
+        const finalSummaryContent = document.getElementById(`final-summary-${iteration}-content`);
+        if (finalSummaryHeader && finalSummaryContent) {
+            const finalSummaryToggleBtn = finalSummaryHeader.querySelector('.toggle-btn');
+            if (finalSummaryToggleBtn) {
+                finalSummaryHeader.addEventListener('click', () => {
+                    DashboardUI.toggleSection(finalSummaryContent, finalSummaryToggleBtn);
                 });
             }
         }
