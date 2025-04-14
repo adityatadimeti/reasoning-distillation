@@ -240,8 +240,10 @@ class FireworksModelClient(ModelClient):
         enable_continuation: bool = True,
         max_total_tokens: int = 24576,  # Allow up to 3x the single request limit
         max_continuations: int = 3,
+        track_token_callback = None,  # Callback function for token usage tracking with additional metadata
+        track_token_callback_args = None,  # Extra args for the token tracking callback
         **kwargs
-    ) -> Tuple[str, str, TokenUsage, CostInfo]:
+    ) -> Tuple[str, str, TokenUsage, CostInfo, List[Dict]]:
         """
         Generate a response from the model for a prompt with automatic continuation.
         
@@ -278,6 +280,7 @@ class FireworksModelClient(ModelClient):
         total_prompt_cost = 0.0
         total_completion_cost = 0.0
         final_finish_reason = "unknown"
+        detailed_api_calls = []  # Track individual API calls for detailed metrics
         
         # First API call
         response, token_usage, cost_info = await self._call_completions_api(
@@ -303,6 +306,38 @@ class FireworksModelClient(ModelClient):
             total_completion_tokens += token_usage.completion_tokens
             total_prompt_cost += cost_info.prompt_cost
             total_completion_cost += cost_info.completion_cost
+            
+            # Record detailed metrics for initial API call
+            initial_call_info = {
+                "call_index": 0,
+                "continuation_index": None,
+                "token_usage": {
+                    "prompt_tokens": token_usage.prompt_tokens,
+                    "completion_tokens": token_usage.completion_tokens,
+                    "total_tokens": token_usage.total_tokens
+                },
+                "cost_info": {
+                    "prompt_cost": cost_info.prompt_cost,
+                    "completion_cost": cost_info.completion_cost,
+                    "total_cost": cost_info.total_cost
+                },
+                "finish_reason": finish_reason,
+                "text_length": len(current_text)
+            }
+            detailed_api_calls.append(initial_call_info)
+            
+            # If a token tracking callback is provided, call it with the initial API metrics
+            if track_token_callback:
+                callback_args = track_token_callback_args or {}
+                track_token_callback(
+                    problem_id=callback_args.get("problem_id", "unknown"),
+                    token_usage=token_usage,
+                    cost_info=cost_info,
+                    iteration=callback_args.get("iteration", 0),
+                    step=callback_args.get("step", "reasoning"),
+                    continuation_idx=None,
+                    api_call_idx=0
+                )
             
             # Continue generating if needed
             iteration = 0
@@ -355,6 +390,38 @@ class FireworksModelClient(ModelClient):
                         total_prompt_cost += cont_cost_info.prompt_cost
                         total_completion_cost += cont_cost_info.completion_cost
                         
+                        # Record detailed metrics for continuation API call
+                        continuation_call_info = {
+                            "call_index": iteration + 1,  # +1 because the initial call is index 0
+                            "continuation_index": iteration,
+                            "token_usage": {
+                                "prompt_tokens": cont_token_usage.prompt_tokens,
+                                "completion_tokens": cont_token_usage.completion_tokens,
+                                "total_tokens": cont_token_usage.total_tokens
+                            },
+                            "cost_info": {
+                                "prompt_cost": cont_cost_info.prompt_cost,
+                                "completion_cost": cont_cost_info.completion_cost,
+                                "total_cost": cont_cost_info.total_cost
+                            },
+                            "finish_reason": finish_reason,
+                            "text_length": len(cont_text)
+                        }
+                        detailed_api_calls.append(continuation_call_info)
+                        
+                        # If a token tracking callback is provided, call it with the continuation API metrics
+                        if track_token_callback:
+                            callback_args = track_token_callback_args or {}
+                            track_token_callback(
+                                problem_id=callback_args.get("problem_id", "unknown"),
+                                token_usage=cont_token_usage,
+                                cost_info=cont_cost_info,
+                                iteration=callback_args.get("iteration", 0),
+                                step=callback_args.get("step", "reasoning"),
+                                continuation_idx=iteration,
+                                api_call_idx=iteration + 1
+                            )
+                        
                         if finish_reason != "length" or total_completion_tokens >= max_total_tokens:
                             break
                     
@@ -366,9 +433,6 @@ class FireworksModelClient(ModelClient):
                 # Increment iteration counter
                 iteration += 1
                 
-                # Add a small delay between requests
-                # await asyncio.sleep(0.5)
-        
         # Create combined token usage and cost info
         combined_token_usage = TokenUsage(
             prompt_tokens=total_prompt_tokens,
@@ -382,11 +446,31 @@ class FireworksModelClient(ModelClient):
             total_cost=total_prompt_cost + total_completion_cost
         )
         
+        # Add summary statistics to detailed API calls
+        generation_summary = {
+            "num_api_calls": len(detailed_api_calls),
+            "num_continuations": sum(1 for call in detailed_api_calls if call.get("continuation_index") is not None),
+            "total_token_usage": {
+                "prompt_tokens": total_prompt_tokens,
+                "completion_tokens": total_completion_tokens,
+                "total_tokens": total_prompt_tokens + total_completion_tokens
+            },
+            "total_cost_info": {
+                "prompt_cost": total_prompt_cost,
+                "completion_cost": total_completion_cost,
+                "total_cost": total_prompt_cost + total_completion_cost
+            },
+            "total_text_length": len(all_text),
+            "final_finish_reason": final_finish_reason
+        }
+        detailed_api_calls.append(generation_summary)
+        
         if verbose:
             continuations = "with continuation" if enable_continuation else "without continuation"
-            logger.info(f"Generation complete {continuations}: {combined_token_usage.total_tokens} total tokens")
+            continuation_info = f" ({generation_summary['num_continuations']} continuations)" if generation_summary['num_continuations'] > 0 else ""
+            logger.info(f"Generation complete {continuations}{continuation_info}: {combined_token_usage.total_tokens} total tokens")
         
-        return all_text, final_finish_reason, combined_token_usage, combined_cost_info
+        return all_text, final_finish_reason, combined_token_usage, combined_cost_info, detailed_api_calls
     
     async def get_token_usage(self, response_json: Dict[str, Any]) -> TokenUsage:
         """Extract token usage from a Fireworks API response."""

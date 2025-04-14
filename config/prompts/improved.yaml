@@ -54,6 +54,18 @@ aime_diff_approach:
 
     Based on these previous solution attempts, evaluate whether the most recent approach and answer are correct. If not, consider a different approach.
 
+aime_your_approach:
+  template: |
+    Solve the following AIME problem. All answers are integers ranging from 0 to 999, inclusive. Report your answer in \boxed{} format.
+    
+    PROBLEM:
+    {question}
+    
+    Here are summaries of your previous solution attempts:
+    {summaries}
+
+    Based on your previous solution attempts, evaluate whether the most recent approach and answer are correct. If not, consider a different approach.
+
 gpqa_diff_approach:
   template: |
     What is the correct answer to this question:

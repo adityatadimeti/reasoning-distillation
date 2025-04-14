@@ -1,7 +1,7 @@
 import logging
-from typing import Optional, Dict, Any, Union, Iterator, Tuple, AsyncIterator
+from typing import Dict, Union, Iterator, Tuple, AsyncIterator, List
 
-from src.llm.base_client import ModelClient, TokenUsage, CostInfo
+from src.llm.base_client import TokenUsage, CostInfo
 
 logger = logging.getLogger(__name__)
 
@@ -100,8 +100,11 @@ async def summarize_reasoning_async(
     # Continuation parameters
     enable_continuation: bool = True,
     max_total_tokens: int = None,
-    max_continuations: int = None
-) -> Union[Tuple[str, str, TokenUsage, CostInfo], AsyncIterator[str]]:
+    max_continuations: int = None,
+    # Enhanced metrics tracking
+    track_token_callback = None,
+    track_token_callback_args = None
+) -> Union[Tuple[str, str, TokenUsage, CostInfo, List[Dict]], AsyncIterator[str]]:
     """
     Generate a summary of the reasoning trace asynchronously.
     
@@ -148,7 +151,10 @@ async def summarize_reasoning_async(
             # Add continuation parameters for the new API
             "enable_continuation": enable_continuation,
             "max_total_tokens": max_total_tokens,
-            "max_continuations": max_continuations
+            "max_continuations": max_continuations,
+            # Add enhanced metrics tracking parameters
+            "track_token_callback": track_token_callback,
+            "track_token_callback_args": track_token_callback_args
         }
     else:
         # Other model clients

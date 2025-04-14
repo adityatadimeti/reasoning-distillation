@@ -13,7 +13,7 @@ reasoning_model: "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-disti
 summarizer_type: "self"
 
 # Generation parameters
-max_tokens: 10  # Deliberately small to trigger continuation
+max_tokens: 100  # Deliberately small to trigger continuation
 temperature: 0.6
 top_p: 0.95
 top_k: 40
@@ -31,6 +31,7 @@ continue_after_correct: true  # Continue to iteration 1 even if iteration 0 is c
 
 # Summarization parameters
 enable_summarization: true
+enable_final_summarization: true  # Controls additional summarization of the final reasoning
 summary_max_tokens: 8192
 summary_temperature: 0.6
 summary_top_p: 0.95
