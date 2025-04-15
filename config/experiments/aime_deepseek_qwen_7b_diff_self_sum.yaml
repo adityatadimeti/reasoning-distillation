@@ -1,0 +1,55 @@
+# Experiment configuration for Qwen 32B
+experiment_name: "aime_deepseek_qwen_7b_comp_self_sum"
+results_dir: "./results/aime_deepseek_qwen_7b_comp_self_sum"
+data_path: "./data/aime_2024_5.csv"
+save_intermediate: true
+experiment_type: "summarize"
+
+# Dashboard configuration
+dashboard_port: 8080
+
+# Model configuration
+reasoning_model: "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-7b-bad1b741"
+reasoning_model_provider: "fireworks"
+summarizer_type: "self"
+
+# Generation parameters
+max_tokens: 8192  # Maximum tokens per request (Fireworks limit for DeepSeek Qwen models)
+temperature: 0.6
+top_p: 0.95
+top_k: 40
+presence_penalty: 0.0
+frequency_penalty: 0.0
+
+# Continuation parameters (for Fireworks API)
+enable_continuation: true  # Whether to automatically continue generation when token limit is reached
+max_total_tokens: 32768  # Total token limit across all continuations
+max_continuations: 4   # Maximum number of continuation attempts
+
+# Iteration parameters
+max_iterations: 4
+continue_after_correct: true
+
+# Summarization parameters
+enable_summarization: true
+enable_final_summarization: true
+allow_fallback: true  # Enable fallback to use full response when think tags are missing
+extract_post_think_summary: true  # Enable extraction of content after </think> tag for post-think summary
+summary_max_tokens: 8192  # Maximum tokens per request for summaries
+summary_temperature: 0.6
+summary_top_p: 0.95
+summary_top_k: 40
+summary_presence_penalty: 0.0
+summary_frequency_penalty: 0.0
+
+# Summary continuation parameters (if different from main continuation parameters)
+summary_max_total_tokens: 32768  # Total token limit for summaries across all continuations
+summary_max_continuations: 4   # Maximum number of continuation attempts for summaries
+
+answer_extractor: "math"
+
+# Prompt configurations
+prompts:
+  reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
+  summarize: "aime_approach_and_answer"  # This references the version in config/prompts/summarize.yaml
+  improved: "aime_your_approach" # This references the version in config/prompts/improved.yaml
