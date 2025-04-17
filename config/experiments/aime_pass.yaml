@@ -1,9 +1,10 @@
 # Example configuration for using Together AI models
-experiment_name: "aime_2024_pass_consensus_update"
-results_dir: "./results/aime_2024_consensus_update"
+experiment_name: "aime_2024_pass_consensus_update_test_14b"
+results_dir: "./results/aime_2024_consensus_update_test_14b"
 data_path: "./data/aime_2024_5.csv"
 save_intermediate: true
 experiment_type: "pass_k" # either pass_k or summarize
+pass_k_iterations: 5
 
 # Dashboard configuration
 dashboard_port: 8080
@@ -12,7 +13,9 @@ dashboard_port: 8080
 # Using Together AI models
 # Model configuration
 
-reasoning_model: "accounts/adityatadimeti-d6565b/deployedModels/deepseek-r1-distill-qwen-14b-97aea0bc"
+#reasoning_model: "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-14b-88c77ae8"
+reasoning_model: "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-14b-09d34aa8"
+
 #reasoning_model: "accounts/fireworks/models/deepseek-r1"
 reasoning_model_provider: "fireworks"
 summarizer_type: "external"
@@ -31,6 +34,15 @@ frequency_penalty: 0.0
 # Iteration parameters
 max_iterations: 2  # This will do initial (0) plus one more iteration (1)
 continue_after_correct: false  # Continue to iteration 1 even if iteration 0 is correct
+
+# Continuation parameters (for Fireworks API)
+# enable_continuation: true  # Whether to automatically continue generation when token limit is reached
+# max_total_tokens: 32768  # Total token limit across all continuations
+# max_continuations: 4   # Maximum number of continuation attempts
+reasoning_prompt_template: "Solve the following AIME problem. All answers are integers ranging from 0 to 999, inclusive.  Report your answer in \\boxed{} format.
+
+    PROBLEM:
+    {question}"
 
 # Summarization parameters
 enable_summarization: false

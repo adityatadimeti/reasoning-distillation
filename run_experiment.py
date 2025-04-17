@@ -371,8 +371,12 @@ def main():
     parser.add_argument("--exclude_question_ids", type=str, help="Comma-separated list of question IDs to exclude")
     parser.add_argument("--index_range", type=str, help="Range of question indices to run (e.g., '0-4' or '10-15')")
     
-    args = parser.parse_args()
+    # Add argument for continuation mode
+    parser.add_argument("--continuations_only", action="store_true", help="Only process continuations for truncated solutions")
+    parser.add_argument("--results_file", type=str, help="Path to results file for continuation processing (optional)")
     
+    args = parser.parse_args()
+
     # Process question IDs if provided
     question_ids = None
     if args.question_ids:
@@ -387,17 +391,45 @@ def main():
     setup_logging()
     
     try:
-        run_experiment(
-            args.config, 
-            use_dashboard=args.dashboard,
-            verbose=args.verbose,
-            parallel=args.parallel,
-            max_concurrency=args.concurrency,
-            question_ids=question_ids,
-            exclude_question_ids=exclude_question_ids,
-            index_range=args.index_range
-        )
-        logger.info("Experiment completed successfully")
+        # Load configuration
+        config = load_config(args.config)
+        
+        if args.continuations_only:
+            # Only process continuations for truncated solutions
+            logger.info("Running in continuations-only mode")
+            
+            # Create experiment instance
+            reasoning_provider = config.get("reasoning_model_provider", None)
+            
+            # Override configuration with command-line args
+            if args.verbose:
+                config["verbose"] = True
+            
+            # Create the experiment instance
+            experiment = PassExperiment(
+                experiment_name=config.get("experiment_name", "pass_k"),
+                config=config,
+                dashboard=None,  # No dashboard in continuation mode
+                verbose=args.verbose
+            )
+            
+            # Run the continuations
+            asyncio.run(experiment.process_continuations(args.results_file))
+            
+            logger.info("Continuation processing completed successfully")
+        else:
+            # Run full experiment
+            run_experiment(
+                args.config, 
+                use_dashboard=args.dashboard,
+                verbose=args.verbose,
+                parallel=args.parallel,
+                max_concurrency=args.concurrency,
+                question_ids=question_ids,
+                exclude_question_ids=exclude_question_ids,
+                index_range=args.index_range
+            )
+            logger.info("Experiment completed successfully")
     except Exception as e:
         logger.error(f"Experiment failed: {e}")
         import traceback

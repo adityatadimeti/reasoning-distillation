@@ -7,5 +7,8 @@
     "accounts/vivek-vajipey-84a360/deployedModels/qwen2p5-14b-f6c61aba": {"input": 0.5, "output": 0.5},
     "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-14b-88c77ae8": {"input": 0.5, "output": 0.5},
     "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-32b-cdb97b63": {"input": 0.9, "output": 0.9},
-    "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-1p5b-f79c609a": {"input": 0.1, "output": 0.1}
+    "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-1p5b-f79c609a": {"input": 0.1, "output": 0.1},
+    "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-14b-09d34aa8": {"input": 0.1, "output": 0.1},
+    "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-1p5b-23b45ced": {"input": 0.1, "output": 0.1},
+    "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-32b-09199778": {"input": 0.1, "output": 0.1}
 }
