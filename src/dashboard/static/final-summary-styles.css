@@ -1,0 +1,22 @@
+/* Final summary styling */
+.progression-item.final-summary {
+    font-weight: bold;
+    border: 2px solid #4a5568;
+    background-color: #edf2f7;
+}
+
+.iteration-final-summary {
+    margin-top: 10px;
+    border-left: 4px solid #4299e1;
+    background-color: #ebf8ff;
+}
+
+.iteration-final-summary .subsection-header {
+    background-color: #bee3f8;
+}
+
+/* Add a special icon for final summaries */
+.final-summary::before {
+    content: "★ ";
+    color: #3182ce;
+}

@@ -115,3 +115,65 @@ aime_approach_and_answer:
     {reasoning}
     
     SUMMARY:
+
+direct_retelling:
+  template: |
+    Retell the sequence of thoughts from the attempted solution below. Describe the steps taken, the reasoning behind them, any alternative ideas considered, and any moments of correction or doubt, in the order they appeared. Ensure your retelling includes *all* intermediate calculations and potential answers mentioned in the original attempt, even if they were later discarded. Do not summarize or simplify the thought process.
+
+    After the summary, include the final answer reached by the solution in \boxed{} format.
+
+    PROBLEM:
+    {question}
+
+    ATTEMPTED SOLUTION:
+    {reasoning}
+
+    RETOLD THOUGHT PROCESS:
+
+deconstruct:
+  template: |
+    Deconstruct the following attempted solution to the problem. Your goal is to create a structured representation of the *entire* thought process from the 'ATTEMPTED SOLUTION', including explorations, uncertainties, and revisions, that can inform a subsequent attempt. **Do not compress, simplify, or omit details about the reasoning journey.** Focus on accurately capturing the *process* as it occurred.
+
+    Structure your deconstruction using the following sections:
+
+    1.  **Problem Interpretation:** How did the attempt initially understand the problem's goal, constraints, and key elements?
+    2.  **Initial Strategy/Approach:** What was the first main mathematical strategy or line of reasoning pursued?
+    3.  **Key Steps & Logic Flow:** Detail the sequence of major calculations, derivations, formulas used, and logical steps followed.
+    4.  **Alternative Paths & Explorations:** Describe any significant alternative approaches, ideas, or calculations that were considered or explored, *even if they were abandoned*.
+    5.  **Self-Corrections & Revisions:** Identify any specific points where the reasoning explicitly backtracked, corrected a perceived mistake, or changed its interpretation or direction. What seemed to trigger these changes?
+    6.  **Points of Uncertainty/Doubt:** Note any parts where the reasoning expressed confusion, doubt, or lack of confidence in a step, assumption, or result.
+    7.  **Final Answer Derivation:** Outline the specific sequence of steps and calculations that immediately led to the final conclusion or boxed answer presented in the attempt.
+
+    ---
+    After completing the structured deconstruction above, explicitly state the final answer derived *in the original ATTEMPTED SOLUTION* below, using the specified format. If no boxed answer was present in the attempt, state "No boxed answer found".
+
+    ATTEMPT'S FINAL ANSWER: \boxed{ANSWER}
+    ---
+
+    PROBLEM:
+    {question}
+
+    ATTEMPTED SOLUTION:
+    {reasoning}
+
+    DECONSTRUCTION OF ATTEMPT:
+
+journey:
+  template: |
+    Analyze the following attempted solution. Provide a detailed narrative reconstructing the thought process used to arrive at the conclusion presented in the 'ATTEMPTED SOLUTION'. Your goal is to faithfully represent the *entire* reasoning journey, including intermediate steps, explorations, changes in direction, and moments of uncertainty, so that this reconstruction can be reviewed and potentially built upon.
+
+    **Focus on describing the process as it unfolded:** How was the problem initially interpreted and what strategy was chosen? Detail the key steps, calculations, and logical deductions. Importantly, describe any significant alternative paths or ideas that were explored, even if they were ultimately not pursued. Note specific instances where the reasoning seemed to backtrack, revise an earlier step or understanding, or correct a perceived mistake. Also capture any points where the model expressed doubt or uncertainty about its approach or results. Ensure your reconstruction reflects the flow and evolution of the thought process accurately and completely, **without simplifying or omitting the exploratory or corrective phases.** Do not critique the reasoning or solve the problem yourself in this reconstruction; your task is only to describe the process that *was* followed in the provided attempt.
+
+    ---
+    After providing the detailed reconstruction, explicitly state the final answer derived *in the original ATTEMPTED SOLUTION* below. If no boxed answer was present in the attempt, state "No boxed answer found".
+
+    ATTEMPT'S FINAL ANSWER: \boxed{ANSWER}
+    ---
+
+    PROBLEM:
+    {question}
+
+    ATTEMPTED SOLUTION:
+    {reasoning}
+
+    RECONSTRUCTION OF THOUGHT PROCESS:
