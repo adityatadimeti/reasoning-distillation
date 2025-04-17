@@ -70,12 +70,24 @@ gpqa_diff_approach:
   template: |
     What is the correct answer to this question:
     
-    {question}
-
-    Answer in the format "The correct answer is (insert answer here)."
+    {question} 
     
     Here are summaries of previous solution attempts:
     {summaries}
 
     Based on these previous solution attempts, evaluate whether the most recent approach and answer are correct. If not, consider a different approach. 
     
+    Answer in the format "The correct answer is (insert answer here)."
+
+gpqa_your_approach:
+  template: |
+    What is the correct answer to this question:
+    
+    {question} 
+    
+    Here are summaries of your previous solution attempts:
+    {summaries}
+
+    Based on these previous solution attempts, evaluate whether the most recent approach and answer are correct. If not, consider a different approach. 
+    
+    Answer in the format "The correct answer is (insert answer here)."

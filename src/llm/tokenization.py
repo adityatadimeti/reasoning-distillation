@@ -8,10 +8,18 @@ import tiktoken
 from typing import List, Dict, Any, Optional
 from transformers import AutoTokenizer
 
-# Load model mapping from Fireworks API model names to HF model names
-MODEL_MAP_PATH = os.path.join(os.path.dirname(__file__), "models", "fireworks_model_map.json")
-with open(MODEL_MAP_PATH, "r") as f:
-    FIREWORKS_MODEL_MAP = json.load(f)
+# Load unified model info for mapping and pricing
+from os import path
+INFO_PATH = path.join(path.dirname(__file__), "models", "fireworks_model_info.json")
+with open(INFO_PATH, "r") as f:
+    FIREWORKS_MODEL_INFO = json.load(f)
+
+# Derive FIREWORKS_MODEL_MAP from unified info
+FIREWORKS_MODEL_MAP = {
+    model_name: info.get("hf_model_name")
+    for model_name, info in FIREWORKS_MODEL_INFO.items()
+    if info.get("hf_model_name")
+}
 
 def count_tokens(text: str, encoding_name: str = "cl100k_base") -> int:
     """

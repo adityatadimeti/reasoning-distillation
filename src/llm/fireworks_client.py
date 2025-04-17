@@ -75,25 +75,24 @@ class FireworksModelClient(ModelClient):
             self.output_price_per_million_tokens = output_price_per_million
             return
         
-        # Load pricing from JSON file
-        pricing_file = os.path.join(os.path.dirname(__file__), "pricing", "fireworks_prices.json")
+        # Load model info from unified JSON
+        info_file = os.path.join(os.path.dirname(__file__), "models", "fireworks_model_info.json")
         try:
-            with open(pricing_file, "r") as f:
-                model_pricing = json.load(f)
+            with open(info_file, "r") as f:
+                model_info = json.load(f)
         except (FileNotFoundError, json.JSONDecodeError) as e:
-            raise ValueError(f"Error loading pricing information: {str(e)}")
-        
-        # Get pricing for the model
-        if self.model_name not in model_pricing:
-            raise ValueError(f"Pricing information not available for model: {self.model_name}")
-            
-        pricing = model_pricing[self.model_name]
-        
-        self.input_price_per_million_tokens = pricing["input"]
-        self.output_price_per_million_tokens = pricing["output"]
-        
+            raise ValueError(f"Error loading model info: {str(e)}")
+        # Ensure model exists
+        if self.model_name not in model_info:
+            raise ValueError(f"Model info not available for model: {self.model_name}")
+        info = model_info[self.model_name]
+        # Set pricing
+        self.input_price_per_million_tokens = info.get("input_price_per_million")
+        self.output_price_per_million_tokens = info.get("output_price_per_million")
+        # Set HF mapping if available
+        self.hf_model_name = info.get("hf_model_name")
         logger.info(f"Set pricing for {self.model_name}: ${self.input_price_per_million_tokens}/M input tokens, ${self.output_price_per_million_tokens}/M output tokens")
-    
+        
     async def _call_completions_api(
         self,
         prompt: str,
