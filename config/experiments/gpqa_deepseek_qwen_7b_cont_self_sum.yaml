@@ -1,7 +1,7 @@
-# Experiment configuration for Qwen 32B
-experiment_name: "aime_deepseek_qwen_7b_comp_self_sum"
-results_dir: "./results/aime_deepseek_qwen_7b_comp_self_sum"
-data_path: "./data/aime_2024_5.csv"
+# Experiment configuration for Qwen 7B 
+experiment_name: "gpqa_deepseek_qwen_7b_cont_self_sum"
+results_dir: "./results/gpqa_deepseek_qwen_7b_cont_self_sum"
+data_path: "./data/gpqa_diamond_mc_sample.csv"
 save_intermediate: true
 experiment_type: "summarize"
 
@@ -46,10 +46,10 @@ summary_frequency_penalty: 0.0
 summary_max_total_tokens: 32768  # Total token limit for summaries across all continuations
 summary_max_continuations: 4   # Maximum number of continuation attempts for summaries
 
-answer_extractor: "math"
+answer_extractor: "gpqa_mc"
 
 # Prompt configurations
 prompts:
-  reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
-  summarize: "aime_approach_and_answer"  # This references the version in config/prompts/summarize.yaml
-  improved: "aime_your_approach" # This references the version in config/prompts/improved.yaml
+  reasoning: "gpqa_mc"  # This references the version in config/prompts/reasoning.yaml
+  summarize: "gpqa_approach_and_answer"  # This references the version in config/prompts/summarize.yaml
+  improved: "gpqa_your_approach" # This references the version in config/prompts/improved.yaml

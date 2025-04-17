@@ -27,7 +27,7 @@ max_total_tokens: 32768  # Total token limit across all continuations
 max_continuations: 4   # Maximum number of continuation attempts
 
 # Iteration parameters
-max_iterations: 4
+max_iterations: 8
 continue_after_correct: true
 
 # Summarization parameters
