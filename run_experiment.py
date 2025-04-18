@@ -10,7 +10,7 @@ from typing import Dict, Any, List, Optional
 
 from src.utils.config import load_config
 from src.experiments.summarization import SummarizationExperiment
-from src.experiments.passk import PassExperiment
+from src.experiments.passk import PassKExperiment
 from src.dashboard.server import DashboardServer
 
 logger = logging.getLogger(__name__)
@@ -222,24 +222,24 @@ def run_experiment(
             "status": "Running"
         })
     
-    experiment = None
-    if config.get("experiment_type") == "pass_k":
-        # Create experiment
-        experiment = PassExperiment(
+    # Determine experiment type
+    experiment_type = config.get("experiment_type", "summarize")
+    
+    # Create appropriate experiment based on type
+    if experiment_type == "pass_k":
+        experiment = PassKExperiment(
             experiment_name=config.get("experiment_name", "pass_k"),
             config=config,
-            dashboard=dashboard,  # Pass dashboard to experiment
+            dashboard=dashboard,
             verbose=verbose
         )
-    else: # default to summarization, even if no experiment_type is specified
-        # Create experiment
+    else:  # Default to summarization experiment
         experiment = SummarizationExperiment(
             experiment_name=config.get("experiment_name", "summarization"),
             config=config,
-            dashboard=dashboard,  # Pass dashboard to experiment
+            dashboard=dashboard,
             verbose=verbose
         )
-    
     
     # Run experiment
     if parallel and not use_dashboard:
@@ -330,13 +330,24 @@ async def run_experiment_async(
     else:
         logger.info(f"Loaded {len(problems)} of {len(all_problems)} problems")
     
-    # Create experiment
-    experiment = SummarizationExperiment(
-        experiment_name=config.get("experiment_name", "summarization"),
-        config=config,
-        dashboard=None,  # No dashboard in async mode
-        verbose=verbose
-    )
+    # Determine experiment type
+    experiment_type = config.get("experiment_type", "summarize")
+    
+    # Create appropriate experiment based on type
+    if experiment_type == "pass_k":
+        experiment = PassKExperiment(
+            experiment_name=config.get("experiment_name", "pass_k"),
+            config=config,
+            dashboard=None,  # No dashboard in async mode
+            verbose=verbose
+        )
+    else:  # Default to summarization experiment
+        experiment = SummarizationExperiment(
+            experiment_name=config.get("experiment_name", "summarization"),
+            config=config,
+            dashboard=None,  # No dashboard in async mode
+            verbose=verbose
+        )
     
     # Run experiment in parallel
     results = await experiment.run_parallel(problems, max_concurrency=max_concurrency)

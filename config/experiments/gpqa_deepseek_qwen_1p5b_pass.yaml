@@ -1,0 +1,36 @@
+# Example configuration for using Together AI models
+experiment_name: "gpqa_deepseek_qwen_1p5b_pass"
+results_dir: "./results/gpqa_deepseek_qwen_1p5b_pass"
+data_path: "./data/gpqa_diamond_mc_sample.csv"
+save_intermediate: true
+experiment_type: "pass_k" # either pass_k or summarize
+pass_k_iterations: 9
+
+# Dashboard configuration
+dashboard_port: 8080
+
+# Model configuration
+# Using Together AI models
+# Model configuration
+
+reasoning_model: "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-1p5b-23b45ced"
+reasoning_model_provider: "fireworks"
+
+# Continuation parameters (for Fireworks API)
+enable_continuation: true  # Whether to automatically continue generation when token limit is reached
+max_total_tokens: 32768  # Total token limit across all continuations
+max_continuations: 4   # Maximum number of continuation attempts
+
+# Generation parameters
+max_tokens: 32768
+temperature: 0.6
+top_p: 0.95
+top_k: 40
+presence_penalty: 0.0
+frequency_penalty: 0.0
+
+answer_extractor: "gpqa_mc"
+
+# Prompt configurations
+prompts:
+  reasoning: "gpqa_mc"

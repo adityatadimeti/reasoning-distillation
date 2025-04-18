@@ -270,10 +270,8 @@ class FireworksModelClient(ModelClient):
             logger.info(f"Generating response for prompt (length: {len(prompt)} chars)")
         
         # Format the initial prompt for completions API
-        #formatted_prompt = format_chat_for_completions(messages, self.model_name)
-        #logger.info(f"Formatted prompt: {formatted_prompt}")
-
-        logger.info(f"Direct prompt: {prompt}")
+        formatted_prompt = format_chat_for_completions(messages, self.model_name)
+        logger.info(f"Formatted prompt: {formatted_prompt}")
 
         # Initialize tracking variables
         all_text = ""
@@ -287,8 +285,7 @@ class FireworksModelClient(ModelClient):
         print("Launching response in generate_response_async")
         # First API callp
         response, token_usage, cost_info = await self._call_completions_api(
-            #prompt=formatted_prompt,
-            prompt=prompt,
+            prompt=formatted_prompt,
             max_tokens=min(max_tokens, self.MAX_TOKENS_PER_REQUEST),
             temperature=temperature,
             top_p=top_p,

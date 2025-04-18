@@ -1,0 +1,23 @@
+# Simple pass@k experiment configuration for demonstration
+experiment_name: "simple_pass"
+results_dir: "./results/simple_pass"
+data_path: "./data/simple.csv"
+save_intermediate: false
+experiment_type: "pass_k"
+pass_k_iterations: 3
+
+# Model configuration
+reasoning_model: "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-1p5b-23b45ced"
+reasoning_model_provider: "fireworks"
+
+# Generation parameters
+max_tokens: 50
+temperature: 0.0
+top_p: 1.0
+top_k: 1
+presence_penalty: 0.0
+frequency_penalty: 0.0
+
+# Prompt configuration
+prompts:
+  reasoning: "v0"
