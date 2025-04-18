@@ -1,13 +1,13 @@
 # Simple pass@k experiment configuration for demonstration
-experiment_name: "gqpa_sample_deepseek_qwen_1p5b_pass"
-results_dir: "./results/gpqa_sample_deepseek_qwen_1p5b_pass"
-data_path: "./data/gpqa_diamond_mc_sample.csv"
+experiment_name: "aime_deepseek_qwen_32b_pass"
+results_dir: "./results/aime_deepseek_qwen_32b_pass"
+data_path: "./data/aime_2024_5.csv"
 save_intermediate: true
 experiment_type: "pass_k"
 pass_k_iterations: 5
 
 # Model configuration
-reasoning_model: "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-1p5b-23b45ced"
+reasoning_model: "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-32b-09199778"
 reasoning_model_provider: "fireworks"
 
 # Generation parameters
@@ -22,8 +22,8 @@ enable_continuation: true
 max_total_tokens: 32768
 max_continuations: 4
 
-answer_extractor: "gpqa_mc"
+answer_extractor: "math"
 
 # Prompt configuration
 prompts:
-  reasoning: "gpqa_mc"
+  reasoning: "aime"
