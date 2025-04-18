@@ -1,0 +1,30 @@
+# Simple pass@k experiment configuration for demonstration
+experiment_name: "gqpa_sample_deepseek_qwen_32b_pass"
+results_dir: "./results/gpqa_sample_deepseek_qwen_32b_pass"
+data_path: "./data/gpqa_diamond_mc_sample.csv"
+save_intermediate: true
+experiment_type: "pass_k"
+pass_k_iterations: 5
+
+# Model configuration
+reasoning_model: "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-32b-09199778"
+reasoning_model_provider: "fireworks"
+
+# Generation parameters
+max_tokens: 8192
+temperature: 0.6
+top_p: 0.95
+top_k: 40
+presence_penalty: 0.0
+frequency_penalty: 0.0
+
+# Continuation parameters (for Fireworks API)
+enable_continuation: true
+max_total_tokens: 32768
+max_continuations: 4
+
+answer_extractor: "gpqa_mc"
+
+# Prompt configuration
+prompts:
+  reasoning: "gpqa_mc"

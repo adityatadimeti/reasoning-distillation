@@ -11,12 +11,17 @@ reasoning_model: "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-disti
 reasoning_model_provider: "fireworks"
 
 # Generation parameters
-max_tokens: 50
+max_tokens: 5
 temperature: 0.0
 top_p: 1.0
 top_k: 1
 presence_penalty: 0.0
 frequency_penalty: 0.0
+
+# Continuation parameters (for Fireworks API)
+enable_continuation: true
+max_total_tokens: 500
+max_continuations: 10
 
 # Prompt configuration
 prompts:
