@@ -70,6 +70,11 @@ def plot_comparison(model_accuracies, output_path=None):
         plt.plot(iterations, accuracy_values, marker='o', linestyle='-', 
                  color=colors[i % len(colors)], linewidth=2, markersize=8,
                  label=f"{model_name}")
+        
+        # Add value labels above each point
+        for x, y in zip(iterations, accuracy_values):
+            plt.text(x, y + 0.02, f'{y:.2f}', ha='center', va='bottom', 
+                    fontsize=9, color=colors[i % len(colors)], fontweight='bold')
     
     # Set labels and title
     plt.xlabel('Iteration', fontsize=14)
@@ -80,7 +85,7 @@ def plot_comparison(model_accuracies, output_path=None):
     plt.grid(True, linestyle='--', alpha=0.7)
     
     # Set y-axis limits from 0 to 1
-    plt.ylim(0, 1.0)
+    plt.ylim(0.20, .85)
     
     # Set x-axis ticks
     max_iters = max(max(data['accuracies'].keys()) for data in model_accuracies.values())

@@ -11,6 +11,7 @@ from typing import Dict, Any, List, Optional
 from src.utils.config import load_config
 from src.experiments.summarization import SummarizationExperiment
 from src.experiments.passk import PassKExperiment
+from src.experiments.continuation import ContinuationExperiment
 from src.dashboard.server import DashboardServer
 
 logger = logging.getLogger(__name__)
@@ -233,6 +234,16 @@ def run_experiment(
             dashboard=dashboard,
             verbose=verbose
         )
+    elif experiment_type == "continuation":
+        experiment = ContinuationExperiment(
+            experiment_name=config.get("experiment_name", "continuation"),
+            config=config,
+            dashboard=None,
+            verbose=verbose
+        )
+        if use_dashboard:
+            logger.warning("Dashboard is not supported for ContinuationExperiment. Running sequentially.")
+            parallel = False
     else:  # Default to summarization experiment
         experiment = SummarizationExperiment(
             experiment_name=config.get("experiment_name", "summarization"),
@@ -246,14 +257,33 @@ def run_experiment(
         # For parallel processing, we need to use asyncio
         logger.info(f"Running experiment in parallel mode with max concurrency of {max_concurrency}")
         
+        # Check if the experiment has a run_parallel method
+        if not hasattr(experiment, 'run_parallel') or not callable(getattr(experiment, 'run_parallel')):
+            raise NotImplementedError(f"{type(experiment).__name__} does not support parallel execution.")
+        
         # Need to use asyncio.run to execute the coroutine
         results = asyncio.run(experiment.run_parallel(problems, max_concurrency=max_concurrency))
     else:
         if parallel and use_dashboard:
-            logger.warning("Parallel processing is not compatible with dashboard. Using sequential processing.")
-            
-        # Run in sequential mode
-        results = experiment.run(problems)
+            # Log warning only if the experiment type supports dashboard (Summarization)
+            if isinstance(experiment, SummarizationExperiment):
+                logger.warning("Parallel processing is incompatible with dashboard for SummarizationExperiment. Using sequential processing.")
+            elif isinstance(experiment, ContinuationExperiment):
+                # Warning already logged above about dashboard incompatibility
+                pass
+
+        # Check if the experiment has a run method
+        if not hasattr(experiment, 'run') or not callable(getattr(experiment, 'run')):
+            # If run is not implemented, try run_parallel if sequential is forced
+            if hasattr(experiment, 'run_parallel') and callable(getattr(experiment, 'run_parallel')):
+                logger.info("Running async experiment sequentially due to dashboard or parallel=False.")
+                results = asyncio.run(experiment.run_parallel(problems, max_concurrency=1)) # Run async with concurrency 1
+            else:
+                raise NotImplementedError(f"{type(experiment).__name__} does not support sequential execution.")
+        else:
+            # Run in sequential mode using the run method
+            logger.info("Running experiment sequentially.")
+            results = experiment.run(problems)
     
     # Calculate metrics including token usage and cost
     metrics = experiment.calculate_metrics()
@@ -409,24 +439,41 @@ def main():
             # Only process continuations for truncated solutions
             logger.info("Running in continuations-only mode")
             
-            # Create experiment instance
-            reasoning_provider = config.get("reasoning_model_provider", None)
+            # Determine experiment type (should be pass_k for this mode usually)
+            experiment_type = config.get("experiment_type", "pass_k")
+            if experiment_type != "pass_k":
+                logger.warning(f"Continuations-only mode is primarily designed for pass_k experiments, but type is set to {experiment_type}")
             
             # Override configuration with command-line args
             if args.verbose:
                 config["verbose"] = True
             
-            # Create the experiment instance
-            experiment = PassExperiment(
-                experiment_name=config.get("experiment_name", "pass_k"),
+            # Create the appropriate experiment instance
+            # TODO: Refactor this section if continuations_only needs to support other types
+            if experiment_type == "pass_k":
+                experiment_class = PassKExperiment
+                exp_name = config.get("experiment_name", "pass_k")
+            # Add other experiment types here if needed for continuations_only
+            # elif experiment_type == "continuation":
+            #     experiment_class = ContinuationExperiment
+            #     exp_name = config.get("experiment_name", "continuation")
+            else:
+                raise ValueError(f"Unsupported experiment type '{experiment_type}' for continuations-only mode.")
+
+            experiment = experiment_class(
+                experiment_name=exp_name,
                 config=config,
                 dashboard=None,  # No dashboard in continuation mode
                 verbose=args.verbose
             )
-            
+
+            # Check if the experiment instance has the process_continuations method
+            if not hasattr(experiment, 'process_continuations') or not callable(getattr(experiment, 'process_continuations')):
+                raise NotImplementedError(f"{type(experiment).__name__} does not support continuation processing.")
+
             # Run the continuations
             asyncio.run(experiment.process_continuations(args.results_file))
-            
+
             logger.info("Continuation processing completed successfully")
         else:
             # Run full experiment
