@@ -4,6 +4,7 @@ import logging
 import asyncio
 import traceback
 from threading import Lock
+from dataclasses import asdict
 
 from src.llm.base_client import TokenUsage, CostInfo
 
@@ -311,8 +312,8 @@ class ContinuationExperiment(BaseExperiment):
                 "correct": current_correct,
                 "final_finish_reason": finish_reason, # The reason from the last sub-call
                 "sub_calls": detailed_sub_calls, # Store details of each sub-call
-                "accumulated_token_usage": usage.dict() if usage else None,
-                "accumulated_cost_info": cost.dict() if cost else None
+                "accumulated_token_usage": asdict(usage) if usage else None,
+                "accumulated_cost_info": asdict(cost) if cost else None
             })
 
             found_correct_answer = current_correct
@@ -340,8 +341,15 @@ class ContinuationExperiment(BaseExperiment):
         max_iterations = self.config.get("max_iterations", 1)
         think_end_tag = "</think>"
         continuation_suffix = "Wait"
-        # Store the FORMATTED base prompt for reuse in continuations
-        base_prompt_for_continuations = formatted_initial_prompt
+        # Initialize the cumulative prompt with the result of iteration 0
+        cumulative_prompt_so_far = base_prompt_for_iter0 # Start with formatted initial prompt
+        # Append the truncated reasoning from iteration 0
+        think_end_index_0 = current_reasoning.rfind(think_end_tag)
+        if think_end_index_0 != -1:
+            cumulative_prompt_so_far += current_reasoning[:think_end_index_0] + continuation_suffix
+        else:
+            logger.warning(f"Could not find '{think_end_tag}' in iteration 0 reasoning for problem {problem_id}. Appending full output to cumulative prompt.")
+            cumulative_prompt_so_far += current_reasoning + continuation_suffix
 
         for next_iteration_num in range(1, max_iterations):
             detailed_sub_calls = [] # Reset for each new logical iteration
@@ -355,22 +363,12 @@ class ContinuationExperiment(BaseExperiment):
             logger.info(f"Processing problem {problem_id}, iteration {next_iteration_num} (with sub-iterations)")
 
             try:
-                # Prepare base continuation prompt by appending to the FORMATTED base prompt
-                prev_reasoning_output = current_reasoning # Reasoning from iter N-1 (full output after sub-iterations)
-                think_end_index = prev_reasoning_output.rfind(think_end_tag) # Use rfind to get the last occurrence
-
-                if think_end_index != -1:
-                    # Truncate the previous reasoning output before the end tag
-                    truncated_prev_reasoning = prev_reasoning_output[:think_end_index]
-                else:
-                    logger.warning(f"Could not find '{think_end_tag}' in iteration {next_iteration_num - 1} reasoning for problem {problem_id}. Using full previous output for continuation prompt base.")
-                    truncated_prev_reasoning = prev_reasoning_output
-
-                # Construct the full, already formatted prompt for the first sub-call of this iteration
-                base_prompt_for_this_iter = base_prompt_for_continuations + truncated_prev_reasoning + continuation_suffix
-                logger.debug(f"Base prompt for iter {next_iteration_num} (last 200 chars):\n...{base_prompt_for_this_iter[-200:]}") # Log end of prompt
+                # The prompt for this iteration IS the cumulative prompt built so far
+                base_prompt_for_this_iter = cumulative_prompt_so_far
+                logger.debug(f"Base prompt for iter {next_iteration_num} (last 200 chars):\n...{base_prompt_for_this_iter[-200:]}")
 
                 # Generate next iteration reasoning using the sub-iteration helper
+                # The helper will handle potential 'length' finish reasons internally
                 next_reasoning, finish_reason, usage, cost, detailed_sub_calls = await generate_with_sub_iterations(
                     base_prompt_for_this_iter, next_iteration_num
                 )
@@ -398,14 +396,23 @@ class ContinuationExperiment(BaseExperiment):
                     "correct": next_correct,
                     "final_finish_reason": finish_reason, # Final reason from last sub-call
                     "sub_calls": detailed_sub_calls,
-                    "accumulated_token_usage": usage.dict() if usage else None,
-                    "accumulated_cost_info": cost.dict() if cost else None
+                    "accumulated_token_usage": asdict(usage) if usage else None,
+                    "accumulated_cost_info": asdict(cost) if cost else None
                 })
 
                 # Update current reasoning for the next loop (if any)
                 current_reasoning = next_reasoning
                 current_answer = next_answer
                 current_correct = next_correct
+
+                # --- IMPORTANT: Update cumulative prompt for the *next* iteration --- 
+                think_end_index_next = next_reasoning.rfind(think_end_tag)
+                if think_end_index_next != -1:
+                    cumulative_prompt_so_far += next_reasoning[:think_end_index_next] + continuation_suffix
+                else:
+                     logger.warning(f"Could not find '{think_end_tag}' in iteration {next_iteration_num} reasoning for problem {problem_id}. Appending full output to cumulative prompt.")
+                     cumulative_prompt_so_far += next_reasoning + continuation_suffix
+                # ---------------------------------------------------------------------
 
             except Exception as e:
                 error_traceback = traceback.format_exc()
