@@ -14,14 +14,12 @@ reasoning_model: "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-disti
 # Setting max_tokens relatively low to potentially test hitting the limit before </think>
 # Note: ContinuationExperiment controls continuation by finding </think> and adding "Wait",
 # it disables the client's built-in continuation logic.
-max_tokens: 8192
+max_tokens: 500
 temperature: 0.6
 top_p: 0.95
 top_k: 40
 presence_penalty: 0.0
 frequency_penalty: 0.0
-
-max_sub_iterations: 4
 
 # Iteration parameters for ContinuationExperiment
 max_iterations: 3  # Run iterations 0, 1, and 2
