@@ -241,7 +241,6 @@ class FireworksModelClient(ModelClient):
         max_continuations: int = 3,
         track_token_callback = None,  # Callback function for token usage tracking with additional metadata
         track_token_callback_args = None,  # Extra args for the token tracking callback
-        is_preformatted: bool = False, # Add is_preformatted flag
         **kwargs
     ) -> Tuple[str, str, TokenUsage, CostInfo, List[Dict]]:
         """
@@ -264,24 +263,16 @@ class FireworksModelClient(ModelClient):
         Returns:
             Tuple of (content, finish_reason, token_usage, cost_info)
         """
-        # Prepare the list of detailed API calls for tracking
-        detailed_api_calls = []
-        
-        # Prepare initial messages list if prompt is not preformatted
-        # If preformatted, the prompt string is used directly
-        if not is_preformatted:
-            initial_messages = [
-                {"role": "user", "content": prompt}
-            ]
-            # Format the initial prompt for the completions API
-            formatted_prompt = format_chat_for_completions(initial_messages, self.model_name)
-        else:
-            # Use the prompt directly as it's already formatted
-            formatted_prompt = prompt
+        # Convert prompt to chat format
+        messages = [{"role": "user", "content": prompt}]
         
         if verbose:
-            logger.info("Launching response in generate_response_async")
+            logger.info(f"Generating response for prompt (length: {len(prompt)} chars)")
         
+        # Format the initial prompt for completions API
+        formatted_prompt = format_chat_for_completions(messages, self.model_name)
+        logger.info(f"Formatted prompt: {formatted_prompt}")
+
         # Initialize tracking variables
         all_text = ""
         total_prompt_tokens = 0
@@ -289,15 +280,13 @@ class FireworksModelClient(ModelClient):
         total_prompt_cost = 0.0
         total_completion_cost = 0.0
         final_finish_reason = "unknown"
+        detailed_api_calls = []  # Track individual API calls for detailed metrics
         
-        # This is the first call, use the initial formatted prompt
-        current_prompt = formatted_prompt
-        current_max_tokens = min(max_tokens, self.MAX_TOKENS_PER_REQUEST)
-        
-        # Call the completions API
-        response_json, token_usage, cost_info = await self._call_completions_api(
-            prompt=current_prompt,
-            max_tokens=current_max_tokens,
+        print("Launching response in generate_response_async")
+        # First API callp
+        response, token_usage, cost_info = await self._call_completions_api(
+            prompt=formatted_prompt,
+            max_tokens=min(max_tokens, self.MAX_TOKENS_PER_REQUEST),
             temperature=temperature,
             top_p=top_p,
             top_k=top_k,
@@ -306,12 +295,12 @@ class FireworksModelClient(ModelClient):
             verbose=verbose
         )
 
-        print(f"Response: {response_json}")
+        print(f"Response: {response}")
         
         # Extract text and finish reason
-        if "choices" in response_json and response_json["choices"]:
-            current_text = response_json["choices"][0]["text"]
-            finish_reason = response_json["choices"][0].get("finish_reason", "unknown")
+        if "choices" in response and response["choices"]:
+            current_text = response["choices"][0]["text"]
+            finish_reason = response["choices"][0].get("finish_reason", "unknown")
             final_finish_reason = finish_reason
             all_text += current_text
             
@@ -361,185 +350,130 @@ class FireworksModelClient(ModelClient):
                    iteration < max_continuations and 
                    total_completion_tokens < max_total_tokens):
                 
-                # Check if continuation is needed and allowed
-                if finish_reason == "length" and enable_continuation and total_tokens_so_far < max_total_tokens and continuation_count < max_continuations:
-                    continuation_count += 1
-                    if verbose:
-                        logger.info(f"Continuation needed (reason: {finish_reason}), attempt {continuation_count}/{max_continuations}")
+                # Create continuation prompt
+                continuation_prompt = create_continuation_prompt(
+                    original_messages=messages,
+                    generated_text=all_text,
+                    model_name=self.model_name
+                )
+                
+                # Calculate remaining tokens allowed
+                remaining_tokens = max_total_tokens - total_completion_tokens
+                tokens_to_generate = min(remaining_tokens, self.MAX_TOKENS_PER_REQUEST)
+                
+                if tokens_to_generate <= 0:
+                    break
+                
+                if verbose:
+                    logger.info(f"Continuing generation (continuation {iteration+1})")
+                
+                # Make continuation request
+                try:
+                    cont_response, cont_token_usage, cont_cost_info = await self._call_completions_api(
+                        prompt=continuation_prompt,
+                        max_tokens=tokens_to_generate,
+                        temperature=temperature,
+                        top_p=top_p,
+                        top_k=top_k,
+                        presence_penalty=presence_penalty,
+                        frequency_penalty=frequency_penalty,
+                        verbose=verbose
+                    )
                     
-                    # Create the continuation prompt (using the ORIGINAL raw prompt for context)
-                    # Note: If the initial call was preformatted, we don't have the original message structure easily.
-                    # We need to adjust how continuation prompts are built in this case, or require original_messages.
-                    # For now, we assume continuation is NOT used with is_preformatted=True from the experiment side
-                    # as the experiment handles its own continuation logic by modifying the prompt.
-                    if is_preformatted:
-                         logger.warning("Client-side continuation requested with a pre-formatted prompt. This is not standard usage and might lead to unexpected behavior.")
-                         # Attempt a simple continuation by appending to the raw generated text
-                         # This might not respect the chat template correctly
-                         continuation_prompt_str = current_prompt + current_text 
-                    else:
-                        # This is the standard continuation logic
-                         continuation_prompt_str = create_continuation_prompt(
-                             initial_messages, 
-                             current_text,
-                             self.model_name
-                         )
-                    
-                    # Make the continuation call
-                    remaining_total_tokens = max_total_tokens - total_tokens_so_far
-                    # Calculate max tokens for this continuation step, capped by request limit
-                    continuation_max_tokens = min(remaining_total_tokens, self.MAX_TOKENS_PER_REQUEST)
-                    
-                    if verbose:
-                        logger.info(f"Continuing generation (continuation {iteration+1})")
-                    
-                    # Call the completions API
-                    try:
-                        cont_response, cont_token_usage, cont_cost_info = await self._call_completions_api(
-                            prompt=continuation_prompt_str,
-                            max_tokens=continuation_max_tokens,
-                            temperature=temperature,
-                            top_p=top_p,
-                            top_k=top_k,
-                            presence_penalty=presence_penalty,
-                            frequency_penalty=frequency_penalty,
-                            verbose=verbose
-                        )
+                    # Extract continuation text and finish reason
+                    if "choices" in cont_response and cont_response["choices"]:
+                        cont_text = cont_response["choices"][0]["text"]
+                        finish_reason = cont_response["choices"][0].get("finish_reason", "unknown")
+                        final_finish_reason = finish_reason
+                        all_text += cont_text
                         
-                        # Extract continuation text and finish reason
-                        if "choices" in cont_response and cont_response["choices"]:
-                            cont_text = cont_response["choices"][0]["text"]
-                            finish_reason = cont_response["choices"][0].get("finish_reason", "unknown")
-                            final_finish_reason = finish_reason
-                            all_text += cont_text
-                            
-                            # Update token usage
-                            total_prompt_tokens += cont_token_usage.prompt_tokens
-                            total_completion_tokens += cont_token_usage.completion_tokens
-                            total_prompt_cost += cont_cost_info.prompt_cost
-                            total_completion_cost += cont_cost_info.completion_cost
-                            
-                            # Record detailed metrics for continuation API call
-                            continuation_call_info = {
-                                "call_index": iteration + 1,  # +1 because the initial call is index 0
-                                "continuation_index": iteration,
-                                "token_usage": {
-                                    "prompt_tokens": cont_token_usage.prompt_tokens,
-                                    "completion_tokens": cont_token_usage.completion_tokens,
-                                    "total_tokens": cont_token_usage.total_tokens
-                                },
-                                "cost_info": {
-                                    "prompt_cost": cont_cost_info.prompt_cost,
-                                    "completion_cost": cont_cost_info.completion_cost,
-                                    "total_cost": cont_cost_info.total_cost
-                                },
-                                "finish_reason": finish_reason,
-                                "text_length": len(cont_text)
-                            }
-                            detailed_api_calls.append(continuation_call_info)
-                            
-                            # If a token tracking callback is provided, call it with the continuation API metrics
-                            if track_token_callback:
-                                callback_args = track_token_callback_args or {}
-                                track_token_callback(
-                                    problem_id=callback_args.get("problem_id", "unknown"),
-                                    token_usage=cont_token_usage,
-                                    cost_info=cont_cost_info,
-                                    iteration=callback_args.get("iteration", 0),
-                                    step=callback_args.get("step", "reasoning"),
-                                    continuation_idx=iteration,
-                                    api_call_idx=iteration + 1
-                                )
-                            
-                            if finish_reason != "length" or total_completion_tokens >= max_total_tokens:
-                                break
+                        # Update token usage
+                        total_prompt_tokens += cont_token_usage.prompt_tokens
+                        total_completion_tokens += cont_token_usage.completion_tokens
+                        total_prompt_cost += cont_cost_info.prompt_cost
+                        total_completion_cost += cont_cost_info.completion_cost
                         
-                    except Exception as e:
-                        if verbose:
-                            logger.warning(f"Continuation failed: {str(e)}")
-                        break
+                        # Record detailed metrics for continuation API call
+                        continuation_call_info = {
+                            "call_index": iteration + 1,  # +1 because the initial call is index 0
+                            "continuation_index": iteration,
+                            "token_usage": {
+                                "prompt_tokens": cont_token_usage.prompt_tokens,
+                                "completion_tokens": cont_token_usage.completion_tokens,
+                                "total_tokens": cont_token_usage.total_tokens
+                            },
+                            "cost_info": {
+                                "prompt_cost": cont_cost_info.prompt_cost,
+                                "completion_cost": cont_cost_info.completion_cost,
+                                "total_cost": cont_cost_info.total_cost
+                            },
+                            "finish_reason": finish_reason,
+                            "text_length": len(cont_text)
+                        }
+                        detailed_api_calls.append(continuation_call_info)
+                        
+                        # If a token tracking callback is provided, call it with the continuation API metrics
+                        if track_token_callback:
+                            callback_args = track_token_callback_args or {}
+                            track_token_callback(
+                                problem_id=callback_args.get("problem_id", "unknown"),
+                                token_usage=cont_token_usage,
+                                cost_info=cont_cost_info,
+                                iteration=callback_args.get("iteration", 0),
+                                step=callback_args.get("step", "reasoning"),
+                                continuation_idx=iteration,
+                                api_call_idx=iteration + 1
+                            )
+                        
+                        if finish_reason != "length" or total_completion_tokens >= max_total_tokens:
+                            break
                     
-                    # Increment iteration counter
-                    iteration += 1
+                except Exception as e:
+                    if verbose:
+                        logger.warning(f"Continuation failed: {str(e)}")
+                    break
                 
-                # Check finish reason
-                finish_reason = response_json["choices"][0]["finish_reason"]
-                generated_text = response_json["choices"][0]["text"]
+                # Increment iteration counter
+                iteration += 1
                 
-                # Update token usage
-                total_prompt_tokens += token_usage.prompt_tokens
-                total_completion_tokens += token_usage.completion_tokens
-                total_prompt_cost += cost_info.prompt_cost
-                total_completion_cost += cost_info.completion_cost
-                
-                # Record detailed metrics for current API call
-                api_call_info = {
-                    "call_index": iteration,
-                    "continuation_index": None,
-                    "token_usage": {
-                        "prompt_tokens": token_usage.prompt_tokens,
-                        "completion_tokens": token_usage.completion_tokens,
-                        "total_tokens": token_usage.total_tokens
-                    },
-                    "cost_info": {
-                        "prompt_cost": cost_info.prompt_cost,
-                        "completion_cost": cost_info.completion_cost,
-                        "total_cost": cost_info.total_cost
-                    },
-                    "finish_reason": finish_reason,
-                    "text_length": len(generated_text)
-                }
-                detailed_api_calls.append(api_call_info)
-                
-                # Update total tokens so far
-                total_tokens_so_far = total_prompt_tokens + total_completion_tokens
-                
-                # Check if continuation is needed and allowed
-                if finish_reason == "length" and enable_continuation and total_tokens_so_far < max_total_tokens and iteration < max_continuations:
-                    iteration += 1
-                
-                # Update current prompt and max tokens
-                current_prompt = continuation_prompt_str
-                current_max_tokens = continuation_max_tokens
-            
-            # Create combined token usage and cost info
-            combined_token_usage = TokenUsage(
-                prompt_tokens=total_prompt_tokens,
-                completion_tokens=total_completion_tokens,
-                total_tokens=total_prompt_tokens + total_completion_tokens
-            )
-            
-            combined_cost_info = CostInfo(
-                prompt_cost=total_prompt_cost,
-                completion_cost=total_completion_cost,
-                total_cost=total_prompt_cost + total_completion_cost
-            )
-            
-            # Add summary statistics to detailed API calls
-            generation_summary = {
-                "num_api_calls": len(detailed_api_calls),
-                "num_continuations": sum(1 for call in detailed_api_calls if call.get("continuation_index") is not None),
-                "total_token_usage": {
-                    "prompt_tokens": total_prompt_tokens,
-                    "completion_tokens": total_completion_tokens,
-                    "total_tokens": total_prompt_tokens + total_completion_tokens
-                },
-                "total_cost_info": {
-                    "prompt_cost": total_prompt_cost,
-                    "completion_cost": total_completion_cost,
-                    "total_cost": total_prompt_cost + total_completion_cost
-                },
-                "total_text_length": len(all_text),
-                "final_finish_reason": final_finish_reason
-            }
-            detailed_api_calls.append(generation_summary)
-            
-            if verbose:
-                continuations = "with continuation" if enable_continuation else "without continuation"
-                continuation_info = f" ({generation_summary['num_continuations']} continuations)" if generation_summary['num_continuations'] > 0 else ""
-                logger.info(f"Generation complete {continuations}{continuation_info}: {combined_token_usage.total_tokens} total tokens")
-            
-            return all_text, final_finish_reason, combined_token_usage, combined_cost_info, detailed_api_calls
+        # Create combined token usage and cost info
+        combined_token_usage = TokenUsage(
+            prompt_tokens=total_prompt_tokens,
+            completion_tokens=total_completion_tokens,
+            total_tokens=total_prompt_tokens + total_completion_tokens
+        )
+        
+        combined_cost_info = CostInfo(
+            prompt_cost=total_prompt_cost,
+            completion_cost=total_completion_cost,
+            total_cost=total_prompt_cost + total_completion_cost
+        )
+        
+        # Add summary statistics to detailed API calls
+        generation_summary = {
+            "num_api_calls": len(detailed_api_calls),
+            "num_continuations": sum(1 for call in detailed_api_calls if call.get("continuation_index") is not None),
+            "total_token_usage": {
+                "prompt_tokens": total_prompt_tokens,
+                "completion_tokens": total_completion_tokens,
+                "total_tokens": total_prompt_tokens + total_completion_tokens
+            },
+            "total_cost_info": {
+                "prompt_cost": total_prompt_cost,
+                "completion_cost": total_completion_cost,
+                "total_cost": total_prompt_cost + total_completion_cost
+            },
+            "total_text_length": len(all_text),
+            "final_finish_reason": final_finish_reason
+        }
+        detailed_api_calls.append(generation_summary)
+        
+        if verbose:
+            continuations = "with continuation" if enable_continuation else "without continuation"
+            continuation_info = f" ({generation_summary['num_continuations']} continuations)" if generation_summary['num_continuations'] > 0 else ""
+            logger.info(f"Generation complete {continuations}{continuation_info}: {combined_token_usage.total_tokens} total tokens")
+        
+        return all_text, final_finish_reason, combined_token_usage, combined_cost_info, detailed_api_calls
     
     async def get_token_usage(self, response_json: Dict[str, Any]) -> TokenUsage:
         """Extract token usage from a Fireworks API response."""
