@@ -14,17 +14,6 @@ from src.llm.tokenization import format_chat_for_completions
 
 logger = logging.getLogger(__name__)
 
-# Helper function to add token usage and cost
-def _add_usage_cost(total_usage, usage, total_cost, cost):
-    if usage:
-        total_usage.prompt_tokens += usage.prompt_tokens
-        total_usage.completion_tokens += usage.completion_tokens
-        total_usage.total_tokens += usage.total_tokens
-    if cost:
-        total_cost.prompt_cost += cost.prompt_cost
-        total_cost.completion_cost += cost.completion_cost
-        total_cost.total_cost += cost.total_cost
-
 class ContinuationExperiment(BaseExperiment):
     """Experiment for testing reasoning improvement through controlled continuation."""
 
@@ -201,100 +190,50 @@ class ContinuationExperiment(BaseExperiment):
             "question": question,
             "correct_answer": correct_answer,
             "iterations": [],
+            "detailed_metrics": {},
             "timestamp": time.time(),
             "status": "in-progress"
         }
 
-        # Configuration for sub-iterations
-        max_sub_iterations = self.config.get("max_sub_iterations", 4) # Max calls within one logical iteration
-        max_tokens_per_sub_call = self.config["max_tokens"]
-
-        # --- Function to handle generation with sub-iterations ---
-        async def generate_with_sub_iterations(base_prompt: str, log_iter_num: int):
-            full_reasoning = ""
-            current_prompt_for_sub_call = base_prompt
-            final_finish_reason = "error"
-            accumulated_usage = TokenUsage(0, 0, 0)
-            accumulated_cost = CostInfo(0, 0, 0)
-            detailed_sub_calls = []
-
-            for sub_iter in range(max_sub_iterations):
-                logger.info(f"Problem {problem_id}, iteration {log_iter_num}, sub-iteration {sub_iter}")
-                try:
-                    sub_response = await self.reasoning_model.generate_response_async(
-                        current_prompt_for_sub_call,
-                        max_tokens=max_tokens_per_sub_call,
-                        temperature=self.config["temperature"],
-                        top_p=self.config["top_p"],
-                        top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
-                        presence_penalty=self.config["presence_penalty"],
-                        frequency_penalty=self.config["frequency_penalty"],
-                        verbose=self.verbose,
-                        is_preformatted=True,
-                        enable_continuation=False, # Ensure client's internal continuation is off
-                        max_continuations=0,
-                        track_token_callback=self.track_token_usage_and_cost, # Callback still useful for base tracking
-                        track_token_callback_args={
-                            "problem_id": problem_id,
-                            "iteration": log_iter_num, # Pass the main iteration number
-                            "step": f"reasoning_sub_{sub_iter}" # Add sub-iteration info
-                        }
-                    )
-
-                    partial_reasoning, finish_reason, usage, cost, details = sub_response
-                    final_finish_reason = finish_reason # Update final reason each time
-
-                    # Accumulate results
-                    full_reasoning += partial_reasoning
-                    _add_usage_cost(accumulated_usage, usage, accumulated_cost, cost)
-                    # Store details of this specific sub-call API interaction
-                    # details is a list, we usually expect one item unless client did internal continuation (which is disabled)
-                    sub_call_detail = details[0] if details else {}
-                    sub_call_detail["sub_iteration"] = sub_iter
-                    detailed_sub_calls.append(sub_call_detail)
-
-                    if finish_reason == "stop":
-                        logger.info(f"Problem {problem_id}, iteration {log_iter_num}, sub-iteration {sub_iter} finished with reason: stop")
-                        break # Finished generation for this logical iteration
-                    elif finish_reason == "length":
-                        logger.info(f"Problem {problem_id}, iteration {log_iter_num}, sub-iteration {sub_iter} finished with reason: length. Continuing...")
-                        # Prepare prompt for the next sub-iteration
-                        current_prompt_for_sub_call += partial_reasoning
-                        # Optional: Add a check for total accumulated tokens if needed
-                        if sub_iter == max_sub_iterations - 1:
-                             logger.warning(f"Problem {problem_id}, iteration {log_iter_num} reached max_sub_iterations ({max_sub_iterations}) and was still truncated.")
-                    else:
-                        # Handle other potential finish reasons if necessary
-                        logger.warning(f"Problem {problem_id}, iteration {log_iter_num}, sub-iteration {sub_iter} finished with unexpected reason: {finish_reason}")
-                        break
-
-                except Exception as sub_error:
-                    error_traceback = traceback.format_exc()
-                    logger.error(f"Error during sub-iteration {sub_iter} for problem {problem_id}, iteration {log_iter_num}: {str(sub_error)}\n{error_traceback}")
-                    # Store error info for this sub-call
-                    detailed_sub_calls.append({"sub_iteration": sub_iter, "error": str(sub_error), "traceback": error_traceback})
-                    final_finish_reason = "error"
-                    # Stop processing sub-iterations for this logical iteration on error
-                    break
-
-            return full_reasoning, final_finish_reason, accumulated_usage, accumulated_cost, detailed_sub_calls
-
-        # --- Iteration 0 --- 
+        # --- Iteration 0 ---
         iteration_num = 0
-        logger.info(f"Processing problem {problem_id}, iteration {iteration_num} (with sub-iterations)")
-        base_prompt_for_iter0 = formatted_initial_prompt
+        logger.info(f"Processing problem {problem_id}, iteration {iteration_num}")
+        # Store the FORMATTED base prompt for reuse in continuations
+        base_prompt_for_continuations = formatted_initial_prompt
         try:
-            # Call the helper function for generation
-            current_reasoning, finish_reason, usage, cost, detailed_sub_calls = await generate_with_sub_iterations(
-                base_prompt_for_iter0, iteration_num
+            response = await self.reasoning_model.generate_response_async(
+                formatted_initial_prompt, # Use the FORMATTED prompt
+                max_tokens=self.config["max_tokens"],
+                temperature=self.config["temperature"],
+                top_p=self.config["top_p"],
+                top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
+                presence_penalty=self.config["presence_penalty"],
+                frequency_penalty=self.config["frequency_penalty"],
+                verbose=self.verbose,
+                is_preformatted=True,
+                enable_continuation=self.config.get("enable_continuation", False), # Disable internal client continuation
+                max_total_tokens=self.config.get("max_total_tokens", None), # Limit total tokens per call if needed
+                max_continuations=0, # Disable internal client continuation
+                track_token_callback=self.track_token_usage_and_cost,
+                track_token_callback_args={
+                    "problem_id": problem_id,
+                    "iteration": iteration_num,
+                    "step": "reasoning"
+                }
             )
 
-            if finish_reason == "error": # Check if generation failed
-                 raise ValueError("Generation failed during sub-iterations")
+            # Unpack the response
+            current_reasoning, finish_reason, token_usage, cost_info, detailed_api_calls = response
 
-            logger.info(f"Problem {problem_id}, iteration {iteration_num} final finish reason: {finish_reason}")
+            # Store detailed metrics
+            result["detailed_metrics"][f"iteration_{iteration_num}_reasoning"] = detailed_api_calls
 
-            # Extract answer from the FULL reasoning for the iteration
+            # Track token usage and cost
+            self.track_token_usage_and_cost(problem_id, token_usage, cost_info, iteration_num, "reasoning")
+
+            logger.info(f"Problem {problem_id}, iteration {iteration_num} finish reason: {finish_reason}")
+
+            # Extract answer
             current_answer = extract_answer_with_config(current_reasoning, self.config)
 
             # Check correctness
@@ -305,58 +244,42 @@ class ContinuationExperiment(BaseExperiment):
             # Store iteration results
             result["iterations"].append({
                 "iteration": iteration_num,
-                "prompt": base_prompt_for_iter0, # Save the initial formatted prompt
-                "reasoning": current_reasoning, # The full reasoning accumulated across sub-iterations
+                "prompt": formatted_initial_prompt, # Save the formatted prompt
+                "reasoning": current_reasoning,
                 "answer": current_answer,
                 "correct": current_correct,
-                "final_finish_reason": finish_reason, # The reason from the last sub-call
-                "sub_calls": detailed_sub_calls, # Store details of each sub-call
-                "accumulated_token_usage": usage.dict() if usage else None,
-                "accumulated_cost_info": cost.dict() if cost else None
+                "finish_reason": finish_reason
             })
 
             found_correct_answer = current_correct
 
         except Exception as e:
             error_traceback = traceback.format_exc()
-            logger.error(f"Error during iteration {iteration_num} processing for problem {problem_id}: {str(e)}\n{error_traceback}")
-            # Ensure iteration entry exists even on error, potentially with partial sub_calls
-            if not any(d['iteration'] == iteration_num for d in result['iterations']):
-                 result["iterations"].append({
-                     "iteration": iteration_num,
-                     "prompt": base_prompt_for_iter0,
-                     "error": str(e),
-                     "traceback": error_traceback,
-                     "sub_calls": detailed_sub_calls if 'detailed_sub_calls' in locals() else [] # Add partial details if available
-                 })
-            else: # If entry exists, add error info
-                result["iterations"][-1]["error"] = str(e)
-                result["iterations"][-1]["traceback"] = error_traceback
-
+            logger.error(f"Error during iteration {iteration_num} for problem {problem_id}: {str(e)}\n{error_traceback}")
+            result["iterations"].append({
+                "iteration": iteration_num,
+                "error": str(e),
+                "traceback": error_traceback
+            })
             result["status"] = "error"
             return result # Stop processing if initial iteration fails
+
 
         # --- Subsequent Iterations ---
         max_iterations = self.config.get("max_iterations", 1)
         think_end_tag = "</think>"
         continuation_suffix = "Wait"
-        # Store the FORMATTED base prompt for reuse in continuations
-        base_prompt_for_continuations = formatted_initial_prompt
 
         for next_iteration_num in range(1, max_iterations):
-            detailed_sub_calls = [] # Reset for each new logical iteration
-            accumulated_usage = TokenUsage(0, 0, 0)
-            accumulated_cost = CostInfo(0, 0, 0)
-            
             if not self.config.get("continue_after_correct", False) and found_correct_answer:
                 logger.info(f"Stopping early for problem {problem_id} after finding correct answer in iteration {next_iteration_num - 1}")
                 break
 
-            logger.info(f"Processing problem {problem_id}, iteration {next_iteration_num} (with sub-iterations)")
+            logger.info(f"Processing problem {problem_id}, iteration {next_iteration_num}")
 
             try:
-                # Prepare base continuation prompt by appending to the FORMATTED base prompt
-                prev_reasoning_output = current_reasoning # Reasoning from iter N-1 (full output after sub-iterations)
+                # Prepare continuation prompt by appending to the FORMATTED base prompt
+                prev_reasoning_output = current_reasoning # Reasoning from iter N-1
                 think_end_index = prev_reasoning_output.rfind(think_end_tag) # Use rfind to get the last occurrence
 
                 if think_end_index != -1:
@@ -366,21 +289,45 @@ class ContinuationExperiment(BaseExperiment):
                     logger.warning(f"Could not find '{think_end_tag}' in iteration {next_iteration_num - 1} reasoning for problem {problem_id}. Using full previous output for continuation prompt base.")
                     truncated_prev_reasoning = prev_reasoning_output
 
-                # Construct the full, already formatted prompt for the first sub-call of this iteration
-                base_prompt_for_this_iter = base_prompt_for_continuations + truncated_prev_reasoning + continuation_suffix
-                logger.debug(f"Base prompt for iter {next_iteration_num} (last 200 chars):\n...{base_prompt_for_this_iter[-200:]}") # Log end of prompt
+                # Construct the full, already formatted prompt for this iteration
+                # Append the RAW truncated reasoning and suffix to the FORMATTED base prompt
+                continuation_prompt = base_prompt_for_continuations + truncated_prev_reasoning + continuation_suffix
+                logger.debug(f"Continuation prompt for iter {next_iteration_num} (last 200 chars):\n...{continuation_prompt[-200:]}") # Log end of prompt
 
-                # Generate next iteration reasoning using the sub-iteration helper
-                next_reasoning, finish_reason, usage, cost, detailed_sub_calls = await generate_with_sub_iterations(
-                    base_prompt_for_this_iter, next_iteration_num
+                # Generate next iteration reasoning
+                response = await self.reasoning_model.generate_response_async(
+                    continuation_prompt, # Send the fully constructed, pre-formatted prompt
+                    max_tokens=self.config["max_tokens"],
+                    temperature=self.config["temperature"],
+                    top_p=self.config["top_p"],
+                    top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
+                    presence_penalty=self.config["presence_penalty"],
+                    frequency_penalty=self.config["frequency_penalty"],
+                    verbose=self.verbose,
+                    is_preformatted=True,
+                    enable_continuation=self.config.get("enable_continuation", False), # Disable internal client continuation
+                    max_total_tokens=self.config.get("max_total_tokens", None),
+                    max_continuations=0, # Disable internal client continuation
+                    track_token_callback=self.track_token_usage_and_cost,
+                    track_token_callback_args={
+                        "problem_id": problem_id,
+                        "iteration": next_iteration_num,
+                        "step": "reasoning"
+                    }
                 )
 
-                if finish_reason == "error": # Check if generation failed
-                     raise ValueError("Generation failed during sub-iterations")
+                # Unpack the response
+                next_reasoning, finish_reason, token_usage, cost_info, detailed_api_calls = response
 
-                logger.info(f"Problem {problem_id}, iteration {next_iteration_num} final finish reason: {finish_reason}")
+                # Store detailed metrics
+                result["detailed_metrics"][f"iteration_{next_iteration_num}_reasoning"] = detailed_api_calls
 
-                # Extract answer from the FULL reasoning for the iteration
+                # Track token usage and cost
+                self.track_token_usage_and_cost(problem_id, token_usage, cost_info, next_iteration_num, "reasoning")
+
+                logger.info(f"Problem {problem_id}, iteration {next_iteration_num} finish reason: {finish_reason}")
+
+                # Extract answer from the *new* reasoning
                 next_answer = extract_answer_with_config(next_reasoning, self.config)
 
                 # Check correctness
@@ -392,39 +339,26 @@ class ContinuationExperiment(BaseExperiment):
                 # Store iteration results
                 result["iterations"].append({
                     "iteration": next_iteration_num,
-                    "prompt": base_prompt_for_this_iter, # Save the base pre-formatted prompt used for this iteration
-                    "reasoning": next_reasoning, # Full reasoning from sub-iterations
+                    "prompt": continuation_prompt, # Save the pre-formatted prompt used
+                    "reasoning": next_reasoning,
                     "answer": next_answer,
                     "correct": next_correct,
-                    "final_finish_reason": finish_reason, # Final reason from last sub-call
-                    "sub_calls": detailed_sub_calls,
-                    "accumulated_token_usage": usage.dict() if usage else None,
-                    "accumulated_cost_info": cost.dict() if cost else None
+                    "finish_reason": finish_reason
                 })
 
-                # Update current reasoning for the next loop (if any)
+                # Update current reasoning for the next loop
                 current_reasoning = next_reasoning
                 current_answer = next_answer
                 current_correct = next_correct
 
             except Exception as e:
                 error_traceback = traceback.format_exc()
-                logger.error(f"Error during iteration {next_iteration_num} processing for problem {problem_id}: {str(e)}\n{error_traceback}")
-                 # Ensure iteration entry exists even on error, potentially with partial sub_calls
-                if not any(d['iteration'] == next_iteration_num for d in result['iterations']):
-                    result["iterations"].append({
-                        "iteration": next_iteration_num,
-                        "prompt": base_prompt_for_this_iter if 'base_prompt_for_this_iter' in locals() else None,
-                        "error": str(e),
-                        "traceback": error_traceback,
-                        "sub_calls": detailed_sub_calls # Add partial details if available
-                    })
-                else: # If entry exists, add error info
-                    result["iterations"][-1]["error"] = str(e)
-                    result["iterations"][-1]["traceback"] = error_traceback
-                    if detailed_sub_calls: # Add sub-call details if available
-                         result["iterations"][-1]["sub_calls"] = detailed_sub_calls
-
+                logger.error(f"Error during iteration {next_iteration_num} for problem {problem_id}: {str(e)}\n{error_traceback}")
+                result["iterations"].append({
+                    "iteration": next_iteration_num,
+                    "error": str(e),
+                    "traceback": error_traceback
+                })
                 result["status"] = "error"
                 # Decide whether to break or continue to next iteration on error
                 # For now, let's break to avoid potential cascading errors
