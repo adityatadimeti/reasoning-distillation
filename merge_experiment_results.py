@@ -12,13 +12,14 @@ import glob
 from datetime import datetime
 import copy
 
-def merge_results(input_files, output_file=None):
+def merge_results(input_files, output_file=None, replace_errors=True):
     """
     Merge multiple result JSON files into a single combined file.
     
     Args:
         input_files: List of paths to input JSON result files
         output_file: Path to save the merged result file
+        replace_errors: Whether to replace problems with errors with successful runs
     
     Returns:
         Path to the merged result file
@@ -39,12 +40,13 @@ def merge_results(input_files, output_file=None):
     # Make a deep copy to avoid modifying original data
     merged_results = copy.deepcopy(base_results)
     
-    # Create a mapping of existing problem IDs for quick lookup
-    existing_problems = {p['problem_id']: True for p in merged_results['results']}
+    # Create a mapping of existing problem IDs for quick lookup with their index in the results list
+    existing_problems = {p['problem_id']: idx for idx, p in enumerate(merged_results['results'])}
     
     # Initialize counters for statistics
     total_problems_added = 0
     duplicates_skipped = 0
+    problems_replaced = 0
     
     # Process other input files
     for file_path in input_files[1:]:
@@ -53,14 +55,37 @@ def merge_results(input_files, output_file=None):
             with open(file_path, 'r') as f:
                 file_data = json.load(f)
             
-            # Add problems from this file if not already in the base results
+            # Add or replace problems from this file
             problems_added = 0
             for problem in file_data['results']:
                 problem_id = problem['problem_id']
+                
                 if problem_id not in existing_problems:
+                    # Add new problem
                     merged_results['results'].append(problem)
-                    existing_problems[problem_id] = True
+                    existing_problems[problem_id] = len(merged_results['results']) - 1
                     problems_added += 1
+                elif replace_errors:
+                    # Check if existing problem has an error
+                    existing_idx = existing_problems[problem_id]
+                    existing_problem = merged_results['results'][existing_idx]
+                    
+                    has_error = (existing_problem.get('status') == 'error' or 
+                                 existing_problem.get('error') is not None or
+                                 not existing_problem.get('question'))
+                    
+                    # Check if new problem is successful
+                    new_has_error = (problem.get('status') == 'error' or 
+                                    problem.get('error') is not None or
+                                    not problem.get('question'))
+                    
+                    if has_error and not new_has_error:
+                        # Replace error with successful run
+                        merged_results['results'][existing_idx] = problem
+                        problems_replaced += 1
+                        print(f"  Replaced problem {problem_id} with successful run")
+                    else:
+                        duplicates_skipped += 1
                 else:
                     duplicates_skipped += 1
             
@@ -96,6 +121,7 @@ def merge_results(input_files, output_file=None):
         print(f"- Additional files: {len(input_files)-1}")
         print(f"- Total problems: {len(merged_results['results'])}")
         print(f"- New problems added: {total_problems_added}")
+        print(f"- Problems replaced: {problems_replaced}")
         print(f"- Duplicate problems skipped: {duplicates_skipped}")
         print(f"\nMerged results saved to: {output_file}")
         return output_file
@@ -113,6 +139,8 @@ def main():
                        help="Experiment name to search for (e.g., gpqa_diamond_mc)")
     parser.add_argument("--results-dir", "-d", default="./results",
                        help="Base results directory (default: ./results)")
+    parser.add_argument("--no-replace-errors", action="store_true",
+                       help="Don't replace problems with errors with successful runs")
     
     args = parser.parse_args()
     
@@ -164,7 +192,7 @@ def main():
         return
     
     # Merge the results
-    merge_results(input_files, args.output)
+    merge_results(input_files, args.output, replace_errors=not args.no_replace_errors)
 
 if __name__ == "__main__":
     main() 

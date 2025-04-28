@@ -1,6 +1,6 @@
 # Experiment configuration for Qwen 32B
-experiment_name: "gpqa_full_deepseek_qwen_1p5b_cont_self_sum"
-results_dir: "./results/gpqa_full_deepseek_qwen_1p5b_cont_self_sum"
+experiment_name: "gpqa_full_deepseek_qwen_1p5b_self_sum"
+results_dir: "./results/gpqa_full_deepseek_qwen_1p5b_self_sum"
 data_path: "./data/gpqa_diamond_mc.csv"
 save_intermediate: true
 experiment_type: "summarize"
