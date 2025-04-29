@@ -13,9 +13,50 @@ def extract_labels(annotated: str):
     """Return the list of labels in order of appearance."""
     import re
     pat = re.compile(r'\["([^"]+)"\]')
-    return [m.group(1).split()[0]   # strips any "1." prefix
-            for m in pat.finditer(annotated)
-            if m.group(1) != "end-section"]
+    allowed_labels = set(LABELS)
+    
+    labels = []
+    for m in pat.finditer(annotated):
+        if m.group(1) == "end-section":
+            continue
+            
+        # Look for any of the valid labels within the captured text
+        # This handles cases like "1. deduction" or "4. uncertainty-estimation"
+        for label in allowed_labels:
+            if label in m.group(1).lower():
+                labels.append(label)
+                break
+                
+    return labels
+
+def collapse_runs(labels: list) -> list:
+    """Collapse consecutive runs of the same label into a single instance."""
+    if not labels:
+        return []
+    
+    collapsed = [labels[0]]
+    runs_collapsed = 0
+    current_run = 1
+    
+    for lbl in labels[1:]:
+        if lbl == collapsed[-1]:
+            current_run += 1
+        else:
+            if current_run > 1:
+                runs_collapsed += 1
+                print(f"Collapsed run of {current_run} '{collapsed[-1]}' labels")
+            collapsed.append(lbl)
+            current_run = 1
+            
+    # Handle final run
+    if current_run > 1:
+        runs_collapsed += 1
+        print(f"Collapsed run of {current_run} '{collapsed[-1]}' labels")
+        
+    if runs_collapsed > 0:
+        print(f"Total runs collapsed: {runs_collapsed}")
+        
+    return collapsed
 
 def label_counts(lbls):
     return collections.Counter(lbls)
@@ -108,6 +149,11 @@ def main():
     parser.add_argument("input", help="Path to the annotated JSON file")
     parser.add_argument("--output", "-o", help="Output CSV file (default: input file with .behaviour_stats.csv suffix)")
     parser.add_argument("--quiet", "-q", action="store_true", help="Don't print statistics to the console")
+    parser.add_argument("--collapse-runs", dest="collapse_runs", action="store_true", 
+                        help="Collapse consecutive identical labels into a single instance (default: True)")
+    parser.add_argument("--no-collapse-runs", dest="collapse_runs", action="store_false",
+                        help="Don't collapse consecutive identical labels")
+    parser.set_defaults(collapse_runs=True)
     
     args = parser.parse_args()
     
@@ -134,6 +180,12 @@ def main():
                 
             r_lbl = extract_labels(it["reasoning_annotated"])
             s_lbl = extract_labels(it["post_think_summary_annotated"])
+            
+            # Optionally collapse consecutive identical labels
+            if args.collapse_runs:
+                r_lbl = collapse_runs(r_lbl)
+                s_lbl = collapse_runs(s_lbl)
+                
             rc, sc = label_counts(r_lbl), label_counts(s_lbl)
     
             lcs_len = lcs(r_lbl, s_lbl)
