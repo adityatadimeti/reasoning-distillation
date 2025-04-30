@@ -111,7 +111,7 @@ def print_stats(global_stats):
     total_trace = sum(trace_behaviors.values())
     total_sum = sum(sum_behaviors.values())
     
-    print("\nBehavior Distribution in Traces:")
+    print("\nBehavior Distribution in Reasoning Traces:")
     for label in LABELS:
         percentage = (trace_behaviors[label] / total_trace * 100) if total_trace else 0
         print(f"  {label}: {trace_behaviors[label]} ({percentage:.1f}%)")
@@ -122,16 +122,14 @@ def print_stats(global_stats):
         print(f"  {label}: {sum_behaviors[label]} ({percentage:.1f}%)")
     
     print("\n=== BEHAVIOR TRANSITIONS ===")
-    # Calculate common transitions
+    # Calculate common transitions using stored collapsed sequences
     transitions = collections.Counter()
     for stat in global_stats:
         if stat["trace_len"] < 2:
             continue
         
-        # Extract all transitions in the trace
-        r_lbl = extract_labels(next((it["reasoning_annotated"] for prob in data["problems"] 
-                              for it in prob["iterations"] 
-                              if it["iteration"] == stat["iter"] and prob["problem_id"] == stat["problem"]), ""))
+        # Use the stored collapsed label sequence
+        r_lbl = stat["trace_labels"]
         
         for i in range(len(r_lbl) - 1):
             transitions[(r_lbl[i], r_lbl[i+1])] += 1
@@ -201,6 +199,9 @@ def main():
                 "compression": len(s_lbl)/len(r_lbl) if r_lbl else 0,
                 "coverage": coverage,
                 "order_sim": order_sim,
+                # Store the actual label sequences for transition analysis
+                "trace_labels": r_lbl,
+                "summary_labels": s_lbl,
                 **{f"trace_{k}": rc[k] for k in LABELS},
                 **{f"sum_{k}": sc[k] for k in LABELS},
             })

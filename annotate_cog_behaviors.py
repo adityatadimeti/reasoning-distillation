@@ -4,8 +4,8 @@ Chunk-based behaviour annotation for long reasoning traces.
 -----------------------------------------------------------
 * Loads an experiments JSON (format described in prompt).
 * Splits each reasoning / summary text into fixed-length sentence chunks with
-  optional overlap, annotates each chunk with GPT-4.1, merges the labels,
-  and writes an augmented JSON.
+  optional overlap, annotates each chunk with Fireworks AI's deepseek-v3-0324,
+  merges the labels, and writes an augmented JSON.
 * Saves progress incrementally to avoid data loss on interruption.
 
 Usage (examples)
@@ -14,9 +14,14 @@ python chunk_annotate.py --json data/aime_dataset.json \
        --start 0 --end 59 --iters all \
        --field reasoning --chunk 40 --overlap 5
 
-Environment
------------
-OPENAI_API_KEY is loaded from a .env file in the working directory (python-dotenv).
+Environment Setup
+----------------
+1. Create a .env file in the working directory
+2. Add your Fireworks API key to the .env file:
+   FIREWORKS_API_KEY=your_api_key_here
+
+3. Alternatively, you can set it as an environment variable:
+   export FIREWORKS_API_KEY=your_api_key_here
 """
 
 import argparse
@@ -44,22 +49,29 @@ from openai import APIError, RateLimitError, APIConnectionError
 ANNOTATION_PROMPT_TEMPLATE = (
     """Please split the following reasoning chain of an LLM into annotated parts using labels and the following format [\"label\"]...[\"end-section\"]. A sentence should be split into multiple parts if it incorporates multiple behaviours indicated by the labels.\n"""
     "Available labels:\n"
-    "0. initializing -> The model is rephrasing the given task and states initial thoughts.\n"
-    "1. deduction -> The model is performing a deduction step based on its current approach and assumptions.\n"
-    "2. adding-knowledge -> The model is enriching the current approach with recalled facts.\n"
-    "3. example-testing -> The model generates examples to test its current approach.\n"
-    "4. uncertainty-estimation -> The model is stating its own uncertainty.\n"
-    "5. backtracking -> The model decides to change its approach.\n"
+    "[\"initializing\"] -> The model is rephrasing the given task and states initial thoughts.\n"
+    "[\"deduction\"] -> The model is performing a deduction step based on its current approach and assumptions.\n"
+    "[\"adding-knowledge\"] -> The model is enriching the current approach with recalled facts.\n"
+    "[\"example-testing\"] -> The model generates examples to test its current approach.\n"
+    "[\"uncertainty-estimation\"] -> The model is stating its own uncertainty.\n"
+    "[\"backtracking\"] -> The model decides to change its approach.\n"
     "The reasoning chain to analyze:\n{text}\n\n"
-    "Answer only with the annotated text. Only use the labels outlined above. If there is a tail that has no annotation leave it out."
+    "Answer only with the annotated text. Use ONLY the exact labels as shown above (e.g., [\"initializing\"]. Mark the end of each section with [\"end-section\"]. If there is a tail that has no annotation leave it out."
 )
 
-LABEL_RE = re.compile(r"\[\"(?:\d+.\s*)(?:initializing|deduction|adding-knowledge|example-testing|uncertainty-estimation|backtracking)\"\]|\[\"end-section\"\]")
+
+
+
+LABEL_RE = re.compile(r"\[\"(?:\d+.\s*)?(?:initializing|deduction|adding-knowledge|example-testing|uncertainty-estimation|backtracking)\"\]|\[\"end-section\"\]")
 SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
+
+# Fireworks AI configuration
+FIREWORKS_API_BASE = "https://api.fireworks.ai/inference/v1"
+DEFAULT_MODEL = "accounts/fireworks/models/deepseek-v3-0324"
 
 # Retry configuration
 MAX_RETRIES = 500
-RETRY_BASE_DELAY = 1  # seconds
+RETRY_BASE_DELAY = 0.5  # seconds
 MAX_WORKERS = 16 # maximum number of parallel API calls
 
 def split_sentences(text: str) -> List[str]:
@@ -88,9 +100,12 @@ def chunk_sentences(sentences: List[str], length: int, overlap: int) -> List[Lis
     return chunks
 
 
-def call_openai_with_retry(prompt: str, model: str = "gpt-4.1-2025-04-14") -> str:
-    """Call OpenAI chat completion with retry logic for transient errors."""
-    client = OpenAI()
+def call_fireworks_with_retry(prompt: str, model: str = DEFAULT_MODEL) -> str:
+    """Call Fireworks AI chat completion with retry logic for transient errors."""
+    client = OpenAI(
+        api_key=os.getenv("FIREWORKS_API_KEY"),
+        base_url=FIREWORKS_API_BASE
+    )
     
     for attempt in range(MAX_RETRIES):
         try:
@@ -144,7 +159,7 @@ def process_chunk(chunk_idx: int, chunk: List[str], model: str, ignore_whitespac
     prompt = ANNOTATION_PROMPT_TEMPLATE.format(text=raw_chunk)
     
     flags: Dict[str, Any] = {}
-    annotated = call_openai_with_retry(prompt, model=model)
+    annotated = call_fireworks_with_retry(prompt, model=model)
     
     # simple quality check for this chunk
     cleaned = strip_annotations(annotated)
@@ -329,7 +344,7 @@ def save_progress(output_data: Dict[str, Any], out_path: str, temp_prefix: str =
 # ---------------------------------------------------------------------------
 
 def parse_args():
-    p = argparse.ArgumentParser(description="Chunk-annotate reasoning traces using GPT-4.1.")
+    p = argparse.ArgumentParser(description="Chunk-annotate reasoning traces using Fireworks AI's deepseek-v3-0324.")
     p.add_argument("--json", required=True, help="Path to the input experiment JSON file")
     p.add_argument("--start", type=int, default=0, help="First problem index (inclusive)")
     p.add_argument("--end", type=int, default=None, help="Last problem index (inclusive). Default = last problem")
@@ -337,7 +352,7 @@ def parse_args():
     p.add_argument("--field", choices=["reasoning", "post_think_summary", "both"], default="reasoning")
     p.add_argument("--chunk", type=int, default=40, help="Chunk length in sentences")
     p.add_argument("--overlap", type=int, default=5, help="Sentence overlap between chunks")
-    p.add_argument("--model", default="gpt-4.1-2025-04-14", help="OpenAI model name (default gpt-4.1-2025-04-14)")
+    p.add_argument("--model", default=DEFAULT_MODEL, help=f"Fireworks AI model name (default {DEFAULT_MODEL})")
     p.add_argument("--out", help="Output JSON path (default: <input>_annotated.json)")
     p.add_argument("--verbose", "-v", action="store_true", help="Print detailed information about mismatches")
     p.add_argument("--strict", action="store_true", help="Use strict comparison (don't ignore whitespace)")
@@ -381,8 +396,8 @@ def main():
 
     # load env
     dotenv.load_dotenv()
-    if not os.getenv("OPENAI_API_KEY"):
-        print("OPENAI_API_KEY not found in environment or .env", file=sys.stderr)
+    if not os.getenv("FIREWORKS_API_KEY"):
+        print("FIREWORKS_API_KEY not found in environment or .env", file=sys.stderr)
         sys.exit(1)
 
     with open(args.json, "r", encoding="utf-8") as fp:
@@ -432,6 +447,7 @@ def main():
                 "max_workers": MAX_WORKERS,
                 "max_retries": MAX_RETRIES,
                 "timestamp": datetime.datetime.now().isoformat(),
+                "api_provider": "Fireworks AI",
             },
             "problems": []
         }
