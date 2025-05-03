@@ -6,6 +6,8 @@ import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
 import copy
+import os
+import json
 
 from src.llm.base_client import TokenUsage, CostInfo
 
@@ -332,52 +334,89 @@ class SummarizationExperiment(BaseExperiment):
         question = problem["question"]
         correct_answer = problem["answer"]
         
-        # Create initial reasoning prompt (iteration 0)
-        reasoning_template = self.config.get("reasoning_prompt_template")
-        if not reasoning_template:
-            raise ValueError("reasoning_prompt_template must be specified in configuration")
-        
-        initial_prompt = reasoning_template.replace("{question}", question)
-        
-        # Generate iteration 0 reasoning asynchronously with detailed tracking
-        response = await self.reasoning_model.generate_response_async(
-            initial_prompt,
-            max_tokens=self.config["max_tokens"],
-            temperature=self.config["temperature"],
-            top_p=self.config["top_p"],
-            top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
-            presence_penalty=self.config["presence_penalty"],
-            frequency_penalty=self.config["frequency_penalty"],
-            verbose=self.verbose,
-            enable_continuation=self.config.get("enable_continuation", True),
-            max_total_tokens=self.config.get("max_total_tokens", 24576),
-            max_continuations=self.config.get("max_continuations", 3),
-            track_token_callback=self.track_token_usage_and_cost,
-            track_token_callback_args={
-                "problem_id": problem_id,
-                "iteration": 0,
-                "step": "reasoning"
-            }
-        )
-        
-        # Unpack the tuple (content, finish_reason, token_usage, cost_info, detailed_api_calls)
-        iter0_reasoning, iter0_finish_reason, token_usage, cost_info, detailed_api_calls = response
-        
-        # We'll store the detailed API call information in the result after it's initialized
-        
-        # Track token usage and cost for the initial reasoning
-        self.track_token_usage_and_cost(problem_id, token_usage, cost_info, 0, "reasoning")
-        
-        # Log the finish reason
-        logger.info(f"Problem {problem_id}, iteration 0 finish reason: {iter0_finish_reason}")
-        
-        # Extract answer from iteration 0 reasoning using the configured extractor
-        iter0_answer = extract_answer_with_config(iter0_reasoning, self.config)
-        
-        # Check if answer is correct (simple string comparison)
-        iter0_correct = False
-        if iter0_answer is not None:
-            iter0_correct = iter0_answer.strip() == correct_answer.strip()
+        # Check if we have preloaded initial reasoning for this problem
+        if hasattr(self, 'initial_reasoning_map') and problem_id in self.initial_reasoning_map:
+            # Use preloaded initial reasoning
+            initial_data = self.initial_reasoning_map[problem_id]
+            
+            # Ensure we have the correct question and answer from the problem data
+            if question != initial_data.get("question"):
+                logger.warning(f"Question mismatch for problem {problem_id}. Using current question.")
+            
+            if correct_answer != initial_data.get("correct_answer"):
+                logger.warning(f"Answer mismatch for problem {problem_id}. Using current answer.")
+            
+            # Use the reasoning, answer, and finish reason from the preloaded data
+            iter0_reasoning = initial_data["reasoning"]
+            iter0_answer = initial_data["answer"]
+            iter0_correct = initial_data["correct"]
+            iter0_finish_reason = initial_data["finish_reason"]
+            
+            # Set dummy token usage for tracking purposes
+            token_usage = TokenUsage(0, 0, 0)
+            cost_info = CostInfo(0.0, 0.0, 0.0)  # prompt_cost, completion_cost, total_cost
+            
+            logger.info(f"Using preloaded initial reasoning for problem {problem_id}")
+            
+            # Create placeholder for detailed API calls with serializable dictionaries instead of objects
+            detailed_api_calls = [{
+                "reused": True, 
+                "tokens": {
+                    "prompt_tokens": token_usage.prompt_tokens,
+                    "completion_tokens": token_usage.completion_tokens,
+                    "total_tokens": token_usage.total_tokens
+                }, 
+                "cost": {
+                    "prompt_cost": cost_info.prompt_cost,
+                    "completion_cost": cost_info.completion_cost,
+                    "total_cost": cost_info.total_cost
+                }
+            }]
+        else:
+            # Create initial reasoning prompt (iteration 0)
+            reasoning_template = self.config.get("reasoning_prompt_template")
+            if not reasoning_template:
+                raise ValueError("reasoning_prompt_template must be specified in configuration")
+            
+            initial_prompt = reasoning_template.replace("{question}", question)
+            
+            # Generate iteration 0 reasoning asynchronously with detailed tracking
+            response = await self.reasoning_model.generate_response_async(
+                initial_prompt,
+                max_tokens=self.config["max_tokens"],
+                temperature=self.config["temperature"],
+                top_p=self.config["top_p"],
+                top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
+                presence_penalty=self.config["presence_penalty"],
+                frequency_penalty=self.config["frequency_penalty"],
+                verbose=self.verbose,
+                enable_continuation=self.config.get("enable_continuation", True),
+                max_total_tokens=self.config.get("max_total_tokens", 24576),
+                max_continuations=self.config.get("max_continuations", 3),
+                track_token_callback=self.track_token_usage_and_cost,
+                track_token_callback_args={
+                    "problem_id": problem_id,
+                    "iteration": 0,
+                    "step": "reasoning"
+                }
+            )
+            
+            # Unpack the tuple (content, finish_reason, token_usage, cost_info, detailed_api_calls)
+            iter0_reasoning, iter0_finish_reason, token_usage, cost_info, detailed_api_calls = response
+            
+            # Track token usage and cost for the initial reasoning
+            self.track_token_usage_and_cost(problem_id, token_usage, cost_info, 0, "reasoning")
+            
+            # Log the finish reason
+            logger.info(f"Problem {problem_id}, iteration 0 finish reason: {iter0_finish_reason}")
+            
+            # Extract answer from iteration 0 reasoning using the configured extractor
+            iter0_answer = extract_answer_with_config(iter0_reasoning, self.config)
+            
+            # Check if answer is correct (simple string comparison)
+            iter0_correct = False
+            if iter0_answer is not None:
+                iter0_correct = iter0_answer.strip() == correct_answer.strip()
         
         # Construct initial result dictionary
         result = {
@@ -459,23 +498,22 @@ class SummarizationExperiment(BaseExperiment):
                 summary_total_tokens = self.config.get("summary_max_total_tokens", max_total_tokens)
                 summary_continuations = self.config.get("summary_max_continuations", max_continuations)
                 
-                summary_response = await summarize_reasoning_async(
-                    question,
-                    reasoning_trace,  # Use extracted reasoning trace instead of full reasoning
-                    self.summarizer,
-                    summarize_template,
-                    max_tokens=self.config.get("summary_max_tokens"),
-                    temperature=self.config.get("summary_temperature"),
-                    top_p=self.config.get("summary_top_p"),
-                    top_k=self.config.get("summary_top_k"),
-                    presence_penalty=self.config.get("summary_presence_penalty"),
-                    frequency_penalty=self.config.get("summary_frequency_penalty"),
+                # Format the summarization prompt
+                summarize_prompt = summarize_template.replace("{reasoning}", reasoning_trace).replace("{question}", question)
+                
+                # Use the async model interface
+                summary_response = await self.summarizer.generate_response_async(
+                    summarize_prompt,
+                    max_tokens=self.config.get("summary_max_tokens", self.config["max_tokens"]),
+                    temperature=self.config.get("summary_temperature", self.config["temperature"]),
+                    top_p=self.config.get("summary_top_p", self.config["top_p"]),
+                    top_k=self.config.get("summary_top_k", self.config["top_k"]) if hasattr(self.summarizer, "top_k") else None,
+                    presence_penalty=self.config.get("summary_presence_penalty", self.config["presence_penalty"]),
+                    frequency_penalty=self.config.get("summary_frequency_penalty", self.config["frequency_penalty"]),
                     verbose=self.verbose,
-                    # Add continuation parameters
                     enable_continuation=enable_continuation,
                     max_total_tokens=summary_total_tokens,
                     max_continuations=summary_continuations,
-                    # Add enhanced metrics tracking parameters
                     track_token_callback=self.track_token_usage_and_cost,
                     track_token_callback_args={
                         "problem_id": problem_id,
@@ -484,11 +522,7 @@ class SummarizationExperiment(BaseExperiment):
                     }
                 )
                 
-                # Print the type and value of summary_response for debugging
-                # logger.info(f"DEBUG: summary_response type: {type(summary_response)}, value: {summary_response}")
-                
-                # Handle the response from summarize_reasoning_async
-                # The response is now a tuple of (content, finish_reason, token_usage, cost_info, detailed_api_calls)
+                # Handle the response
                 try:
                     # Try to unpack with 5 elements (new format with detailed metrics)
                     summary, summary_finish_reason, token_usage, cost_info, summary_detailed_api_calls = summary_response
@@ -500,7 +534,7 @@ class SummarizationExperiment(BaseExperiment):
                     logger.warning(f"Summary response doesn't include detailed metrics, falling back to old format")
                     summary, summary_finish_reason, token_usage, cost_info = summary_response
             except Exception as e:
-                logger.error(f"Error unpacking summary_response: {str(e)}")
+                logger.error(f"Error generating summary: {str(e)}")
                 logger.error(f"Stack trace: {traceback.format_exc()}")
                 # Continue with default values set above
             
@@ -715,47 +749,85 @@ class SummarizationExperiment(BaseExperiment):
             "iterations": []
         }
         
-        # Create initial reasoning prompt (iteration 0)
-        reasoning_template = self.config.get("reasoning_prompt_template")
-        if not reasoning_template:
-            raise ValueError("reasoning_prompt_template must be specified in configuration")
-        
-        initial_prompt = reasoning_template.replace("{question}", question)
-        
-        # Generate iteration 0 reasoning with streaming
-        if self.dashboard:
-            # Use streaming for dashboard updates
-            raise NotImplementedError("not maintaining dashboard streaming")
-            iter0_reasoning, iter0_finish_reason, token_usage, cost_info = self._stream_model_output(problem_id, initial_prompt, iteration=0)
+        # Check if we have preloaded initial reasoning for this problem
+        if hasattr(self, 'initial_reasoning_map') and problem_id in self.initial_reasoning_map:
+            # Use preloaded initial reasoning
+            initial_data = self.initial_reasoning_map[problem_id]
+            
+            # Ensure we have the correct question and answer from the problem data
+            if question != initial_data.get("question"):
+                logger.warning(f"Question mismatch for problem {problem_id}. Using current question.")
+            
+            if correct_answer != initial_data.get("correct_answer"):
+                logger.warning(f"Answer mismatch for problem {problem_id}. Using current answer.")
+            
+            # Use the reasoning, answer, and finish reason from the preloaded data
+            iter0_reasoning = initial_data["reasoning"]
+            iter0_answer = initial_data["answer"]
+            iter0_correct = initial_data["correct"]
+            iter0_finish_reason = initial_data["finish_reason"]
+            
+            # Set dummy token usage for tracking purposes
+            token_usage = TokenUsage(0, 0, 0)
+            cost_info = CostInfo(0.0, 0.0, 0.0)  # prompt_cost, completion_cost, total_cost
+            
+            logger.info(f"Using preloaded initial reasoning for problem {problem_id}")
+            
+            # Create placeholder for detailed API calls with serializable dictionaries instead of objects
+            detailed_api_calls = [{
+                "reused": True, 
+                "tokens": {
+                    "prompt_tokens": token_usage.prompt_tokens,
+                    "completion_tokens": token_usage.completion_tokens,
+                    "total_tokens": token_usage.total_tokens
+                }, 
+                "cost": {
+                    "prompt_cost": cost_info.prompt_cost,
+                    "completion_cost": cost_info.completion_cost,
+                    "total_cost": cost_info.total_cost
+                }
+            }]
         else:
-            # Without dashboard, just get the full response
-            response = self.reasoning_model.generate_response(
-                initial_prompt,
-                max_tokens=self.config["max_tokens"],
-                temperature=self.config["temperature"],
-                top_p=self.config["top_p"],
-                top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
-                presence_penalty=self.config["presence_penalty"],
-                frequency_penalty=self.config["frequency_penalty"],
-                verbose=self.verbose
-            )
+            # Create initial reasoning prompt (iteration 0)
+            reasoning_template = self.config.get("reasoning_prompt_template")
+            if not reasoning_template:
+                raise ValueError("reasoning_prompt_template must be specified in configuration")
             
-            # Unpack the tuple (content, finish_reason, token_usage, cost_info)
-            iter0_reasoning, iter0_finish_reason, token_usage, cost_info = response
+            initial_prompt = reasoning_template.replace("{question}", question)
             
-            # Track token usage and cost
-            self.track_token_usage_and_cost(problem_id, token_usage, cost_info, 0, "reasoning")
-        
-        # Log the finish reason
-        logger.info(f"Problem {problem_id}, iteration 0 finish reason: {iter0_finish_reason}")
-        
-        # Extract answer from iteration 0 reasoning using the configured extractor
-        iter0_answer = extract_answer_with_config(iter0_reasoning, self.config)
-        
-        # Check if answer is correct (simple string comparison)
-        iter0_correct = False
-        if iter0_answer is not None:
-            iter0_correct = iter0_answer.strip() == correct_answer.strip()
+            # Generate iteration 0 reasoning with streaming
+            if self.dashboard:
+                # Use streaming for dashboard updates
+                iter0_reasoning, iter0_finish_reason, token_usage, cost_info = self._stream_model_output(problem_id, initial_prompt, iteration=0)
+            else:
+                # Without dashboard, just get the full response
+                response = self.reasoning_model.generate_response(
+                    initial_prompt,
+                    max_tokens=self.config["max_tokens"],
+                    temperature=self.config["temperature"],
+                    top_p=self.config["top_p"],
+                    top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
+                    presence_penalty=self.config["presence_penalty"],
+                    frequency_penalty=self.config["frequency_penalty"],
+                    verbose=self.verbose
+                )
+                
+                # Unpack the tuple (content, finish_reason, token_usage, cost_info)
+                iter0_reasoning, iter0_finish_reason, token_usage, cost_info = response
+                
+                # Track token usage and cost
+                self.track_token_usage_and_cost(problem_id, token_usage, cost_info, 0, "reasoning")
+            
+            # Log the finish reason
+            logger.info(f"Problem {problem_id}, iteration 0 finish reason: {iter0_finish_reason}")
+            
+            # Extract answer from iteration 0 reasoning using the configured extractor
+            iter0_answer = extract_answer_with_config(iter0_reasoning, self.config)
+            
+            # Check if answer is correct (simple string comparison)
+            iter0_correct = False
+            if iter0_answer is not None:
+                iter0_correct = iter0_answer.strip() == correct_answer.strip()
         
         # Construct initial result dictionary
         result = {
@@ -1008,3 +1080,68 @@ class SummarizationExperiment(BaseExperiment):
         logger.info(f"Final answer correct: {result['final_correct']}")
         
         return result
+    
+    def load_initial_reasoning(self, source_results_path: str) -> Dict[str, Dict[str, Any]]:
+        """
+        Load initial reasoning from a previous experiment's results file.
+        
+        Args:
+            source_results_path: Path to the source results file
+            
+        Returns:
+            Dictionary mapping problem_id to initial reasoning data
+        """
+        if not os.path.exists(source_results_path):
+            raise FileNotFoundError(f"Source results file not found: {source_results_path}")
+        
+        with open(source_results_path, "r", encoding="utf-8") as f:
+            source_results = json.load(f)
+        
+        # Create a dictionary mapping problem_id to initial reasoning data
+        initial_reasoning_map = {}
+        
+        # Check if source_results is a list or a dictionary with a 'results' key
+        if isinstance(source_results, dict) and 'results' in source_results:
+            source_results = source_results['results']
+        
+        # Ensure source_results is a list
+        if not isinstance(source_results, list):
+            raise ValueError(f"Unexpected format in {source_results_path}. Expected a list of results or a dictionary with a 'results' key.")
+        
+        for result in source_results:
+            # Skip if result is not a dictionary
+            if not isinstance(result, dict):
+                logger.warning(f"Skipping non-dictionary result: {result}")
+                continue
+                
+            problem_id = result.get("problem_id")
+            if problem_id and "iterations" in result and len(result["iterations"]) > 0:
+                iter0 = result["iterations"][0]
+                initial_reasoning_map[problem_id] = {
+                    "reasoning": iter0.get("reasoning"),
+                    "answer": iter0.get("answer"),
+                    "correct": iter0.get("correct"),
+                    "finish_reason": iter0.get("finish_reason"),
+                    "question": result.get("question"),
+                    "correct_answer": result.get("correct_answer")
+                }
+                logger.info(f"Loaded initial reasoning for problem {problem_id}")
+            
+        logger.info(f"Loaded initial reasoning for {len(initial_reasoning_map)} problems from {source_results_path}")
+        return initial_reasoning_map
+
+    def initialize_with_previous_results(self, source_results_path: str) -> None:
+        """
+        Initialize the experiment with initial reasoning from a previous run.
+        
+        Args:
+            source_results_path: Path to the source results file
+        """
+        self.initial_reasoning_map = self.load_initial_reasoning(source_results_path)
+        logger.info(f"Initialized experiment with {len(self.initial_reasoning_map)} preloaded reasonings")
+        
+        # Flag to indicate we're reusing initial reasoning
+        self.reusing_initial_reasoning = True
+        
+        # We'll need to override metrics too
+        self.preloaded_metrics = {"token_usage": {}, "cost_info": {}}

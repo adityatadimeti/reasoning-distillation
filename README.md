@@ -1,6 +1,6 @@
 # Reasoning Distillation
 
-A framework for running experiments on AI reasoning, summarization, and reasoning enhancement.
+This project investigates methods for improving mathematical reasoning through summarization and reflection.
 
 ## Setup
 
@@ -94,36 +94,39 @@ Each row contains:
 
 ## Running Experiments
 
-### Basic Usage
-
-To run an experiment with the default settings:
+To run an experiment, use the `run_experiment.py` script:
 
 ```bash
-python run_experiment.py config/experiments/test.yaml
+python run_experiment.py <config_name> [options]
 ```
 
-### Command-line Options
+### Reusing Initial Reasoning
+
+You can reuse initial reasoning from a previous experiment run to test different summarization prompts while keeping the initial reasoning constant:
 
 ```bash
-python run_experiment.py config/experiments/test.yaml [OPTIONS]
+python run_experiment.py <config_name> --load_initial_reasoning=/path/to/previous_results.json
 ```
 
-Available options:
+This is useful when:
+1. You want to experiment with different summarization prompt templates
+2. You want to test different summarization models
+3. You want to try different summarization parameters
 
-- `--dashboard`: Enable the dashboard visualization for experiment progress
-- `--verbose`: Log all LLM API calls, showing the full message arrays and parameters
+By reusing initial reasoning:
+- All "iteration 0" solutions stay the same
+- Only the summarization steps and subsequent iterations change
+- You save cost and time by not re-generating the initial reasoning
 
-### Examples
+### Other Options
 
-Run an experiment with dashboard visualization (uses `config/experiment/test.yaml`):
-```bash
-python run_experiment.py test --dashboard
-```
-
-Run an experiment with verbose logging:
-```bash
-python run_experiment.py test --verbose
-```
+- `--dashboard`: Enable the web dashboard for real-time experiment monitoring
+- `--verbose`: Log detailed information about LLM calls
+- `--parallel`: Process problems in parallel (incompatible with dashboard)
+- `--concurrency N`: Set maximum number of parallel problems (default: 4) 
+- `--question_ids`: Comma-separated list of problem IDs to process
+- `--exclude_question_ids`: Comma-separated list of problem IDs to exclude
+- `--index_range`: Range of indices to process (e.g., "0-4" or "10-15")
 
 ## Project Structure
 

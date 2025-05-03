@@ -10,9 +10,20 @@ Chunk-based behaviour annotation for long reasoning traces.
 
 Usage (examples)
 ----------------
-python chunk_annotate.py --json data/aime_dataset.json \
+# Annotate both reasoning and post_think_summary (default)
+python annotate_cog_behaviors.py --json data/aime_dataset.json \
        --start 0 --end 59 --iters all \
-       --field reasoning --chunk 40 --overlap 5
+       --field both --chunk 40 --overlap 5
+
+# Annotate reasoning and "summary" (instead of post_think_summary)
+python annotate_cog_behaviors.py --json data/aime_dataset.json \
+       --start 0 --end 59 --iters all \
+       --field both --summary-field summary --chunk 40 --overlap 5
+
+# Annotate only the summary field
+python annotate_cog_behaviors.py --json data/aime_dataset.json \
+       --start 0 --end 59 --iters all \
+       --field summary --chunk 40 --overlap 5
 
 Environment Setup
 ----------------
@@ -349,8 +360,11 @@ def parse_args():
     p.add_argument("--start", type=int, default=0, help="First problem index (inclusive)")
     p.add_argument("--end", type=int, default=None, help="Last problem index (inclusive). Default = last problem")
     p.add_argument("--iters", default="all", help="Iterations to process: 'all' or e.g. 0,1,2")
-    p.add_argument("--field", choices=["reasoning", "post_think_summary", "both"], default="reasoning")
-    p.add_argument("--chunk", type=int, default=40, help="Chunk length in sentences")
+    p.add_argument("--field", choices=["reasoning", "summary", "post_think_summary", "both"], default="both", 
+                  help="Field(s) to annotate. When 'both' is selected, it will annotate reasoning and post_think_summary.")
+    p.add_argument("--summary-field", choices=["summary", "post_think_summary"], default="post_think_summary",
+                  help="Which summary field to use when --field=both (default: post_think_summary)")
+    p.add_argument("--chunk", type=int, default=30, help="Chunk length in sentences")
     p.add_argument("--overlap", type=int, default=5, help="Sentence overlap between chunks")
     p.add_argument("--model", default=DEFAULT_MODEL, help=f"Fireworks AI model name (default {DEFAULT_MODEL})")
     p.add_argument("--out", help="Output JSON path (default: <input>_annotated.json)")
@@ -478,9 +492,19 @@ def main():
             output_iter = dict(iteration)
             iteration_processed = False
             
-            for field in ("reasoning", "post_think_summary"):
-                if args.field != "both" and args.field != field:
-                    continue
+            # Determine which fields to process
+            fields_to_process = []
+            if args.field == "reasoning":
+                fields_to_process.append("reasoning")
+            elif args.field == "summary":
+                fields_to_process.append("summary")
+            elif args.field == "post_think_summary":
+                fields_to_process.append("post_think_summary")
+            elif args.field == "both":
+                fields_to_process.append("reasoning")
+                fields_to_process.append(args.summary_field)
+            
+            for field in fields_to_process:
                 text = iteration.get(field, "").strip()
                 if not text:
                     continue

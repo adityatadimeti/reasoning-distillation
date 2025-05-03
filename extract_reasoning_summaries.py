@@ -11,7 +11,7 @@ from datetime import datetime
 
 def extract_reasoning_summaries(input_file, output_file=None):
     """
-    Extract only the reasoning and post_think_summary fields from a results JSON file.
+    Extract only the reasoning, summary, and post_think_summary fields from a results JSON file.
     
     Args:
         input_file: Path to input JSON result file
@@ -61,7 +61,11 @@ def extract_reasoning_summaries(input_file, output_file=None):
                 if 'reasoning' in iteration:
                     iteration_data["reasoning"] = iteration['reasoning']
                     total_entries += 1
-                
+
+                if 'summary' in iteration:
+                    iteration_data["summary"] = iteration['summary']
+                    total_entries += 1
+
                 # Add post_think_summary if it exists
                 if 'post_think_summary' in iteration:
                     iteration_data["post_think_summary"] = iteration['post_think_summary']
@@ -86,7 +90,7 @@ def extract_reasoning_summaries(input_file, output_file=None):
         # Calculate size
         size = os.path.getsize(output_file)
         
-        print(f"\nSuccessfully extracted reasoning and post_think_summary fields:")
+        print(f"\nSuccessfully extracted reasoning, summary, and post_think_summary fields:")
         print(f"- Original file: {input_file}")
         print(f"- Total entries extracted: {total_entries}")
         print(f"- Output size: {size / 1024:.2f} KB")
@@ -98,7 +102,7 @@ def extract_reasoning_summaries(input_file, output_file=None):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Extract only the reasoning and post_think_summary fields from a results JSON file"
+        description="Extract only the reasoning, summary, and post_think_summary fields from a results JSON file"
     )
     parser.add_argument("input_file", help="Path to the results.json file")
     parser.add_argument("--output", "-o", help="Path to save the extracted data (optional)")

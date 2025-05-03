@@ -75,3 +75,7 @@ v0
 
 *results/
 *.png
+
+
+*harp*
+*test*

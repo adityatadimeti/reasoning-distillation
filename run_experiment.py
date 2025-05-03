@@ -152,6 +152,7 @@ def run_experiment(
     question_ids: Optional[List[str]] = None,
     exclude_question_ids: Optional[List[str]] = None,
     index_range: Optional[str] = None,
+    load_initial_reasoning: Optional[str] = None,
     **kwargs
 ) -> Dict[str, Any]:
     """
@@ -164,7 +165,9 @@ def run_experiment(
         parallel: Whether to process problems in parallel
         max_concurrency: Maximum number of problems to process concurrently when parallel=True
         question_ids: List of question IDs to run (optional)
+        exclude_question_ids: List of question IDs to exclude (optional)
         index_range: Range of question indices to run (e.g., "0-4") (optional)
+        load_initial_reasoning: Path to a previous results file to load initial reasoning from (optional)
         **kwargs: Additional configuration overrides
         
     Returns:
@@ -241,6 +244,14 @@ def run_experiment(
             verbose=verbose
         )
     
+    # Initialize with previous results if specified
+    if load_initial_reasoning:
+        if not os.path.exists(load_initial_reasoning):
+            raise FileNotFoundError(f"Initial reasoning file not found: {load_initial_reasoning}")
+        
+        logger.info(f"Loading initial reasoning from {load_initial_reasoning}")
+        experiment.initialize_with_previous_results(load_initial_reasoning)
+    
     # Run experiment
     if parallel and not use_dashboard:
         # For parallel processing, we need to use asyncio
@@ -288,6 +299,7 @@ async def run_experiment_async(
     question_ids: Optional[List[str]] = None,
     exclude_question_ids: Optional[List[str]] = None,
     index_range: Optional[str] = None,
+    load_initial_reasoning: Optional[str] = None,
     **kwargs
 ) -> Dict[str, Any]:
     """
@@ -298,7 +310,9 @@ async def run_experiment_async(
         verbose: Whether to log all LLM calls
         max_concurrency: Maximum number of problems to process concurrently
         question_ids: List of question IDs to run (optional)
+        exclude_question_ids: List of question IDs to exclude (optional)
         index_range: Range of question indices to run (e.g., "0-4") (optional)
+        load_initial_reasoning: Path to a previous results file to load initial reasoning from (optional)
         **kwargs: Additional configuration overrides
         
     Returns:
@@ -349,6 +363,14 @@ async def run_experiment_async(
             verbose=verbose
         )
     
+    # Initialize with previous results if specified
+    if load_initial_reasoning:
+        if not os.path.exists(load_initial_reasoning):
+            raise FileNotFoundError(f"Initial reasoning file not found: {load_initial_reasoning}")
+        
+        logger.info(f"Loading initial reasoning from {load_initial_reasoning}")
+        experiment.initialize_with_previous_results(load_initial_reasoning)
+    
     # Run experiment in parallel
     results = await experiment.run_parallel(problems, max_concurrency=max_concurrency)
     
@@ -385,6 +407,9 @@ def main():
     # Add argument for continuation mode
     parser.add_argument("--continuations_only", action="store_true", help="Only process continuations for truncated solutions")
     parser.add_argument("--results_file", type=str, help="Path to results file for continuation processing (optional)")
+    
+    # Add argument for loading initial reasoning from previous results
+    parser.add_argument("--load_initial_reasoning", type=str, help="Path to a previous results file to load initial reasoning from")
     
     args = parser.parse_args()
 
@@ -438,7 +463,8 @@ def main():
                 max_concurrency=args.concurrency,
                 question_ids=question_ids,
                 exclude_question_ids=exclude_question_ids,
-                index_range=args.index_range
+                index_range=args.index_range,
+                load_initial_reasoning=args.load_initial_reasoning
             )
             logger.info("Experiment completed successfully")
     except Exception as e:

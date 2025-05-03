@@ -137,3 +137,34 @@ gpqa_approach_and_answer:
     {reasoning}
     
     SUMMARY:
+
+aime_replay:
+  template: |
+    Produce a concise, chronological replay of the solver's thought process in the following attempted solution to the question.
+    
+    • Cover ALL major moves in the order they occurred - setup, logical deductions, recalled facts, numerical checks, “wait” moments, false starts, corrections, and final calculations.  
+    • Do NOT rewrite the solution into a cleaner path; preserve the original flow, including any uncertainty, back-tracking, or revisions.  
+    • Compress by fusing consecutive sentences that serve the same purpose, but never skip a step that changed the solver's state of mind.    
+    • After the replay, show the solver's final answer in \boxed{}.
+
+    ---
+    PROBLEM:
+    {question}
+
+    ATTEMPTED SOLUTION:
+    {reasoning}
+
+    ---
+    REPLAY OF THOUGHT:
+
+aime_summary:
+  template: |
+    Summarize the following attempted solution to the problem:
+    
+    PROBLEM:
+    {question}
+
+    ATTEMPTED SOLUTION:
+    {reasoning}
+
+    SUMMARY:

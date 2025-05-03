@@ -23,5 +23,10 @@
     "hf_model_name": "meta-llama/Llama-4-Scout-17B-16E-Instruct",
     "input_price_per_million": 0.15,
     "output_price_per_million": 0.60
+  },
+  "accounts/vivek-vajipey-84a360/deployedModels/qwen2p5-14b-instruct-ffooilxa": {
+    "hf_model_name": "Qwen/Qwen2.5-14B-Instruct",
+    "input_price_per_million": 0.5,
+    "output_price_per_million": 0.5
   }
 }
