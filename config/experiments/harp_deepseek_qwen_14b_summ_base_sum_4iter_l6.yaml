@@ -1,6 +1,6 @@
 # Experiment configuration for Qwen 32B
-experiment_name: "harp_deepseek_qwen_14b_replay_base_sum_4iter_l6"
-results_dir: "./results/harp_deepseek_qwen_14b_replay_base_sum_4iter_l6"
+experiment_name: "harp_deepseek_qwen_14b_summ_base_sum_4iter_l6"
+results_dir: "./results/harp_deepseek_qwen_14b_summ_base_sum_4iter_l6"
 data_path: "./data/harp_level6.csv"
 save_intermediate: true
 experiment_type: "summarize"
@@ -51,9 +51,9 @@ answer_extractor: "harp"
 
 # Prompt configurations
 prompts:
-  reasoning: "harp"  # This references the version in config/prompts/reasoning.yaml
-  summarize: "aime_replay"  # This references the version in config/prompts/summarize.yaml
-  improved: "harp_your_approach" # This references the version in config/prompts/improved.yaml
+  reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
+  summarize: "aime_summary"  # This references the version in config/prompts/summarize.yaml
+  improved: "aime_your_approach" # This references the version in config/prompts/improved.yaml
 
 
   

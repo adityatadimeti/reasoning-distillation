@@ -51,9 +51,9 @@ answer_extractor: "harp"
 
 # Prompt configurations
 prompts:
-  reasoning: "harp"  # This references the version in config/prompts/reasoning.yaml
+  reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
   summarize: "aime_replay"  # This references the version in config/prompts/summarize.yaml
-  improved: "harp_your_approach" # This references the version in config/prompts/improved.yaml
+  improved: "aime_your_approach" # This references the version in config/prompts/improved.yaml
 
 
   
