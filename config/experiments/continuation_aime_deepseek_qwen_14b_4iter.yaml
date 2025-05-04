@@ -1,7 +1,7 @@
 # Experiment configuration for Qwen 32B
-experiment_name: "simple_continuation"
-results_dir: "./results/simple_continuation"
-data_path: "./data/simple.csv"
+experiment_name: "continuation_aime_deepseek_qwen_14b_4iter"
+results_dir: "./results/continuation_aime_deepseek_qwen_14b_4iter"
+data_path: "./data/aime_2024_5.csv"
 save_intermediate: true
 experiment_type: "continuation"
 
@@ -26,11 +26,11 @@ max_total_tokens: 32768  # Total token limit across all continuations
 max_continuations: 4    # Maximum number of continuation attempts
 
 # Iteration parameters
-max_iterations: 3
+max_iterations: 4
 continue_after_correct: true
 
 answer_extractor: "math"
 
 # Prompt configurations
 prompts:
-  reasoning: "v0"  # This references the version in config/prompts/reasoning.yaml
+  reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml

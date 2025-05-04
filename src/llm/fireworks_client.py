@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from typing import List, Dict, Any, Optional, Union, Tuple, AsyncIterator
 
 from src.llm.base_client import ModelClient, TokenUsage, CostInfo
-from src.llm.tokenization import format_chat_for_completions, create_continuation_prompt, count_tokens
+from src.llm.tokenization import format_chat_for_completions, count_tokens
 
 logger = logging.getLogger(__name__)
 
@@ -379,7 +379,8 @@ class FireworksModelClient(ModelClient):
         
         # Format the initial prompt for completions API
         formatted_prompt = format_chat_for_completions(messages, self.model_name)
-        logger.info(f"Formatted prompt: {formatted_prompt}")
+        if verbose: # Changed logger level from info to debug
+            logger.debug(f"Initial formatted prompt: {formatted_prompt}")
 
         # Initialize tracking variables
         all_text = ""
@@ -390,14 +391,12 @@ class FireworksModelClient(ModelClient):
         final_finish_reason = "unknown"
         detailed_api_calls = []  # Track individual API calls for detailed metrics
         
-        print("Launching response in generate_response_async")
-        # First API callp
+        # Keep track of the prompt string used in the last API call
+        current_prompt_string = formatted_prompt 
         
-        print(f"Formatted prompt: {formatted_prompt}")
-        breakpoint()
-
+        # First API call
         response, token_usage, cost_info = await self._call_completions_api(
-            prompt=formatted_prompt,
+            prompt=current_prompt_string, # Use current_prompt_string
             max_tokens=min(max_tokens, self.MAX_TOKENS_PER_REQUEST),
             temperature=temperature,
             top_p=top_p,
@@ -407,7 +406,8 @@ class FireworksModelClient(ModelClient):
             verbose=verbose
         )
 
-        print(f"Response: {response}")
+        if verbose:
+            print(f"Response: {response}")
         
         # Extract text and finish reason
         if "choices" in response and response["choices"]:
@@ -462,13 +462,11 @@ class FireworksModelClient(ModelClient):
                    iteration < max_continuations and 
                    total_completion_tokens < max_total_tokens):
                 
-                # Create continuation prompt
-                continuation_prompt = create_continuation_prompt(
-                    original_messages=messages,
-                    generated_text=all_text,
-                    model_name=self.model_name
-                )
-                
+                # --- Continuation Logic ---
+                # The next prompt is simply the previous prompt + the generated text
+                next_prompt_string = current_prompt_string + current_text
+                current_prompt_string = next_prompt_string # Update for the next potential iteration
+
                 # Calculate remaining tokens allowed
                 remaining_tokens = max_total_tokens - total_completion_tokens
                 tokens_to_generate = min(remaining_tokens, self.MAX_TOKENS_PER_REQUEST)
@@ -478,11 +476,12 @@ class FireworksModelClient(ModelClient):
                 
                 if verbose:
                     logger.info(f"Continuing generation (continuation {iteration+1})")
+                    logger.debug(f"Continuation prompt (last few chars): ...{current_prompt_string[-100:]}") # Log snippet
                 
                 # Make continuation request
                 try:
                     cont_response, cont_token_usage, cont_cost_info = await self._call_completions_api(
-                        prompt=continuation_prompt,
+                        prompt=current_prompt_string, # Use the updated prompt string
                         max_tokens=tokens_to_generate,
                         temperature=temperature,
                         top_p=top_p,
@@ -591,10 +590,15 @@ class FireworksModelClient(ModelClient):
         """Extract token usage from a Fireworks API response."""
         usage = response_json.get("usage", {})
         
+        # Handle potential null values gracefully
+        prompt_tokens = usage.get("prompt_tokens") if usage.get("prompt_tokens") is not None else 0
+        completion_tokens = usage.get("completion_tokens") if usage.get("completion_tokens") is not None else 0
+        total_tokens = usage.get("total_tokens") if usage.get("total_tokens") is not None else 0
+
         return TokenUsage(
-            prompt_tokens=usage.get("prompt_tokens", 0),
-            completion_tokens=usage.get("completion_tokens", 0),
-            total_tokens=usage.get("total_tokens", 0)
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+            total_tokens=total_tokens
         )
     
     def calculate_cost(self, token_usage: TokenUsage) -> CostInfo:
