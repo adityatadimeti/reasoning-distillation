@@ -16,6 +16,7 @@ from src.llm.model_factory import create_model_client
 from src.reasoning.extractor import extract_reasoning_trace, extract_answer_with_config, extract_post_think_content
 from src.reasoning.summarizer import summarize_reasoning, summarize_reasoning_async
 from src.dashboard.server import DashboardServer
+from src.eval.latex_answer_check import get_gt_answer, check_one_latex_answer
 
 logger = logging.getLogger(__name__)
 
@@ -71,6 +72,9 @@ class SummarizationExperiment(BaseExperiment):
         
         # Add lock for thread safety when updating results
         self.results_lock = Lock()
+        
+        # Initialize preloaded metrics
+        self.preloaded_metrics = {"token_usage": {}, "cost_info": {}}
     
     def run(self, problems: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Run the summarization experiment on a list of problems."""
@@ -243,6 +247,11 @@ class SummarizationExperiment(BaseExperiment):
             
             logger.info(f"Generating final summary for problem {problem_id}, last iteration {last_iteration_idx}")
             
+            # Process ground truth answer using get_gt_answer
+            extract_policy = self.config.get("extract_policy", "flex")
+            eval_policy = self.config.get("eval_policy", "aggressive")
+            gt_answer = result.get("processed_gt_answer", get_gt_answer(correct_answer, extract_policy=extract_policy))
+            
             # Extract reasoning trace if needed
             reasoning_trace = extract_reasoning_trace(last_reasoning, self.config) \
                 if self.config.get("extract_reasoning_trace", False) else last_reasoning
@@ -285,10 +294,15 @@ class SummarizationExperiment(BaseExperiment):
             # Extract answer from the final summary
             final_summary_answer = extract_answer_with_config(final_summary, self.config)
             
-            # Check if the summary answer is correct
-            final_summary_correct = False
-            if final_summary_answer is not None:
-                final_summary_correct = final_summary_answer.strip() == correct_answer.strip()
+            # Check if the summary answer is correct using the LaTeX answer check
+            final_summary_check_result = check_one_latex_answer(
+                final_summary_answer,
+                gt_answer,
+                extract_policy="none",  # Skip extraction since we already extracted the answer
+                eval_policy=eval_policy,
+                debug=False
+            )
+            final_summary_correct = final_summary_check_result["is_correct"]
             
             # Log the final summary information
             logger.info(f"Problem {problem_id}, final summary finish reason: {final_summary_finish_reason}")
@@ -333,6 +347,11 @@ class SummarizationExperiment(BaseExperiment):
         problem_id = problem.get("id", problem.get("ID", "unknown"))
         question = problem["question"]
         correct_answer = problem["answer"]
+        
+        # Process ground truth answer using get_gt_answer
+        extract_policy = self.config.get("extract_policy", "flex")
+        eval_policy = self.config.get("eval_policy", "aggressive")
+        gt_answer = get_gt_answer(correct_answer, extract_policy=extract_policy)
         
         # Check if we have preloaded initial reasoning for this problem
         if hasattr(self, 'initial_reasoning_map') and problem_id in self.initial_reasoning_map:
@@ -413,16 +432,22 @@ class SummarizationExperiment(BaseExperiment):
             # Extract answer from iteration 0 reasoning using the configured extractor
             iter0_answer = extract_answer_with_config(iter0_reasoning, self.config)
             
-            # Check if answer is correct (simple string comparison)
-            iter0_correct = False
-            if iter0_answer is not None:
-                iter0_correct = iter0_answer.strip() == correct_answer.strip()
+            # Check if answer is correct using the new LaTeX answer check
+            iter0_check_result = check_one_latex_answer(
+                iter0_answer,
+                gt_answer,
+                extract_policy="none",  # Skip extraction since we already extracted the answer
+                eval_policy=eval_policy,
+                debug=False
+            )
+            iter0_correct = iter0_check_result["is_correct"]
         
         # Construct initial result dictionary
         result = {
             "problem_id": problem_id,
             "question": question,
             "correct_answer": correct_answer,
+            "processed_gt_answer": gt_answer,
             "iterations": [
                 {
                     "iteration": 0,
@@ -534,8 +559,15 @@ class SummarizationExperiment(BaseExperiment):
                     logger.warning(f"Summary response doesn't include detailed metrics, falling back to old format")
                     summary, summary_finish_reason, token_usage, cost_info = summary_response
             except Exception as e:
-                logger.error(f"Error generating summary: {str(e)}")
-                logger.error(f"Stack trace: {traceback.format_exc()}")
+                error_str = str(e).lower()
+                    
+                if "prompt is too long" in error_str or "maximum context length" in error_str:
+                    # Calculate truncation factor - each retry we reduce by an additional 20%
+                    # truncation_factor = max(0.3, 1.0 - (retry_count * 0.2))
+                    # logger.warning(f"Prompt too long error, will retry with truncation factor: {truncation_factor:.1%}")
+                    raise Exception(f"Prompt too long error, please decrease summary_max_total_tokens")
+                
+                
                 # Continue with default values set above
             
             # Track token usage and cost for the summary only if we have valid data
@@ -558,10 +590,15 @@ class SummarizationExperiment(BaseExperiment):
             # Extract answer from the summary using the same extractor as reasoning
             summary_answer = extract_answer_with_config(summary, self.config)
             
-            # Check if the summary answer is correct
-            summary_correct = False
-            if summary_answer is not None:
-                summary_correct = summary_answer.strip() == correct_answer.strip()
+            # Check if the summary answer is correct using the LaTeX answer check
+            summary_check_result = check_one_latex_answer(
+                summary_answer,
+                gt_answer,
+                extract_policy="none",  # Skip extraction since we already extracted the answer
+                eval_policy=eval_policy,
+                debug=False
+            )
+            summary_correct = summary_check_result["is_correct"]
             
             # Log the summary answer
             logger.info(f"Problem {problem_id}, iteration {current_iteration} summary answer: {summary_answer}")
@@ -667,11 +704,18 @@ class SummarizationExperiment(BaseExperiment):
             # Extract answer from next iteration reasoning using the configured extractor
             next_answer = extract_answer_with_config(next_reasoning, self.config)
             
-            # Check if answer is correct
-            next_correct = False
-            if next_answer is not None:
-                next_correct = next_answer.strip() == correct_answer.strip()
-                found_correct_answer = found_correct_answer or next_correct
+            # Check if answer is correct using the LaTeX answer check
+            next_check_result = check_one_latex_answer(
+                next_answer,
+                gt_answer,
+                extract_policy="none",  # Skip extraction since we already extracted the answer
+                eval_policy=eval_policy,
+                debug=False
+            )
+            next_correct = next_check_result["is_correct"]
+            
+            # Update found_correct_answer flag
+            found_correct_answer = found_correct_answer or next_correct
             
             # Add the next iteration to the results - WITHOUT including a summary yet
             # The summary will be added when it's generated in the next loop iteration
@@ -741,11 +785,17 @@ class SummarizationExperiment(BaseExperiment):
         question = problem["question"]
         correct_answer = problem["answer"]
         
+        # Process ground truth answer using get_gt_answer
+        extract_policy = self.config.get("extract_policy", "flex")
+        eval_policy = self.config.get("eval_policy", "aggressive")
+        gt_answer = get_gt_answer(correct_answer, extract_policy=extract_policy)
+        
         # Initialize current problem result to track partial progress
         self._current_problem_result = {
             "problem_id": problem_id,
             "question": question,
             "correct_answer": correct_answer,
+            "processed_gt_answer": gt_answer,
             "iterations": []
         }
         
@@ -824,16 +874,22 @@ class SummarizationExperiment(BaseExperiment):
             # Extract answer from iteration 0 reasoning using the configured extractor
             iter0_answer = extract_answer_with_config(iter0_reasoning, self.config)
             
-            # Check if answer is correct (simple string comparison)
-            iter0_correct = False
-            if iter0_answer is not None:
-                iter0_correct = iter0_answer.strip() == correct_answer.strip()
+            # Check if answer is correct using the new LaTeX answer check
+            iter0_check_result = check_one_latex_answer(
+                iter0_answer,
+                gt_answer,
+                extract_policy="none",  # Skip extraction since we already extracted the answer
+                eval_policy=eval_policy,
+                debug=False
+            )
+            iter0_correct = iter0_check_result["is_correct"]
         
         # Construct initial result dictionary
         result = {
             "problem_id": problem_id,
             "question": question,
             "correct_answer": correct_answer,
+            "processed_gt_answer": gt_answer,
             "iterations": [
                 {
                     "iteration": 0,
@@ -957,12 +1013,41 @@ class SummarizationExperiment(BaseExperiment):
                 else:
                     logger.info(f"No post-think content found in summary for problem {problem_id}, iteration {current_iteration}. Using full summary.")
             
+            # Extract answer from the summary 
+            summary_answer = extract_answer_with_config(summary, self.config)
+            
+            # Check if the summary answer is correct using the LaTeX answer check
+            summary_check_result = check_one_latex_answer(
+                summary_answer,
+                gt_answer,
+                extract_policy="none",  # Skip extraction since we already extracted the answer
+                eval_policy=eval_policy,
+                debug=False
+            )
+            summary_correct = summary_check_result["is_correct"]
+            
+            # Log the summary answer
+            logger.info(f"Problem {problem_id}, iteration {current_iteration} summary answer: {summary_answer}")
+            logger.info(f"Problem {problem_id}, iteration {current_iteration} summary correct: {summary_correct}")
+            
+            # Use reasoning answer as fallback
+            reasoning_answer = result["iterations"][current_iteration]["answer"]
+            reasoning_correct = result["iterations"][current_iteration]["correct"]
+            
+            # Use summary answer as primary, with fallback to reasoning answer if summary has no answer
+            final_answer = summary_answer if summary_answer is not None else reasoning_answer
+            final_correct = summary_correct if summary_answer is not None else reasoning_correct
+            
             # Add summary to the collection with iteration number
             all_summaries.append({
                 "iteration": current_iteration,
                 "summary": summary,
                 "post_think_summary": post_think_summary,
-                "finish_reason": summary_finish_reason
+                "finish_reason": summary_finish_reason,
+                "summary_answer": summary_answer,
+                "summary_correct": summary_correct,
+                "final_answer": final_answer,
+                "final_correct": final_correct
             })
             
             # *** FIX: Update the current iteration with the summary before moving to the next iteration ***
@@ -970,6 +1055,10 @@ class SummarizationExperiment(BaseExperiment):
             result["iterations"][current_iteration]["summary"] = summary
             result["iterations"][current_iteration]["post_think_summary"] = post_think_summary
             result["iterations"][current_iteration]["summary_finish_reason"] = summary_finish_reason
+            result["iterations"][current_iteration]["summary_answer"] = summary_answer
+            result["iterations"][current_iteration]["summary_correct"] = summary_correct
+            result["iterations"][current_iteration]["final_answer"] = final_answer
+            result["iterations"][current_iteration]["final_correct"] = final_correct
             
             # Prepare for next iteration
             next_iteration = current_iteration + 1
@@ -1019,11 +1108,18 @@ class SummarizationExperiment(BaseExperiment):
             # Extract answer from next iteration reasoning using the configured extractor
             next_answer = extract_answer_with_config(next_reasoning, self.config)
             
-            # Check if answer is correct
-            next_correct = False
-            if next_answer is not None:
-                next_correct = next_answer.strip() == correct_answer.strip()
-                found_correct_answer = found_correct_answer or next_correct
+            # Check if answer is correct using the LaTeX answer check
+            next_check_result = check_one_latex_answer(
+                next_answer,
+                gt_answer,
+                extract_policy="none",  # Skip extraction since we already extracted the answer
+                eval_policy=eval_policy,
+                debug=False
+            )
+            next_correct = next_check_result["is_correct"]
+            
+            # Update found_correct_answer flag
+            found_correct_answer = found_correct_answer or next_correct
             
             # Add the next iteration to the results - WITHOUT including a summary yet
             # The summary will be added when it's generated in the next loop iteration

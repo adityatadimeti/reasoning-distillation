@@ -2,8 +2,9 @@ import re
 import logging
 from typing import Optional, Callable, Dict, Any
 
-from src.reasoning.math import last_boxed_only_string, remove_boxed
-
+# from src.reasoning.math import last_boxed_only_string, remove_boxed
+from src.eval.parsing_lib import extract_answer as extract_answer_harp
+# from src.reasoning.HARP_utils import extract_answer as extract_answer_harp
 logger = logging.getLogger(__name__)
 
 # Dictionary of available extractors
@@ -250,6 +251,13 @@ def extract_math_answer(text: str) -> Optional[str]:
     
     # Return None to indicate no answer was found
     return None
+
+@register_extractor('harp')
+def extract_harp_answer(text: str) -> Optional[str]:
+    """
+    Extract the answer from model output using HARM's extract_answer function.
+    """
+    return extract_answer_harp(text)
 
 
 def extract_post_think_content(text: str) -> Optional[str]:

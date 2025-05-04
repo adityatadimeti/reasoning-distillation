@@ -91,3 +91,16 @@ gpqa_your_approach:
     Based on these previous solution attempts, evaluate whether the most recent approach and answer are correct. If not, consider a different approach. 
     
     Answer in the format "The correct answer is (insert answer here)."
+
+harp_your_approach:
+  template: |
+    Solve the following math problem. Report your answer in \boxed{} format.
+    
+    PROBLEM:
+    {question}
+    
+    Here are summaries of your previous solution attempts:
+    {summaries}
+
+    Based on your previous solution attempts, evaluate whether the most recent approach and answer are correct. If not, consider a different approach.
+    
