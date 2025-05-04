@@ -12,6 +12,7 @@ from src.utils.config import load_config
 from src.experiments.summarization import SummarizationExperiment
 from src.experiments.passk import PassKExperiment
 from src.dashboard.server import DashboardServer
+from src.experiments.continuation import ContinuationExperiment
 
 logger = logging.getLogger(__name__)
 
@@ -236,6 +237,13 @@ def run_experiment(
             dashboard=dashboard,
             verbose=verbose
         )
+    elif experiment_type == "continuation":
+        experiment = ContinuationExperiment(
+            experiment_name=config.get("experiment_name", "continuation"),
+            config=config,
+            dashboard=None,
+            verbose=verbose
+        )
     else:  # Default to summarization experiment
         experiment = SummarizationExperiment(
             experiment_name=config.get("experiment_name", "summarization"),
@@ -351,6 +359,13 @@ async def run_experiment_async(
     if experiment_type == "pass_k":
         experiment = PassKExperiment(
             experiment_name=config.get("experiment_name", "pass_k"),
+            config=config,
+            dashboard=None,  # No dashboard in async mode
+            verbose=verbose
+        )
+    elif experiment_type == "continuation":
+        experiment = ContinuationExperiment(
+            experiment_name=config.get("experiment_name", "continuation"),
             config=config,
             dashboard=None,  # No dashboard in async mode
             verbose=verbose

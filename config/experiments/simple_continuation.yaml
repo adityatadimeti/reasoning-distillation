@@ -1,0 +1,36 @@
+# Experiment configuration for Qwen 32B
+experiment_name: "simple_continuation"
+results_dir: "./results/simple_continuation"
+data_path: "./data/simple.csv"
+save_intermediate: true
+experiment_type: "continuation"
+
+# Dashboard configuration
+dashboard_port: 8080
+
+# Model configuration
+reasoning_model: "accounts/fireworks/models/qwen3-30b-a3b"
+reasoning_model_provider: "fireworks"
+
+# Generation parameters
+max_tokens: 8192  # Maximum tokens per request (Fireworks limit for DeepSeek Qwen models)
+temperature: 0.6
+top_p: 0.95
+top_k: 40
+presence_penalty: 0.0
+frequency_penalty: 0.0
+
+# Continuation parameters (for Fireworks API)
+enable_continuation: true  # Whether to automatically continue generation when token limit is reached
+max_total_tokens: 32768  # Total token limit across all continuations
+max_continuations: 4    # Maximum number of continuation attempts
+
+# Iteration parameters
+max_iterations: 3
+continue_after_correct: true
+
+answer_extractor: "math"
+
+# Prompt configurations
+prompts:
+  reasoning: "v0"  # This references the version in config/prompts/reasoning.yaml

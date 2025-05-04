@@ -271,13 +271,15 @@ class FireworksModelClient(ModelClient):
         max_continuations: int = 3,
         track_token_callback = None,  # Callback function for token usage tracking with additional metadata
         track_token_callback_args = None,  # Extra args for the token tracking callback
+        preformatted_prompt: Optional[str] = None, # New argument
         **kwargs
     ) -> Tuple[str, str, TokenUsage, CostInfo, List[Dict]]:
         """
         Generate a response from the model for a prompt with automatic continuation.
+        If `preformatted_prompt` is provided, it bypasses chat formatting and internal continuation logic.
         
         Args:
-            prompt: The prompt to send to the model
+            prompt: The prompt to send to the model (used if preformatted_prompt is None)
             max_tokens: Maximum tokens to generate per request
             temperature: Sampling temperature
             top_p: Nucleus sampling parameter
@@ -285,15 +287,91 @@ class FireworksModelClient(ModelClient):
             presence_penalty: Presence penalty parameter
             frequency_penalty: Frequency penalty parameter
             verbose: Whether to log verbose output
-            enable_continuation: Whether to enable automatic continuation for long outputs
-            max_total_tokens: Maximum total tokens to generate across all continuations
-            max_continuations: Maximum number of continuations to attempt
+            enable_continuation: Whether to enable automatic continuation for long outputs (ignored if preformatted_prompt is used)
+            max_total_tokens: Maximum total tokens to generate across all continuations (ignored if preformatted_prompt is used)
+            max_continuations: Maximum number of continuations to attempt (ignored if preformatted_prompt is used)
+            track_token_callback: Callback function for token usage tracking
+            track_token_callback_args: Extra args for the token tracking callback
+            preformatted_prompt: If provided, this string is used directly as the prompt, bypassing chat formatting and internal continuation.
             **kwargs: Additional parameters to pass to the model
             
         Returns:
-            Tuple of (content, finish_reason, token_usage, cost_info)
+            Tuple of (content, finish_reason, token_usage, cost_info, detailed_api_calls)
         """
-        # Convert prompt to chat format
+        # If preformatted_prompt is provided, use it directly and disable internal continuation
+        if preformatted_prompt is not None:
+            if verbose:
+                logger.info(f"Using preformatted prompt (length: {len(preformatted_prompt)} chars). Internal continuation disabled.")
+            
+            print(f"Preformatted prompt: {preformatted_prompt}")
+            breakpoint()
+
+            # Make a single API call using the preformatted prompt
+            response, token_usage, cost_info = await self._call_completions_api(
+                prompt=preformatted_prompt,
+                max_tokens=min(max_tokens, self.MAX_TOKENS_PER_REQUEST),
+                temperature=temperature,
+                top_p=top_p,
+                top_k=top_k,
+                presence_penalty=presence_penalty,
+                frequency_penalty=frequency_penalty,
+                verbose=verbose
+            )
+            
+            # Extract results from the single call
+            current_text = ""
+            finish_reason = "error"
+            if "choices" in response and response["choices"]:
+                current_text = response["choices"][0]["text"]
+                finish_reason = response["choices"][0].get("finish_reason", "unknown")
+
+            # Prepare detailed metrics for this single call
+            api_call_detail = {
+                "call_index": 0,
+                "continuation_index": None,
+                "token_usage": {
+                    "prompt_tokens": token_usage.prompt_tokens,
+                    "completion_tokens": token_usage.completion_tokens,
+                    "total_tokens": token_usage.total_tokens
+                },
+                "cost_info": {
+                    "prompt_cost": cost_info.prompt_cost,
+                    "completion_cost": cost_info.completion_cost,
+                    "total_cost": cost_info.total_cost
+                },
+                "finish_reason": finish_reason,
+                "text_length": len(current_text)
+            }
+            detailed_api_calls = [api_call_detail]
+
+            # Add summary (which is just this call's info)
+            summary_info = {
+                "num_api_calls": 1,
+                "num_continuations": 0,
+                "total_token_usage": api_call_detail["token_usage"],
+                "total_cost_info": api_call_detail["cost_info"],
+                "total_text_length": len(current_text),
+                "final_finish_reason": finish_reason
+            }
+            detailed_api_calls.append(summary_info)
+
+            # If a token tracking callback is provided, call it
+            if track_token_callback:
+                callback_args = track_token_callback_args or {}
+                track_token_callback(
+                    problem_id=callback_args.get("problem_id", "unknown"),
+                    token_usage=token_usage,
+                    cost_info=cost_info,
+                    iteration=callback_args.get("iteration", 0),
+                    step=callback_args.get("step", "reasoning"),
+                    continuation_idx=None, # Not an internal continuation
+                    api_call_idx=0
+                )
+
+            return current_text, finish_reason, token_usage, cost_info, detailed_api_calls
+
+        # --- Original logic for standard prompts with internal continuation --- 
+        # Convert prompt to chat format if not preformatted
         messages = [{"role": "user", "content": prompt}]
         
         if verbose:
@@ -314,6 +392,10 @@ class FireworksModelClient(ModelClient):
         
         print("Launching response in generate_response_async")
         # First API callp
+        
+        print(f"Formatted prompt: {formatted_prompt}")
+        breakpoint()
+
         response, token_usage, cost_info = await self._call_completions_api(
             prompt=formatted_prompt,
             max_tokens=min(max_tokens, self.MAX_TOKENS_PER_REQUEST),
@@ -451,8 +533,8 @@ class FireworksModelClient(ModelClient):
                                 cost_info=cont_cost_info,
                                 iteration=callback_args.get("iteration", 0),
                                 step=callback_args.get("step", "reasoning"),
-                                continuation_idx=iteration,
-                                api_call_idx=iteration + 1
+                                continuation_idx=iteration, # Index of the internal continuation
+                                api_call_idx=iteration + 1 # Index within the client's continuation sequence
                             )
                         
                         if finish_reason != "length" or total_completion_tokens >= max_total_tokens:

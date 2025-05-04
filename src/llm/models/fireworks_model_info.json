@@ -28,5 +28,10 @@
     "hf_model_name": "Qwen/Qwen2.5-14B-Instruct",
     "input_price_per_million": 0.5,
     "output_price_per_million": 0.5
+  },
+  "accounts/fireworks/models/qwen3-30b-a3b": {
+    "hf_model_name": "Qwen/Qwen3-30B-A3B",
+    "input_price_per_million": 0.15,
+    "output_price_per_million": 0.60
   }
 }
