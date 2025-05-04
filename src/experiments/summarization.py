@@ -404,22 +404,22 @@ class SummarizationExperiment(BaseExperiment):
             while retry_count < max_retries:
                 try:
                     # If we've had to truncate from a previous attempt, apply the truncation
-                    if truncation_factor < 1.0:
-                        # Apply the truncation to the reasoning trace
-                        trace_len = len(original_reasoning_trace)
-                        truncated_len = int(trace_len * truncation_factor)
-                        # Keep the first 75% of the truncated portion from the beginning
-                        beginning_portion = int(truncated_len * 0.75)
-                        # Use the remaining 25% from the end to preserve final context
-                        end_portion = truncated_len - beginning_portion
+                    # if truncation_factor < 1.0:
+                    #     # Apply the truncation to the reasoning trace
+                    #     trace_len = len(original_reasoning_trace)
+                    #     truncated_len = int(trace_len * truncation_factor)
+                    #     # Keep the first 75% of the truncated portion from the beginning
+                    #     beginning_portion = int(truncated_len * 0.75)
+                    #     # Use the remaining 25% from the end to preserve final context
+                    #     end_portion = truncated_len - beginning_portion
                         
-                        # Create the truncated reasoning trace
-                        reasoning_trace = original_reasoning_trace[:beginning_portion]
-                        if end_portion > 0:
-                            reasoning_trace += "\n\n[... truncated due to length limits ...]\n\n"
-                            reasoning_trace += original_reasoning_trace[trace_len-end_portion:]
+                    #     # Create the truncated reasoning trace
+                    #     reasoning_trace = original_reasoning_trace[:beginning_portion]
+                    #     if end_portion > 0:
+                    #         reasoning_trace += "\n\n[... truncated due to length limits ...]\n\n"
+                    #         reasoning_trace += original_reasoning_trace[trace_len-end_portion:]
                         
-                        logger.warning(f"Truncated reasoning trace to {truncation_factor:.1%} of original length ({trace_len} → {len(reasoning_trace)} chars)")
+                    #     logger.warning(f"Truncated reasoning trace to {truncation_factor:.1%} of original length ({trace_len} → {len(reasoning_trace)} chars)")
                     
                     # Extract continuation parameters for summary generation
                     enable_continuation = self.config.get("enable_continuation", True)
@@ -479,10 +479,10 @@ class SummarizationExperiment(BaseExperiment):
                         retry_count += 1
                         
                         # Calculate truncation factor - each retry we reduce by an additional 20%
-                        truncation_factor = max(0.3, 1.0 - (retry_count * 0.2))
+                        # truncation_factor = max(0.3, 1.0 - (retry_count * 0.2))
                         
-                        logger.warning(f"Prompt too long error, will retry with truncation factor: {truncation_factor:.1%}")
-                        continue
+                        # logger.warning(f"Prompt too long error, will retry with truncation factor: {truncation_factor:.1%}")
+                        raise Exception(f"Prompt too long error, please decrease summary_max_total_tokens")
                     
                     # For other errors, proceed with normal retry logic
                     retry_count += 1
