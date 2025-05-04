@@ -162,12 +162,27 @@ class FireworksModelClient(ModelClient):
                     ) as response:
                         if verbose:
                             logger.info(f"Received response with status {response.status}")
-                        # Check for rate limit errors (429) or server errors (5xx)
-                        if response.status == 429 or 500 <= response.status < 600:
+                        
+                        # Handle 400 Bad Request specifically to get more detailed error info
+                        if response.status == 400:
+                            try:
+                                error_text = await response.text()
+                                error_json = json.loads(error_text)
+                                error_message = error_json.get('error', {}).get('message', 'Unknown error')
+                                logger.error(f"Fireworks API 400 error: {error_message}")
+                                logger.error(f"Full error response: {error_text}")
+                            except:
+                                error_text = await response.text()
+                                logger.error(f"Fireworks API 400 error with unparseable response: {error_text[:1000]}")
+                        
+                        # Check for bad request (400), rate limit errors (429) or server errors (5xx)
+                        if response.status == 400 or response.status == 429 or 500 <= response.status < 600:
                             retry_count += 1
                             if retry_count > max_retries:
                                 if response.status == 429:
                                     raise ValueError(f"Fireworks API rate limit exceeded after {max_retries} retries")
+                                elif response.status == 400:
+                                    raise ValueError(f"Fireworks API bad request error persisted after {max_retries} retries")
                                 else:
                                     raise ValueError(f"Fireworks API server error ({response.status}) persisted after {max_retries} retries")
                             
@@ -181,10 +196,18 @@ class FireworksModelClient(ModelClient):
                                 sleep_time = backoff_time + random.uniform(0, 1)
                                 backoff_time = min(backoff_time * 2, 60)
                             
-                            error_type = "Rate limit" if response.status == 429 else f"Server error {response.status}"
+                            error_type = "Bad request" if response.status == 400 else "Rate limit" if response.status == 429 else f"Server error {response.status}"
                             logger.warning(f"{error_type} encountered, retrying in {sleep_time:.2f} seconds (retry {retry_count}/{max_retries})")
                             await asyncio.sleep(sleep_time)
                             continue
+                        
+                        # For other status codes, try to get error details
+                        if response.status != 200:
+                            try:
+                                error_text = await response.text()
+                                logger.error(f"API error response (status {response.status}): {error_text[:1000]}")
+                            except:
+                                pass
                         
                         # Raise exception for other HTTP errors
                         response.raise_for_status()
@@ -223,6 +246,11 @@ class FireworksModelClient(ModelClient):
                     await asyncio.sleep(sleep_time)
                     continue
                 else:
+                    # Log full exception details for debugging
+                    import traceback
+                    logger.error(f"Fireworks API request error: {str(e)}")
+                    logger.error(f"Error traceback: {traceback.format_exc()}")
+                    
                     # For other types of exceptions, raise immediately
                     raise ValueError(f"Fireworks API request failed: {str(e)}")
     
