@@ -207,90 +207,127 @@ class ContinuationExperiment(BaseExperiment):
             "status": "in-progress"
         }
 
-        # --- Iteration 0 ---
-        iteration_num = 0
-        initial_user_prompt = reasoning_template.replace("{question}", question)
-        logger.info(f"Processing problem {problem_id}, iteration {iteration_num}")
-
-        try:
-            # 1. Format the initial prompt explicitly using the tokenizer's chat template
-            initial_messages = [{"role": "user", "content": initial_user_prompt}]
-            try:
-                formatted_prompt_iter_0 = format_chat_for_completions(
-                    initial_messages,
-                    self.config["reasoning_model"]
-                )
-            except Exception as format_error:
-                logger.error(f"Failed to format initial prompt for model {self.config['reasoning_model']}: {format_error}")
-                raise ValueError(f"Could not format initial prompt: {format_error}")
-
-            # 2. Initial call using the preformatted prompt
-            response_0 = await self.reasoning_model.generate_response_async(
-                prompt=None, # Pass None as we provide the preformatted prompt
-                preformatted_prompt=formatted_prompt_iter_0,
-                max_tokens=self.config["max_tokens"],
-                temperature=self.config["temperature"],
-                top_p=self.config["top_p"],
-                top_k=self.config.get("top_k"),
-                presence_penalty=self.config["presence_penalty"],
-                frequency_penalty=self.config["frequency_penalty"],
-                verbose=self.verbose,
-                enable_continuation=False, # Disable internal continuation for this call too
-                # max_total_tokens and max_continuations are ignored when enable_continuation is False
-                track_token_callback=self.track_token_usage_and_cost,
-                track_token_callback_args={
-                    "problem_id": problem_id,
-                    "iteration": iteration_num,
-                    "step": "reasoning"
-                }
-            )
-            # Since enable_continuation=False, details_0 should contain info for one API call
-            reasoning_0_output, finish_reason_0, usage_0, cost_0, details_0 = response_0
-
-            # 3. Construct the full text for this iteration
-            # The full text includes the formatted prompt AND the model's output
+        load_iter0 = hasattr(self, 'reusing_initial_reasoning') and self.reusing_initial_reasoning
+        if load_iter0 and problem_id not in self.initial_reasoning_map:
+            raise ValueError(f"Problem {problem_id} not found in initial reasoning map but reusing_initial_reasoning=True")
+        load_iter0 = load_iter0 and problem_id in self.initial_reasoning_map
+        
+        if load_iter0:
+            logger.info(f"Using preloaded initial reasoning for problem {problem_id}")
+            initial_data = self.initial_reasoning_map[problem_id]
+            
+            # Retrieve necessary data
+            formatted_prompt_iter_0 = initial_data["prompt"]
+            reasoning_0_output = initial_data["reasoning_output"]
+            answer_0 = initial_data["answer"]
+            correct_0 = initial_data["correct"]
+            finish_reason_0 = initial_data["finish_reason"]
+            details_0 = initial_data["api_calls"]
+            
+            # Construct the full text for continuation
             current_full_text = formatted_prompt_iter_0 + reasoning_0_output
 
-            # 4. Extract answer from the full reasoning output of this iteration
-            answer_0 = extract_answer_with_config(reasoning_0_output, self.config)
-
-            # 5. Check correctness
-            correct_0 = False
-            if answer_0 is not None:
-                correct_0 = answer_0.strip() == correct_answer.strip()
-
-            # 6. Store results
+            # Store the loaded iteration 0 data
             result["iterations"].append({
-                "iteration": iteration_num,
-                "prompt": formatted_prompt_iter_0, # Store the formatted prompt used
-                "reasoning_output": reasoning_0_output, # Just the output from the model
-                "reasoning_full_for_extraction": current_full_text, # Prompt + Output
+                "iteration": 0,
+                "prompt": formatted_prompt_iter_0,
+                "reasoning_output": reasoning_0_output,
+                "reasoning_full_for_extraction": current_full_text,
                 "answer": answer_0,
                 "correct": correct_0,
                 "final_finish_reason": finish_reason_0,
-                "api_calls": details_0,
+                "api_calls": details_0, 
+                "loaded_from_source": True # Add flag indicating data was loaded
             })
-
+            
             found_correct_answer = correct_0
+            # Skip the API call section for iteration 0
 
-        except Exception as e:
-            error_traceback = traceback.format_exc()
-            logger.error(f"Error during iteration {iteration_num} processing for problem {problem_id}: {str(e)}\n{error_traceback}")
-            result["iterations"].append({
-                "iteration": iteration_num,
-                "prompt": formatted_prompt_iter_0 if 'formatted_prompt_iter_0' in locals() else initial_user_prompt, # Store formatted if available
-                "error": str(e),
-                "traceback": error_traceback,
-            })
-            result["status"] = "error"
-            return result # Stop processing if initial iteration fails
+        else: # Generate Iteration 0 if not loaded
+            # --- Iteration 0 ---
+            iteration_num = 0
+            initial_user_prompt = reasoning_template.replace("{question}", question)
+            logger.info(f"Processing problem {problem_id}, iteration {iteration_num}")
+
+            try:
+                # 1. Format the initial prompt explicitly using the tokenizer's chat template
+                initial_messages = [{"role": "user", "content": initial_user_prompt}]
+                try:
+                    formatted_prompt_iter_0 = format_chat_for_completions(
+                        initial_messages,
+                        self.config["reasoning_model"]
+                    )
+                except Exception as format_error:
+                    logger.error(f"Failed to format initial prompt for model {self.config['reasoning_model']}: {format_error}")
+                    raise ValueError(f"Could not format initial prompt: {format_error}")
+
+                # 2. Initial call using the preformatted prompt
+                response_0 = await self.reasoning_model.generate_response_async(
+                    prompt=None, # Pass None as we provide the preformatted prompt
+                    preformatted_prompt=formatted_prompt_iter_0,
+                    max_tokens=self.config["max_tokens"],
+                    temperature=self.config["temperature"],
+                    top_p=self.config["top_p"],
+                    top_k=self.config.get("top_k"),
+                    presence_penalty=self.config["presence_penalty"],
+                    frequency_penalty=self.config["frequency_penalty"],
+                    verbose=self.verbose,
+                    enable_continuation=False, # Disable internal continuation for this call too
+                    # max_total_tokens and max_continuations are ignored when enable_continuation is False
+                    track_token_callback=self.track_token_usage_and_cost,
+                    track_token_callback_args={
+                        "problem_id": problem_id,
+                        "iteration": iteration_num,
+                        "step": "reasoning"
+                    }
+                )
+                # Since enable_continuation=False, details_0 should contain info for one API call
+                reasoning_0_output, finish_reason_0, usage_0, cost_0, details_0 = response_0
+
+                # 3. Construct the full text for this iteration
+                # The full text includes the formatted prompt AND the model's output
+                current_full_text = formatted_prompt_iter_0 + reasoning_0_output
+
+                # 4. Extract answer from the full reasoning output of this iteration
+                answer_0 = extract_answer_with_config(reasoning_0_output, self.config)
+
+                # 5. Check correctness
+                correct_0 = False
+                if answer_0 is not None:
+                    correct_0 = answer_0.strip() == correct_answer.strip()
+
+                # 6. Store results
+                result["iterations"].append({
+                    "iteration": iteration_num,
+                    "prompt": formatted_prompt_iter_0, # Store the formatted prompt used
+                    "reasoning_output": reasoning_0_output, # Just the output from the model
+                    "reasoning_full_for_extraction": current_full_text, # Prompt + Output
+                    "answer": answer_0,
+                    "correct": correct_0,
+                    "final_finish_reason": finish_reason_0,
+                    "api_calls": details_0,
+                })
+
+                found_correct_answer = correct_0
+
+            except Exception as e:
+                error_traceback = traceback.format_exc()
+                logger.error(f"Error during iteration {iteration_num} processing for problem {problem_id}: {str(e)}\n{error_traceback}")
+                result["iterations"].append({
+                    "iteration": iteration_num,
+                    "prompt": formatted_prompt_iter_0 if 'formatted_prompt_iter_0' in locals() else initial_user_prompt, # Store formatted if available
+                    "error": str(e),
+                    "traceback": error_traceback,
+                })
+                result["status"] = "error"
+                return result # Stop processing if initial iteration fails
 
         # --- Subsequent Iterations (1 to max_iterations - 1) ---
         max_iterations = self.config.get("max_iterations", 1)
         think_end_tag = self.config.get("think_end_tag", "</think>")
         continuation_suffix = self.config.get("continuation_suffix", "Wait")
 
-        for next_iteration_num in range(1, max_iterations):
+        for next_iteration_num in range(1, max_iterations + 1):
             if not self.config.get("continue_after_correct", False) and found_correct_answer:
                 logger.info(f"Stopping early for problem {problem_id} after finding correct answer in iteration {next_iteration_num - 1}")
                 break
@@ -414,5 +451,87 @@ class ContinuationExperiment(BaseExperiment):
 
 
         return result
+
+    def load_initial_reasoning(self, source_results_path: str) -> Dict[str, Dict[str, Any]]:
+        """
+        Load initial reasoning (iteration 0) from a previous experiment's results file.
+
+        Args:
+            source_results_path: Path to the source results file (results.json)
+
+        Returns:
+            Dictionary mapping problem_id to initial reasoning data
+        """
+        import os
+        import json
+        
+        if not os.path.exists(source_results_path):
+            raise FileNotFoundError(f"Source results file not found: {source_results_path}")
+
+        with open(source_results_path, "r", encoding="utf-8") as f:
+            source_data = json.load(f)
+
+        # Allow loading from either the top-level list or a dict with a 'results' key
+        if isinstance(source_data, dict) and 'results' in source_data:
+            source_results = source_data['results']
+        elif isinstance(source_data, list):
+            source_results = source_data
+        else:
+            raise ValueError(f"Unexpected format in {source_results_path}. Expected a list or a dict with a 'results' key.")
+
+        initial_reasoning_map = {}
+        for result in source_results:
+            if not isinstance(result, dict):
+                logger.warning(f"Skipping non-dictionary result: {result}")
+                continue
+
+            problem_id = result.get("problem_id")
+            if problem_id and "iterations" in result and len(result["iterations"]) > 0:
+                iter0_data = result["iterations"][0]
+                # Ensure we have the necessary fields from iteration 0
+                required_keys = ["prompt", "reasoning_output", "answer", "correct", "final_finish_reason", "api_calls"]
+                if all(key in iter0_data for key in required_keys):
+                    initial_reasoning_map[problem_id] = {
+                        "prompt": iter0_data["prompt"], # This should be the formatted prompt
+                        "reasoning_output": iter0_data["reasoning_output"],
+                        "answer": iter0_data["answer"],
+                        "correct": iter0_data["correct"],
+                        "finish_reason": iter0_data["final_finish_reason"],
+                        "api_calls": iter0_data["api_calls"],
+                        # Include original question/answer for potential checks
+                        "question": result.get("question"), 
+                        "correct_answer": result.get("correct_answer")
+                    }
+                    logger.debug(f"Loaded initial reasoning for problem {problem_id}")
+                else:
+                    logger.warning(f"Skipping problem {problem_id} from {source_results_path}: Iteration 0 data missing required keys ({required_keys}). Found: {list(iter0_data.keys())}")
+            else:
+                 logger.warning(f"Skipping result from {source_results_path}: Missing problem_id or iteration 0 data.")
+
+
+        logger.info(f"Loaded initial reasoning for {len(initial_reasoning_map)} problems from {source_results_path}")
+        return initial_reasoning_map
+
+    def initialize_with_previous_results(self, source_results_path: str) -> None:
+        """
+        Initialize the experiment with initial reasoning from a previous run.
+
+        Args:
+            source_results_path: Path to the source results file (results.json)
+        """
+        if not source_results_path:
+            self.initial_reasoning_map = {}
+            self.reusing_initial_reasoning = False
+            logger.info("No source results path provided, generating all initial reasoning.")
+            return
+            
+        self.initial_reasoning_map = self.load_initial_reasoning(source_results_path)
+        self.reusing_initial_reasoning = len(self.initial_reasoning_map) > 0
+        logger.info(f"Initialized experiment with {len(self.initial_reasoning_map)} preloaded reasonings. Reusing: {self.reusing_initial_reasoning}")
+        
+        # NOTE: If reusing, cost/token tracking needs careful handling.
+        # The current BaseExperiment tracking won't automatically account for reused tokens/cost.
+        # For simplicity, we might reset tracking or add a separate mechanism if needed.
+        # For now, reused iterations won't contribute to the new run's cost/token count.
 
         

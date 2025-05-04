@@ -252,13 +252,17 @@ def run_experiment(
             verbose=verbose
         )
     
-    # Initialize with previous results if specified
+    # Initialize with previous results if specified (applies to Summarization and Continuation)
     if load_initial_reasoning:
         if not os.path.exists(load_initial_reasoning):
             raise FileNotFoundError(f"Initial reasoning file not found: {load_initial_reasoning}")
         
         logger.info(f"Loading initial reasoning from {load_initial_reasoning}")
-        experiment.initialize_with_previous_results(load_initial_reasoning)
+        # Check if the experiment instance has the initialization method
+        if hasattr(experiment, 'initialize_with_previous_results'):
+            experiment.initialize_with_previous_results(load_initial_reasoning)
+        else:
+            logger.warning(f"Experiment type '{experiment_type}' does not support loading initial reasoning.")
     
     # Run experiment
     if parallel and not use_dashboard:
@@ -378,13 +382,17 @@ async def run_experiment_async(
             verbose=verbose
         )
     
-    # Initialize with previous results if specified
+    # Initialize with previous results if specified (applies to Summarization and Continuation)
     if load_initial_reasoning:
         if not os.path.exists(load_initial_reasoning):
             raise FileNotFoundError(f"Initial reasoning file not found: {load_initial_reasoning}")
         
         logger.info(f"Loading initial reasoning from {load_initial_reasoning}")
-        experiment.initialize_with_previous_results(load_initial_reasoning)
+        # Check if the experiment instance has the initialization method
+        if hasattr(experiment, 'initialize_with_previous_results'):
+             experiment.initialize_with_previous_results(load_initial_reasoning)
+        else:
+            logger.warning(f"Experiment type '{experiment_type}' does not support loading initial reasoning in async mode.")
     
     # Run experiment in parallel
     results = await experiment.run_parallel(problems, max_concurrency=max_concurrency)
