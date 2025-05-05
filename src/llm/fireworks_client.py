@@ -303,8 +303,8 @@ class FireworksModelClient(ModelClient):
             if verbose:
                 logger.info(f"Using preformatted prompt (length: {len(preformatted_prompt)} chars). Internal continuation disabled.")
             
-            print(f"Preformatted prompt: {preformatted_prompt}")
-            breakpoint()
+            # print(f"Preformatted prompt: {preformatted_prompt}")
+            # breakpoint()
 
             # Make a single API call using the preformatted prompt
             response, token_usage, cost_info = await self._call_completions_api(

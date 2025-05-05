@@ -8,9 +8,10 @@ save_intermediate: true
 dashboard_port: 8080
 
 # Model configuration
+reasoning_model: "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-14b-09d34aa8"
 reasoning_model_provider: "fireworks"
-reasoning_model: "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-14b-61e7dbf1"
-summarizer_type: "self"
+summarizer_type: "external"
+summarizer_model: "accounts/vivek-vajipey-84a360/deployedModels/qwen2p5-14b-instruct-ffooilxa"
 
 # Generation parameters
 max_tokens: 100  # Deliberately small to trigger continuation
@@ -31,16 +32,24 @@ continue_after_correct: true  # Continue to iteration 1 even if iteration 0 is c
 
 # Summarization parameters
 enable_summarization: true
-enable_final_summarization: true  # Controls additional summarization of the final reasoning
-summary_max_tokens: 8192
+enable_final_summarization: true
+allow_fallback: true  # Enable fallback to use full response when think tags are missing
+extract_post_think_summary: false  # Enable extraction of content after </think> tag for post-think summary
+summary_max_tokens: 8192  # Maximum tokens per request for summaries
 summary_temperature: 0.6
 summary_top_p: 0.95
 summary_top_k: 40
 summary_presence_penalty: 0.0
 summary_frequency_penalty: 0.0
 
+# Summary continuation parameters (if different from main continuation parameters)
+summary_max_total_tokens: 32000  # Total token limit for summaries across all continuations
+summary_max_continuations: 4     # Maximum number of continuation attempts for summaries
+
+answer_extractor: "math"
+
 # Prompt configurations
 prompts:
-  reasoning: "v0"  # This references the version in config/prompts/reasoning.yaml
-  summarize: "approach_focused_summarization"  # This references the version in config/prompts/summarize.yaml
-  improved: "v0"  # This references the version in config/prompts/improved.yaml
+  reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
+  summarize: "aime_summary"  # This references the version in config/prompts/summarize.yaml
+  improved: "aime_your_approach" # This references the version in config/prompts/improved.yaml
