@@ -91,3 +91,22 @@ gpqa_your_approach:
     Based on these previous solution attempts, evaluate whether the most recent approach and answer are correct. If not, consider a different approach. 
     
     Answer in the format "The correct answer is (insert answer here)."
+
+aime_analysis_prompt:
+  template: |
+    Solve the following AIME problem by FIRST carefully analyzing the previous solution attempts. You MUST consider the strengths and weaknesses of each summary before developing your own approach.
+
+    PROBLEM:
+    {question}
+
+    PREVIOUS SOLUTION ATTEMPTS:
+    {summaries}
+
+    INSTRUCTIONS:
+    1. First, identify key insights from each previous solution attempt (list at least 2-3 from each)
+    2. Highlight which approaches contain promising elements and which contain potential errors
+    3. ONLY THEN develop your solution by building upon the correct elements
+    4. Present your final answer in \boxed{} format
+
+    Your analysis of previous attempts is critical to finding the correct approach. Do not start solving from scratch without addressing the previous work."
+

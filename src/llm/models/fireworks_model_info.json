@@ -33,5 +33,15 @@
     "hf_model_name": "Qwen/Qwen3-30B-A3B",
     "input_price_per_million": 0.15,
     "output_price_per_million": 0.60
+  },
+ "accounts/adityatadimeti-d6565b/deployedModels/qwen2p5-14b-instruct-pf9jhsbk": {
+    "hf_model_name": "Qwen/Qwen2.5-14B-Instruct",
+    "input_price_per_million": 0.5,
+    "output_price_per_million": 0.5
+  }, 
+  "accounts/adityatadimeti-d6565b/deployedModels/deepseek-r1-distill-qwen-14b-cv844fwr": {
+    "hf_model_name":  "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
+    "input_price_per_million": 0.5,
+    "output_price_per_million": 0.5
   }
 }

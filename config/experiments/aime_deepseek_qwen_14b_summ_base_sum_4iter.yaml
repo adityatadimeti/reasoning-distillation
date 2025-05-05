@@ -9,10 +9,10 @@ experiment_type: "summarize"
 dashboard_port: 8080
 
 # Model configuration
-reasoning_model: "accounts/vivek-vajipey-84a360/deployedModels/deepseek-r1-distill-qwen-14b-09d34aa8"
+reasoning_model: "accounts/adityatadimeti-d6565b/deployedModels/deepseek-r1-distill-qwen-14b-cv844fwr"
 reasoning_model_provider: "fireworks"
 summarizer_type: "external"
-summarizer_model: "accounts/vivek-vajipey-84a360/deployedModels/qwen2p5-14b-instruct-ffooilxa"
+summarizer_model: "accounts/adityatadimeti-d6565b/deployedModels/qwen2p5-14b-instruct-pf9jhsbk"
 
 # Generation parameters
 max_tokens: 8192  # Maximum tokens per request (Fireworks limit for DeepSeek Qwen models)
@@ -53,4 +53,4 @@ answer_extractor: "math"
 prompts:
   reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
   summarize: "aime_summary"  # This references the version in config/prompts/summarize.yaml
-  improved: "aime_your_approach" # This references the version in config/prompts/improved.yaml
+  improved: "aime_analysis_prompt" # This references the version in config/prompts/improved.yaml

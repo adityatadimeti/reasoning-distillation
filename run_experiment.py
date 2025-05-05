@@ -260,7 +260,7 @@ def run_experiment(
         logger.info(f"Loading initial reasoning from {load_initial_reasoning}")
         # Check if the experiment instance has the initialization method
         if hasattr(experiment, 'initialize_with_previous_results'):
-        experiment.initialize_with_previous_results(load_initial_reasoning)
+            experiment.initialize_with_previous_results(load_initial_reasoning)
         else:
             logger.warning(f"Experiment type '{experiment_type}' does not support loading initial reasoning.")
     
@@ -390,7 +390,7 @@ async def run_experiment_async(
         logger.info(f"Loading initial reasoning from {load_initial_reasoning}")
         # Check if the experiment instance has the initialization method
         if hasattr(experiment, 'initialize_with_previous_results'):
-        experiment.initialize_with_previous_results(load_initial_reasoning)
+            experiment.initialize_with_previous_results(load_initial_reasoning)
         else:
             logger.warning(f"Experiment type '{experiment_type}' does not support loading initial reasoning in async mode.")
     

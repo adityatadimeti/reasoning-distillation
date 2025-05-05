@@ -56,7 +56,7 @@ class FireworksModelClient(ModelClient):
         }
         
         # Set pricing based on model or use provided pricing
-        self._set_model_pricing(input_price_per_million, output_price_per_million)
+        #self._set_model_pricing(input_price_per_million, output_price_per_million)
     
     def _set_model_pricing(self, input_price_per_million: Optional[float] = None, output_price_per_million: Optional[float] = None):
         """
