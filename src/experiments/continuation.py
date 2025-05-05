@@ -78,6 +78,10 @@ class ContinuationExperiment(BaseExperiment):
                            "might not support the 'preformatted_prompt' argument required by ContinuationExperiment. "
                            "Ensure the client is updated.")
 
+        # Flag to control behavior when think tag is missing
+        self.append_wait_if_tag_missing = self.config.get("append_wait_if_tag_missing", False)
+        if self.append_wait_if_tag_missing:
+            logger.info("Configuration enables appending 'Wait' suffix even if think end tag is missing.")
 
     def run(self, problems: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Synchronous run is not implemented for ContinuationExperiment. Use run_parallel."""
@@ -344,8 +348,16 @@ class ContinuationExperiment(BaseExperiment):
                 # Ensure we truncate the correct base text
                 prompt_for_this_iter = base_text_for_truncation[:think_end_index] + continuation_suffix
             else:
-                logger.warning(f"Could not find '{think_end_tag}' in iteration {next_iteration_num-1} full text for problem {problem_id}. Appending '{continuation_suffix}' to full text.")
-                prompt_for_this_iter = base_text_for_truncation + continuation_suffix
+                # Check the flag to decide behavior
+                if self.append_wait_if_tag_missing:
+                    logger.warning(f"Could not find think_end_tag ('{think_end_tag}') in iteration {next_iteration_num-1} "
+                                     f"full text for problem {problem_id}. Appending 'Wait' suffix as per config.")
+                    prompt_for_this_iter = base_text_for_truncation + continuation_suffix
+                else:
+                    # Default behavior: Raise error
+                    raise ValueError(f"Could not find think_end_tag ('{think_end_tag}') in iteration {next_iteration_num-1} "
+                                     f"full text for problem {problem_id}. Cannot prepare continuation prompt. "
+                                     f"(Set 'append_wait_if_tag_missing: true' in config to append 'Wait' anyway)")
 
             try:
                 # --- Generate next part ---

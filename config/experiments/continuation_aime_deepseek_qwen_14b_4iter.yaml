@@ -34,3 +34,6 @@ answer_extractor: "math"
 # Prompt configurations
 prompts:
   reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
+
+# Additional configuration
+append_wait_if_tag_missing: true
