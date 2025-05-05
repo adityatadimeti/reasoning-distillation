@@ -36,7 +36,7 @@ class ContinuationExperiment(BaseExperiment):
     """
 
     def __init__(
-        self,
+        self, 
         experiment_name: str = "test_continuation",
         config: Dict[str, Any] = None,
         dashboard: Optional[Any] = None, # Keep dashboard arg for compatibility, but ignore it
@@ -44,12 +44,12 @@ class ContinuationExperiment(BaseExperiment):
     ):
         """Initialize the continuation experiment."""
         super().__init__(experiment_name, config, dashboard=None) # Explicitly set dashboard to None
-
+        
         self.verbose = verbose
-
+        
         # Validate required parameters
         required_params = [
-            "reasoning_model", "max_tokens", "temperature",
+            "reasoning_model", "max_tokens", "temperature", 
             "top_p", #"top_k", # top_k might not be universal
             "presence_penalty", "frequency_penalty",
             "reasoning_prompt_template", "max_iterations"
@@ -60,7 +60,7 @@ class ContinuationExperiment(BaseExperiment):
         if "top_k" not in self.config:
              logger.warning("Parameter 'top_k' not found in config, proceeding without it.")
 
-
+        
         # Initialize reasoning model
         reasoning_provider = self.config.get("reasoning_model_provider", None)
         self.reasoning_model = create_model_client(
@@ -86,15 +86,15 @@ class ContinuationExperiment(BaseExperiment):
     def run(self, problems: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Synchronous run is not implemented for ContinuationExperiment. Use run_parallel."""
         raise NotImplementedError("Synchronous execution is not supported. Please use run_parallel.")
-
+    
     async def run_parallel(self, problems: List[Dict[str, Any]], max_concurrency: int = 4) -> List[Dict[str, Any]]:
         """
         Run the continuation experiment on a list of problems in parallel.
-
+        
         Args:
             problems: List of problem dictionaries
             max_concurrency: Maximum number of problems to process concurrently
-
+            
         Returns:
             List of results for all problems
         """
@@ -102,22 +102,22 @@ class ContinuationExperiment(BaseExperiment):
         # Adjust concurrency if needed, ensuring it's at least 1
         max_concurrency = max(1, self.config.get("max_concurrency", max_concurrency))
         logger.info(f"Processing {total_problems} problems with max concurrency of {max_concurrency}")
-
+        
         # Create a semaphore to limit concurrency
         semaphore = asyncio.Semaphore(max_concurrency)
-
+        
         # Create a list to store tasks
         tasks = []
-
+        
         # Process each problem asynchronously
         for i, problem in enumerate(problems):
             # Create a task for this problem
             task = asyncio.create_task(self._process_problem_with_semaphore(semaphore, problem, i, total_problems))
             tasks.append(task)
-
+        
         # Wait for all tasks to complete
         await asyncio.gather(*tasks)
-
+        
         # Sort results by problem ID or index for consistent output
         try:
             # Attempt to sort numerically if IDs are numbers, otherwise sort as strings
@@ -126,42 +126,42 @@ class ContinuationExperiment(BaseExperiment):
             # Fallback to string sorting if conversion fails
              sorted_results = sorted(self.results, key=lambda x: str(x.get("problem_id", "")))
 
-
+        
         # Save final results
         self.results = sorted_results
         self.save_results()
-
+        
         return self.results
-
-    async def _process_problem_with_semaphore(self, semaphore: asyncio.Semaphore, problem: Dict[str, Any],
+    
+    async def _process_problem_with_semaphore(self, semaphore: asyncio.Semaphore, problem: Dict[str, Any], 
                                              index: int, total: int) -> Dict[str, Any]:
         """Process a problem with semaphore for concurrency control."""
         async with semaphore:
             # Handle different case variations of 'id' field
             problem_id = problem.get("id", problem.get("ID", str(index+1)))
-
+            
             logger.info(f"[{index+1}/{total}] Starting problem {problem_id}")
-
+            
             try:
                 # Process the problem asynchronously
                 result = await self._process_problem_async(problem)
-
+                
                 # Thread-safe update of results
                 with self.results_lock:
                     self.results.append(result)
-
+                    
                 logger.info(f"[{index+1}/{total}] Completed problem {problem_id}")
-
+                
                 # Save intermediate results
                 if self.config.get("save_intermediate", True):
                     self.save_results()
-
+                    
                 return result
-
+                
             except Exception as e:
                 error_traceback = traceback.format_exc()
                 logger.error(f"Error processing problem {problem_id}: {str(e)}\n{error_traceback}")
-
+                
                 # Add error to results in a thread-safe way
                 error_result = {
                     "problem_id": problem_id,
@@ -171,20 +171,20 @@ class ContinuationExperiment(BaseExperiment):
                     "traceback": error_traceback,
                     "status": "error"
                 }
-
+                
                 with self.results_lock:
                     self.results.append(error_result)
-
+                
                 # Save intermediate results
                 if self.config.get("save_intermediate", True):
                     self.save_results()
-
+                    
                 return error_result
-
+    
     async def _process_problem_async(self, problem: Dict[str, Any]) -> Dict[str, Any]:
         """
         Process a single problem through the continuation pipeline asynchronously.
-
+        
         Args:
             problem: Problem dictionary with 'question' and 'answer' keys
 
@@ -293,7 +293,7 @@ class ContinuationExperiment(BaseExperiment):
                 current_full_text = formatted_prompt_iter_0 + reasoning_0_output
 
                 # 4. Extract answer from the full reasoning output of this iteration
-                answer_0 = extract_answer_with_config(reasoning_0_output, self.config)
+                answer_0 = extract_answer_with_config(current_full_text, self.config)
 
                 # 5. Check correctness
                 correct_0 = False
@@ -391,7 +391,7 @@ class ContinuationExperiment(BaseExperiment):
                 # Update the cumulative full reasoning text for the *next* iteration's truncation base
                 current_full_text = reasoning_k_full_for_extraction 
 
-                answer_k = extract_answer_with_config(reasoning_k_output, self.config) # Extract from the *new* output only
+                answer_k = extract_answer_with_config(reasoning_k_full_for_extraction, self.config) # Extract from the FULL text, not just new output
                 correct_k = False
                 if answer_k is not None:
                     correct_k = answer_k.strip() == correct_answer.strip()
@@ -529,7 +529,7 @@ class ContinuationExperiment(BaseExperiment):
         Initialize the experiment with initial reasoning from a previous run.
 
         Args:
-            source_results_path: Path to the source results file (results.json)
+            source_results_path: Path to the source results file
         """
         if not source_results_path:
             self.initial_reasoning_map = {}
@@ -539,6 +539,14 @@ class ContinuationExperiment(BaseExperiment):
             
         self.initial_reasoning_map = self.load_initial_reasoning(source_results_path)
         self.reusing_initial_reasoning = len(self.initial_reasoning_map) > 0
+        
+        # Assert that we loaded at least one problem's initial reasoning
+        if not self.reusing_initial_reasoning:
+            raise ValueError(f"Failed to load ANY initial reasoning from {source_results_path}. "
+                            f"Check that the file exists and contains compatible data format. "
+                            f"Required fields for each problem's iteration 0: 'prompt', 'reasoning_output', "
+                            f"'answer', 'correct', 'final_finish_reason', 'api_calls'")
+        
         logger.info(f"Initialized experiment with {len(self.initial_reasoning_map)} preloaded reasonings. Reusing: {self.reusing_initial_reasoning}")
         
         # NOTE: If reusing, cost/token tracking needs careful handling.
