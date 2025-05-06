@@ -168,3 +168,27 @@ aime_summary:
     {reasoning}
 
     SUMMARY:
+
+aime_backtracking:
+  template: |
+    Summarize the following attempted solution to the problem, emphasizing the instances where the model changed its strategy, revised a previous decision, or explicitly backtracked from a prior line of reasoning.
+
+    PROBLEM:
+    {question}
+
+    ATTEMPTED SOLUTION:
+    {reasoning}
+
+    SUMMARY:
+
+aime_uncertainty_estimation:
+  template: |
+    Summarize the following attempted solution to the problem, emphasizing the instances where the model expressed or quantified its own uncertainty about a step, a conclusion, or the overall direction.
+
+    PROBLEM:
+    {question}
+
+    ATTEMPTED SOLUTION:
+    {reasoning}
+
+    SUMMARY:
