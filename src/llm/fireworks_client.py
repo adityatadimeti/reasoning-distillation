@@ -102,7 +102,7 @@ class FireworksModelClient(ModelClient):
         top_k: int = 40,
         presence_penalty: float = 0.0,
         frequency_penalty: float = 0.0,
-        max_retries: int = 500,
+        max_retries: int = 5,
         verbose: bool = False
     ) -> Tuple[Dict[str, Any], TokenUsage, CostInfo]:
         """
