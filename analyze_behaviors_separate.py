@@ -31,7 +31,6 @@ BEHAVIORS = [
     "backtracking",          # Model identifies errors and changes approach
 ]
 
-# Individual prompts for each behavior
 BEHAVIOR_PROMPTS = {
     "deduction": """Here is a chain-of-reasoning that a Language Model generated while solving a math problem. Please count the number of distinct instances that deduction appears in this chain-of-reasoning. Deduction is when the model is performing a deduction step based on its current approach and assumptions. The chain-of-reasoning to analyze: {text}
 Count the number of distinct deduction instances and provide the count between the tags <count> </count>. If the chain-of-reasoning does not contain any deduction behavior, please provide a count of 0 as <count>0</count>.""",
@@ -82,12 +81,15 @@ def call_fireworks_with_retry(client, prompt, model=DEFAULT_MODEL):
     # Should never reach here due to the raise in the loop
     raise RuntimeError("Failed to get a response after multiple retries")
 
-async def analyze_behavior(client, text, behavior, model=DEFAULT_MODEL):
+async def analyze_behavior(client, text, behavior, model=DEFAULT_MODEL, verbose=False):
     """Analyze a single behavior in the text using a separate API call."""
     prompt = BEHAVIOR_PROMPTS[behavior].format(text=text)
     
     print(f"\n====== ANALYZING {behavior.upper()} ======")
-    print(text[:100] + "..." if len(text) > 100 else text)
+    if verbose:
+        print(text)
+    else:
+        print(text[:100] + "..." if len(text) > 100 else text)
     
     result = call_fireworks_with_retry(client, prompt, model)
     
@@ -101,12 +103,15 @@ async def analyze_behavior(client, text, behavior, model=DEFAULT_MODEL):
     
     return behavior, count, result
 
-async def analyze_initializing(client, text, model=DEFAULT_MODEL):
+async def analyze_initializing(client, text, model=DEFAULT_MODEL, verbose=False):
     """Analyze initializing behavior separately (optional)."""
     prompt = INIT_PROMPT.format(text=text)
     
     print("\n====== ANALYZING INITIALIZING ======")
-    print(text[:100] + "..." if len(text) > 100 else text)
+    if verbose:
+        print(text)
+    else:
+        print(text[:100] + "..." if len(text) > 100 else text)
     
     result = call_fireworks_with_retry(client, prompt, model)
     
@@ -121,7 +126,7 @@ async def analyze_initializing(client, text, model=DEFAULT_MODEL):
     return "initializing", count, result
 
 class SeparateBehaviorAnalyzer:
-    def __init__(self, api_key=None, model=DEFAULT_MODEL, include_initializing=False):
+    def __init__(self, api_key=None, model=DEFAULT_MODEL, include_initializing=False, verbose=False):
         """Initialize the analyzer with API key and model."""
         self.client = OpenAI(
             api_key=api_key,
@@ -129,6 +134,7 @@ class SeparateBehaviorAnalyzer:
         )
         self.model = model
         self.include_initializing = include_initializing
+        self.verbose = verbose
 
     async def analyze_fragment(self, text):
         """Analyze a reasoning fragment with separate API calls for each behavior."""
@@ -137,11 +143,15 @@ class SeparateBehaviorAnalyzer:
         # Create tasks for each behavior
         tasks = []
         for behavior in BEHAVIORS:
-            tasks.append(analyze_behavior(self.client, text, behavior, self.model))
+            behavior, count, result = await analyze_behavior(self.client, text, behavior, self.model, self.verbose)
+            print(f"  {behavior}: {count}")
+            breakpoint()
+            tasks.append((behavior, count, result))
             
         # Optionally analyze initializing behavior
         if self.include_initializing:
-            tasks.append(analyze_initializing(self.client, text, self.model))
+            initializing, count, result = await analyze_initializing(self.client, text, self.model, self.verbose)
+            tasks.append((initializing, count, result))
         
         # Run all tasks concurrently
         results = await asyncio.gather(*tasks)
@@ -189,12 +199,12 @@ class SeparateBehaviorAnalyzer:
                 "include_initializing": self.include_initializing,
                 "timestamp": datetime.datetime.now().isoformat(),
             },
-            "problems": []
+            "results": []
         }
         
         # Analyze each problem
-        for problem_idx, problem in enumerate(data.get("problems", [])):
-            print(f"Processing problem {problem_idx+1}/{len(data.get('problems', []))}...")
+        for problem_idx, problem in enumerate(data.get("results", [])):
+            print(f"Processing problem {problem_idx+1}/{len(data.get('results', []))}...")
             
             problem_id = problem.get("problem_id", f"problem_{problem_idx}")
             output_problem = {
@@ -241,7 +251,7 @@ class SeparateBehaviorAnalyzer:
             
             # Only add problems that have analyzed iterations
             if output_problem["iterations"]:
-                results["problems"].append(output_problem)
+                results["results"].append(output_problem)
                 
                 # Save incremental progress
                 os.makedirs(output_dir, exist_ok=True)
@@ -255,7 +265,7 @@ class SeparateBehaviorAnalyzer:
         
         # Write final output
         os.makedirs(output_dir, exist_ok=True)
-        output_path = os.path.join(output_dir, f"{Path(input_file).stem}_separate_behavior_analysis.json")
+        output_path = os.path.join(output_dir, f"{Path(input_file).stem}_behavior_analysis_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(results, f, indent=2)
         
@@ -273,7 +283,7 @@ class SeparateBehaviorAnalyzer:
         
         # Count behaviors across all problems
         num_fragments = 0
-        for problem in results.get("problems", []):
+        for problem in results.get("results", []):
             for iteration in problem.get("iterations", []):
                 it_no = iteration.get("iteration", 0)
                 counts = iteration.get("behavior_counts", {})
@@ -330,6 +340,8 @@ async def main():
                         help="Comma-separated list of field names to check for text to analyze (in order of priority)")
     parser.add_argument("--analyze-all-iterations", action="store_true", 
                         help="Analyze iteration 0 as well (not just continuations)")
+    parser.add_argument("--verbose", action="store_true",
+                        help="Print full text being analyzed instead of truncated version")
     
     args = parser.parse_args()
     
@@ -352,7 +364,8 @@ async def main():
     analyzer = SeparateBehaviorAnalyzer(
         api_key=api_key, 
         model=args.model,
-        include_initializing=args.include_initializing
+        include_initializing=args.include_initializing,
+        verbose=args.verbose
     )
     
     await analyzer.analyze_continuations(
