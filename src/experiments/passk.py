@@ -14,11 +14,12 @@ from src.experiments.base import BaseExperiment
 from src.llm.model_factory import create_model_client
 from src.reasoning.extractor import extract_reasoning_trace, extract_answer_with_config
 from src.dashboard.server import DashboardServer
+from src.eval.latex_answer_check import get_gt_answer, check_one_latex_answer
 
 logger = logging.getLogger(__name__)
 
 class PassKExperiment(BaseExperiment):
-    """Experiment for testing pass@k and consensus@k metrics."""
+    """Experiment for testing pass@k and consensus@k metrics, using LaTeX-aware grading."""
     
     def __init__(
         self, 
@@ -197,11 +198,17 @@ class PassKExperiment(BaseExperiment):
         question = problem.get("question", "")
         correct_answer = problem.get("answer", "").strip()
         
+        # Process ground truth answer using get_gt_answer
+        extract_policy = self.config.get("extract_policy", "flex")
+        eval_policy = self.config.get("eval_policy", "aggressive")
+        gt_answer = get_gt_answer(correct_answer, extract_policy=extract_policy)
+        
         # Initialize result dictionary
         result = {
             "problem_id": problem_id,
             "question": question,
             "correct_answer": correct_answer,
+            "processed_gt_answer": gt_answer,  # Store the processed GT answer
             "solutions": [],
             "token_usage": {},
             "cost_info": {}
@@ -255,10 +262,18 @@ class PassKExperiment(BaseExperiment):
             # Extract answer from reasoning using the configured extractor
             answer = extract_answer_with_config(reasoning, self.config)
             
-            # Check if answer is correct
+            # Check if answer is correct using the LaTeX answer check
             is_correct = False
             if answer is not None:
-                is_correct = answer.strip() == correct_answer.strip()
+                # Use check_one_latex_answer with the extracted answer and processed GT answer
+                check_result = check_one_latex_answer(
+                    answer,
+                    gt_answer,
+                    extract_policy="none",  # Answer is already extracted
+                    eval_policy=eval_policy,
+                    debug=False
+                )
+                is_correct = check_result["is_correct"]
             
             # Add the solution to the results
             solution = {
@@ -290,10 +305,17 @@ class PassKExperiment(BaseExperiment):
         answers = [s["answer"] for s in result["solutions"] if s["answer"] is not None]
         consensus_answer, consensus_count = self._find_consensus(answers)
         
-        # Check if consensus answer is correct
+        # Check if consensus answer is correct using LaTeX answer check
         consensus_correct = False
         if consensus_answer is not None:
-            consensus_correct = consensus_answer.strip() == correct_answer.strip()
+            check_result = check_one_latex_answer(
+                consensus_answer,
+                gt_answer,
+                extract_policy="none", # Consensus answer is already extracted
+                eval_policy=eval_policy,
+                debug=False
+            )
+            consensus_correct = check_result["is_correct"]
         
         result["consensus_answer"] = consensus_answer
         result["consensus_correct"] = consensus_correct

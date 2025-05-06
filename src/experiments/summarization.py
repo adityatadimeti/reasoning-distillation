@@ -560,7 +560,7 @@ class SummarizationExperiment(BaseExperiment):
                     summary, summary_finish_reason, token_usage, cost_info = summary_response
             except Exception as e:
                 error_str = str(e).lower()
-                    
+                
                 if "prompt is too long" in error_str or "maximum context length" in error_str:
                     # Calculate truncation factor - each retry we reduce by an additional 20%
                     # truncation_factor = max(0.3, 1.0 - (retry_count * 0.2))

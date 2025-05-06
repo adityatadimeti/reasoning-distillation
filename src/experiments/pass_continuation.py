@@ -302,7 +302,7 @@ def find_consensus(answers: List[str]) -> Tuple[Optional[str], int]:
 
 # Main function to demonstrate usage
 async def main():
-    results_file = "results/aime_2024_consensus_update_test_7b/aime_2024_pass_consensus_update_test_7b_20250415_140805/results.json"  # Update this path
+    results_file = "/Users/justinshen/Documents/Code/cocolab/reasoning-distillation/results/harp_deepseek_qwen_14b_pass_l6/harp_deepseek_qwen_14b_pass_l6_20250506_001822/results.json"  # Update this path
     
     # Option 1: Just identify and prepare the first truncated solution
     result = await process_first_truncated_solution(results_file)
