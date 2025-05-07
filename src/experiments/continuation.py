@@ -382,7 +382,7 @@ class ContinuationExperiment(BaseExperiment):
                 if self.append_wait_if_tag_missing:
                     logger.warning(f"Could not find think_end_tag ('{think_end_tag}') in iteration {next_iteration_num-1} "
                                      f"full text for problem {problem_id}. Appending 'Wait' suffix as per config.")
-                    prompt_for_this_iter = base_text_for_truncation + continuation_suffix
+                    prompt_for_this_iter = base_text_for_truncation + "\n" + continuation_suffix # Add a newline before the suffix, since it might have been an abrupt end
                 else:
                     # Default behavior: Raise error
                     raise ValueError(f"Could not find think_end_tag ('{think_end_tag}') in iteration {next_iteration_num-1} "
