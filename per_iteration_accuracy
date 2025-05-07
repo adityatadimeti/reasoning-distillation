@@ -1,0 +1,150 @@
+import json
+import argparse
+
+def calculate_accuracy_with_answer_backfill(json_file_path):
+    """
+    Calculates and prints the accuracy for each specific iteration.
+    If an iteration's attempt doesn't have an extractable answer,
+    it defaults to the last known extractable answer from a previous
+    iteration for that same problem for the correctness check.
+    """
+    try:
+        with open(json_file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        print(f"Error: File not found at {json_file_path}")
+        return
+    except json.JSONDecodeError:
+        print(f"Error: Could not decode JSON from {json_file_path}")
+        return
+    except Exception as e:
+        print(f"An unexpected error occurred while reading the file: {e}")
+        return
+
+    all_problems_data = data.get("results")
+    if not isinstance(all_problems_data, list):
+        print("Error: 'results' key not found or is not a list in the JSON file.")
+        return
+
+    num_total_problems_in_file = len(all_problems_data)
+    if num_total_problems_in_file == 0:
+        print("The 'results' list is empty. No problems to analyze.")
+        return
+
+    # Determine the maximum iteration number present across all problems
+    max_iteration_overall = -1
+    for problem_entry in all_problems_data:
+        if not isinstance(problem_entry, dict):
+            continue
+        iterations_list = problem_entry.get("iterations", [])
+        if isinstance(iterations_list, list):
+            for attempt_entry in iterations_list:
+                if not isinstance(attempt_entry, dict):
+                    continue
+                iter_val = attempt_entry.get("iteration")
+                if isinstance(iter_val, int) and iter_val > max_iteration_overall:
+                    max_iteration_overall = iter_val
+    
+    if max_iteration_overall == -1:
+        print("No valid iteration data found (e.g., no 'iteration' fields, or none are numeric/positive).")
+        return
+
+    # Initialize dictionaries to store counts for each iteration
+    # attempts_at_iter[k] = number of problems that had an attempt at iteration k
+    # correct_at_iter[k] = number of problems correctly solved AT iteration k (using backfill logic)
+    attempts_at_iter = {i: 0 for i in range(max_iteration_overall + 1)}
+    correct_at_iter = {i: 0 for i in range(max_iteration_overall + 1)}
+
+    for problem_result in all_problems_data:
+        if not isinstance(problem_result, dict):
+            # This check might be redundant if skipped in max_iteration_overall loop, but good for safety
+            print(f"Warning: Skipping invalid problem entry: {problem_result}")
+            continue
+        
+        problem_id = problem_result.get("problem_id", "N/A")
+        raw_problem_correct_answer = problem_result.get("correct_answer")
+
+        # Standardize problem's correct answer to a stripped string, or None if not present
+        if raw_problem_correct_answer is None:
+            problem_correct_answer_str = None
+            # print(f"Info: Problem {problem_id} has no 'correct_answer' defined.")
+        else:
+            problem_correct_answer_str = str(raw_problem_correct_answer).strip()
+
+        iterations_data = problem_result.get("iterations", [])
+        if not isinstance(iterations_data, list):
+            iterations_data = []
+
+        # Filter for valid attempts and sort them by iteration number
+        # This is crucial for the "last known answer" logic to work correctly.
+        valid_attempts_for_problem = []
+        for attempt_data in iterations_data:
+            if isinstance(attempt_data, dict) and \
+               isinstance(attempt_data.get("iteration"), int) and \
+               attempt_data.get("iteration") >= 0: # Ensure iteration number is non-negative
+                valid_attempts_for_problem.append(attempt_data)
+        
+        sorted_attempts = sorted(valid_attempts_for_problem, key=lambda x: x["iteration"])
+
+        last_known_extractable_answer_for_problem = None # Reset for each new problem
+
+        for attempt in sorted_attempts:
+            iter_num = attempt["iteration"]
+            
+            # This check ensures we don't try to access dict keys outside the initialized range,
+            # though sorted_attempts and max_iteration_overall logic should generally prevent this.
+            if not (0 <= iter_num <= max_iteration_overall):
+                # print(f"Warning: Problem {problem_id}, Iteration {iter_num} is out of pre-calculated range. Skipping attempt.")
+                continue
+
+            attempts_at_iter[iter_num] += 1 # Record that this iteration was attempted
+
+            current_attempt_raw_answer = attempt.get("answer")
+            answer_to_use_for_check = None # This will hold the answer used for correctness
+
+            # 1. Check if the current iteration's attempt has an "extractable" answer
+            # An answer is extractable if it's not None and not an empty/whitespace-only string.
+            if current_attempt_raw_answer is not None and str(current_attempt_raw_answer).strip():
+                answer_to_use_for_check = str(current_attempt_raw_answer).strip()
+                last_known_extractable_answer_for_problem = answer_to_use_for_check # Update for subsequent iterations
+            # 2. If not extractable, and there's a previously known extractable answer for this problem, use it.
+            elif last_known_extractable_answer_for_problem is not None:
+                answer_to_use_for_check = last_known_extractable_answer_for_problem
+            # 3. If neither current nor previous answer is available, answer_to_use_for_check remains None.
+
+            # Now, determine if this iteration is "correct" based on the answer_to_use_for_check
+            is_this_iteration_correct = False
+            if problem_correct_answer_str is not None and \
+               answer_to_use_for_check is not None and \
+               answer_to_use_for_check == problem_correct_answer_str:
+                is_this_iteration_correct = True
+            
+            if is_this_iteration_correct:
+                correct_at_iter[iter_num] += 1
+
+    # Calculate and print accuracies
+    print(f"Total problems processed from file: {num_total_problems_in_file}")
+    print("\nAccuracy at each specific iteration (with answer backfill logic):")
+    for i in range(max_iteration_overall + 1):
+        num_attempts_this_iter = attempts_at_iter[i]
+        num_correct_this_iter = correct_at_iter[i]
+        
+        if num_attempts_this_iter > 0:
+            accuracy = (num_correct_this_iter / num_attempts_this_iter) * 100
+            print(f"Iteration {i}: {num_correct_this_iter}/{num_attempts_this_iter} attempts = {accuracy:.2f}%")
+        else:
+            # This handles cases where some iterations might not have any attempts across all problems
+            print(f"Iteration {i}: 0/0 attempts = N/A (No problems had an attempt recorded at this iteration)")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Calculate accuracy at each specific iteration from a JSON results file, "
+                    "using answer backfill for missing answers."
+    )
+    parser.add_argument(
+        "json_file", 
+        help="Path to the JSON results file."
+    )
+    
+    args = parser.parse_args()
+    calculate_accuracy_with_answer_backfill(args.json_file)
