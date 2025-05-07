@@ -51,9 +51,16 @@ def baseline_summarize_reasoning(
     tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/DeepSeek-R1")
 
     reasoning_tokens = tokenizer.encode(reasoning)
+    total_tokens = len(reasoning_tokens)
 
     if baseline == "random":    
-        sampled_tokens = random.sample(reasoning_tokens, num_tokens)
+        if num_tokens >= total_tokens:
+            sampled_tokens = reasoning_tokens
+        else:
+            # Select random indices
+            selected_indices = sorted(random.sample(range(total_tokens), num_tokens))
+            # Extract tokens in original order
+            sampled_tokens = [reasoning_tokens[i] for i in selected_indices]
         sampled_reasoning = tokenizer.decode(sampled_tokens)
 
     elif baseline == "last_k":
