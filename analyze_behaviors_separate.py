@@ -24,7 +24,7 @@ RETRY_BASE_DELAY = 0.5  # seconds
 
 # Reasoning behavior categories
 BEHAVIORS = [
-    "deduction",             # Model is performing deduction steps
+    # "deduction",             # Model is performing deduction steps
     "adding_knowledge",      # Model is enriching with recalled facts
     "example_testing",       # Model tests its approach with examples
     "uncertainty_estimation", # Model expresses uncertainty
@@ -32,9 +32,8 @@ BEHAVIORS = [
 ]
 
 BEHAVIOR_PROMPTS = {
-    "deduction": """Here is a chain-of-reasoning that a Language Model generated while solving a math problem. Please count the number of distinct instances that deduction appears in this chain-of-reasoning. Deduction is when the model is performing a deduction step based on its current approach and assumptions. The chain-of-reasoning to analyze: {text}
-Count the number of distinct deduction instances and provide the count between the tags <count> </count>. If the chain-of-reasoning does not contain any deduction behavior, please provide a count of 0 as <count>0</count>.""",
-
+#     "deduction": """Here is a chain-of-reasoning that a Language Model generated while solving a math problem. Please count the number of distinct instances that deduction appears in this chain-of-reasoning. Deduction is when the model is performing a deduction step based on its current approach and assumptions. The chain-of-reasoning to analyze: {text}
+# Count the number of distinct deduction instances and provide the count between the tags <count> </count>. If the chain-of-reasoning does not contain any deduction behavior, please provide a count of 0 as <count>0</count>.""",
     "adding_knowledge": """Here is a chain-of-reasoning that a Language Model generated while solving a math problem. Please count the number of distinct instances that adding knowledge appears in this chain-of-reasoning. Adding knowledge is when the model is enriching the current approach with recalled facts. The chain-of-reasoning to analyze: {text}
 Count the number of distinct adding knowledge instances and provide the count between the tags <count> </count>. If the chain-of-reasoning does not contain any adding knowledge behavior, please provide a count of 0 as <count>0</count>.""",
 
@@ -51,6 +50,9 @@ Count the number of distinct backtracking instances and provide the count betwee
 # Separate prompt for initializing behavior (used when requested)
 INIT_PROMPT = """Here is a chain-of-reasoning that a Language Model generated while solving a math problem. Please count the number of distinct instances that initializing appears in this chain-of-reasoning. Initializing is when the model is rephrasing the given task and states initial thoughts. The chain-of-reasoning to analyze: {text}
 Count the number of distinct initializing instances and provide the count between the tags <count> </count>. If the chain-of-reasoning does not contain any initializing behavior, please provide a count of 0 as <count>0</count>."""
+
+BACK_REFERENCE_PROMPT = """Here is a chain-of-reasoning that a Language Model generated while solving a math problem. The solver was shown summaries of previously attempted solutions. Please count the number of distinct times instances that the model refers to or thinks about these previously attempted solutions in this chain-of-reasoning. The chain-of-reasoning to analyze: {text}
+Count the number of distinct instances that the model refers to or thinks about these previously attempted solutions and provide the count between the tags <count> </count>. If the chain-of-reasoning does not reference any previously attempted solutions, please provide a count of 0 as <count>0</count>."""
 
 def call_fireworks_with_retry(client, prompt, model=DEFAULT_MODEL):
     """Call Fireworks AI chat completion with retry logic for transient errors."""
@@ -126,7 +128,7 @@ async def analyze_initializing(client, text, model=DEFAULT_MODEL, verbose=False)
     return "initializing", count, result
 
 class SeparateBehaviorAnalyzer:
-    def __init__(self, api_key=None, model=DEFAULT_MODEL, include_initializing=False, verbose=False):
+    def __init__(self, api_key=None, model=DEFAULT_MODEL, include_initializing=False, verbose=False, truncate_at_think_end=False):
         """Initialize the analyzer with API key and model."""
         self.client = OpenAI(
             api_key=api_key,
@@ -135,6 +137,7 @@ class SeparateBehaviorAnalyzer:
         self.model = model
         self.include_initializing = include_initializing
         self.verbose = verbose
+        self.truncate_at_think_end = truncate_at_think_end
 
     async def analyze_fragment(self, text):
         """Analyze a reasoning fragment with separate API calls for each behavior."""
@@ -143,15 +146,11 @@ class SeparateBehaviorAnalyzer:
         # Create tasks for each behavior
         tasks = []
         for behavior in BEHAVIORS:
-            behavior, count, result = await analyze_behavior(self.client, text, behavior, self.model, self.verbose)
-            print(f"  {behavior}: {count}")
-            breakpoint()
-            tasks.append((behavior, count, result))
+            tasks.append(analyze_behavior(self.client, text, behavior, self.model, self.verbose))
             
         # Optionally analyze initializing behavior
         if self.include_initializing:
-            initializing, count, result = await analyze_initializing(self.client, text, self.model, self.verbose)
-            tasks.append((initializing, count, result))
+            tasks.append(analyze_initializing(self.client, text, self.model, self.verbose))
         
         # Run all tasks concurrently
         results = await asyncio.gather(*tasks)
@@ -160,13 +159,19 @@ class SeparateBehaviorAnalyzer:
         counts = {}
         raw_results = {}
         
-        for behavior, count, raw_result in results:
-            counts[behavior] = count
-            raw_results[behavior] = raw_result
+        for i, (behavior, count, raw_result) in enumerate(results):
+            if i < len(BEHAVIORS):
+                behavior_name = BEHAVIORS[i]  # Get the behavior name from the index
+            else:
+                behavior_name = "initializing"  # This is the initializing behavior
+                
+            print(f"  {behavior_name}: {count}")
+            counts[behavior_name] = count
+            raw_results[behavior_name] = raw_result
             
         return counts, raw_results
 
-    async def analyze_continuations(self, input_file, output_dir, iterations=None, text_fields=None, analyze_all_iterations=False):
+    async def analyze_continuations(self, input_file, output_dir, iterations=None, text_fields=None, analyze_all_iterations=False, parallel_problems=1):
         """
         Analyze all text fragments in the input file with separate API calls per behavior.
         
@@ -176,6 +181,7 @@ class SeparateBehaviorAnalyzer:
             iterations: List of iteration numbers to analyze, or None for all
             text_fields: List of field names to check for text to analyze (in order of priority)
             analyze_all_iterations: If True, analyze iteration 0 as well (not just continuations)
+            parallel_problems: Maximum number of problems to process in parallel
         """
         print(f"Analyzing text fragments from {input_file}...")
         
@@ -197,61 +203,82 @@ class SeparateBehaviorAnalyzer:
                 "analyze_all_iterations": analyze_all_iterations,
                 "separate_api_calls": True,
                 "include_initializing": self.include_initializing,
+                "parallel_problems": parallel_problems,
                 "timestamp": datetime.datetime.now().isoformat(),
             },
             "results": []
         }
         
-        # Analyze each problem
-        for problem_idx, problem in enumerate(data.get("results", [])):
-            print(f"Processing problem {problem_idx+1}/{len(data.get('results', []))}...")
-            
-            problem_id = problem.get("problem_id", f"problem_{problem_idx}")
-            output_problem = {
-                "problem_id": problem_id,
-                "iterations": []
-            }
-            
-            # Analyze each iteration for this problem
-            for iteration in problem.get("iterations", []):
-                it_no = iteration.get("iteration", 0)
+        # Create semaphore to limit parallelism
+        semaphore = asyncio.Semaphore(parallel_problems)
+        
+        async def process_problem(problem_idx, problem):
+            async with semaphore:
+                print(f"Processing problem {problem_idx+1}/{len(data.get('results', []))}...")
                 
-                # Skip iterations that aren't requested
-                if iterations is not None and it_no not in iterations:
-                    continue
-                
-                # Skip iteration 0 unless analyze_all_iterations is True
-                if not analyze_all_iterations and it_no == 0:
-                    continue
-                
-                # Find text to analyze by checking each field in priority order
-                text_to_analyze = None
-                field_used = None
-                
-                for field in text_fields:
-                    if field in iteration and iteration[field]:
-                        text_to_analyze = iteration[field]
-                        field_used = field
-                        break
-                
-                if not text_to_analyze:
-                    print(f"  No text found for iteration {it_no} in problem {problem_id}. Checked fields: {text_fields}")
-                    continue
-                
-                print(f"  Analyzing iteration {it_no} for problem {problem_id} (field: {field_used})...")
-                counts, raw_responses = await self.analyze_fragment(text_to_analyze)
-                
-                output_iteration = {
-                    "iteration": it_no,
-                    "field_analyzed": field_used,
-                    "behavior_counts": counts,
-                    "raw_llm_analyses": raw_responses
+                problem_id = problem.get("problem_id", f"problem_{problem_idx}")
+                output_problem = {
+                    "problem_id": problem_id,
+                    "iterations": []
                 }
-                output_problem["iterations"].append(output_iteration)
-            
-            # Only add problems that have analyzed iterations
-            if output_problem["iterations"]:
-                results["results"].append(output_problem)
+                
+                # Analyze each iteration for this problem
+                for iteration in problem.get("iterations", []):
+                    it_no = iteration.get("iteration", 0)
+                    
+                    # Skip iterations that aren't requested
+                    if iterations is not None and it_no not in iterations:
+                        continue
+                    
+                    # Skip iteration 0 unless analyze_all_iterations is True
+                    if not analyze_all_iterations and it_no == 0:
+                        continue
+                    
+                    # Find text to analyze by checking each field in priority order
+                    text_to_analyze = None
+                    field_used = None
+                    
+                    for field in text_fields:
+                        if field in iteration and iteration[field]:
+                            text_to_analyze = iteration[field]
+                            field_used = field
+                            break
+                    
+                    if not text_to_analyze:
+                        print(f"  No text found for iteration {it_no} in problem {problem_id}. Checked fields: {text_fields}")
+                        continue
+                    
+                    # Truncate at </think> tag if requested
+                    if self.truncate_at_think_end and "</think>" in text_to_analyze:
+                        think_end_index = text_to_analyze.find("</think>")
+                        text_to_analyze = text_to_analyze[:think_end_index]
+                        print(f"  Truncated text at '</think>' tag; truncated text length: {len(text_to_analyze)} characters; analyzing length: {len(text_to_analyze)} characters")
+                    
+                    print(f"  Analyzing iteration {it_no} for problem {problem_id} (field: {field_used})...")
+                    counts, raw_responses = await self.analyze_fragment(text_to_analyze)
+                    
+                    output_iteration = {
+                        "iteration": it_no,
+                        "field_analyzed": field_used,
+                        "behavior_counts": counts,
+                        "raw_llm_analyses": raw_responses
+                    }
+                    output_problem["iterations"].append(output_iteration)
+                
+                return output_problem if output_problem["iterations"] else None
+        
+        # Process problems in parallel
+        tasks = []
+        for problem_idx, problem in enumerate(data.get("results", [])):
+            tasks.append(process_problem(problem_idx, problem))
+        
+        # Wait for all tasks to complete
+        results_list = await asyncio.gather(*tasks)
+        
+        # Add completed problems to results
+        for problem_result in results_list:
+            if problem_result:
+                results["results"].append(problem_result)
                 
                 # Save incremental progress
                 os.makedirs(output_dir, exist_ok=True)
@@ -342,6 +369,10 @@ async def main():
                         help="Analyze iteration 0 as well (not just continuations)")
     parser.add_argument("--verbose", action="store_true",
                         help="Print full text being analyzed instead of truncated version")
+    parser.add_argument("--truncate-at-think-end", action="store_true",
+                        help="Truncate text at the '</think>' tag (only analyze content inside thinking tags)")
+    parser.add_argument("--parallel", type=int, default=1,
+                        help="Maximum number of problems to process in parallel (default: 1)")
     
     args = parser.parse_args()
     
@@ -365,7 +396,8 @@ async def main():
         api_key=api_key, 
         model=args.model,
         include_initializing=args.include_initializing,
-        verbose=args.verbose
+        verbose=args.verbose,
+        truncate_at_think_end=args.truncate_at_think_end
     )
     
     await analyzer.analyze_continuations(
@@ -373,7 +405,8 @@ async def main():
         output_dir=args.output_dir,
         iterations=iterations_to_analyze,
         text_fields=text_fields,
-        analyze_all_iterations=args.analyze_all_iterations
+        analyze_all_iterations=args.analyze_all_iterations,
+        parallel_problems=args.parallel
     )
 
 if __name__ == "__main__":

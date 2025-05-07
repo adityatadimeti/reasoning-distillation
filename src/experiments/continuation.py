@@ -228,6 +228,36 @@ class ContinuationExperiment(BaseExperiment):
             finish_reason_0 = initial_data["finish_reason"]
             details_0 = initial_data["api_calls"]
             
+            # Debug logging
+            if self.verbose:
+                logger.debug(f"Loaded initial prompt (first 100 chars): {formatted_prompt_iter_0[:100]}...")
+                logger.debug(f"Loaded initial reasoning (first 100 chars): {reasoning_0_output[:100]}...")
+
+            # Reformatting loaded prompt to ensure proper chat template
+            if self.config.get("reformat_loaded_prompts", True):
+                # Get the original question text from the loaded data
+                loaded_question = initial_data.get("question", question)
+                
+                # If there's a mismatch, log it but use the current question
+                if loaded_question != question and loaded_question and question:
+                    logger.warning(f"Question mismatch for problem {problem_id}. Using current question.")
+                
+                # Create a proper formatted prompt using the chat template
+                initial_user_prompt = reasoning_template.replace("{question}", question)
+                try:
+                    # Format with the current model's chat template
+                    initial_messages = [{"role": "user", "content": initial_user_prompt}]
+                    new_formatted_prompt = format_chat_for_completions(
+                        initial_messages,
+                        self.config["reasoning_model"]
+                    )
+                    logger.info(f"Reformatted loaded prompt for problem {problem_id}")
+                    
+                    # Use the new formatted prompt
+                    formatted_prompt_iter_0 = new_formatted_prompt
+                except Exception as format_error:
+                    logger.error(f"Failed to reformat loaded prompt: {format_error}. Using original prompt.")
+            
             # Construct the full text for continuation
             current_full_text = formatted_prompt_iter_0 + reasoning_0_output
 
@@ -359,6 +389,13 @@ class ContinuationExperiment(BaseExperiment):
                                      f"full text for problem {problem_id}. Cannot prepare continuation prompt. "
                                      f"(Set 'append_wait_if_tag_missing: true' in config to append 'Wait' anyway)")
 
+            # Debug logging
+            if self.verbose:
+                logger.debug(f"Problem {problem_id}, iteration {next_iteration_num} prompt: {prompt_for_this_iter[:100]}...")
+                # More detailed logging to help diagnose issues
+                if self.config.get("super_verbose", False):
+                    logger.debug(f"FULL PROMPT FOR ITERATION {next_iteration_num}:\n{prompt_for_this_iter}")
+                
             try:
                 # --- Generate next part ---
                 # Call using the *preformatted* prompt, disabling internal continuation
@@ -503,8 +540,11 @@ class ContinuationExperiment(BaseExperiment):
                 # Ensure we have the necessary fields from iteration 0
                 required_keys = ["prompt", "reasoning_output", "answer", "correct", "final_finish_reason", "api_calls"]
                 if all(key in iter0_data for key in required_keys):
+                    # Clean up the prompt by checking if the question appears twice
+                    original_prompt = iter0_data["prompt"]
+                    
                     initial_reasoning_map[problem_id] = {
-                        "prompt": iter0_data["prompt"], # This should be the formatted prompt
+                        "prompt": original_prompt, # Store the original prompt for now, will be reformatted during processing
                         "reasoning_output": iter0_data["reasoning_output"],
                         "answer": iter0_data["answer"],
                         "correct": iter0_data["correct"],
@@ -548,6 +588,10 @@ class ContinuationExperiment(BaseExperiment):
                             f"'answer', 'correct', 'final_finish_reason', 'api_calls'")
         
         logger.info(f"Initialized experiment with {len(self.initial_reasoning_map)} preloaded reasonings. Reusing: {self.reusing_initial_reasoning}")
+        
+        # Set a flag to indicate we need to reformat the prompts
+        self.config["reformat_loaded_prompts"] = self.config.get("reformat_loaded_prompts", True)
+        logger.info(f"Prompt reformatting for loaded initial reasoning: {self.config['reformat_loaded_prompts']}")
         
         # NOTE: If reusing, cost/token tracking needs careful handling.
         # The current BaseExperiment tracking won't automatically account for reused tokens/cost.
