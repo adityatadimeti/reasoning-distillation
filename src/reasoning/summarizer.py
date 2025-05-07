@@ -40,7 +40,9 @@ def baseline_summarize_reasoning(
         frequency_penalty: Frequency penalty parameter
         verbose: Whether to log model calls
         stream: Whether to stream the summary in chunks
-        
+        num_tokens: Number of tokens to take from the reasoning trace
+        baseline: The baseline to use for the summarization
+
     Returns:
         If stream=False: Tuple of (summary, finish_reason, token_usage, cost_info) where finish_reason indicates why generation stopped
         If stream=True: Iterator yielding summary chunks
