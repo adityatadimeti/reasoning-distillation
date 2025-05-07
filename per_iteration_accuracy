@@ -1,13 +1,27 @@
 import json
 import argparse
+import sys # For sys.exit
 
-def calculate_accuracy_with_answer_backfill(json_file_path):
+# Attempt to import matplotlib and provide a user-friendly message if not found
+try:
+    import matplotlib.pyplot as plt
+    MATPLOTLIB_AVAILABLE = True
+except ImportError:
+    MATPLOTLIB_AVAILABLE = False
+
+def calculate_and_plot_accuracy(json_file_path, enable_plot=False):
     """
-    Calculates and prints the accuracy for each specific iteration.
-    If an iteration's attempt doesn't have an extractable answer,
-    it defaults to the last known extractable answer from a previous
-    iteration for that same problem for the correctness check.
+    Calculates and prints the accuracy for each specific iteration with answer backfill.
+    Optionally generates a plot of iteration vs. accuracy.
     """
+    if enable_plot and not MATPLOTLIB_AVAILABLE:
+        print("Error: Matplotlib is required for plotting but is not installed.")
+        print("Please install it by running: pip install matplotlib")
+        # Optionally, you could proceed without plotting or exit
+        # For now, we'll just disable plotting if matplotlib is not found
+        enable_plot = False
+        # sys.exit(1) # Or just continue without plotting
+
     try:
         with open(json_file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -31,7 +45,6 @@ def calculate_accuracy_with_answer_backfill(json_file_path):
         print("The 'results' list is empty. No problems to analyze.")
         return
 
-    # Determine the maximum iteration number present across all problems
     max_iteration_overall = -1
     for problem_entry in all_problems_data:
         if not isinstance(problem_entry, dict):
@@ -46,73 +59,49 @@ def calculate_accuracy_with_answer_backfill(json_file_path):
                     max_iteration_overall = iter_val
     
     if max_iteration_overall == -1:
-        print("No valid iteration data found (e.g., no 'iteration' fields, or none are numeric/positive).")
+        print("No valid iteration data found.")
         return
 
-    # Initialize dictionaries to store counts for each iteration
-    # attempts_at_iter[k] = number of problems that had an attempt at iteration k
-    # correct_at_iter[k] = number of problems correctly solved AT iteration k (using backfill logic)
     attempts_at_iter = {i: 0 for i in range(max_iteration_overall + 1)}
     correct_at_iter = {i: 0 for i in range(max_iteration_overall + 1)}
 
     for problem_result in all_problems_data:
         if not isinstance(problem_result, dict):
-            # This check might be redundant if skipped in max_iteration_overall loop, but good for safety
-            print(f"Warning: Skipping invalid problem entry: {problem_result}")
             continue
         
         problem_id = problem_result.get("problem_id", "N/A")
         raw_problem_correct_answer = problem_result.get("correct_answer")
-
-        # Standardize problem's correct answer to a stripped string, or None if not present
-        if raw_problem_correct_answer is None:
-            problem_correct_answer_str = None
-            # print(f"Info: Problem {problem_id} has no 'correct_answer' defined.")
-        else:
-            problem_correct_answer_str = str(raw_problem_correct_answer).strip()
+        problem_correct_answer_str = str(raw_problem_correct_answer).strip() if raw_problem_correct_answer is not None else None
 
         iterations_data = problem_result.get("iterations", [])
         if not isinstance(iterations_data, list):
             iterations_data = []
 
-        # Filter for valid attempts and sort them by iteration number
-        # This is crucial for the "last known answer" logic to work correctly.
         valid_attempts_for_problem = []
         for attempt_data in iterations_data:
             if isinstance(attempt_data, dict) and \
                isinstance(attempt_data.get("iteration"), int) and \
-               attempt_data.get("iteration") >= 0: # Ensure iteration number is non-negative
+               attempt_data.get("iteration") >= 0:
                 valid_attempts_for_problem.append(attempt_data)
         
         sorted_attempts = sorted(valid_attempts_for_problem, key=lambda x: x["iteration"])
-
-        last_known_extractable_answer_for_problem = None # Reset for each new problem
+        last_known_extractable_answer_for_problem = None
 
         for attempt in sorted_attempts:
             iter_num = attempt["iteration"]
-            
-            # This check ensures we don't try to access dict keys outside the initialized range,
-            # though sorted_attempts and max_iteration_overall logic should generally prevent this.
             if not (0 <= iter_num <= max_iteration_overall):
-                # print(f"Warning: Problem {problem_id}, Iteration {iter_num} is out of pre-calculated range. Skipping attempt.")
                 continue
 
-            attempts_at_iter[iter_num] += 1 # Record that this iteration was attempted
-
+            attempts_at_iter[iter_num] += 1
             current_attempt_raw_answer = attempt.get("answer")
-            answer_to_use_for_check = None # This will hold the answer used for correctness
+            answer_to_use_for_check = None
 
-            # 1. Check if the current iteration's attempt has an "extractable" answer
-            # An answer is extractable if it's not None and not an empty/whitespace-only string.
             if current_attempt_raw_answer is not None and str(current_attempt_raw_answer).strip():
                 answer_to_use_for_check = str(current_attempt_raw_answer).strip()
-                last_known_extractable_answer_for_problem = answer_to_use_for_check # Update for subsequent iterations
-            # 2. If not extractable, and there's a previously known extractable answer for this problem, use it.
+                last_known_extractable_answer_for_problem = answer_to_use_for_check
             elif last_known_extractable_answer_for_problem is not None:
                 answer_to_use_for_check = last_known_extractable_answer_for_problem
-            # 3. If neither current nor previous answer is available, answer_to_use_for_check remains None.
 
-            # Now, determine if this iteration is "correct" based on the answer_to_use_for_check
             is_this_iteration_correct = False
             if problem_correct_answer_str is not None and \
                answer_to_use_for_check is not None and \
@@ -122,9 +111,12 @@ def calculate_accuracy_with_answer_backfill(json_file_path):
             if is_this_iteration_correct:
                 correct_at_iter[iter_num] += 1
 
-    # Calculate and print accuracies
     print(f"Total problems processed from file: {num_total_problems_in_file}")
     print("\nAccuracy at each specific iteration (with answer backfill logic):")
+    
+    iteration_numbers_for_plot = []
+    accuracies_for_plot = []
+
     for i in range(max_iteration_overall + 1):
         num_attempts_this_iter = attempts_at_iter[i]
         num_correct_this_iter = correct_at_iter[i]
@@ -132,19 +124,61 @@ def calculate_accuracy_with_answer_backfill(json_file_path):
         if num_attempts_this_iter > 0:
             accuracy = (num_correct_this_iter / num_attempts_this_iter) * 100
             print(f"Iteration {i}: {num_correct_this_iter}/{num_attempts_this_iter} attempts = {accuracy:.2f}%")
+            iteration_numbers_for_plot.append(i)
+            accuracies_for_plot.append(accuracy)
         else:
-            # This handles cases where some iterations might not have any attempts across all problems
             print(f"Iteration {i}: 0/0 attempts = N/A (No problems had an attempt recorded at this iteration)")
+
+    if enable_plot:
+        if not iteration_numbers_for_plot: # Check if there's anything to plot
+            print("\nNo data available to plot (e.g., no iterations with attempts).")
+            return
+
+        plt.figure(figsize=(10, 6))
+        plt.scatter(iteration_numbers_for_plot, accuracies_for_plot, color='blue', s=50) # s is size of dots
+        plt.plot(iteration_numbers_for_plot, accuracies_for_plot, color='blue', linestyle='--', alpha=0.5) # Optional: line connecting dots
+
+        plt.title('Accuracy per Iteration (with Answer Backfill)')
+        plt.xlabel('Iteration Number')
+        plt.ylabel('Accuracy (%)')
+        
+        # Set y-axis limits, e.g., 0 to 100, or dynamically based on data
+        min_acc = min(accuracies_for_plot) if accuracies_for_plot else 0
+        max_acc = max(accuracies_for_plot) if accuracies_for_plot else 100
+        plt.ylim(max(0, min_acc - 10), min(100, max_acc + 10)) # Dynamic y-limits with some padding
+        
+        # Ensure x-axis ticks are integers for iterations
+        if iteration_numbers_for_plot:
+             plt.xticks(range(min(iteration_numbers_for_plot), max(iteration_numbers_for_plot) + 1))
+
+        plt.grid(True, linestyle=':', alpha=0.7)
+        plt.tight_layout() # Adjust plot to prevent labels from being cut off
+        plt.show()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Calculate accuracy at each specific iteration from a JSON results file, "
-                    "using answer backfill for missing answers."
+                    "using answer backfill for missing answers. Optionally plots the results."
     )
     parser.add_argument(
         "json_file", 
         help="Path to the JSON results file."
     )
+    parser.add_argument(
+        "--plot",
+        action="store_true", # This makes it a flag; if present, args.plot is True
+        help="Enable plotting of iteration vs. accuracy."
+    )
     
     args = parser.parse_args()
-    calculate_accuracy_with_answer_backfill(args.json_file)
+
+    # Check for matplotlib if plotting is requested early
+    if args.plot and not MATPLOTLIB_AVAILABLE:
+        print("Error: Matplotlib is required for plotting but is not installed.")
+        print("Please install it by running: pip install matplotlib")
+        print("Proceeding without plotting.")
+        enable_plotting_flag = False
+    else:
+        enable_plotting_flag = args.plot
+
+    calculate_and_plot_accuracy(args.json_file, enable_plot=enable_plotting_flag)
