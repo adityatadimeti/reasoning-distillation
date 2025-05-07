@@ -1,98 +1,108 @@
 import json
 import argparse
-import sys # For sys.exit
+import sys
+import os # For os.path.basename
 
-# Attempt to import matplotlib and provide a user-friendly message if not found
+# Attempt to import matplotlib
 try:
     import matplotlib.pyplot as plt
     MATPLOTLIB_AVAILABLE = True
 except ImportError:
     MATPLOTLIB_AVAILABLE = False
 
-def calculate_and_plot_accuracy(json_file_path, enable_plot=False):
+def calculate_accuracy_for_file(json_file_path):
     """
-    Calculates and prints the accuracy for each specific iteration with answer backfill.
-    Optionally generates a plot of iteration vs. accuracy.
+    Calculates per-iteration accuracy for a single JSON file.
+    Accuracy at iteration 'i' is (problems correct at 'i' / total problems in file).
+    Returns a dictionary containing results for processing and plotting.
     """
-    if enable_plot and not MATPLOTLIB_AVAILABLE:
-        print("Error: Matplotlib is required for plotting but is not installed.")
-        print("Please install it by running: pip install matplotlib")
-        # Optionally, you could proceed without plotting or exit
-        # For now, we'll just disable plotting if matplotlib is not found
-        enable_plot = False
-        # sys.exit(1) # Or just continue without plotting
+    results = {
+        "file_path": json_file_path,
+        "success": False,
+        "error_message": "",
+        "max_iteration": -1,
+        "iteration_points": [],
+        "accuracy_points": [],
+        "final_accuracy_for_legend": None,
+        "summary_lines": [],
+        "num_total_problems": 0
+    }
 
     try:
         with open(json_file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
     except FileNotFoundError:
-        print(f"Error: File not found at {json_file_path}")
-        return
+        results["error_message"] = f"File not found: {json_file_path}"
+        return results
     except json.JSONDecodeError:
-        print(f"Error: Could not decode JSON from {json_file_path}")
-        return
+        results["error_message"] = f"Could not decode JSON from: {json_file_path}"
+        return results
     except Exception as e:
-        print(f"An unexpected error occurred while reading the file: {e}")
-        return
+        results["error_message"] = f"Unexpected error reading {json_file_path}: {e}"
+        return results
 
     all_problems_data = data.get("results")
     if not isinstance(all_problems_data, list):
-        print("Error: 'results' key not found or is not a list in the JSON file.")
-        return
+        results["error_message"] = f"'results' key not found or not a list in {json_file_path}."
+        return results
 
-    num_total_problems_in_file = len(all_problems_data)
-    if num_total_problems_in_file == 0:
-        print("The 'results' list is empty. No problems to analyze.")
-        return
+    results["num_total_problems"] = len(all_problems_data)
+    if results["num_total_problems"] == 0:
+        results["summary_lines"].append(f"File: {os.path.basename(json_file_path)} - The 'results' list is empty.")
+        results["success"] = True
+        return results
 
-    max_iteration_overall = -1
+    max_iteration_this_file = -1
     for problem_entry in all_problems_data:
-        if not isinstance(problem_entry, dict):
-            continue
+        if not isinstance(problem_entry, dict): continue
         iterations_list = problem_entry.get("iterations", [])
         if isinstance(iterations_list, list):
             for attempt_entry in iterations_list:
-                if not isinstance(attempt_entry, dict):
-                    continue
+                if not isinstance(attempt_entry, dict): continue
                 iter_val = attempt_entry.get("iteration")
-                if isinstance(iter_val, int) and iter_val > max_iteration_overall:
-                    max_iteration_overall = iter_val
+                if isinstance(iter_val, int) and iter_val > max_iteration_this_file:
+                    max_iteration_this_file = iter_val
     
-    if max_iteration_overall == -1:
-        print("No valid iteration data found.")
-        return
+    results["max_iteration"] = max_iteration_this_file
+    
+    if max_iteration_this_file == -1:
+        results["summary_lines"].append(f"File: {os.path.basename(json_file_path)} - No valid iteration data found.")
+        if results["num_total_problems"] > 0:
+             results["summary_lines"].append(f"  Considering all {results['num_total_problems']} problems as 0% correct due to no iteration data.")
+        results["success"] = True
+        return results
 
-    attempts_at_iter = {i: 0 for i in range(max_iteration_overall + 1)}
-    correct_at_iter = {i: 0 for i in range(max_iteration_overall + 1)}
+    num_correct_at_iter = {i: 0 for i in range(max_iteration_this_file + 1)}
 
     for problem_result in all_problems_data:
-        if not isinstance(problem_result, dict):
-            continue
+        if not isinstance(problem_result, dict): continue
         
-        problem_id = problem_result.get("problem_id", "N/A")
         raw_problem_correct_answer = problem_result.get("correct_answer")
         problem_correct_answer_str = str(raw_problem_correct_answer).strip() if raw_problem_correct_answer is not None else None
 
         iterations_data = problem_result.get("iterations", [])
-        if not isinstance(iterations_data, list):
-            iterations_data = []
+        if not isinstance(iterations_data, list): iterations_data = []
 
-        valid_attempts_for_problem = []
-        for attempt_data in iterations_data:
+        valid_attempts_for_problem = [
+            attempt_data for attempt_data in iterations_data 
             if isinstance(attempt_data, dict) and \
                isinstance(attempt_data.get("iteration"), int) and \
-               attempt_data.get("iteration") >= 0:
-                valid_attempts_for_problem.append(attempt_data)
-        
+               attempt_data.get("iteration") >= 0
+        ]
         sorted_attempts = sorted(valid_attempts_for_problem, key=lambda x: x["iteration"])
+        
         last_known_extractable_answer_for_problem = None
+        was_last_known_answer_correct_for_this_problem = False
+        last_processed_iter_for_this_problem = -1
 
         for attempt in sorted_attempts:
             iter_num = attempt["iteration"]
-            if not (0 <= iter_num <= max_iteration_overall):
-                continue
+            if not (0 <= iter_num <= max_iteration_this_file): continue
 
-            attempts_at_iter[iter_num] += 1
+            for gap_iter in range(last_processed_iter_for_this_problem + 1, iter_num):
+                if was_last_known_answer_correct_for_this_problem:
+                    num_correct_at_iter[gap_iter] += 1
+            
             current_attempt_raw_answer = attempt.get("answer")
             answer_to_use_for_check = None
 
@@ -101,84 +111,139 @@ def calculate_and_plot_accuracy(json_file_path, enable_plot=False):
                 last_known_extractable_answer_for_problem = answer_to_use_for_check
             elif last_known_extractable_answer_for_problem is not None:
                 answer_to_use_for_check = last_known_extractable_answer_for_problem
-
-            is_this_iteration_correct = False
+            
+            current_attempt_is_correct = False
             if problem_correct_answer_str is not None and \
                answer_to_use_for_check is not None and \
                answer_to_use_for_check == problem_correct_answer_str:
-                is_this_iteration_correct = True
+                current_attempt_is_correct = True
             
-            if is_this_iteration_correct:
-                correct_at_iter[iter_num] += 1
+            if current_attempt_is_correct:
+                num_correct_at_iter[iter_num] += 1
+            
+            was_last_known_answer_correct_for_this_problem = current_attempt_is_correct
+            last_processed_iter_for_this_problem = iter_num
 
-    print(f"Total problems processed from file: {num_total_problems_in_file}")
-    print("\nAccuracy at each specific iteration (with answer backfill logic):")
+        for trailing_iter in range(last_processed_iter_for_this_problem + 1, max_iteration_this_file + 1):
+            if was_last_known_answer_correct_for_this_problem:
+                num_correct_at_iter[trailing_iter] += 1
     
-    iteration_numbers_for_plot = []
-    accuracies_for_plot = []
-
-    for i in range(max_iteration_overall + 1):
-        num_attempts_this_iter = attempts_at_iter[i]
-        num_correct_this_iter = correct_at_iter[i]
+    results["summary_lines"].append(f"Results for: {os.path.basename(json_file_path)}")
+    results["summary_lines"].append(f"  Total problems in file: {results['num_total_problems']}")
+    
+    if results["num_total_problems"] > 0:
+        for i in range(max_iteration_this_file + 1):
+            accuracy = (num_correct_at_iter[i] / results["num_total_problems"]) * 100
+            results["summary_lines"].append(f"  Iteration {i}: {num_correct_at_iter[i]}/{results['num_total_problems']} = {accuracy:.2f}%")
+            results["iteration_points"].append(i)
+            results["accuracy_points"].append(accuracy)
         
-        if num_attempts_this_iter > 0:
-            accuracy = (num_correct_this_iter / num_attempts_this_iter) * 100
-            print(f"Iteration {i}: {num_correct_this_iter}/{num_attempts_this_iter} attempts = {accuracy:.2f}%")
-            iteration_numbers_for_plot.append(i)
-            accuracies_for_plot.append(accuracy)
-        else:
-            print(f"Iteration {i}: 0/0 attempts = N/A (No problems had an attempt recorded at this iteration)")
+        if results["accuracy_points"]:
+            results["final_accuracy_for_legend"] = results["accuracy_points"][-1]
+    else:
+        results["summary_lines"].append("  No problems to calculate accuracy for.")
 
-    if enable_plot:
-        if not iteration_numbers_for_plot: # Check if there's anything to plot
-            print("\nNo data available to plot (e.g., no iterations with attempts).")
-            return
+    results["success"] = True
+    return results
 
-        plt.figure(figsize=(10, 6))
-        plt.scatter(iteration_numbers_for_plot, accuracies_for_plot, color='blue', s=50) # s is size of dots
-        plt.plot(iteration_numbers_for_plot, accuracies_for_plot, color='blue', linestyle='--', alpha=0.5) # Optional: line connecting dots
-
-        plt.title('Accuracy per Iteration (with Answer Backfill)')
-        plt.xlabel('Iteration Number')
-        plt.ylabel('Accuracy (%)')
-        
-        # Set y-axis limits, e.g., 0 to 100, or dynamically based on data
-        min_acc = min(accuracies_for_plot) if accuracies_for_plot else 0
-        max_acc = max(accuracies_for_plot) if accuracies_for_plot else 100
-        plt.ylim(max(0, min_acc - 10), min(100, max_acc + 10)) # Dynamic y-limits with some padding
-        
-        # Ensure x-axis ticks are integers for iterations
-        if iteration_numbers_for_plot:
-             plt.xticks(range(min(iteration_numbers_for_plot), max(iteration_numbers_for_plot) + 1))
-
-        plt.grid(True, linestyle=':', alpha=0.7)
-        plt.tight_layout() # Adjust plot to prevent labels from being cut off
-        plt.show()
-
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
-        description="Calculate accuracy at each specific iteration from a JSON results file, "
-                    "using answer backfill for missing answers. Optionally plots the results."
+        description="Calculate and plot per-iteration accuracy from JSON results files."
     )
     parser.add_argument(
-        "json_file", 
-        help="Path to the JSON results file."
+        "json_files", nargs='+', help="Path(s) to the JSON results file(s)."
     )
     parser.add_argument(
-        "--plot",
-        action="store_true", # This makes it a flag; if present, args.plot is True
-        help="Enable plotting of iteration vs. accuracy."
+        "--plot", action="store_true",
+        help="Enable plotting of iteration vs. accuracy for all files on the same graph."
     )
     
     args = parser.parse_args()
 
-    # Check for matplotlib if plotting is requested early
-    if args.plot and not MATPLOTLIB_AVAILABLE:
-        print("Error: Matplotlib is required for plotting but is not installed.")
-        print("Please install it by running: pip install matplotlib")
-        print("Proceeding without plotting.")
+    enable_plotting_flag = args.plot
+    if enable_plotting_flag and not MATPLOTLIB_AVAILABLE:
+        print("Error: Matplotlib is required for plotting but is not installed.", file=sys.stderr)
+        print("Please install it by running: pip install matplotlib", file=sys.stderr)
+        print("Proceeding without plotting.", file=sys.stderr)
         enable_plotting_flag = False
-    else:
-        enable_plotting_flag = args.plot
 
-    calculate_and_plot_accuracy(args.json_file, enable_plot=enable_plotting_flag)
+    all_file_results_for_plot = []
+    global_max_iteration_for_plot_axis = -1
+
+    for file_path in args.json_files:
+        print(f"\n--- Processing file: {os.path.basename(file_path)} ---")
+        file_data = calculate_accuracy_for_file(file_path)
+        
+        for line in file_data["summary_lines"]:
+            print(line)
+        
+        if not file_data["success"]:
+            print(f"Error processing {os.path.basename(file_path)}: {file_data['error_message']}", file=sys.stderr)
+            continue
+
+        if file_data["success"] and file_data["iteration_points"]:
+            all_file_results_for_plot.append(file_data)
+            if file_data["max_iteration"] > global_max_iteration_for_plot_axis:
+                global_max_iteration_for_plot_axis = file_data["max_iteration"]
+    
+    if enable_plotting_flag and all_file_results_for_plot:
+        fig, ax = plt.subplots(figsize=(12, 7))
+        
+        num_files_to_plot = len(all_file_results_for_plot)
+        colors = plt.cm.get_cmap('tab10', max(10, num_files_to_plot))
+
+        for i, plot_data in enumerate(all_file_results_for_plot):
+            base_filename = os.path.basename(plot_data["file_path"])
+            final_acc_str = ""
+            if plot_data["final_accuracy_for_legend"] is not None:
+                final_acc_str = f" (Final: {plot_data['final_accuracy_for_legend']:.1f}%)"
+            
+            file_label = f"{base_filename}{final_acc_str}"
+            line_color = colors(i % 10) # Get color for this line
+            
+            ax.plot(
+                plot_data["iteration_points"], 
+                plot_data["accuracy_points"], 
+                linestyle='--', 
+                marker='o', 
+                markersize=6,
+                alpha=0.8,
+                label=file_label,
+                color=line_color
+            )
+
+            # Add text annotations for each point
+            for x_coord, y_coord in zip(plot_data["iteration_points"], plot_data["accuracy_points"]):
+                ax.text(
+                    x_coord,                          # x-coordinate
+                    y_coord + 1.5,                    # y-coordinate (slight offset above the dot)
+                    f"{y_coord:.1f}%",                # Text to display
+                    ha='center',                      # Horizontal alignment
+                    va='bottom',                      # Vertical alignment
+                    fontsize=7,                       # Font size for annotation
+                    color=line_color                  # Use same color as the line/marker
+                )
+
+
+        ax.set_title('Accuracy per Iteration')
+        ax.set_xlabel('Iteration Number')
+        ax.set_ylabel('Accuracy (%)')
+        ax.set_ylim(0, 105)
+        
+
+        if global_max_iteration_for_plot_axis >= 0:
+             ax.set_xticks(range(0, global_max_iteration_for_plot_axis + 1))
+        else:
+             ax.set_xticks([0])
+
+        ax.grid(True, linestyle=':', alpha=0.7)
+        ax.legend(loc='best', fontsize='small')
+        
+        plt.tight_layout()
+        plt.show()
+        
+    elif enable_plotting_flag:
+        print("\nPlotting was enabled, but no valid data points were found across the processed files to generate a plot.")
+
+if __name__ == "__main__":
+    main()
