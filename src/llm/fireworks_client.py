@@ -394,6 +394,9 @@ class FireworksModelClient(ModelClient):
         # Keep track of the prompt string used in the last API call
         current_prompt_string = formatted_prompt 
         
+        print(f"Current prompt string: {current_prompt_string}")
+        # breakpoint()
+
         # First API call
         response, token_usage, cost_info = await self._call_completions_api(
             prompt=current_prompt_string, # Use current_prompt_string

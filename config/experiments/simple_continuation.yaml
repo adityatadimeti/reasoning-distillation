@@ -9,6 +9,7 @@ experiment_type: "continuation"
 dashboard_port: 8080
 
 # Model configuration
+# reasoning_mode: "accounts/fireworks/models/qwen3-30b-a3b"
 reasoning_model: "accounts/fireworks/models/qwen3-30b-a3b"
 reasoning_model_provider: "fireworks"
 

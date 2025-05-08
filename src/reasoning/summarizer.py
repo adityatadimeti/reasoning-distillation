@@ -129,6 +129,10 @@ def summarize_reasoning(
     """
     logger.info("Generating summary of reasoning trace")
     
+    print(f"Reasoning: {reasoning}")
+    print(f"</think> tag in reasoning?: {'</think>' in reasoning}")
+    breakpoint()
+
     # Create the prompt
     prompt = prompt_template.replace("{reasoning}", reasoning)
     if "{question}" in prompt_template:
@@ -214,7 +218,11 @@ async def summarize_reasoning_async(
         If stream=True: AsyncIterator yielding summary chunks
     """
     logger.info("Generating summary of reasoning trace asynchronously")
-    
+
+    print(f"Reasoning: {reasoning}")
+    print(f"</think> tag in reasoning?: {'</think>' in reasoning}")
+    breakpoint()
+
     # Create the prompt
     prompt = prompt_template.replace("{reasoning}", reasoning)
     if "{question}" in prompt_template:
