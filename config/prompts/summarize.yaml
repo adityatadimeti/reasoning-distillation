@@ -192,3 +192,16 @@ aime_uncertainty_estimation:
     {reasoning}
 
     SUMMARY:
+
+
+aime_summary_chunk:
+  template: |
+    Summarize the following attempted solution to the problem:
+    
+    PROBLEM:
+    {question}
+
+    ATTEMPTED SOLUTION:
+    {reasoning}
+
+    SUMMARY:

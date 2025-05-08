@@ -298,6 +298,9 @@ class FireworksModelClient(ModelClient):
         Returns:
             Tuple of (content, finish_reason, token_usage, cost_info, detailed_api_calls)
         """
+        MAX_CONTINUATION_ATTEMPT_RETRIES = 5  # 1 initial attempt + 2 retries = 3 total attempts
+        CONTINUATION_RETRY_BACKOFF_BASE = 1  # seconds
+
         # If preformatted_prompt is provided, use it directly and disable internal continuation
         if preformatted_prompt is not None:
             if verbose:
@@ -388,7 +391,7 @@ class FireworksModelClient(ModelClient):
         total_completion_tokens = 0
         total_prompt_cost = 0.0
         total_completion_cost = 0.0
-        final_finish_reason = "unknown"
+        final_finish_reason = "unknown"  # Will be updated by the first successful call
         detailed_api_calls = []  # Track individual API calls for detailed metrics
         
         # Keep track of the prompt string used in the last API call
@@ -409,14 +412,14 @@ class FireworksModelClient(ModelClient):
             verbose=verbose
         )
 
-        if verbose:
-            print(f"Response: {response}")
+        # if verbose:
+        #     print(f"Response: {response}")
         
         # Extract text and finish reason
         if "choices" in response and response["choices"]:
             current_text = response["choices"][0]["text"]
             finish_reason = response["choices"][0].get("finish_reason", "unknown")
-            final_finish_reason = finish_reason
+            final_finish_reason = finish_reason # Initialize with the result of the first call
             all_text += current_text
             
             # Update token usage
@@ -460,8 +463,10 @@ class FireworksModelClient(ModelClient):
             # Continue generating if needed
             iteration = 0
             
+            last_continuation_step_error = None # To store error if all retries for a step fail
+
             while (enable_continuation and 
-                   finish_reason == "length" and 
+                   finish_reason == "length" and  # Loop continues if the LAST successful op was 'length'
                    iteration < max_continuations and 
                    total_completion_tokens < max_total_tokens):
                 
@@ -481,75 +486,106 @@ class FireworksModelClient(ModelClient):
                     logger.info(f"Continuing generation (continuation {iteration+1})")
                     logger.debug(f"Continuation prompt (last few chars): ...{current_prompt_string[-100:]}") # Log snippet
                 
-                # Make continuation request
-                try:
-                    cont_response, cont_token_usage, cont_cost_info = await self._call_completions_api(
-                        prompt=current_prompt_string, # Use the updated prompt string
-                        max_tokens=tokens_to_generate,
-                        temperature=temperature,
-                        top_p=top_p,
-                        top_k=top_k,
-                        presence_penalty=presence_penalty,
-                        frequency_penalty=frequency_penalty,
-                        verbose=verbose
-                    )
-                    
-                    # Extract continuation text and finish reason
-                    if "choices" in cont_response and cont_response["choices"]:
-                        cont_text = cont_response["choices"][0]["text"]
-                        finish_reason = cont_response["choices"][0].get("finish_reason", "unknown")
-                        final_finish_reason = finish_reason
-                        all_text += cont_text
+                continuation_step_succeeded = False
+                last_error_for_this_continuation_step = None
+
+                for attempt in range(MAX_CONTINUATION_ATTEMPT_RETRIES + 1): # +1 for initial attempt
+                    try:
+                        cont_response, cont_token_usage, cont_cost_info = await self._call_completions_api(
+                            prompt=current_prompt_string, # Use the updated prompt string
+                            max_tokens=tokens_to_generate,
+                            temperature=temperature,
+                            top_p=top_p,
+                            top_k=top_k,
+                            presence_penalty=presence_penalty,
+                            frequency_penalty=frequency_penalty,
+                            verbose=verbose
+                        )
                         
-                        # Update token usage
-                        total_prompt_tokens += cont_token_usage.prompt_tokens
-                        total_completion_tokens += cont_token_usage.completion_tokens
-                        total_prompt_cost += cont_cost_info.prompt_cost
-                        total_completion_cost += cont_cost_info.completion_cost
+                        # Extract continuation text and finish reason
+                        if "choices" in cont_response and cont_response["choices"]:
+                            cont_text = cont_response["choices"][0]["text"]
+                            # finish_reason for the current successful step
+                            finish_reason = cont_response["choices"][0].get("finish_reason", "unknown")
+                            # final_finish_reason is updated with this current successful step's reason
+                            final_finish_reason = finish_reason 
+                            all_text += cont_text
+                            current_text = cont_text # Update current_text with the latest generation for the next prompt
+                            
+                            # Update token usage
+                            total_prompt_tokens += cont_token_usage.prompt_tokens
+                            total_completion_tokens += cont_token_usage.completion_tokens
+                            total_prompt_cost += cont_cost_info.prompt_cost
+                            total_completion_cost += cont_cost_info.completion_cost
+                            
+                            # Record detailed metrics for continuation API call
+                            continuation_call_info = {
+                                "call_index": len(detailed_api_calls), # Current number of calls is the index for the new one
+                                "continuation_index": iteration,
+                                "token_usage": {
+                                    "prompt_tokens": cont_token_usage.prompt_tokens,
+                                    "completion_tokens": cont_token_usage.completion_tokens,
+                                    "total_tokens": cont_token_usage.total_tokens
+                                },
+                                "cost_info": {
+                                    "prompt_cost": cont_cost_info.prompt_cost,
+                                    "completion_cost": cont_cost_info.completion_cost,
+                                    "total_cost": cont_cost_info.total_cost
+                                },
+                                "finish_reason": finish_reason,
+                                "text_length": len(cont_text)
+                            }
+                            detailed_api_calls.append(continuation_call_info)
+                            
+                            # If a token tracking callback is provided, call it with the continuation API metrics
+                            if track_token_callback:
+                                callback_args = track_token_callback_args or {}
+                                track_token_callback(
+                                    problem_id=callback_args.get("problem_id", "unknown"),
+                                    token_usage=cont_token_usage,
+                                    cost_info=cont_cost_info,
+                                    iteration=callback_args.get("iteration", 0), # This should be the outer loop's iteration concept
+                                    step=callback_args.get("step", "reasoning"),
+                                    continuation_idx=iteration, # Index of the client's continuation logic
+                                    api_call_idx=len(detailed_api_calls) -1 # Index within the client's sequence of calls
+                                )
+                            
+                            continuation_step_succeeded = True
+                            last_continuation_step_error = None # Clear error on success
+                            break # Break from inner retry loop on success
+                        else:
+                            # API call succeeded but no choices? Treat as an error for this attempt.
+                            last_error_for_this_continuation_step = ValueError("API call successful but no choices returned.")
+                            logger.warning(f"Continuation attempt {attempt + 1}/{MAX_CONTINUATION_ATTEMPT_RETRIES + 1} for iteration {iteration} succeeded but returned no choices.")
+                            # Fall through to retry or final failure
                         
-                        # Record detailed metrics for continuation API call
-                        continuation_call_info = {
-                            "call_index": iteration + 1,  # +1 because the initial call is index 0
-                            "continuation_index": iteration,
-                            "token_usage": {
-                                "prompt_tokens": cont_token_usage.prompt_tokens,
-                                "completion_tokens": cont_token_usage.completion_tokens,
-                                "total_tokens": cont_token_usage.total_tokens
-                            },
-                            "cost_info": {
-                                "prompt_cost": cont_cost_info.prompt_cost,
-                                "completion_cost": cont_cost_info.completion_cost,
-                                "total_cost": cont_cost_info.total_cost
-                            },
-                            "finish_reason": finish_reason,
-                            "text_length": len(cont_text)
-                        }
-                        detailed_api_calls.append(continuation_call_info)
-                        
-                        # If a token tracking callback is provided, call it with the continuation API metrics
-                        if track_token_callback:
-                            callback_args = track_token_callback_args or {}
-                            track_token_callback(
-                                problem_id=callback_args.get("problem_id", "unknown"),
-                                token_usage=cont_token_usage,
-                                cost_info=cont_cost_info,
-                                iteration=callback_args.get("iteration", 0),
-                                step=callback_args.get("step", "reasoning"),
-                                continuation_idx=iteration, # Index of the internal continuation
-                                api_call_idx=iteration + 1 # Index within the client's continuation sequence
-                            )
-                        
-                        if finish_reason != "length" or total_completion_tokens >= max_total_tokens:
-                            break
-                    
-                except Exception as e:
+                    except Exception as e:
+                        last_error_for_this_continuation_step = e
+                        logger.warning(f"Continuation attempt {attempt + 1}/{MAX_CONTINUATION_ATTEMPT_RETRIES + 1} for iteration {iteration} failed: {str(e)}")
+                        if attempt == MAX_CONTINUATION_ATTEMPT_RETRIES: # If this was the last attempt
+                            logger.error(f"All {MAX_CONTINUATION_ATTEMPT_RETRIES + 1} attempts for continuation iteration {iteration} failed. Last error: {str(e)}")
+                            # The loop will exit as continuation_step_succeeded is False
+                        else:
+                            backoff = CONTINUATION_RETRY_BACKOFF_BASE * (2 ** attempt) # Exponential backoff
+                            logger.info(f"Retrying continuation step in {backoff} seconds...")
+                            await asyncio.sleep(backoff)
+                
+                if not continuation_step_succeeded:
+                    # All retries for the current continuation step failed.
+                    # Update final_finish_reason to reflect this error state.
+                    error_msg = str(last_error_for_this_continuation_step).replace('\\n', ' ').replace('"', "'") # Basic sanitization
+                    final_finish_reason = f"continuation_failed_iter_{iteration}_after_retries:_{error_msg[:100]}"
                     if verbose:
-                        logger.warning(f"Continuation failed: {str(e)}")
-                    break
+                        logger.error(f"Stopping continuations for prompt due to persistent error in continuation step {iteration}.")
+                    break # Break from outer continuation while loop
                 
-                # Increment iteration counter
+                # If continuation step was successful, check if we need to stop based on its finish_reason or token limits
+                if finish_reason != "length" or total_completion_tokens >= max_total_tokens:
+                    break # Break from outer while loop
+                
+                # Increment iteration counter for the *outer* continuation loop
                 iteration += 1
-                
+            
         # Create combined token usage and cost info
         combined_token_usage = TokenUsage(
             prompt_tokens=total_prompt_tokens,
