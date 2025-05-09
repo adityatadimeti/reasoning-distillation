@@ -554,28 +554,23 @@ class SummarizationExperiment(BaseExperiment):
                 chunks = []
                 i = 0
                 while i < len(words):
-                    chunk = " ".join(words[i : i + chunk_size])
-                    chunks.append(chunk)
+                    chunk_text = " ".join(words[i : i + chunk_size])
+                    chunks.append(chunk_text)
                     i += chunk_size - overlap_size # Move with overlap
 
-                chunk_summaries = []
-                total_token_usage = {}
-                total_cost_info = {}
-                all_detailed_api_calls = []
-
-                for idx, chunk in enumerate(chunks):
+                async def summarize_chunk(chunk_idx: int, chunk_content: str):
                     retry_count = 0
-                    max_retries = 3  # You can reuse the max_retries config
+                    max_retries = 3
 
                     while retry_count < max_retries:
                         assert "{reasoning}" in summarize_chunk_template, "summarize_chunk_template must contain {reasoning}"
                         assert "{question}" in summarize_chunk_template, "summarize_chunk_template must contain {question}"
                         try:
-                            chunk_prompt = summarize_chunk_template.replace("{reasoning}", chunk).replace("{question}", question) # Include question if relevant
+                            chunk_prompt = summarize_chunk_template.replace("{reasoning}", chunk_content).replace("{question}", question)
 
                             chunk_response = await self.summarizer.generate_response_async(
                                 chunk_prompt,
-                                max_tokens=self.config.get("summary_max_tokens", self.config["max_tokens"]), # Consider a smaller max_tokens per chunk
+                                max_tokens=self.config.get("summary_max_tokens", self.config["max_tokens"]),
                                 temperature=self.config.get("summary_temperature", self.config["temperature"]),
                                 top_p=self.config.get("summary_top_p", self.config["top_p"]),
                                 top_k=self.config.get("summary_top_k", self.config["top_k"]) if hasattr(self.summarizer, "top_k") else None,
@@ -586,62 +581,97 @@ class SummarizationExperiment(BaseExperiment):
                                 track_token_callback_args={
                                     "problem_id": problem_id,
                                     "iteration": current_iteration,
-                                    "step": f"summary_chunk_{idx+1}"
+                                    "step": f"summary_chunk_{chunk_idx+1}"
                                 }
                             )
-                            print(f"Chunk prompt: {chunk_prompt}")
-                            print(f"Chunk response: {chunk_response}")
+                            print(f"Chunk {chunk_idx+1} prompt: {chunk_prompt}")
+                            print(f"Chunk {chunk_idx+1} response: {chunk_response}")
                             print("="*100)
-                            breakpoint()
 
                             try:
-                                chunk_summary, chunk_finish_reason, chunk_token_usage, chunk_cost_info, chunk_detailed_api_calls = chunk_response
-                                all_detailed_api_calls.extend(chunk_detailed_api_calls) # Collect detailed calls
+                                c_summary, c_finish_reason, c_token_usage, c_cost_info, c_detailed_api_calls = chunk_response
                             except ValueError:
-                                logger.warning(f"Chunk summary response doesn't include detailed metrics, falling back to old format for chunk {idx+1}")
-                                chunk_summary, chunk_finish_reason, chunk_token_usage, chunk_cost_info = chunk_response
-                                chunk_detailed_api_calls = []
-
-                            chunk_summaries.append(chunk_summary)
-
+                                logger.warning(f"Chunk {chunk_idx+1} summary response doesn't include detailed metrics, falling back to old format")
+                                c_summary, c_finish_reason, c_token_usage, c_cost_info = chunk_response
+                                c_detailed_api_calls = []
+                            
                             self.track_token_usage_and_cost(
-                                problem_id, 
-                                chunk_token_usage, 
-                                chunk_cost_info, 
-                                current_iteration, 
-                                f"summary_chunk_{idx+1}"
+                                problem_id,
+                                c_token_usage,
+                                c_cost_info,
+                                current_iteration,
+                                f"summary_chunk_{chunk_idx+1}"
                             )
+                            return c_summary, c_finish_reason, c_token_usage, c_cost_info, c_detailed_api_calls
 
-                            break # Successful summary, move to the next chunk
-
-                        except Exception as e:
-                            error_str = str(e).lower()
-                            if "prompt is too long" in error_str or "maximum context length" in error_str:
+                        except Exception as e_chunk:
+                            error_str_chunk = str(e_chunk).lower()
+                            if "prompt is too long" in error_str_chunk or "maximum context length" in error_str_chunk:
                                 retry_count += 1
-                                # For chunking, a prompt too long error might indicate the chunk_size is too large.
-                                # You could potentially reduce the chunk_size here or raise a more informative error.
-                                logger.error(f"Prompt too long for summary chunk {idx+1}. Consider reducing 'multiple_prompt_chunk_size'.")
-                                raise Exception(f"Prompt too long for summary chunk {idx+1}.")
+                                logger.error(f"Prompt too long for summary chunk {chunk_idx+1}. Consider reducing 'multiple_prompt_chunk_size'.")
+                                if retry_count >= max_retries:
+                                     raise Exception(f"Prompt too long for summary chunk {chunk_idx+1} after {max_retries} attempts.")
                             else:
                                 retry_count += 1
-                                logger.error(f"Error generating summary for chunk {idx+1} (attempt {retry_count}/{max_retries}): {str(e)}")
+                                logger.error(f"Error generating summary for chunk {chunk_idx+1} (attempt {retry_count}/{max_retries}): {str(e_chunk)}")
                                 logger.error(f"Stack trace: {traceback.format_exc()}")
-                                if retry_count < max_retries:
-                                    wait_time = 1
-                                    logger.info(f"Retrying chunk {idx+1} in {wait_time} seconds...")
-                                    await asyncio.sleep(wait_time)
-                                else:
-                                    raise Exception(f"Failed to generate summary for chunk {idx+1} after {max_retries} attempts.")
+                                if retry_count >= max_retries:
+                                    raise Exception(f"Failed to generate summary for chunk {chunk_idx+1} after {max_retries} attempts.")
+                            
+                            if retry_count < max_retries:
+                                wait_time = 1
+                                logger.info(f"Retrying chunk {chunk_idx+1} in {wait_time} seconds...")
+                                await asyncio.sleep(wait_time)
+                
+                tasks = [summarize_chunk(idx, chunk_content) for idx, chunk_content in enumerate(chunks)]
+                
+                try:
+                    # Run all chunk summarizations in parallel
+                    parallel_results = await asyncio.gather(*tasks, return_exceptions=True)
+                except Exception as gather_exc:
+                    logger.error(f"An error occurred during asyncio.gather for chunk summarization: {gather_exc}")
+                    logger.error(f"Stack trace: {traceback.format_exc()}")
+                    raise Exception(f"Failed to process chunks in parallel: {gather_exc}")
 
-                # Combine the chunk summaries (simplest approach is just joining them)
-                summary = "\n".join(chunk_summaries)
-                summary_finish_reason = "multiple_chunks" # Or some other indicator
-                token_usage = total_token_usage
-                cost_info = total_cost_info
-                summary_detailed_api_calls = all_detailed_api_calls
+
+                chunk_summaries = []
+                total_token_usage = TokenUsage(0,0,0) # Initialize with TokenUsage object
+                total_cost_info = CostInfo(0.0,0.0,0.0) # Initialize with CostInfo object
+                all_detailed_api_calls = []
+
+                for idx, res in enumerate(parallel_results):
+                    if isinstance(res, Exception):
+                        # Handle exceptions from individual tasks if necessary, or re-raise
+                        logger.error(f"Error processing chunk {idx+1}: {res}")
+                        # Potentially append a placeholder or skip this chunk's result
+                        # For now, we'll re-raise to halt if any chunk fails criticaly
+                        raise Exception(f"Failed to process chunk {idx+1}: {res}")
+                    
+                    c_summary, c_finish_reason, c_token_usage, c_cost_info, c_detailed_api_calls = res
+                    chunk_summaries.append(c_summary)
+                    
+                    # Accumulate token usage and cost info
+                    if c_token_usage: # Ensure it's not None
+                        total_token_usage.prompt_tokens += c_token_usage.prompt_tokens
+                        total_token_usage.completion_tokens += c_token_usage.completion_tokens
+                        total_token_usage.total_tokens += c_token_usage.total_tokens
+                    if c_cost_info: # Ensure it's not None
+                        total_cost_info.prompt_cost += c_cost_info.prompt_cost
+                        total_cost_info.completion_cost += c_cost_info.completion_cost
+                        total_cost_info.total_cost += c_cost_info.total_cost
+                    
+                    if c_detailed_api_calls: # Ensure it's not None or empty list
+                        all_detailed_api_calls.extend(c_detailed_api_calls)
+
+                # Combine the chunk summaries
+                summary = "\n".join(chunk_summaries) # Use escaped newline for string literal
+                summary_finish_reason = "multiple_chunks_parallel"
+                token_usage = total_token_usage # This is now an object
+                cost_info = total_cost_info # This is now an object
+                # summary_detailed_api_calls is already assigned as all_detailed_api_calls above
 
                 # Store detailed API call information in the result
-                result["detailed_metrics"][f"iteration_{current_iteration}_summary"] = summary_detailed_api_calls
+                result["detailed_metrics"][f"iteration_{current_iteration}_summary"] = all_detailed_api_calls
             
 
             # Verify that summary was successfully generated

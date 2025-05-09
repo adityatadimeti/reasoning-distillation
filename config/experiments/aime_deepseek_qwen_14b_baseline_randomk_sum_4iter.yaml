@@ -1,6 +1,6 @@
 # Experiment configuration for Qwen 32B
-experiment_name: "aime_deepseek_qwen_14b_baseline_randomk_sum_4iter"
-results_dir: "./results/aime_deepseek_qwen_14b_baseline_randomk_sum_4iter"
+experiment_name: "aime_deepseek_qwen_14b_baseline_randomk_sum_4iter_fresh"
+results_dir: "./results/aime_deepseek_qwen_14b_baseline_randomk_sum_4iter_fresh"
 data_path: "./data/aime_2024_5.csv"
 save_intermediate: true
 experiment_type: "summarize"
