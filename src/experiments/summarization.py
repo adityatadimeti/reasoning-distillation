@@ -568,8 +568,10 @@ class SummarizationExperiment(BaseExperiment):
                     max_retries = 3  # You can reuse the max_retries config
 
                     while retry_count < max_retries:
+                        assert "{reasoning}" in summarize_chunk_template, "summarize_chunk_template must contain {reasoning}"
+                        assert "{question}" in summarize_chunk_template, "summarize_chunk_template must contain {question}"
                         try:
-                            chunk_prompt = summarize_chunk_template.replace("{reasoning_chunk}", chunk).replace("{question}", question) # Include question if relevant
+                            chunk_prompt = summarize_chunk_template.replace("{reasoning}", chunk).replace("{question}", question) # Include question if relevant
 
                             chunk_response = await self.summarizer.generate_response_async(
                                 chunk_prompt,
@@ -587,6 +589,10 @@ class SummarizationExperiment(BaseExperiment):
                                     "step": f"summary_chunk_{idx+1}"
                                 }
                             )
+                            print(f"Chunk prompt: {chunk_prompt}")
+                            print(f"Chunk response: {chunk_response}")
+                            print("="*100)
+                            breakpoint()
 
                             try:
                                 chunk_summary, chunk_finish_reason, chunk_token_usage, chunk_cost_info, chunk_detailed_api_calls = chunk_response
@@ -598,11 +604,13 @@ class SummarizationExperiment(BaseExperiment):
 
                             chunk_summaries.append(chunk_summary)
 
-                            # Aggregate token usage and cost (you might want to refine this based on how your tracking works)
-                            for key, value in chunk_token_usage.items():
-                                total_token_usage[key] = total_token_usage.get(key, 0) + value
-                            for key, value in chunk_cost_info.items():
-                                total_cost_info[key] = total_cost_info.get(key, 0) + value
+                            self.track_token_usage_and_cost(
+                                problem_id, 
+                                chunk_token_usage, 
+                                chunk_cost_info, 
+                                current_iteration, 
+                                f"summary_chunk_{idx+1}"
+                            )
 
                             break # Successful summary, move to the next chunk
 

@@ -84,5 +84,20 @@
     "hf_model_name": "Qwen/QwQ-32B",
     "input_price_per_million": 0.15,
     "output_price_per_million": 0.60
+  },
+  "accounts/fireworks/models/deepseek-v3": {
+    "hf_model_name": "deepseek-ai/DeepSeek-V3",
+    "input_price_per_million": 0.90,
+    "output_price_per_million": 0.90
+  }, 
+  "accounts/fireworks/models/deepseek-r1-basic": {
+    "hf_model_name": "deepseek-ai/DeepSeek-R1",
+    "input_price_per_million": 0.55,
+    "output_price_per_million": 2.19
+  },
+  "accounts/fireworks/models/qwen2p5-vl-32b-instruct": {
+    "hf_model_name": "Qwen/Qwen2.5-VL-32B-Instruct",
+    "input_price_per_million": 0.15,
+    "output_price_per_million": 0.60
   }
 }

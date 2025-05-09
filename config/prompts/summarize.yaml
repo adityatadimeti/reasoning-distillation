@@ -196,12 +196,12 @@ aime_uncertainty_estimation:
 
 aime_summary_chunk:
   template: |
-    Summarize the following attempted solution to the problem:
+    Summarize the following partial section of the full attempted solution to the problem:
     
     PROBLEM:
     {question}
 
     ATTEMPTED SOLUTION:
-    {reasoning}
+    ...{reasoning}...
 
     SUMMARY:
