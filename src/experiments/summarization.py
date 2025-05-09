@@ -680,7 +680,7 @@ class SummarizationExperiment(BaseExperiment):
                 # Set summary to simple answer string
                 summary = f"The answer is {latest_answer}." if latest_answer is not None else "No answer found."
                 summary_finish_reason = "answer_only"
-                
+                s
                 # Set token usage and cost to 0 since no API call was made
                 token_usage = TokenUsage(0, 0, 0)
                 cost_info = CostInfo(0.0, 0.0, 0.0)
