@@ -110,3 +110,14 @@ aime_analysis_prompt:
 
     Your analysis of previous attempts is critical to finding the correct approach. Do not start solving from scratch without addressing the previous work."
 
+aime_try_different_approach:
+  template: |
+    Solve the following AIME problem. All answers are integers ranging from 0 to 999, inclusive. Report your answer in \boxed{} format.
+    
+    PROBLEM:
+    {question}
+    
+    Here are summaries of your previous solution attempts:
+    {summaries}
+
+    Understand the problem and the previous solution attempts. Then, try to solve the problem using a different approach.
