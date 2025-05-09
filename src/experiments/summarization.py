@@ -672,7 +672,18 @@ class SummarizationExperiment(BaseExperiment):
 
                 # Store detailed API call information in the result
                 result["detailed_metrics"][f"iteration_{current_iteration}_summary"] = all_detailed_api_calls
-            
+            elif summary_method == "answer_only":
+                # Get the answer from the latest reasoning iteration
+                latest_iter = result["iterations"][current_iteration]
+                latest_answer = latest_iter["answer"]
+                
+                # Set summary to simple answer string
+                summary = f"The answer is {latest_answer}." if latest_answer is not None else "No answer found."
+                summary_finish_reason = "answer_only"
+                
+                # Set token usage and cost to 0 since no API call was made
+                token_usage = TokenUsage(0, 0, 0)
+                cost_info = CostInfo(0.0, 0.0, 0.0)
 
             # Verify that summary was successfully generated
             if summary is None:
@@ -742,7 +753,7 @@ class SummarizationExperiment(BaseExperiment):
             
             # Prepare for next iteration
             next_iteration = current_iteration + 1
-            
+
             # Get improved reasoning prompt template
             improved_template = self.config.get("improved_prompt_template")
             if not improved_template:
