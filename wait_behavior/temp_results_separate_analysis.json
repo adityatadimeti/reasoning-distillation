@@ -1,0 +1,41 @@
+{
+  "experiment_name": "continuation_aime_deepseek_qwen_14b_4iter",
+  "analysis_parameters": {
+    "input_file": "results/continuation_aime_deepseek_qwen_14b_4iter/continuation_aime_deepseek_qwen_14b_4iter_20250504_154522/results.json",
+    "model": "accounts/fireworks/models/deepseek-v3-0324",
+    "iterations_analyzed": [
+      1
+    ],
+    "text_fields_searched": [
+      "reasoning_output"
+    ],
+    "analyze_all_iterations": false,
+    "separate_api_calls": true,
+    "include_initializing": false,
+    "parallel_problems": 1,
+    "timestamp": "2025-05-06T14:09:41.900948"
+  },
+  "results": [
+    {
+      "problem_id": "2024-II-4",
+      "iterations": [
+        {
+          "iteration": 1,
+          "field_analyzed": "reasoning_output",
+          "behavior_counts": {
+            "adding_knowledge": 1,
+            "example_testing": 0,
+            "uncertainty_estimation": 1,
+            "backtracking": 0
+          },
+          "raw_llm_analyses": {
+            "adding_knowledge": "In the provided chain-of-reasoning, the model recalls the fact that \"2 raised to some negative exponents\" results in \"positive real numbers\" to confirm that the problem's condition is satisfied. This is an instance of adding knowledge, where the model enriches its reasoning with recalled facts.\n\nThere is only one distinct instance of adding knowledge in this chain-of-reasoning. \n\n<count>1</count>",
+            "example_testing": "<count>0</count>",
+            "uncertainty_estimation": "<count>1</count>",
+            "backtracking": "<count>0</count>"
+          }
+        }
+      ]
+    }
+  ]
+}
