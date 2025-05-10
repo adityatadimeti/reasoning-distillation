@@ -208,11 +208,11 @@ class PassKExperiment(BaseExperiment):
         }
         
         # Get the number of iterations (k)
-        k = self.config.get("pass_k_iterations", 5)
+        assert self.config.get("pass_k_iterations") is not None, "pass_k_iterations must be set in the config"
+        k = self.config.get("pass_k_iterations")
         
         # Get the reasoning prompt template
-        prompt_type = self.config.get("prompts", {}).get("reasoning", "v0")
-        reasoning_prompt_template = self.config.get("reasoning_prompt_template", "")
+        reasoning_prompt_template = self.config.get("reasoning_prompt_template")
         
         if not reasoning_prompt_template:
             logger.warning(f"No reasoning_prompt_template found in config for problem {problem_id}, using empty string")
