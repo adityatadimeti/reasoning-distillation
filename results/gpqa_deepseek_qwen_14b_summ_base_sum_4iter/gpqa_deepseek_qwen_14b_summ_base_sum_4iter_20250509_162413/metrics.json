@@ -1,0 +1,3183 @@
+{
+  "total_problems": 198,
+  "token_usage": {
+    "prompt_tokens": 10331626,
+    "completion_tokens": 7395512,
+    "total_tokens": 17727138
+  },
+  "cost_info": {
+    "prompt_cost": 0.0,
+    "completion_cost": 0.0,
+    "total_cost": 0.0
+  },
+  "problems": {
+    "gpqa_diamond_train_0": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 28574,
+          "completion_tokens": 20996,
+          "total_tokens": 49570
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_1": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 46526,
+          "completion_tokens": 36936,
+          "total_tokens": 83462
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_10": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 23904,
+          "completion_tokens": 10640,
+          "total_tokens": 34544
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_100": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 53734,
+          "completion_tokens": 52354,
+          "total_tokens": 106088
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_101": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 34616,
+          "completion_tokens": 20442,
+          "total_tokens": 55058
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_102": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 57876,
+          "completion_tokens": 47944,
+          "total_tokens": 105820
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_103": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 29614,
+          "completion_tokens": 18408,
+          "total_tokens": 48022
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_104": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 72242,
+          "completion_tokens": 43598,
+          "total_tokens": 115840
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_105": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 31504,
+          "completion_tokens": 20748,
+          "total_tokens": 52252
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_106": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 17768,
+          "completion_tokens": 8208,
+          "total_tokens": 25976
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_107": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 28874,
+          "completion_tokens": 17544,
+          "total_tokens": 46418
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_108": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 45474,
+          "completion_tokens": 35706,
+          "total_tokens": 81180
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_109": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 42400,
+          "completion_tokens": 24668,
+          "total_tokens": 67068
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_11": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 33792,
+          "completion_tokens": 27290,
+          "total_tokens": 61082
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_110": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 54882,
+          "completion_tokens": 45794,
+          "total_tokens": 100676
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_111": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 42046,
+          "completion_tokens": 32310,
+          "total_tokens": 74356
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_112": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 45814,
+          "completion_tokens": 32952,
+          "total_tokens": 78766
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_113": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 25414,
+          "completion_tokens": 16348,
+          "total_tokens": 41762
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_114": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 32782,
+          "completion_tokens": 26898,
+          "total_tokens": 59680
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_115": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 66146,
+          "completion_tokens": 58504,
+          "total_tokens": 124650
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_116": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 37486,
+          "completion_tokens": 26260,
+          "total_tokens": 63746
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_117": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 45158,
+          "completion_tokens": 43030,
+          "total_tokens": 88188
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_118": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 40040,
+          "completion_tokens": 28460,
+          "total_tokens": 68500
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_119": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 22956,
+          "completion_tokens": 13878,
+          "total_tokens": 36834
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_12": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 55634,
+          "completion_tokens": 48100,
+          "total_tokens": 103734
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_120": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 43752,
+          "completion_tokens": 34714,
+          "total_tokens": 78466
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_121": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 84212,
+          "completion_tokens": 62396,
+          "total_tokens": 146608
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_122": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 30316,
+          "completion_tokens": 19742,
+          "total_tokens": 50058
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_123": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 23740,
+          "completion_tokens": 16072,
+          "total_tokens": 39812
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_124": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 23368,
+          "completion_tokens": 13166,
+          "total_tokens": 36534
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_125": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 82992,
+          "completion_tokens": 54232,
+          "total_tokens": 137224
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_126": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 41220,
+          "completion_tokens": 33140,
+          "total_tokens": 74360
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_127": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 120864,
+          "completion_tokens": 64000,
+          "total_tokens": 184864
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_128": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 70264,
+          "completion_tokens": 59182,
+          "total_tokens": 129446
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_129": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 26220,
+          "completion_tokens": 16942,
+          "total_tokens": 43162
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_13": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 23864,
+          "completion_tokens": 15936,
+          "total_tokens": 39800
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_130": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 61746,
+          "completion_tokens": 51546,
+          "total_tokens": 113292
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_131": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 75374,
+          "completion_tokens": 77640,
+          "total_tokens": 153014
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_132": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 49140,
+          "completion_tokens": 42038,
+          "total_tokens": 91178
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_133": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 37018,
+          "completion_tokens": 28254,
+          "total_tokens": 65272
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_134": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 29898,
+          "completion_tokens": 18100,
+          "total_tokens": 47998
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_135": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 28316,
+          "completion_tokens": 20580,
+          "total_tokens": 48896
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_136": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 81688,
+          "completion_tokens": 58460,
+          "total_tokens": 140148
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_137": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 23292,
+          "completion_tokens": 14304,
+          "total_tokens": 37596
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_138": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 89040,
+          "completion_tokens": 67648,
+          "total_tokens": 156688
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_139": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 117866,
+          "completion_tokens": 79234,
+          "total_tokens": 197100
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_14": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 25864,
+          "completion_tokens": 14556,
+          "total_tokens": 40420
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_140": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 33764,
+          "completion_tokens": 26622,
+          "total_tokens": 60386
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_141": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 25844,
+          "completion_tokens": 15042,
+          "total_tokens": 40886
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_142": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 66374,
+          "completion_tokens": 55884,
+          "total_tokens": 122258
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_143": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 29716,
+          "completion_tokens": 21492,
+          "total_tokens": 51208
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_144": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 75790,
+          "completion_tokens": 63140,
+          "total_tokens": 138930
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_145": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 33306,
+          "completion_tokens": 21854,
+          "total_tokens": 55160
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_146": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 41360,
+          "completion_tokens": 32972,
+          "total_tokens": 74332
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_147": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 57752,
+          "completion_tokens": 49306,
+          "total_tokens": 107058
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_148": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 26780,
+          "completion_tokens": 17188,
+          "total_tokens": 43968
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_149": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 55712,
+          "completion_tokens": 54784,
+          "total_tokens": 110496
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_15": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 77610,
+          "completion_tokens": 58364,
+          "total_tokens": 135974
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_150": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 34478,
+          "completion_tokens": 28450,
+          "total_tokens": 62928
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_151": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 18114,
+          "completion_tokens": 9610,
+          "total_tokens": 27724
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_152": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 48094,
+          "completion_tokens": 30904,
+          "total_tokens": 78998
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_153": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 44836,
+          "completion_tokens": 33618,
+          "total_tokens": 78454
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_154": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 30300,
+          "completion_tokens": 19470,
+          "total_tokens": 49770
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_155": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 75884,
+          "completion_tokens": 61726,
+          "total_tokens": 137610
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_156": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 16794,
+          "completion_tokens": 9212,
+          "total_tokens": 26006
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_157": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 26232,
+          "completion_tokens": 17450,
+          "total_tokens": 43682
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_158": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 52064,
+          "completion_tokens": 41002,
+          "total_tokens": 93066
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_159": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 39250,
+          "completion_tokens": 32294,
+          "total_tokens": 71544
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_16": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 23136,
+          "completion_tokens": 14942,
+          "total_tokens": 38078
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_160": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 22860,
+          "completion_tokens": 12294,
+          "total_tokens": 35154
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_161": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 34896,
+          "completion_tokens": 30836,
+          "total_tokens": 65732
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_162": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 97352,
+          "completion_tokens": 80148,
+          "total_tokens": 177500
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_163": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 110586,
+          "completion_tokens": 70362,
+          "total_tokens": 180948
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_164": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 27388,
+          "completion_tokens": 17566,
+          "total_tokens": 44954
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_165": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 48668,
+          "completion_tokens": 25658,
+          "total_tokens": 74326
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_166": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 168258,
+          "completion_tokens": 90002,
+          "total_tokens": 258260
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_167": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 18404,
+          "completion_tokens": 10690,
+          "total_tokens": 29094
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_168": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 23208,
+          "completion_tokens": 13132,
+          "total_tokens": 36340
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_169": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 33246,
+          "completion_tokens": 23636,
+          "total_tokens": 56882
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_17": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 50508,
+          "completion_tokens": 40036,
+          "total_tokens": 90544
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_170": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 55582,
+          "completion_tokens": 48964,
+          "total_tokens": 104546
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_171": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 24650,
+          "completion_tokens": 16432,
+          "total_tokens": 41082
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_172": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 26414,
+          "completion_tokens": 20874,
+          "total_tokens": 47288
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_173": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 165306,
+          "completion_tokens": 96390,
+          "total_tokens": 261696
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_174": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 23186,
+          "completion_tokens": 16090,
+          "total_tokens": 39276
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_175": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 41796,
+          "completion_tokens": 33812,
+          "total_tokens": 75608
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_176": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 76142,
+          "completion_tokens": 49788,
+          "total_tokens": 125930
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_177": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 25218,
+          "completion_tokens": 14470,
+          "total_tokens": 39688
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_178": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 38464,
+          "completion_tokens": 35806,
+          "total_tokens": 74270
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_179": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 173460,
+          "completion_tokens": 101438,
+          "total_tokens": 274898
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_18": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 47824,
+          "completion_tokens": 32914,
+          "total_tokens": 80738
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_180": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 36404,
+          "completion_tokens": 26292,
+          "total_tokens": 62696
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_181": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 21270,
+          "completion_tokens": 11862,
+          "total_tokens": 33132
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_182": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 37832,
+          "completion_tokens": 30724,
+          "total_tokens": 68556
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_183": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 86856,
+          "completion_tokens": 64552,
+          "total_tokens": 151408
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_184": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 24914,
+          "completion_tokens": 15202,
+          "total_tokens": 40116
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_185": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 34600,
+          "completion_tokens": 25288,
+          "total_tokens": 59888
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_186": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 47066,
+          "completion_tokens": 36110,
+          "total_tokens": 83176
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_187": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 136112,
+          "completion_tokens": 86422,
+          "total_tokens": 222534
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_188": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 14978,
+          "completion_tokens": 9262,
+          "total_tokens": 24240
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_189": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 45822,
+          "completion_tokens": 37456,
+          "total_tokens": 83278
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_19": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 18856,
+          "completion_tokens": 10032,
+          "total_tokens": 28888
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_190": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 85112,
+          "completion_tokens": 67228,
+          "total_tokens": 152340
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_191": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 26700,
+          "completion_tokens": 15428,
+          "total_tokens": 42128
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_192": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 18194,
+          "completion_tokens": 11292,
+          "total_tokens": 29486
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_193": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 31248,
+          "completion_tokens": 21128,
+          "total_tokens": 52376
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_194": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 91732,
+          "completion_tokens": 64162,
+          "total_tokens": 155894
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_195": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 29020,
+          "completion_tokens": 21926,
+          "total_tokens": 50946
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_196": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 112262,
+          "completion_tokens": 71920,
+          "total_tokens": 184182
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_197": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 30688,
+          "completion_tokens": 20500,
+          "total_tokens": 51188
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_2": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 39526,
+          "completion_tokens": 29068,
+          "total_tokens": 68594
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_20": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 52102,
+          "completion_tokens": 50300,
+          "total_tokens": 102402
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_21": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 18740,
+          "completion_tokens": 11102,
+          "total_tokens": 29842
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_22": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 79806,
+          "completion_tokens": 56178,
+          "total_tokens": 135984
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_23": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 84570,
+          "completion_tokens": 63946,
+          "total_tokens": 148516
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_24": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 50904,
+          "completion_tokens": 38818,
+          "total_tokens": 89722
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_25": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 54858,
+          "completion_tokens": 52118,
+          "total_tokens": 106976
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_26": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 20064,
+          "completion_tokens": 12150,
+          "total_tokens": 32214
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_27": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 49174,
+          "completion_tokens": 35528,
+          "total_tokens": 84702
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_28": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 82158,
+          "completion_tokens": 59836,
+          "total_tokens": 141994
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_29": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 30380,
+          "completion_tokens": 21734,
+          "total_tokens": 52114
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_3": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 18052,
+          "completion_tokens": 10252,
+          "total_tokens": 28304
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_30": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 29374,
+          "completion_tokens": 23886,
+          "total_tokens": 53260
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_31": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 358112,
+          "completion_tokens": 153268,
+          "total_tokens": 511380
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_32": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 37730,
+          "completion_tokens": 26730,
+          "total_tokens": 64460
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_33": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 58848,
+          "completion_tokens": 51912,
+          "total_tokens": 110760
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_34": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 30450,
+          "completion_tokens": 18212,
+          "total_tokens": 48662
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_35": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 50730,
+          "completion_tokens": 45576,
+          "total_tokens": 96306
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_36": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 57228,
+          "completion_tokens": 56520,
+          "total_tokens": 113748
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_37": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 38650,
+          "completion_tokens": 28294,
+          "total_tokens": 66944
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_38": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 31574,
+          "completion_tokens": 20326,
+          "total_tokens": 51900
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_39": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 15856,
+          "completion_tokens": 7778,
+          "total_tokens": 23634
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_4": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 39790,
+          "completion_tokens": 27264,
+          "total_tokens": 67054
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_40": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 28054,
+          "completion_tokens": 20842,
+          "total_tokens": 48896
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_41": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 31046,
+          "completion_tokens": 20894,
+          "total_tokens": 51940
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_42": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 31738,
+          "completion_tokens": 22724,
+          "total_tokens": 54462
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_43": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 19434,
+          "completion_tokens": 8890,
+          "total_tokens": 28324
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_44": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 50376,
+          "completion_tokens": 48720,
+          "total_tokens": 99096
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_45": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 66350,
+          "completion_tokens": 69130,
+          "total_tokens": 135480
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_46": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 42120,
+          "completion_tokens": 36136,
+          "total_tokens": 78256
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_47": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 92038,
+          "completion_tokens": 74592,
+          "total_tokens": 166630
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_48": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 68338,
+          "completion_tokens": 36146,
+          "total_tokens": 104484
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_49": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 18210,
+          "completion_tokens": 9608,
+          "total_tokens": 27818
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_5": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 117952,
+          "completion_tokens": 66330,
+          "total_tokens": 184282
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_50": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 61640,
+          "completion_tokens": 57778,
+          "total_tokens": 119418
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_51": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 35910,
+          "completion_tokens": 22784,
+          "total_tokens": 58694
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_52": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 77272,
+          "completion_tokens": 58244,
+          "total_tokens": 135516
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_53": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 43808,
+          "completion_tokens": 37878,
+          "total_tokens": 81686
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_54": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 66490,
+          "completion_tokens": 59462,
+          "total_tokens": 125952
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_55": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 58574,
+          "completion_tokens": 48104,
+          "total_tokens": 106678
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_56": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 162274,
+          "completion_tokens": 108068,
+          "total_tokens": 270342
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_57": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 17012,
+          "completion_tokens": 11566,
+          "total_tokens": 28578
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_58": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 28232,
+          "completion_tokens": 19910,
+          "total_tokens": 48142
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_59": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 40254,
+          "completion_tokens": 31256,
+          "total_tokens": 71510
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_6": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 27718,
+          "completion_tokens": 18294,
+          "total_tokens": 46012
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_60": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 43002,
+          "completion_tokens": 32812,
+          "total_tokens": 75814
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_61": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 61554,
+          "completion_tokens": 59176,
+          "total_tokens": 120730
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_62": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 96372,
+          "completion_tokens": 73016,
+          "total_tokens": 169388
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_63": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 72604,
+          "completion_tokens": 73740,
+          "total_tokens": 146344
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_64": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 56288,
+          "completion_tokens": 43694,
+          "total_tokens": 99982
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_65": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 17684,
+          "completion_tokens": 9990,
+          "total_tokens": 27674
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_66": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 27766,
+          "completion_tokens": 16200,
+          "total_tokens": 43966
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_67": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 41476,
+          "completion_tokens": 36762,
+          "total_tokens": 78238
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_68": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 111794,
+          "completion_tokens": 71980,
+          "total_tokens": 183774
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_69": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 62158,
+          "completion_tokens": 58734,
+          "total_tokens": 120892
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_7": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 36640,
+          "completion_tokens": 25834,
+          "total_tokens": 62474
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_70": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 26568,
+          "completion_tokens": 20838,
+          "total_tokens": 47406
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_71": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 38308,
+          "completion_tokens": 29422,
+          "total_tokens": 67730
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_72": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 27158,
+          "completion_tokens": 15920,
+          "total_tokens": 43078
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_73": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 28006,
+          "completion_tokens": 17744,
+          "total_tokens": 45750
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_74": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 156542,
+          "completion_tokens": 87354,
+          "total_tokens": 243896
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_75": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 32686,
+          "completion_tokens": 24742,
+          "total_tokens": 57428
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_76": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 61788,
+          "completion_tokens": 46712,
+          "total_tokens": 108500
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_77": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 49102,
+          "completion_tokens": 34126,
+          "total_tokens": 83228
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_78": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 118062,
+          "completion_tokens": 77920,
+          "total_tokens": 195982
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_79": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 211488,
+          "completion_tokens": 103246,
+          "total_tokens": 314734
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_8": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 30106,
+          "completion_tokens": 18210,
+          "total_tokens": 48316
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_80": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 65010,
+          "completion_tokens": 64256,
+          "total_tokens": 129266
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_81": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 36964,
+          "completion_tokens": 16500,
+          "total_tokens": 53464
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_82": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 42340,
+          "completion_tokens": 30924,
+          "total_tokens": 73264
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_83": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 17042,
+          "completion_tokens": 9668,
+          "total_tokens": 26710
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_84": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 40932,
+          "completion_tokens": 31452,
+          "total_tokens": 72384
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_85": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 42276,
+          "completion_tokens": 43738,
+          "total_tokens": 86014
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_86": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 36964,
+          "completion_tokens": 24702,
+          "total_tokens": 61666
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_87": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 16346,
+          "completion_tokens": 10006,
+          "total_tokens": 26352
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_88": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 54472,
+          "completion_tokens": 42434,
+          "total_tokens": 96906
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_89": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 60762,
+          "completion_tokens": 60300,
+          "total_tokens": 121062
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_9": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 29676,
+          "completion_tokens": 23258,
+          "total_tokens": 52934
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_90": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 62878,
+          "completion_tokens": 56830,
+          "total_tokens": 119708
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_91": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 155466,
+          "completion_tokens": 97422,
+          "total_tokens": 252888
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_92": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 23164,
+          "completion_tokens": 9974,
+          "total_tokens": 33138
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_93": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 47286,
+          "completion_tokens": 40648,
+          "total_tokens": 87934
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_94": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 41468,
+          "completion_tokens": 42454,
+          "total_tokens": 83922
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_95": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 110108,
+          "completion_tokens": 77360,
+          "total_tokens": 187468
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_96": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 20420,
+          "completion_tokens": 10150,
+          "total_tokens": 30570
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_97": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 31218,
+          "completion_tokens": 22946,
+          "total_tokens": 54164
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_98": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 34070,
+          "completion_tokens": 20838,
+          "total_tokens": 54908
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "gpqa_diamond_train_99": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 40514,
+          "completion_tokens": 29980,
+          "total_tokens": 70494
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    }
+  }
+}
