@@ -208,8 +208,9 @@ aime_summary_chunk:
 
 aime_chunk_memory:
   template: |
-    You are summarizing a partial portion of the reasoning for a math problem.PROBLEM:
-
+    You are summarizing a partial portion of the reasoning for a math problem.
+    
+    PROBLEM:
     {question}
 
     GOAL: create a clean, information-dense memory that captures the precise thought process of the solver for this .
