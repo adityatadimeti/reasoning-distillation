@@ -234,7 +234,7 @@ class PassKExperiment(BaseExperiment):
                 top_k=self.config["top_k"],
                 presence_penalty=self.config["presence_penalty"],
                 frequency_penalty=self.config["frequency_penalty"],
-                enable_continuation=self.config.get("enable_continuation", False),
+                enable_continuation=self.config.get("enable_continuation"),
                 max_total_tokens=self.config.get("max_total_tokens", self.config["max_tokens"]),
                 max_continuations=self.config.get("max_continuations", 0),
                 verbose=self.verbose

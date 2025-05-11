@@ -20,6 +20,11 @@ top_k: 40
 presence_penalty: 0.0
 frequency_penalty: 0.0
 
+# Continuation parameters (for Fireworks API)
+enable_continuation: true  # Whether to automatically continue generation when token limit is reached
+max_total_tokens: 32000  # Total token limit across all continuations
+max_continuations: 4    # Maximum number of continuation attempts
+
 # Prompt configurations
 prompts:
   reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
