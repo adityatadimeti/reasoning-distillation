@@ -1,6 +1,6 @@
 # Experiment configuration for Qwen 32B
-experiment_name: "aime_deepseek_qwen_14b_summ_base_sum_4iter"
-results_dir: "./results/aime_deepseek_qwen_14b_summ_base_sum_4iter"
+experiment_name: "aime_deepseek_qwen_14b_summ_base_sum_4iter_backtracking"
+results_dir: "./results/aime_deepseek_qwen_14b_summ_base_sum_4iter_backtracking"
 data_path: "./data/aime_2024_5.csv"
 save_intermediate: true
 experiment_type: "summarize"
@@ -9,12 +9,10 @@ experiment_type: "summarize"
 dashboard_port: 8080
 
 # Model configuration
-reasoning_model: "accounts/vineeth-vajipey-7e1414/deployedModels/deepseek-r1-distill-qwen-14b-amyjc00d"
+reasoning_model: "accounts/vineeth-vajipey-7e1414/deployedModels/deepseek-r1-distill-qwen-14b-xx4lazz0"
 reasoning_model_provider: "fireworks"
 summarizer_type: "external"
-summarizer_model: "accounts/vineeth-vajipey-7e1414/deployedModels/qwen-v2p5-14b-instruct-al5gs35p"
-
-
+summarizer_model: "accounts/vineeth-vajipey-7e1414/deployedModels/qwen-v2p5-14b-instruct-m86rbdlh"
 
 # Generation parameters
 max_tokens: 8192  # Maximum tokens per request (Fireworks limit for DeepSeek Qwen models)
@@ -34,6 +32,7 @@ max_iterations: 4
 continue_after_correct: true
 
 # Summarization parameters
+summary_method: "single_llm_prompt"
 enable_summarization: true
 enable_final_summarization: true
 allow_fallback: true  # Enable fallback to use full response when think tags are missing
