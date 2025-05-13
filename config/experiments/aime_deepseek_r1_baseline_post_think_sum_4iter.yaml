@@ -1,0 +1,44 @@
+# Experiment configuration for Qwen 32B
+experiment_name: "aime_deepseek_r1_post_think_sum_4iter"
+results_dir: "./results/aime_deepseek_r1_post_think_sum_4iter"
+data_path: "./data/aime_2024_5.csv"
+save_intermediate: true
+experiment_type: "summarize"
+
+# Dashboard configuration
+dashboard_port: 8080
+
+# Model configuration
+reasoning_model: "accounts/fireworks/models/deepseek-r1-basic"
+reasoning_model_provider: "fireworks"
+summarizer_type: "external"
+summarizer_model: "accounts/fireworks/models/deepseek-v3"
+
+# Generation parameters
+max_tokens: 8192  # Maximum tokens per request (Fireworks limit for DeepSeek Qwen models)
+temperature: 0.6
+top_p: 0.95
+top_k: 40
+presence_penalty: 0.0
+frequency_penalty: 0.0
+
+# Continuation parameters (for Fireworks API)
+enable_continuation: true  # Whether to automatically continue generation when token limit is reached
+max_total_tokens: 32000  # Total token limit across all continuations
+max_continuations: 4    # Maximum number of continuation attempts
+
+# Iteration parameters
+max_iterations: 4
+continue_after_correct: true
+
+# Summarization parameters
+summary_method: "post_think"
+last_k_tokens: 404
+
+answer_extractor: "math"
+
+# Prompt configurations
+prompts:
+  reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
+  summarize: "aime_summary"  # This references the version in config/prompts/summarize.yaml
+  improved: "aime_your_approach" # This references the version in config/prompts/improved.yaml
