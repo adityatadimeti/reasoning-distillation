@@ -9,7 +9,7 @@ experiment_type: "summarize"
 dashboard_port: 8080
 
 # Model configuration
-reasoning_model: "accounts/vineeth-vajipey-7e1414/deployedModels/deepseek-r1-distill-qwen-14b-o0n58nbx"
+reasoning_model: "accounts/vineeth-vajipey-7e1414/deployedModels/deepseek-r1-distill-qwen-14b-xx4lazz0"
 reasoning_model_provider: "fireworks"
 summarizer_type: "external"
 summarizer_model: "accounts/vineeth-vajipey-7e1414/deployedModels/qwen-v2p5-14b-instruct-m86rbdlh"
