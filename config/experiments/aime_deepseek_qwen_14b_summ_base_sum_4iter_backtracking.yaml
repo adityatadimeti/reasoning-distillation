@@ -55,4 +55,4 @@ answer_extractor: "math"
 prompts:
   reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
   summarize: "aime_backtracking"  # This references the version in config/prompts/summarize.yaml
-  improved: "aime_your_approach" # This references the version in config/prompts/improved.yaml
+  improved: "aime_analysis_prompt" # This references the version in config/prompts/improved.yaml
