@@ -1,6 +1,6 @@
 # Experiment configuration for Qwen 32B
-experiment_name: "aime_deepseek_qwen_14b_summ_base_sum_4iter_backtracking_seed_1"
-results_dir: "./results/aime_deepseek_qwen_14b_summ_base_sum_4iter_backtracking_seed_1"
+experiment_name: "aime_deepseek_qwen_14b_summ_base_sum_4iter_backtracking_seed_2"
+results_dir: "./results/aime_deepseek_qwen_14b_summ_base_sum_4iter_backtracking_seed_2"
 data_path: "./data/aime_2024_5.csv"
 save_intermediate: true
 experiment_type: "summarize"
