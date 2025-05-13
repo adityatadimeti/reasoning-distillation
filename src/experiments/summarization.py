@@ -540,6 +540,22 @@ class SummarizationExperiment(BaseExperiment):
                 else:
                     print(f"k ({random_k_tokens}) is greater than or equal to reasoning trace length ({len(reasoning_trace)}). Using entire reasoning trace.")
                     summary = reasoning_trace
+            elif summary_method == "post_think":
+                print(f"Summarizing using post-think summary")
+                assert "last_k_tokens" in self.config, "last_k_tokens must be specified in configuration"
+                last_k_tokens = self.config["last_k_tokens"]
+                summary = extract_post_think_content(current_reasoning)
+                if summary is None:
+                    # use last k tokens
+                    hf_model_name = get_hf_model_name(self.config["summarizer_model"])
+                    tokenizer = load_tokenizer(hf_model_name)
+                    reasoning_tokens = tokenizer.encode(reasoning_trace)
+                    summary = tokenizer.decode(reasoning_tokens[-last_k_tokens:])
+                    summary = "..." + summary
+                
+                # print(f"Full response: {current_reasoning}")
+                # print(f"Post-think summary: {summary}")
+                # breakpoint()
             elif summary_method == "multiple_llm_prompts":
                 print(f"Summarizing using multiple LLM prompts with chunk size: {self.config.get('multiple_prompt_chunk_words', 200)} words")
                 assert "multiple_prompt_chunk_words" in self.config, "multiple_prompt_chunk_words must be specified in configuration"

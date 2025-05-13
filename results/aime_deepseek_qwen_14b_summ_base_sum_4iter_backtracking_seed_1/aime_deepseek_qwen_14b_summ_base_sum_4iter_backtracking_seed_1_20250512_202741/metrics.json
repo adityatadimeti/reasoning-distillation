@@ -1,0 +1,575 @@
+{
+  "total_problems": 35,
+  "token_usage": {
+    "prompt_tokens": 5872828,
+    "completion_tokens": 3418366,
+    "total_tokens": 9291194
+  },
+  "cost_info": {
+    "prompt_cost": 0.0,
+    "completion_cost": 0.0,
+    "total_cost": 0.0
+  },
+  "problems": {
+    "2024-I-4": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 24472,
+          "completion_tokens": 22812,
+          "total_tokens": 47284
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-I-3": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 30316,
+          "completion_tokens": 28706,
+          "total_tokens": 59022
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-II-12": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 31224,
+          "completion_tokens": 32508,
+          "total_tokens": 63732
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-II-4": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 33034,
+          "completion_tokens": 36270,
+          "total_tokens": 69304
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-I-2": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 35464,
+          "completion_tokens": 36540,
+          "total_tokens": 72004
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-I-7": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 35054,
+          "completion_tokens": 38442,
+          "total_tokens": 73496
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-I-1": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 32440,
+          "completion_tokens": 33330,
+          "total_tokens": 65770
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-I-12": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 193858,
+          "completion_tokens": 118666,
+          "total_tokens": 312524
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-I-6": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 33734,
+          "completion_tokens": 33818,
+          "total_tokens": 67552
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-I-8": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 189122,
+          "completion_tokens": 128944,
+          "total_tokens": 318066
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-II-11": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 233090,
+          "completion_tokens": 120264,
+          "total_tokens": 353354
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-II-7": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 87686,
+          "completion_tokens": 78108,
+          "total_tokens": 165794
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-I-11": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 325048,
+          "completion_tokens": 159390,
+          "total_tokens": 484438
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-II-10": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 79088,
+          "completion_tokens": 69476,
+          "total_tokens": 148564
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-I-13": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 164178,
+          "completion_tokens": 99842,
+          "total_tokens": 264020
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-II-9": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 91932,
+          "completion_tokens": 73566,
+          "total_tokens": 165498
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-I-15": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 169318,
+          "completion_tokens": 103708,
+          "total_tokens": 273026
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-II-1": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 26190,
+          "completion_tokens": 25410,
+          "total_tokens": 51600
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-II-5": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 73898,
+          "completion_tokens": 60522,
+          "total_tokens": 134420
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-II-2": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 58506,
+          "completion_tokens": 42350,
+          "total_tokens": 100856
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-II-3": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 541508,
+          "completion_tokens": 229580,
+          "total_tokens": 771088
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-I-9": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 66092,
+          "completion_tokens": 59346,
+          "total_tokens": 125438
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-II-6": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 657452,
+          "completion_tokens": 265890,
+          "total_tokens": 923342
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-II-14": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 358848,
+          "completion_tokens": 153832,
+          "total_tokens": 512680
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-II-13": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 42994,
+          "completion_tokens": 50842,
+          "total_tokens": 93836
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-II-15": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 405290,
+          "completion_tokens": 190022,
+          "total_tokens": 595312
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "0": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 33010,
+          "completion_tokens": 35852,
+          "total_tokens": 68862
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "1": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 26538,
+          "completion_tokens": 28662,
+          "total_tokens": 55200
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-I-5": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 130234,
+          "completion_tokens": 95044,
+          "total_tokens": 225278
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "3": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 38220,
+          "completion_tokens": 40108,
+          "total_tokens": 78328
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-I-14": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 192778,
+          "completion_tokens": 111878,
+          "total_tokens": 304656
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-I-10": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 246566,
+          "completion_tokens": 143896,
+          "total_tokens": 390462
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "8": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 51094,
+          "completion_tokens": 54136,
+          "total_tokens": 105230
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "6": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 97452,
+          "completion_tokens": 72140,
+          "total_tokens": 169592
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "2024-II-8": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 354142,
+          "completion_tokens": 181614,
+          "total_tokens": 535756
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    }
+  }
+}

@@ -181,6 +181,18 @@ aime_backtracking:
 
     SUMMARY:
 
+aime_backtracking_chunk:
+  template: |
+    Summarize the following portion of the attempted solution to the problem, emphasizing the instances where the model changed its strategy, revised a previous decision, or explicitly backtracked from a prior line of reasoning.
+
+    PROBLEM:
+    {question}
+
+    ATTEMPTED SOLUTION:
+    {reasoning}
+
+    SUMMARY OF THE PORTION:
+
 aime_uncertainty_estimation:
   template: |
     Summarize the following attempted solution to the problem, emphasizing the instances where the model expressed or quantified its own uncertainty about a step, a conclusion, or the overall direction.
