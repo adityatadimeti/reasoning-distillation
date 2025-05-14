@@ -52,7 +52,7 @@ def find_missing_problems(results: List[Dict], year: str) -> Set[str]:
                 return {f"Expected 30 problems, found {len(actual)}"}
             return set()
         else:  # 2025
-            expected = {str(i) for i in range(1, 31)}
+            expected = {str(i) for i in range(0, 30)}
             return expected - actual
     except Exception as e:
         print(f"Error finding missing problems for {year}: {e}")
