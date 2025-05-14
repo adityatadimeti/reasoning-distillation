@@ -34,6 +34,7 @@ continue_after_correct: true
 # Summarization parameters
 summary_method: "post_think"
 last_k_tokens: 404
+allow_fallback: true
 
 answer_extractor: "math"
 
