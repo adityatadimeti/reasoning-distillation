@@ -33,6 +33,7 @@ continue_after_correct: true
 
 # Summarization parameters
 summary_method: "post_think"
+allow_fallback: true
 last_k_tokens: 404
 
 answer_extractor: "math"
