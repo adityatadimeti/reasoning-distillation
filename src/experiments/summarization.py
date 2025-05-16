@@ -519,6 +519,7 @@ class SummarizationExperiment(BaseExperiment):
                 summary_method = self.config.get("summary_method", "single_llm_prompt") # default is using summarizer LLM prompt
 
                 if summary_method == "single_llm_prompt":
+                    breakpoint()
                     # Maximum number of retries for summary generation
                     max_retries = 3
                     retry_count = 0
@@ -581,177 +582,175 @@ class SummarizationExperiment(BaseExperiment):
                             # logger.warning(f"Prompt too long error, will retry with truncation factor: {truncation_factor:.1%}")
                             raise Exception(f"Prompt too long error, please decrease summary_max_total_tokens")
                         
-                        # For other errors, proceed with normal retry logic
-                        retry_count += 1
-                        logger.error(f"Error generating summary (attempt {retry_count}/{max_retries}): {str(e)}")
-                        logger.error(f"Stack trace: {traceback.format_exc()}")
+                    # For other errors, proceed with normal retry logic
+                    retry_count += 1
+                    logger.error(f"Error generating summary (attempt {retry_count}/{max_retries}): {str(e)}")
+                    logger.error(f"Stack trace: {traceback.format_exc()}")
+                    
+                    if retry_count < max_retries:
+                        wait_time = 1
+                        logger.info(f"Retrying in {wait_time} seconds...")
+                        await asyncio.sleep(wait_time)
+                    else:
+                        # If all retries fail, raise an exception to halt processing
+                        raise Exception(f"Failed to generate summary after {max_retries} attempts. Halting run.")
                         
-                        if retry_count < max_retries:
-                            wait_time = 1
-                            logger.info(f"Retrying in {wait_time} seconds...")
-                            await asyncio.sleep(wait_time)
-                        else:
-                            # If all retries fail, raise an exception to halt processing
-                            raise Exception(f"Failed to generate summary after {max_retries} attempts. Halting run.")
+                elif summary_method == "last_k":
+                    print(f"Summarizing using last {self.config['last_k_tokens']} tokens")
+                    assert "last_k_tokens" in self.config, "last_k_tokens must be specified in configuration"
+                    last_k_tokens = self.config["last_k_tokens"]
+
+                    if last_k_tokens < len(reasoning_trace):
+                        hf_model_name = get_hf_model_name(self.config["summarizer_model"])
                         
-            elif summary_method == "last_k":
-                print(f"Summarizing using last {self.config['last_k_tokens']} tokens")
-                assert "last_k_tokens" in self.config, "last_k_tokens must be specified in configuration"
-                last_k_tokens = self.config["last_k_tokens"]
+                        tokenizer = load_tokenizer(hf_model_name)
+                        reasoning_tokens = tokenizer.encode(reasoning_trace)
+                        
+                        # get last k tokens, then convert back to text
+                        last_k_tokens_slice = reasoning_tokens[-last_k_tokens:]
+                        summary = tokenizer.decode(last_k_tokens_slice)
+                        summary = "..." + summary
+                    else:
+                        print(f"k ({last_k_tokens}) is greater than or equal to reasoning trace length ({len(reasoning_trace)}). Using entire reasoning trace.")
+                        summary = reasoning_trace
 
-                if last_k_tokens < len(reasoning_trace):
-                    hf_model_name = get_hf_model_name(self.config["summarizer_model"])
-                    
-                    tokenizer = load_tokenizer(hf_model_name)
-                    reasoning_tokens = tokenizer.encode(reasoning_trace)
-                    
-                    # get last k tokens, then convert back to text
-                    last_k_tokens_slice = reasoning_tokens[-last_k_tokens:]
-                    summary = tokenizer.decode(last_k_tokens_slice)
-                    summary = "..." + summary
-                else:
-                    print(f"k ({last_k_tokens}) is greater than or equal to reasoning trace length ({len(reasoning_trace)}). Using entire reasoning trace.")
-                    summary = reasoning_trace
-
-                if self.verbose:           
-                    print(f"Reasoning tokens: {reasoning_tokens}")
-                    print(f"Total tokens: {len(reasoning_tokens)}")
-                    print(f"Last {last_k_tokens} tokens summary: {summary}")
-            elif summary_method == "first_k":
-                print(f"Summarizing using first {self.config['first_k_tokens']} tokens")
-                assert "first_k_tokens" in self.config, "first_k_tokens must be specified in configuration"
-                first_k_tokens = self.config["first_k_tokens"]
-
-                if first_k_tokens < len(reasoning_trace):
-                    hf_model_name = get_hf_model_name(self.config["summarizer_model"])
-                    
-                    tokenizer = load_tokenizer(hf_model_name)
-                    reasoning_tokens = tokenizer.encode(reasoning_trace)
-                    first_k_tokens_slice = reasoning_tokens[:first_k_tokens]
-                    summary = tokenizer.decode(first_k_tokens_slice)
-                    summary = summary + "..."
-
-                    if self.verbose:
+                    if self.verbose:           
                         print(f"Reasoning tokens: {reasoning_tokens}")
                         print(f"Total tokens: {len(reasoning_tokens)}")
-                    print(f"First {first_k_tokens} tokens summary: {summary}")
-                else:
-                    print(f"k ({first_k_tokens}) is greater than or equal to reasoning trace length ({len(reasoning_trace)}). Using entire reasoning trace.")
-                    summary = reasoning_trace
-            elif summary_method == "random_k":
-                print(f"Summarizing using random {self.config['random_k_tokens']} tokens")
-                assert "random_k_tokens" in self.config, "random_k_tokens must be specified in configuration"
-                random_k_tokens = self.config["random_k_tokens"]
+                        print(f"Last {last_k_tokens} tokens summary: {summary}")
+                elif summary_method == "first_k":
+                    print(f"Summarizing using first {self.config['first_k_tokens']} tokens")
+                    assert "first_k_tokens" in self.config, "first_k_tokens must be specified in configuration"
+                    first_k_tokens = self.config["first_k_tokens"]
 
-                if random_k_tokens < len(reasoning_trace):
-                    hf_model_name = get_hf_model_name(self.config["summarizer_model"])
-                    tokenizer = load_tokenizer(hf_model_name)
-                    reasoning_tokens = tokenizer.encode(reasoning_trace)
-                    selected_indices = sorted(random.sample(range(len(reasoning_tokens)), random_k_tokens))
-                    random_k_tokens_slice = [reasoning_tokens[i] for i in selected_indices]
+                    if first_k_tokens < len(reasoning_trace):
+                        hf_model_name = get_hf_model_name(self.config["summarizer_model"])
+                        
+                        tokenizer = load_tokenizer(hf_model_name)
+                        reasoning_tokens = tokenizer.encode(reasoning_trace)
+                        first_k_tokens_slice = reasoning_tokens[:first_k_tokens]
+                        summary = tokenizer.decode(first_k_tokens_slice)
+                        summary = summary + "..."
+
+                        if self.verbose:
+                            print(f"Reasoning tokens: {reasoning_tokens}")
+                            print(f"Total tokens: {len(reasoning_tokens)}")
+                        print(f"First {first_k_tokens} tokens summary: {summary}")
+                    else:
+                        print(f"k ({first_k_tokens}) is greater than or equal to reasoning trace length ({len(reasoning_trace)}). Using entire reasoning trace.")
+                        summary = reasoning_trace
+                elif summary_method == "random_k":
+                    print(f"Summarizing using random {self.config['random_k_tokens']} tokens")
+                    assert "random_k_tokens" in self.config, "random_k_tokens must be specified in configuration"
+                    random_k_tokens = self.config["random_k_tokens"]
+
+                    if random_k_tokens < len(reasoning_trace):
+                        hf_model_name = get_hf_model_name(self.config["summarizer_model"])
+                        tokenizer = load_tokenizer(hf_model_name)
+                        reasoning_tokens = tokenizer.encode(reasoning_trace)
+                        selected_indices = sorted(random.sample(range(len(reasoning_tokens)), random_k_tokens))
+                        random_k_tokens_slice = [reasoning_tokens[i] for i in selected_indices]
+                        
+                        summary = tokenizer.decode(random_k_tokens_slice)
+                    else:
+                        print(f"k ({random_k_tokens}) is greater than or equal to reasoning trace length ({len(reasoning_trace)}). Using entire reasoning trace.")
+                        summary = reasoning_trace
+                elif summary_method == "post_think":
+                    breakpoint()
+                    print(f"Summarizing using post-think summary")
+                    assert "last_k_tokens" in self.config, "last_k_tokens must be specified in configuration"
+                    last_k_tokens = self.config["last_k_tokens"]
+                    summary = extract_post_think_content(current_reasoning)
+                    if summary is None:
+                        # use last k tokens
+                        hf_model_name = get_hf_model_name(self.config["summarizer_model"])
+                        tokenizer = load_tokenizer(hf_model_name)
+                        reasoning_tokens = tokenizer.encode(reasoning_trace)
+                        summary = tokenizer.decode(reasoning_tokens[-last_k_tokens:])
+                        summary = "..." + summary
                     
-                    summary = tokenizer.decode(random_k_tokens_slice)
-                else:
-                    print(f"k ({random_k_tokens}) is greater than or equal to reasoning trace length ({len(reasoning_trace)}). Using entire reasoning trace.")
-                    summary = reasoning_trace
-            elif summary_method == "post_think":
-                print(f"Summarizing using post-think summary")
-                assert "last_k_tokens" in self.config, "last_k_tokens must be specified in configuration"
-                last_k_tokens = self.config["last_k_tokens"]
-                summary = extract_post_think_content(current_reasoning)
-                if summary is None:
-                    # use last k tokens
-                    hf_model_name = get_hf_model_name(self.config["summarizer_model"])
-                    tokenizer = load_tokenizer(hf_model_name)
-                    reasoning_tokens = tokenizer.encode(reasoning_trace)
-                    summary = tokenizer.decode(reasoning_tokens[-last_k_tokens:])
-                    summary = "..." + summary
-                
-                # print(f"Full response: {current_reasoning}")
-                # print(f"Post-think summary: {summary}")
-                # breakpoint()
-            elif summary_method == "multiple_llm_prompts":
-                print(f"Summarizing using multiple LLM prompts with chunk size: {self.config.get('multiple_prompt_chunk_words', 200)} words")
-                assert "multiple_prompt_chunk_words" in self.config, "multiple_prompt_chunk_words must be specified in configuration"
-                chunk_size = self.config.get("multiple_prompt_chunk_words")
-                assert "multiple_prompt_overlap_words" in self.config, "multiple_prompt_overlap_words must be specified in configuration"
-                overlap_size = self.config.get("multiple_prompt_overlap_words")
-                assert "summarize_prompt_template" in self.config, "summarize_prompt_template must be specified in configuration"
-                summarize_chunk_template = self.config.get("summarize_prompt_template")
+                elif summary_method == "multiple_llm_prompts":
+                    print(f"Summarizing using multiple LLM prompts with chunk size: {self.config.get('multiple_prompt_chunk_words', 200)} words")
+                    assert "multiple_prompt_chunk_words" in self.config, "multiple_prompt_chunk_words must be specified in configuration"
+                    chunk_size = self.config.get("multiple_prompt_chunk_words")
+                    assert "multiple_prompt_overlap_words" in self.config, "multiple_prompt_overlap_words must be specified in configuration"
+                    overlap_size = self.config.get("multiple_prompt_overlap_words")
+                    assert "summarize_prompt_template" in self.config, "summarize_prompt_template must be specified in configuration"
+                    summarize_chunk_template = self.config.get("summarize_prompt_template")
 
-                # Split the reasoning_trace into chunks
-                words = reasoning_trace.split()
-                chunks = []
-                i = 0
-                while i < len(words):
-                    chunk_text = " ".join(words[i : i + chunk_size])
-                    chunks.append(chunk_text)
-                    i += chunk_size - overlap_size # Move with overlap
+                    # Split the reasoning_trace into chunks
+                    words = reasoning_trace.split()
+                    chunks = []
+                    i = 0
+                    while i < len(words):
+                        chunk_text = " ".join(words[i : i + chunk_size])
+                        chunks.append(chunk_text)
+                        i += chunk_size - overlap_size # Move with overlap
 
-                async def summarize_chunk(chunk_idx: int, chunk_content: str):
-                    retry_count = 0
-                    max_retries = 3
+                    async def summarize_chunk(chunk_idx: int, chunk_content: str):
+                        retry_count = 0
+                        max_retries = 3
 
-                    while retry_count < max_retries:
-                        assert "{reasoning}" in summarize_chunk_template, "summarize_chunk_template must contain {reasoning}"
-                        assert "{question}" in summarize_chunk_template, "summarize_chunk_template must contain {question}"
-                        try:
-                            chunk_prompt = summarize_chunk_template.replace("{reasoning}", chunk_content).replace("{question}", question)
-
-                            chunk_response = await self.summarizer.generate_response_async(
-                                chunk_prompt,
-                                max_tokens=self.config.get("summary_max_tokens", self.config["max_tokens"]),
-                                temperature=self.config.get("summary_temperature", self.config["temperature"]),
-                                top_p=self.config.get("summary_top_p", self.config["top_p"]),
-                                top_k=self.config.get("summary_top_k", self.config["top_k"]) if hasattr(self.summarizer, "top_k") else None,
-                                presence_penalty=self.config.get("summary_presence_penalty", self.config["presence_penalty"]),
-                                frequency_penalty=self.config.get("summary_frequency_penalty", self.config["frequency_penalty"]),
-                                verbose=self.verbose,
-                                track_token_callback=self.track_token_usage_and_cost,
-                                track_token_callback_args={
-                                    "problem_id": problem_id,
-                                    "iteration": current_iteration,
-                                    "step": f"summary_chunk_{chunk_idx+1}"
-                                }
-                            )
-                            print(f"Chunk {chunk_idx+1} prompt: {chunk_prompt}")
-                            print(f"Chunk {chunk_idx+1} response: {chunk_response}")
-                            print("="*100)
-
+                        while retry_count < max_retries:
+                            assert "{reasoning}" in summarize_chunk_template, "summarize_chunk_template must contain {reasoning}"
+                            assert "{question}" in summarize_chunk_template, "summarize_chunk_template must contain {question}"
                             try:
-                                c_summary, c_finish_reason, c_token_usage, c_cost_info, c_detailed_api_calls = chunk_response
-                            except ValueError:
-                                logger.warning(f"Chunk {chunk_idx+1} summary response doesn't include detailed metrics, falling back to old format")
-                                c_summary, c_finish_reason, c_token_usage, c_cost_info = chunk_response
-                                c_detailed_api_calls = []
-                            
-                            self.track_token_usage_and_cost(
-                                problem_id,
-                                c_token_usage,
-                                c_cost_info,
-                                current_iteration,
-                                f"summary_chunk_{chunk_idx+1}"
-                            )
-                            return c_summary, c_finish_reason, c_token_usage, c_cost_info, c_detailed_api_calls
+                                chunk_prompt = summarize_chunk_template.replace("{reasoning}", chunk_content).replace("{question}", question)
 
-                        except Exception as e_chunk:
-                            error_str_chunk = str(e_chunk).lower()
-                            if "prompt is too long" in error_str_chunk or "maximum context length" in error_str_chunk:
-                                retry_count += 1
-                                logger.error(f"Prompt too long for summary chunk {chunk_idx+1}. Consider reducing 'multiple_prompt_chunk_size'.")
-                                if retry_count >= max_retries:
-                                     raise Exception(f"Prompt too long for summary chunk {chunk_idx+1} after {max_retries} attempts.")
-                            else:
-                                retry_count += 1
-                                logger.error(f"Error generating summary for chunk {chunk_idx+1} (attempt {retry_count}/{max_retries}): {str(e_chunk)}")
-                                logger.error(f"Stack trace: {traceback.format_exc()}")
-                                if retry_count >= max_retries:
-                                    raise Exception(f"Failed to generate summary for chunk {chunk_idx+1} after {max_retries} attempts.")
-                            
-                            if retry_count < max_retries:
-                                wait_time = 1
-                                logger.info(f"Retrying chunk {chunk_idx+1} in {wait_time} seconds...")
-                                await asyncio.sleep(wait_time)
+                                chunk_response = await self.summarizer.generate_response_async(
+                                    chunk_prompt,
+                                    max_tokens=self.config.get("summary_max_tokens", self.config["max_tokens"]),
+                                    temperature=self.config.get("summary_temperature", self.config["temperature"]),
+                                    top_p=self.config.get("summary_top_p", self.config["top_p"]),
+                                    top_k=self.config.get("summary_top_k", self.config["top_k"]) if hasattr(self.summarizer, "top_k") else None,
+                                    presence_penalty=self.config.get("summary_presence_penalty", self.config["presence_penalty"]),
+                                    frequency_penalty=self.config.get("summary_frequency_penalty", self.config["frequency_penalty"]),
+                                    verbose=self.verbose,
+                                    track_token_callback=self.track_token_usage_and_cost,
+                                    track_token_callback_args={
+                                        "problem_id": problem_id,
+                                        "iteration": current_iteration,
+                                        "step": f"summary_chunk_{chunk_idx+1}"
+                                    }
+                                )
+                                print(f"Chunk {chunk_idx+1} prompt: {chunk_prompt}")
+                                print(f"Chunk {chunk_idx+1} response: {chunk_response}")
+                                print("="*100)
+
+                                try:
+                                    c_summary, c_finish_reason, c_token_usage, c_cost_info, c_detailed_api_calls = chunk_response
+                                except ValueError:
+                                    logger.warning(f"Chunk {chunk_idx+1} summary response doesn't include detailed metrics, falling back to old format")
+                                    c_summary, c_finish_reason, c_token_usage, c_cost_info = chunk_response
+                                    c_detailed_api_calls = []
+                                
+                                self.track_token_usage_and_cost(
+                                    problem_id,
+                                    c_token_usage,
+                                    c_cost_info,
+                                    current_iteration,
+                                    f"summary_chunk_{chunk_idx+1}"
+                                )
+                                return c_summary, c_finish_reason, c_token_usage, c_cost_info, c_detailed_api_calls
+
+                            except Exception as e_chunk:
+                                error_str_chunk = str(e_chunk).lower()
+                                if "prompt is too long" in error_str_chunk or "maximum context length" in error_str_chunk:
+                                    retry_count += 1
+                                    logger.error(f"Prompt too long for summary chunk {chunk_idx+1}. Consider reducing 'multiple_prompt_chunk_size'.")
+                                    if retry_count >= max_retries:
+                                        raise Exception(f"Prompt too long for summary chunk {chunk_idx+1} after {max_retries} attempts.")
+                                else:
+                                    retry_count += 1
+                                    logger.error(f"Error generating summary for chunk {chunk_idx+1} (attempt {retry_count}/{max_retries}): {str(e_chunk)}")
+                                    logger.error(f"Stack trace: {traceback.format_exc()}")
+                                    if retry_count >= max_retries:
+                                        raise Exception(f"Failed to generate summary for chunk {chunk_idx+1} after {max_retries} attempts.")
+                                
+                                if retry_count < max_retries:
+                                    wait_time = 1
+                                    logger.info(f"Retrying chunk {chunk_idx+1} in {wait_time} seconds...")
+                                    await asyncio.sleep(wait_time)
                 
                 tasks = [summarize_chunk(idx, chunk_content) for idx, chunk_content in enumerate(chunks)]
                 
@@ -1148,7 +1147,6 @@ class SummarizationExperiment(BaseExperiment):
             
             # Generate summary of the current reasoning
             logger.info(f"Generating summary for problem {problem_id}, iteration {current_iteration}")
-            breakpoint()
             # Ensure top_k is included in the config for FireworksModelClient
             if not hasattr(self.summarizer, "top_k"):
                 assert "top_k" in self.config, "top_k must be specified in config if using FireworksModelClient"
