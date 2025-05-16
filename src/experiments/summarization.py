@@ -379,7 +379,7 @@ class SummarizationExperiment(BaseExperiment):
             
             # Generate summary of the current reasoning
             logger.info(f"Generating summary for problem {problem_id}, iteration {current_iteration}")
-            
+
             # Extract reasoning trace from the full reasoning
             reasoning_trace = extract_reasoning_trace(
                 current_reasoning, 
