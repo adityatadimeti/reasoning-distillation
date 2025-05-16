@@ -656,7 +656,6 @@ class SummarizationExperiment(BaseExperiment):
                         print(f"k ({random_k_tokens}) is greater than or equal to reasoning trace length ({len(reasoning_trace)}). Using entire reasoning trace.")
                         summary = reasoning_trace
                 elif summary_method == "post_think":
-                    breakpoint()
                     print(f"Summarizing using post-think summary")
                     assert "last_k_tokens" in self.config, "last_k_tokens must be specified in configuration"
                     last_k_tokens = self.config["last_k_tokens"]
