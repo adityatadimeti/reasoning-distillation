@@ -154,6 +154,7 @@ def run_experiment(
     exclude_question_ids: Optional[List[str]] = None,
     index_range: Optional[str] = None,
     load_initial_reasoning: Optional[str] = None,
+    load_checkpoint: Optional[str] = None,
     **kwargs
 ) -> Dict[str, Any]:
     """
@@ -169,6 +170,7 @@ def run_experiment(
         exclude_question_ids: List of question IDs to exclude (optional)
         index_range: Range of question indices to run (e.g., "0-4") (optional)
         load_initial_reasoning: Path to a previous results file to load initial reasoning from (optional)
+        load_checkpoint: Path to a previous results file to load full checkpoint from (optional)
         **kwargs: Additional configuration overrides
         
     Returns:
@@ -264,6 +266,18 @@ def run_experiment(
         else:
             logger.warning(f"Experiment type '{experiment_type}' does not support loading initial reasoning.")
     
+    # Load full checkpoint if specified (currently only supported for SummarizationExperiment)
+    if load_checkpoint:
+        if not os.path.exists(load_checkpoint):
+            raise FileNotFoundError(f"Checkpoint file not found: {load_checkpoint}")
+        
+        logger.info(f"Loading full checkpoint from {load_checkpoint}")
+        # Check if the experiment instance has the initialization method
+        if hasattr(experiment, 'initialize_with_checkpoint'):
+            experiment.initialize_with_checkpoint(load_checkpoint)
+        else:
+            logger.warning(f"Experiment type '{experiment_type}' does not support loading full checkpoint.")
+    
     # Run experiment
     if parallel and not use_dashboard:
         # For parallel processing, we need to use asyncio
@@ -312,6 +326,7 @@ async def run_experiment_async(
     exclude_question_ids: Optional[List[str]] = None,
     index_range: Optional[str] = None,
     load_initial_reasoning: Optional[str] = None,
+    load_checkpoint: Optional[str] = None,
     **kwargs
 ) -> Dict[str, Any]:
     """
@@ -325,6 +340,7 @@ async def run_experiment_async(
         exclude_question_ids: List of question IDs to exclude (optional)
         index_range: Range of question indices to run (e.g., "0-4") (optional)
         load_initial_reasoning: Path to a previous results file to load initial reasoning from (optional)
+        load_checkpoint: Path to a previous results file to load full checkpoint from (optional)
         **kwargs: Additional configuration overrides
         
     Returns:
@@ -394,6 +410,18 @@ async def run_experiment_async(
         else:
             logger.warning(f"Experiment type '{experiment_type}' does not support loading initial reasoning in async mode.")
     
+    # Load full checkpoint if specified (currently only supported for SummarizationExperiment)
+    if load_checkpoint:
+        if not os.path.exists(load_checkpoint):
+            raise FileNotFoundError(f"Checkpoint file not found: {load_checkpoint}")
+        
+        logger.info(f"Loading full checkpoint from {load_checkpoint}")
+        # Check if the experiment instance has the initialization method
+        if hasattr(experiment, 'initialize_with_checkpoint'):
+            experiment.initialize_with_checkpoint(load_checkpoint)
+        else:
+            logger.warning(f"Experiment type '{experiment_type}' does not support loading full checkpoint in async mode.")
+    
     # Run experiment in parallel
     results = await experiment.run_parallel(problems, max_concurrency=max_concurrency)
     
@@ -433,6 +461,9 @@ def main():
     
     # Add argument for loading initial reasoning from previous results
     parser.add_argument("--load_initial_reasoning", type=str, help="Path to a previous results file to load initial reasoning from")
+    
+    # Add argument for loading full checkpoint from previous results
+    parser.add_argument("--load_checkpoint", type=str, help="Path to a previous results file to load all iterations and summaries from")
     
     args = parser.parse_args()
 
@@ -487,7 +518,8 @@ def main():
                 question_ids=question_ids,
                 exclude_question_ids=exclude_question_ids,
                 index_range=args.index_range,
-                load_initial_reasoning=args.load_initial_reasoning
+                load_initial_reasoning=args.load_initial_reasoning,
+                load_checkpoint=args.load_checkpoint
             )
             logger.info("Experiment completed successfully")
     except Exception as e:

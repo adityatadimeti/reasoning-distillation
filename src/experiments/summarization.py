@@ -236,14 +236,77 @@ class SummarizationExperiment(BaseExperiment):
             Result dictionary with reasoning iterations
         """
         import traceback
+        import copy
         
         # Handle different case variations of 'id' field
         problem_id = problem.get("id", problem.get("ID", "unknown"))
         question = problem["question"]
         correct_answer = problem["answer"]
         
-        # Check if we have preloaded initial reasoning for this problem
-        if hasattr(self, 'initial_reasoning_map') and problem_id in self.initial_reasoning_map:
+        # Check if we have a full checkpoint for this problem
+        if hasattr(self, 'checkpoint_map') and problem_id in self.checkpoint_map:
+            # Use checkpoint data
+            checkpoint_data = self.checkpoint_map[problem_id]
+            
+            # Initialize result with the checkpoint data
+            result = copy.deepcopy(checkpoint_data)
+            
+            # Find the current iteration (highest iteration in checkpoint)
+            max_iteration = max(iter_data["iteration"] for iter_data in checkpoint_data["iterations"])
+            current_iteration = max_iteration
+            
+            # Get the current reasoning from the last iteration
+            current_reasoning = next(
+                (iter_data["reasoning"] for iter_data in checkpoint_data["iterations"] 
+                 if iter_data["iteration"] == current_iteration),
+                None
+            )
+            
+            # Initialize the list of all summaries from the checkpoint
+            all_summaries = []
+            for i in range(current_iteration):
+                iter_data = next(
+                    (data for data in checkpoint_data["iterations"] if data["iteration"] == i), 
+                    None
+                )
+                if iter_data and "summary" in iter_data:
+                    all_summaries.append({
+                        "iteration": i,
+                        "summary": iter_data["summary"],
+                        "post_think_summary": iter_data.get("post_think_summary", iter_data["summary"]),
+                        "finish_reason": iter_data.get("summary_finish_reason", "unknown")
+                    })
+            
+            # Track if we've found the correct answer in any iteration
+            found_correct_answer = any(iter_data.get("correct", False) for iter_data in checkpoint_data["iterations"])
+            
+            logger.info(f"Using checkpoint with {len(checkpoint_data['iterations'])} iterations for problem {problem_id}")
+            logger.info(f"Starting from iteration {current_iteration}")
+            
+            # Use dummy token usage for tracking purposes since we're reusing existing iterations
+            token_usage = TokenUsage(0, 0, 0)
+            cost_info = CostInfo(0.0, 0.0, 0.0)
+            
+            # Create placeholder for detailed API calls with serializable dictionaries instead of objects
+            detailed_api_calls = [{
+                "reused": True, 
+                "tokens": {
+                    "prompt_tokens": token_usage.prompt_tokens,
+                    "completion_tokens": token_usage.completion_tokens,
+                    "total_tokens": token_usage.total_tokens
+                }, 
+                "cost": {
+                    "prompt_cost": cost_info.prompt_cost,
+                    "completion_cost": cost_info.completion_cost,
+                    "total_cost": cost_info.total_cost
+                }
+            }]
+            
+            # Update timestamp to current time
+            result["timestamp"] = time.time()
+            
+        # Check if we have preloaded initial reasoning (the original implementation)
+        elif hasattr(self, 'initial_reasoning_map') and problem_id in self.initial_reasoning_map:
             # Use preloaded initial reasoning
             initial_data = self.initial_reasoning_map[problem_id]
             
@@ -280,6 +343,40 @@ class SummarizationExperiment(BaseExperiment):
                     "total_cost": cost_info.total_cost
                 }
             }]
+            
+            # Construct initial result dictionary
+            result = {
+                "problem_id": problem_id,
+                "question": question,
+                "correct_answer": correct_answer,
+                "iterations": [
+                    {
+                        "iteration": 0,
+                        "reasoning": iter0_reasoning,
+                        "answer": iter0_answer,
+                        "correct": iter0_correct,
+                        "finish_reason": iter0_finish_reason
+                    }
+                ],
+                "timestamp": time.time()
+            }
+            
+            # NOTE: The following fields are duplicates of data already in iterations[0]
+            # They are kept for backward compatibility with existing dashboard code
+            result["initial_reasoning"] = iter0_reasoning
+            result["initial_answer"] = iter0_answer
+            result["initial_correct"] = iter0_correct
+            result["initial_finish_reason"] = iter0_finish_reason
+            
+            # Now that the result dictionary is initialized, store the detailed API call information
+            result["detailed_metrics"] = {}
+            result["detailed_metrics"]["iteration_0_reasoning"] = detailed_api_calls
+            
+            # Initialize for the iterations loop
+            current_iteration = 0
+            current_reasoning = iter0_reasoning
+            all_summaries = []
+            found_correct_answer = iter0_correct
         else:
             # Create initial reasoning prompt (iteration 0)
             reasoning_template = self.config.get("reasoning_prompt_template")
@@ -325,141 +422,158 @@ class SummarizationExperiment(BaseExperiment):
             iter0_correct = False
             if iter0_answer is not None:
                 iter0_correct = iter0_answer.strip() == correct_answer.strip()
-        
-        # Construct initial result dictionary
-        result = {
-            "problem_id": problem_id,
-            "question": question,
-            "correct_answer": correct_answer,
-            "iterations": [
-                {
-                    "iteration": 0,
-                    "reasoning": iter0_reasoning,
-                    "answer": iter0_answer,
-                    "correct": iter0_correct,
-                    "finish_reason": iter0_finish_reason
-                }
-            ],
-            "timestamp": time.time()
-        }
-        
-        # NOTE: The following fields are duplicates of data already in iterations[0]
-        # They are kept for backward compatibility with existing dashboard code
-        result["initial_reasoning"] = iter0_reasoning
-        result["initial_answer"] = iter0_answer
-        result["initial_correct"] = iter0_correct
-        result["initial_finish_reason"] = iter0_finish_reason
-        
-        # Now that the result dictionary is initialized, store the detailed API call information
-        result["detailed_metrics"] = {}
-        result["detailed_metrics"]["iteration_0_reasoning"] = detailed_api_calls
+                
+            # Construct initial result dictionary
+            result = {
+                "problem_id": problem_id,
+                "question": question,
+                "correct_answer": correct_answer,
+                "iterations": [
+                    {
+                        "iteration": 0,
+                        "reasoning": iter0_reasoning,
+                        "answer": iter0_answer,
+                        "correct": iter0_correct,
+                        "finish_reason": iter0_finish_reason
+                    }
+                ],
+                "timestamp": time.time()
+            }
+            
+            # NOTE: The following fields are duplicates of data already in iterations[0]
+            # They are kept for backward compatibility with existing dashboard code
+            result["initial_reasoning"] = iter0_reasoning
+            result["initial_answer"] = iter0_answer
+            result["initial_correct"] = iter0_correct
+            result["initial_finish_reason"] = iter0_finish_reason
+            
+            # Now that the result dictionary is initialized, store the detailed API call information
+            result["detailed_metrics"] = {}
+            result["detailed_metrics"]["iteration_0_reasoning"] = detailed_api_calls
+            
+            # Initialize for the iterations loop
+            current_iteration = 0
+            current_reasoning = iter0_reasoning
+            all_summaries = []
+            found_correct_answer = iter0_correct
         
         # Maximum number of iterations to perform
         max_iterations = self.config.get("max_iterations", 1)
         
-        # Track if we've found the correct answer in any iteration
-        found_correct_answer = iter0_correct
-        
-        # Store all summaries to accumulate them across iterations
-        all_summaries = []
-        
         # Perform additional iterations if enabled and we haven't found a correct answer yet
-        current_iteration = 0
-        current_reasoning = iter0_reasoning
-        
         while (
             current_iteration < max_iterations and 
             self.config.get("enable_summarization", True) and
             (not found_correct_answer or self.config.get("continue_after_correct", False))
         ):
-            # Get the summarization prompt template
-            summarize_template = self.config.get("summarize_prompt_template")
-            if not summarize_template:
-                raise ValueError("summarize_prompt_template must be specified in configuration")
+            # Check if this iteration already has a summary (from checkpoint)
+            has_summary_in_checkpoint = False
+            if hasattr(self, 'checkpoint_map') and problem_id in self.checkpoint_map:
+                # Find this iteration in the checkpoint data
+                iter_data = next(
+                    (data for data in result["iterations"] if data["iteration"] == current_iteration),
+                    None
+                )
+                if iter_data and "summary" in iter_data:
+                    has_summary_in_checkpoint = True
+                    summary = iter_data["summary"]
+                    post_think_summary = iter_data.get("post_think_summary", iter_data["summary"])
+                    summary_finish_reason = iter_data.get("summary_finish_reason", "unknown")
+                    
+                    logger.info(f"Using checkpoint summary for problem {problem_id}, iteration {current_iteration}")
+                    
+                    # Add to all_summaries if not already there
+                    if not any(s["iteration"] == current_iteration for s in all_summaries):
+                        all_summaries.append({
+                            "iteration": current_iteration,
+                            "summary": summary,
+                            "post_think_summary": post_think_summary,
+                            "finish_reason": summary_finish_reason
+                        })
             
-            # Generate summary of the current reasoning
-            logger.info(f"Generating summary for problem {problem_id}, iteration {current_iteration}")
-
-            # Extract reasoning trace from the full reasoning
-            reasoning_trace = extract_reasoning_trace(
-                current_reasoning, 
-                allow_fallback=self.config.get("allow_fallback", False)
-            )
-            # If extraction failed, raise an error
-            if reasoning_trace is None:
-                raise ValueError(f"Could not extract reasoning trace for problem {problem_id}. Make sure the model output contains <think> tags.")
-            
-            # Initialize summary variables to None to ensure they must be filled
-            summary = None
-            summary_finish_reason = None
-            token_usage = None
-            cost_info = None
-            
-            summary_method = self.config.get("summary_method", "single_llm_prompt") # default is using summarizer LLM prompt
-
-            if summary_method == "single_llm_prompt":
-                # Maximum number of retries for summary generation
-                max_retries = 3
-                retry_count = 0
+            # Only generate summary if not found in checkpoint
+            if not has_summary_in_checkpoint:
+                # Get the summarization prompt template
+                summarize_template = self.config.get("summarize_prompt_template")
+                if not summarize_template:
+                    raise ValueError("summarize_prompt_template must be specified in configuration")
                 
-                while retry_count < max_retries:
-                    try:
-                        # Extract continuation parameters for summary generation
-                        enable_continuation = self.config.get("enable_continuation", True)
-                        max_total_tokens = self.config.get("max_total_tokens", 131072)
-                        max_continuations = self.config.get("max_continuations", 16)
-                        
-                        # For summaries, use summary-specific total tokens if specified
-                        summary_total_tokens = self.config.get("summary_max_total_tokens", max_total_tokens)
-                        summary_continuations = self.config.get("summary_max_continuations", max_continuations)
-                        
-                        # Format the summarization prompt
-                        summarize_prompt = summarize_template.replace("{reasoning}", reasoning_trace).replace("{question}", question)
+                # Generate summary of the current reasoning
+                logger.info(f"Generating summary for problem {problem_id}, iteration {current_iteration}")
 
-                        # Use the async model interface
-                        summary_response = await self.summarizer.generate_response_async(
-                            summarize_prompt,
-                            max_tokens=self.config.get("summary_max_tokens", self.config["max_tokens"]),
-                            temperature=self.config.get("summary_temperature", self.config["temperature"]),
-                            top_p=self.config.get("summary_top_p", self.config["top_p"]),
-                            top_k=self.config.get("summary_top_k", self.config["top_k"]) if hasattr(self.summarizer, "top_k") else None,
-                            presence_penalty=self.config.get("summary_presence_penalty", self.config["presence_penalty"]),
-                            frequency_penalty=self.config.get("summary_frequency_penalty", self.config["frequency_penalty"]),
-                            verbose=self.verbose,
-                            enable_continuation=enable_continuation,
-                            max_total_tokens=summary_total_tokens,
-                            max_continuations=summary_continuations,
-                            track_token_callback=self.track_token_usage_and_cost,
-                            track_token_callback_args={
-                                "problem_id": problem_id,
-                                "iteration": current_iteration,
-                                "step": "summary"
-                            }
-                        )
-                        
-                        # Handle the response
+                # Extract reasoning trace from the full reasoning
+                reasoning_trace = extract_reasoning_trace(
+                    current_reasoning, 
+                    allow_fallback=self.config.get("allow_fallback", False)
+                )
+                # If extraction failed, raise an error
+                if reasoning_trace is None:
+                    raise ValueError(f"Could not extract reasoning trace for problem {problem_id}. Make sure the model output contains <think> tags.")
+                
+                # Initialize summary variables to None to ensure they must be filled
+                summary = None
+                summary_finish_reason = None
+                token_usage = None
+                cost_info = None
+                
+                summary_method = self.config.get("summary_method", "single_llm_prompt") # default is using summarizer LLM prompt
+
+                if summary_method == "single_llm_prompt":
+                    # Maximum number of retries for summary generation
+                    max_retries = 3
+                    retry_count = 0
+                    
+                    while retry_count < max_retries:
                         try:
-                            # Try to unpack with 5 elements (new format with detailed metrics)
-                            summary, summary_finish_reason, token_usage, cost_info, summary_detailed_api_calls = summary_response
+                            # Extract continuation parameters for summary generation
+                            enable_continuation = self.config.get("enable_continuation", True)
+                            max_total_tokens = self.config.get("max_total_tokens", 131072)
+                            max_continuations = self.config.get("max_continuations", 16)
                             
-                            # Store detailed API call information in the result
-                            result["detailed_metrics"][f"iteration_{current_iteration}_summary"] = summary_detailed_api_calls
+                            # For summaries, use summary-specific total tokens if specified
+                            summary_total_tokens = self.config.get("summary_max_total_tokens", max_total_tokens)
+                            summary_continuations = self.config.get("summary_max_continuations", max_continuations)
                             
-                            # Summary successfully generated, break out of retry loop
+                            # Format the summarization prompt
+                            summarize_prompt = summarize_template.replace("{reasoning}", reasoning_trace).replace("{question}", question)
+
+                            # Use the async model interface
+                            summary_response = await self.summarizer.generate_response_async(
+                                summarize_prompt,
+                                max_tokens=self.config.get("summary_max_tokens", self.config["max_tokens"]),
+                                temperature=self.config.get("summary_temperature", self.config["temperature"]),
+                                top_p=self.config.get("summary_top_p", self.config["top_p"]),
+                                top_k=self.config.get("summary_top_k", self.config["top_k"]) if hasattr(self.summarizer, "top_k") else None,
+                                presence_penalty=self.config.get("summary_presence_penalty", self.config["presence_penalty"]),
+                                frequency_penalty=self.config.get("summary_frequency_penalty", self.config["frequency_penalty"]),
+                                enable_continuation=enable_continuation,
+                                max_total_tokens=summary_total_tokens,
+                                max_continuations=summary_continuations,
+                                verbose=self.verbose,
+                                track_token_callback=self.track_token_usage_and_cost,
+                                track_token_callback_args={
+                                    "problem_id": problem_id,
+                                    "iteration": current_iteration,
+                                    "step": "summary"
+                                }
+                            )
+                            
+                            # Unpack the tuple (content, finish_reason, token_usage, cost_info, detailed_api_calls)
+                            summary, summary_finish_reason, token_usage, cost_info, detailed_api_calls = summary_response
+                            
+                            # Track token usage and cost for summary
+                            self.track_token_usage_and_cost(problem_id, token_usage, cost_info, current_iteration, "summary")
+                            
+                            # Store the detailed API calls for the summary
+                            result["detailed_metrics"][f"iteration_{current_iteration}_summary"] = detailed_api_calls
+                            
+                            # Successfully generated summary, exit the retry loop
                             break
-                        except ValueError:
-                            # Fall back to the old format with 4 elements if needed
-                            logger.warning(f"Summary response doesn't include detailed metrics, falling back to old format")
-                            summary, summary_finish_reason, token_usage, cost_info = summary_response
                             
-                            # Summary successfully generated, break out of retry loop
-                            break
-                    except Exception as e:
-                        error_str = str(e).lower()
-                        
-                        # Check specifically for the prompt too long error 
-                        if "prompt is too long" in error_str or "maximum context length" in error_str:
+                        except Exception as e:
                             retry_count += 1
+                            logger.warning(f"Error generating summary for problem {problem_id}, iteration {current_iteration}, attempt {retry_count}: {e}")
+                            logger.warning(traceback.format_exc())
                             
                             # Calculate truncation factor - each retry we reduce by an additional 20%
                             # truncation_factor = max(0.3, 1.0 - (retry_count * 0.2))
@@ -693,81 +807,39 @@ class SummarizationExperiment(BaseExperiment):
                 latest_iter = result["iterations"][current_iteration]
                 latest_answer = latest_iter["answer"]
                 
-                # Set summary to simple answer string
-                summary = f"The answer is {latest_answer}." if latest_answer is not None else "No answer found."
-                summary_finish_reason = "answer_only"
-                token_usage = TokenUsage(0, 0, 0)
-                cost_info = CostInfo(0.0, 0.0, 0.0)
-
-            # Verify that summary was successfully generated
-            if summary is None:
-                raise Exception("Failed to generate summary. Halting run.")
-            
-            # Track token usage and cost for the summary only if we have valid data
-            if token_usage and cost_info:
-                self.track_token_usage_and_cost(problem_id, token_usage, cost_info, current_iteration, "summary")
-            
-            # Log the finish reason for the summary
-            logger.info(f"Problem {problem_id}, summary {current_iteration} finish reason: {summary_finish_reason}")
-            
-            # Extract post-think content from summary if enabled
-            post_think_summary = summary
-            if self.config.get("extract_post_think_summary", False):
-                extracted = extract_post_think_content(summary)
-                if extracted is not None:
-                    post_think_summary = extracted
-                    logger.info(f"Extracted post-think content from summary for problem {problem_id}, iteration {current_iteration}")
-                else:
-                    logger.info(f"No post-think content found in summary for problem {problem_id}, iteration {current_iteration}. Using full summary.")
-            
-            # Extract answer from the summary using the same extractor as reasoning
-            summary_answer = extract_answer_with_config(summary, self.config)
-            
-            # Check if the summary answer is correct
-            summary_correct = False
-            if summary_answer is not None:
-                summary_correct = summary_answer.strip() == correct_answer.strip()
-            
-            # Log the summary answer
-            logger.info(f"Problem {problem_id}, iteration {current_iteration} summary answer: {summary_answer}")
-            logger.info(f"Problem {problem_id}, iteration {current_iteration} summary correct: {summary_correct}")
-            
-            # Get the reasoning answer from the current iteration
-            current_iter = result["iterations"][current_iteration]
-            reasoning_answer = current_iter["answer"]
-            reasoning_correct = current_iter["correct"]
-            
-            # Log for debugging
-            logger.info(f"Retrieved reasoning answer for iteration {current_iteration}: {reasoning_answer}")
-            
-            # Use summary answer as primary, with fallback to reasoning answer if summary has no answer
-            final_answer = summary_answer if summary_answer is not None else reasoning_answer
-            final_correct = summary_correct if summary_answer is not None else reasoning_correct
-            
-            # Add summary to the collection with iteration number and extracted answer
-            all_summaries.append({
-                "iteration": current_iteration,
-                "summary": summary,
-                "post_think_summary": post_think_summary,
-                "finish_reason": summary_finish_reason,
-                "summary_answer": summary_answer,
-                "summary_correct": summary_correct,
-                "final_answer": final_answer,
-                "final_correct": final_correct
-            })
-            
-            # This way the summary is associated with the reasoning it summarized
-            result["iterations"][current_iteration]["summary"] = summary
-            result["iterations"][current_iteration]["post_think_summary"] = post_think_summary
-            result["iterations"][current_iteration]["summary_finish_reason"] = summary_finish_reason
-            result["iterations"][current_iteration]["summary_answer"] = summary_answer
-            result["iterations"][current_iteration]["summary_correct"] = summary_correct
-            result["iterations"][current_iteration]["final_answer"] = final_answer
-            result["iterations"][current_iteration]["final_correct"] = final_correct
+                # Check if summary is still None after all attempts
+                if summary is None:
+                    raise ValueError(f"Failed to generate summary for problem {problem_id}, iteration {current_iteration}")
+                
+                # Log the finish reason
+                logger.info(f"Problem {problem_id}, summary {current_iteration} finish reason: {summary_finish_reason}")
+                
+                # Extract post-think content from summary if enabled
+                # post_think_summary = summary
+                # if self.config.get("extract_post_think_summary", False):
+                #     extracted = extract_post_think_content(summary)
+                #     if extracted is not None:
+                #         post_think_summary = extracted
+                #         logger.info(f"Extracted post-think content from summary for problem {problem_id}, iteration {current_iteration}")
+                #     else:
+                #         logger.info(f"No post-think content found in summary for problem {problem_id}, iteration {current_iteration}. Using full summary.")
+                
+                # Add summary to the collection with iteration number
+                all_summaries.append({
+                    "iteration": current_iteration,
+                    "summary": summary,
+                    # "post_think_summary": post_think_summary,
+                    "finish_reason": summary_finish_reason
+                })
+                
+                # Update the current iteration with the summary before moving to the next iteration
+                result["iterations"][current_iteration]["summary"] = summary
+                result["iterations"][current_iteration]["post_think_summary"] = post_think_summary
+                result["iterations"][current_iteration]["summary_finish_reason"] = summary_finish_reason
             
             # Prepare for next iteration
             next_iteration = current_iteration + 1
-
+            
             # Get improved reasoning prompt template
             improved_template = self.config.get("improved_prompt_template")
             if not improved_template:
@@ -783,96 +855,111 @@ class SummarizationExperiment(BaseExperiment):
             # Create prompt for next iteration using accumulated summaries
             improved_prompt = improved_template.replace("{question}", question).replace("{summaries}", accumulated_summaries)
             
-            # Generate reasoning for next iteration asynchronously with enhanced metrics tracking
-            next_response = await self.reasoning_model.generate_response_async(
-                improved_prompt,
-                max_tokens=self.config["max_tokens"],
-                temperature=self.config["temperature"],
-                top_p=self.config["top_p"],
-                top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
-                presence_penalty=self.config["presence_penalty"],
-                frequency_penalty=self.config["frequency_penalty"],
-                verbose=self.verbose,
-                enable_continuation=self.config.get("enable_continuation", True),
-                max_total_tokens=self.config.get("max_total_tokens", 24576),
-                max_continuations=self.config.get("max_continuations", 3),
-                track_token_callback=self.track_token_usage_and_cost,
-                track_token_callback_args={
-                    "problem_id": problem_id,
-                    "iteration": next_iteration,
-                    "step": "reasoning"
-                }
-            )
+            # Check if the next iteration is available in the checkpoint
+            next_reasoning_from_checkpoint = None
+            if hasattr(self, 'checkpoint_map') and problem_id in self.checkpoint_map:
+                # Find the next iteration in the checkpoint data
+                next_iter_data = next(
+                    (data for data in result["iterations"] if data["iteration"] == next_iteration),
+                    None
+                )
+                if next_iter_data:
+                    next_reasoning_from_checkpoint = next_iter_data["reasoning"]
+                    next_finish_reason = next_iter_data.get("finish_reason", "unknown")
+                    next_answer = next_iter_data.get("answer")
+                    next_correct = next_iter_data.get("correct", False)
+                    
+                    logger.info(f"Using checkpoint reasoning for problem {problem_id}, iteration {next_iteration}")
+                    
+                    # Use dummy token usage for tracking purposes
+                    token_usage = TokenUsage(0, 0, 0)
+                    cost_info = CostInfo(0.0, 0.0, 0.0)
+                    
+                    # Create placeholder for detailed API calls
+                    detailed_api_calls = [{
+                        "reused": True, 
+                        "tokens": {
+                            "prompt_tokens": token_usage.prompt_tokens,
+                            "completion_tokens": token_usage.completion_tokens,
+                            "total_tokens": token_usage.total_tokens
+                        }, 
+                        "cost": {
+                            "prompt_cost": cost_info.prompt_cost,
+                            "completion_cost": cost_info.completion_cost,
+                            "total_cost": cost_info.total_cost
+                        }
+                    }]
+                    
+                    # Store the detailed API calls for this iteration
+                    result["detailed_metrics"][f"iteration_{next_iteration}_reasoning"] = detailed_api_calls
             
-            # Handle both tuple and string responses for backward compatibility
-            if isinstance(next_response, tuple):
-                try:
-                    # Try to unpack with 5 elements (new format with detailed metrics)
-                    next_reasoning, next_finish_reason, token_usage, cost_info, next_detailed_api_calls = next_response
-                    
-                    # Store detailed API call information in the result
-                    result["detailed_metrics"][f"iteration_{next_iteration}_reasoning"] = next_detailed_api_calls
-                    
-                    # Track token usage and cost
-                    self.track_token_usage_and_cost(problem_id, token_usage, cost_info, next_iteration, "reasoning")
-                except ValueError:
-                    # Fall back to the old format with 4 elements
-                    logger.warning(f"Next reasoning response doesn't include detailed metrics, falling back to old format")
-                    next_reasoning, next_finish_reason, token_usage, cost_info = next_response
-                    
-                    # Track token usage and cost
-                    self.track_token_usage_and_cost(problem_id, token_usage, cost_info, next_iteration, "reasoning")
-            else:
-                next_reasoning = next_response
+            # Generate reasoning for next iteration if not in checkpoint
+            if next_reasoning_from_checkpoint is None:
+                # Generate reasoning for next iteration
                 next_finish_reason = "unknown"
+                
+                # Use the async model interface for the improved reasoning
+                next_response = await self.reasoning_model.generate_response_async(
+                    improved_prompt,
+                    max_tokens=self.config["max_tokens"],
+                    temperature=self.config["temperature"],
+                    top_p=self.config["top_p"],
+                    top_k=self.config["top_k"] if hasattr(self.reasoning_model, "top_k") else None,
+                    presence_penalty=self.config["presence_penalty"],
+                    frequency_penalty=self.config["frequency_penalty"],
+                    enable_continuation=self.config.get("enable_continuation", True),
+                    max_total_tokens=self.config.get("max_total_tokens", 24576),
+                    max_continuations=self.config.get("max_continuations", 3),
+                    verbose=self.verbose,
+                    track_token_callback=self.track_token_usage_and_cost,
+                    track_token_callback_args={
+                        "problem_id": problem_id,
+                        "iteration": next_iteration,
+                        "step": "reasoning"
+                    }
+                )
+                
+                # Unpack the tuple (content, finish_reason, token_usage, cost_info, detailed_api_calls)
+                next_reasoning, next_finish_reason, token_usage, cost_info, detailed_api_calls = next_response
+                
+                # Track token usage and cost
+                self.track_token_usage_and_cost(problem_id, token_usage, cost_info, next_iteration, "reasoning")
+                
+                # Store the detailed API calls for this iteration
+                result["detailed_metrics"][f"iteration_{next_iteration}_reasoning"] = detailed_api_calls
+                
+                # Log the finish reason
+                logger.info(f"Problem {problem_id}, iteration {next_iteration} finish reason: {next_finish_reason}")
+                
+                # Extract answer from next iteration reasoning using the configured extractor
+                next_answer = extract_answer_with_config(next_reasoning, self.config)
+                
+                # Check if answer is correct
+                next_correct = False
+                if next_answer is not None:
+                    next_correct = next_answer.strip() == correct_answer.strip()
+            else:
+                # Use the reasoning from checkpoint
+                next_reasoning = next_reasoning_from_checkpoint
             
-            # Log the finish reason
-            logger.info(f"Problem {problem_id}, iteration {next_iteration} finish reason: {next_finish_reason}")
-            
-            # Extract answer from next iteration reasoning using the configured extractor
-            next_answer = extract_answer_with_config(next_reasoning, self.config)
-            
-            # Check if answer is correct
-            next_correct = False
-            if next_answer is not None:
-                next_correct = next_answer.strip() == correct_answer.strip()
-                found_correct_answer = found_correct_answer or next_correct
+            # Update for tracking correct answers
+            found_correct_answer = found_correct_answer or next_correct
             
             # Add the next iteration to the results - WITHOUT including a summary yet
             # The summary will be added when it's generated in the next loop iteration
-            result["iterations"].append({
-                "iteration": next_iteration,
-                "reasoning": next_reasoning,
-                "answer": next_answer,  # Use consistent key name matching the first iteration
-                "correct": next_correct,  # Use consistent key name matching the first iteration
-                "finish_reason": next_finish_reason
-            })
+            if next_iteration >= len(result["iterations"]):
+                result["iterations"].append({
+                    "iteration": next_iteration,
+                    "reasoning": next_reasoning,
+                    "answer": next_answer,
+                    "correct": next_correct,
+                    "finish_reason": next_finish_reason
+                })
             
-            # NOTE: These are redundant fields duplicating data already in iterations[1]
-            # They are kept for backward compatibility with existing dashboard code
-            result["summary"] = summary  # This is still needed for backwards compatibility
-            result["summary_finish_reason"] = summary_finish_reason
-            result["summary_answer"] = summary_answer
-            result["summary_correct"] = summary_correct
-            result["improved_reasoning"] = next_reasoning
-            result["improved_answer"] = next_answer
-            result["improved_correct"] = next_correct
-            result["improved_finish_reason"] = next_finish_reason
-            
-            # This is the answer and correctness we'll report in the final results
-            # We prioritize the summary answer if available, falling back to the reasoning answer
-            if self.config.get("enable_summarization", True) and current_iteration == max_iterations - 1:
-                result["final_answer"] = final_answer
-                result["final_correct"] = final_correct
             
             # Update for next potential iteration
             current_iteration = next_iteration
             current_reasoning = next_reasoning
-        
-        # Update the problem status based on iteration
-        if self.dashboard:
-            status = f"iter{current_iteration}-completed"
-            self.dashboard.update_problem_status(problem_id, status, question)
         
         # Ensure final_answer and final_correct are always set in the results
         if "final_answer" not in result:
@@ -1061,7 +1148,7 @@ class SummarizationExperiment(BaseExperiment):
             
             # Generate summary of the current reasoning
             logger.info(f"Generating summary for problem {problem_id}, iteration {current_iteration}")
-            
+            breakpoint()
             # Ensure top_k is included in the config for FireworksModelClient
             if not hasattr(self.summarizer, "top_k"):
                 assert "top_k" in self.config, "top_k must be specified in config if using FireworksModelClient"
@@ -1211,16 +1298,6 @@ class SummarizationExperiment(BaseExperiment):
             result["improved_correct"] = next_correct
             result["improved_finish_reason"] = next_finish_reason
             
-            # Update dashboard with answer information
-            if self.dashboard:
-                self.dashboard.update_answer_info(
-                    problem_id,
-                    next_answer or "No answer extracted",
-                    correct_answer,
-                    next_correct,
-                    iteration=next_iteration
-                )
-            
             # Update for next potential iteration
             current_iteration = next_iteration
             current_reasoning = next_reasoning
@@ -1309,4 +1386,53 @@ class SummarizationExperiment(BaseExperiment):
         self.reusing_initial_reasoning = True
         
         # We'll need to override metrics too
+        self.preloaded_metrics = {"token_usage": {}, "cost_info": {}}
+
+    def load_checkpoint(self, checkpoint_path: str) -> Dict[str, Dict[str, Any]]:
+        """
+        Load full checkpoint data from a previous experiment's results file.
+        
+        Args:
+            checkpoint_path: Path to the checkpoint results file
+            
+        Returns:
+            Dictionary mapping problem_id to complete checkpoint data
+        """
+        # Load the results file
+        with open(checkpoint_path, "r", encoding="utf-8") as f:
+            checkpoint_results = json.load(f)
+        
+        # Handle different result formats (list or dict with 'results' key)
+        if isinstance(checkpoint_results, dict) and 'results' in checkpoint_results:
+            checkpoint_results = checkpoint_results['results']
+        
+        # Create a dictionary mapping problem_id to complete problem data
+        checkpoint_map = {}
+        
+        for result in checkpoint_results:
+            if not isinstance(result, dict):
+                continue
+            
+            problem_id = result.get("problem_id")
+            if problem_id and "iterations" in result:
+                # Store the entire result object with all iterations
+                checkpoint_map[problem_id] = result
+                logger.info(f"Loaded checkpoint with {len(result['iterations'])} iterations for problem {problem_id}")
+        
+        return checkpoint_map
+        
+    def initialize_with_checkpoint(self, checkpoint_path: str) -> None:
+        """
+        Initialize the experiment with full checkpoint data from a previous run.
+        
+        Args:
+            checkpoint_path: Path to the checkpoint results file
+        """
+        self.checkpoint_map = self.load_checkpoint(checkpoint_path)
+        logger.info(f"Initialized experiment with checkpoints for {len(self.checkpoint_map)} problems")
+        
+        # Flag to indicate we're using checkpoints
+        self.using_checkpoints = True
+        
+        # We'll need to override metrics for the preloaded iterations
         self.preloaded_metrics = {"token_usage": {}, "cost_info": {}}
