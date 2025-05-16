@@ -4,7 +4,6 @@ results_dir: "./results/aime_2024_pass_consensus_14b_last_ones"
 data_path: "./data/aime_2024_5.csv"
 save_intermediate: true
 experiment_type: "pass_k"
-pass_k_iterations: 1
 pass_k_iterations: 5
 
 # Dashboard configuration
