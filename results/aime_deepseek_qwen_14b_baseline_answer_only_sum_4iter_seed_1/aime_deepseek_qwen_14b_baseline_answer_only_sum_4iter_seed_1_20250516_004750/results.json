@@ -1,0 +1,340 @@
+{
+  "experiment_name": "aime_deepseek_qwen_14b_baseline_answer_only_sum_4iter_seed_1",
+  "config": {
+    "experiment_name": "aime_deepseek_qwen_14b_baseline_answer_only_sum_4iter_seed_1",
+    "results_dir": "./results/aime_deepseek_qwen_14b_baseline_answer_only_sum_4iter_seed_1",
+    "data_path": "./data/aime_2024_5.csv",
+    "save_intermediate": true,
+    "experiment_type": "summarize",
+    "dashboard_port": 8080,
+    "reasoning_model": "accounts/vineeth-vajipey-7e1414/deployedModels/deepseek-r1-distill-qwen-14b-xx4lazz0",
+    "reasoning_model_provider": "fireworks",
+    "summarizer_type": "external",
+    "summarizer_model": "accounts/fireworks/models/qwen3-30b-a3b",
+    "max_tokens": 8192,
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "top_k": 40,
+    "presence_penalty": 0.0,
+    "frequency_penalty": 0.0,
+    "enable_continuation": true,
+    "max_total_tokens": 32000,
+    "max_continuations": 4,
+    "max_iterations": 4,
+    "continue_after_correct": true,
+    "summary_method": "answer_only",
+    "enable_summarization": true,
+    "allow_fallback": true,
+    "answer_extractor": "math",
+    "prompts": {
+      "reasoning": "aime",
+      "summarize": "aime_summary",
+      "improved": "aime_your_approach"
+    },
+    "reasoning_prompt_template": "Solve the following AIME problem. All answers are integers ranging from 0 to 999, inclusive.  Report your answer in \\boxed{} format.\n\nPROBLEM:\n{question}\n",
+    "summarize_prompt_template": "Summarize the following attempted solution to the problem:\n\nPROBLEM:\n{question}\n\nATTEMPTED SOLUTION:\n{reasoning}\n\nSUMMARY:\n",
+    "improved_prompt_template": "Solve the following AIME problem. All answers are integers ranging from 0 to 999, inclusive. Report your answer in \\boxed{} format.\n\nPROBLEM:\n{question}\n\nHere are summaries of your previous solution attempts:\n{summaries}\n\nBased on your previous solution attempts, evaluate whether the most recent approach and answer are correct. If not, consider a different approach.\n"
+  },
+  "results": [
+    {
+      "problem_id": "0",
+      "error": "Could not extract reasoning trace for problem 0. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "1",
+      "error": "Could not extract reasoning trace for problem 1. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "10",
+      "error": "Could not extract reasoning trace for problem 10. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "11",
+      "error": "Could not extract reasoning trace for problem 11. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "12",
+      "error": "Could not extract reasoning trace for problem 12. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "13",
+      "error": "Could not extract reasoning trace for problem 13. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "14",
+      "error": "Could not extract reasoning trace for problem 14. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "15",
+      "error": "Could not extract reasoning trace for problem 15. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "16",
+      "error": "Could not extract reasoning trace for problem 16. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "17",
+      "error": "Could not extract reasoning trace for problem 17. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "18",
+      "error": "Could not extract reasoning trace for problem 18. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "19",
+      "error": "Could not extract reasoning trace for problem 19. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2",
+      "error": "Could not extract reasoning trace for problem 2. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "20",
+      "error": "Could not extract reasoning trace for problem 20. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-I-1",
+      "error": "Could not extract reasoning trace for problem 2024-I-1. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-I-10",
+      "error": "Could not extract reasoning trace for problem 2024-I-10. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-I-11",
+      "error": "Could not extract reasoning trace for problem 2024-I-11. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-I-12",
+      "error": "Could not extract reasoning trace for problem 2024-I-12. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-I-13",
+      "error": "Could not extract reasoning trace for problem 2024-I-13. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-I-14",
+      "error": "Could not extract reasoning trace for problem 2024-I-14. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-I-15",
+      "error": "Could not extract reasoning trace for problem 2024-I-15. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-I-2",
+      "error": "Could not extract reasoning trace for problem 2024-I-2. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-I-3",
+      "error": "Could not extract reasoning trace for problem 2024-I-3. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-I-4",
+      "error": "Could not extract reasoning trace for problem 2024-I-4. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-I-5",
+      "error": "Could not extract reasoning trace for problem 2024-I-5. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-I-6",
+      "error": "Could not extract reasoning trace for problem 2024-I-6. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-I-7",
+      "error": "Could not extract reasoning trace for problem 2024-I-7. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-I-8",
+      "error": "Could not extract reasoning trace for problem 2024-I-8. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-I-9",
+      "error": "Could not extract reasoning trace for problem 2024-I-9. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-II-1",
+      "error": "Could not extract reasoning trace for problem 2024-II-1. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-II-10",
+      "error": "Could not extract reasoning trace for problem 2024-II-10. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-II-11",
+      "error": "Could not extract reasoning trace for problem 2024-II-11. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-II-12",
+      "error": "Could not extract reasoning trace for problem 2024-II-12. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-II-13",
+      "error": "Could not extract reasoning trace for problem 2024-II-13. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-II-14",
+      "error": "Could not extract reasoning trace for problem 2024-II-14. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-II-15",
+      "error": "Could not extract reasoning trace for problem 2024-II-15. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-II-2",
+      "error": "Could not extract reasoning trace for problem 2024-II-2. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-II-3",
+      "error": "Could not extract reasoning trace for problem 2024-II-3. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-II-4",
+      "error": "Could not extract reasoning trace for problem 2024-II-4. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-II-5",
+      "error": "Could not extract reasoning trace for problem 2024-II-5. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-II-6",
+      "error": "Could not extract reasoning trace for problem 2024-II-6. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-II-7",
+      "error": "Could not extract reasoning trace for problem 2024-II-7. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-II-8",
+      "error": "Could not extract reasoning trace for problem 2024-II-8. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "2024-II-9",
+      "error": "Could not extract reasoning trace for problem 2024-II-9. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "21",
+      "error": "Could not extract reasoning trace for problem 21. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "22",
+      "error": "Could not extract reasoning trace for problem 22. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "23",
+      "error": "Could not extract reasoning trace for problem 23. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "24",
+      "error": "Could not extract reasoning trace for problem 24. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "25",
+      "error": "Could not extract reasoning trace for problem 25. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "26",
+      "error": "Could not extract reasoning trace for problem 26. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "27",
+      "error": "Could not extract reasoning trace for problem 27. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "28",
+      "error": "Could not extract reasoning trace for problem 28. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "29",
+      "error": "Could not extract reasoning trace for problem 29. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "3",
+      "error": "Could not extract reasoning trace for problem 3. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "4",
+      "error": "Could not extract reasoning trace for problem 4. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "5",
+      "error": "Could not extract reasoning trace for problem 5. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "6",
+      "error": "Could not extract reasoning trace for problem 6. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "7",
+      "error": "Could not extract reasoning trace for problem 7. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "8",
+      "error": "Could not extract reasoning trace for problem 8. Make sure the model output contains <think> tags.",
+      "status": "error"
+    },
+    {
+      "problem_id": "9",
+      "error": "Could not extract reasoning trace for problem 9. Make sure the model output contains <think> tags.",
+      "status": "error"
+    }
+  ]
+}
