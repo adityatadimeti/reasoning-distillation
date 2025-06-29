@@ -46,9 +46,11 @@ class PassKExperiment(BaseExperiment):
         
         # Initialize reasoning model with provider information if available
         reasoning_provider = self.config.get("reasoning_model_provider", None)
+        vllm_config = self.config.get("vllm_config", None)
         self.reasoning_model = create_model_client(
             self.config["reasoning_model"],
-            provider=reasoning_provider
+            provider=reasoning_provider,
+            vllm_config=vllm_config
         )
         
         # Add lock for thread safety when updating results

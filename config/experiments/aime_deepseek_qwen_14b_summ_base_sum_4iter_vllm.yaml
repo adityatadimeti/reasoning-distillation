@@ -1,0 +1,63 @@
+# Experiment configuration for Qwen 14B using vLLM
+experiment_name: "aime_deepseek_qwen_14b_replay_base_sum_4iter_vllm"
+results_dir: "./results/aime_deepseek_qwen_14b_replay_base_sum_4iter_vllm"
+data_path: "./data/aime_2024_5.csv"
+save_intermediate: true
+experiment_type: "summarize"
+
+# Dashboard configuration
+dashboard_port: 8080
+
+# Model configuration for vLLM
+reasoning_model: "Qwen/Qwen2.5-14B-Instruct"  # HuggingFace model ID
+reasoning_model_provider: "vllm"
+summarizer_type: "external"
+summarizer_model: "Qwen/Qwen2.5-14B-Instruct"  # Can use same model or different one
+summarizer_model_provider: "vllm"
+
+# vLLM server configuration
+vllm_config:
+  host: "localhost"
+  port: 8000
+  max_model_len: 32768  # Maximum context length for the model
+
+# Generation parameters
+max_tokens: 8192  # Maximum tokens per request
+temperature: 0.6
+top_p: 0.95
+top_k: 40
+presence_penalty: 0.0
+frequency_penalty: 0.0
+
+# Continuation parameters (vLLM handles this well)
+enable_continuation: true  # Whether to automatically continue generation when token limit is reached
+max_total_tokens: 32768  # Total token limit across all continuations
+max_continuations: 4    # Maximum number of continuation attempts
+
+# Iteration parameters
+max_iterations: 4
+continue_after_correct: true
+
+# Summarization parameters
+enable_summarization: true
+enable_final_summarization: true
+allow_fallback: true  # Enable fallback to use full response when think tags are missing
+extract_post_think_summary: false  # Enable extraction of content after </think> tag for post-think summary
+summary_max_tokens: 8192  # Maximum tokens per request for summaries
+summary_temperature: 0.6
+summary_top_p: 0.95
+summary_top_k: 40
+summary_presence_penalty: 0.0
+summary_frequency_penalty: 0.0
+
+# Summary continuation parameters (if different from main continuation parameters)
+summary_max_total_tokens: 32768  # Total token limit for summaries across all continuations
+summary_max_continuations: 4     # Maximum number of continuation attempts for summaries
+
+answer_extractor: "math"
+
+# Prompt configurations
+prompts:
+  reasoning: "aime"  # This references the version in config/prompts/reasoning.yaml
+  summarize: "aime_summary"  # This references the version in config/prompts/summarize.yaml
+  improved: "aime_your_approach" # This references the version in config/prompts/improved.yaml 
