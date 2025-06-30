@@ -9,16 +9,22 @@ experiment_type: "summarize"
 dashboard_port: 8080
 
 # Model configuration for vLLM
-reasoning_model: "Qwen/Qwen2.5-14B-Instruct"  # HuggingFace model ID
+reasoning_model: "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"  # HuggingFace model ID
 reasoning_model_provider: "vllm"
 summarizer_type: "external"
 summarizer_model: "Qwen/Qwen2.5-14B-Instruct"  # Can use same model or different one
 summarizer_model_provider: "vllm"
 
-# vLLM server configuration
+# vLLM server configuration for reasoning model
 vllm_config:
   host: "localhost"
-  port: 8000
+  port: 8001
+  max_model_len: 32768  # Maximum context length for the model
+
+# vLLM server configuration for summarizer model (separate server)
+summarizer_vllm_config:
+  host: "localhost"
+  port: 8002  # Different port for the summarizer model
   max_model_len: 32768  # Maximum context length for the model
 
 # Generation parameters

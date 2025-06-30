@@ -67,11 +67,17 @@ class SummarizationExperiment(BaseExperiment):
             
             # Use provider information if available
             summarizer_provider = self.config.get("summarizer_model_provider", None)
-            vllm_config = self.config.get("vllm_config", None)
+            
+            # Use separate vLLM config for summarizer if available and provider is vllm
+            if summarizer_provider == "vllm":
+                summarizer_vllm_config = self.config.get("summarizer_vllm_config", self.config.get("vllm_config", None))
+            else:
+                summarizer_vllm_config = self.config.get("vllm_config", None)
+                
             self.summarizer = create_model_client(
                 self.config["summarizer_model"],
                 provider=summarizer_provider,
-                vllm_config=vllm_config
+                vllm_config=summarizer_vllm_config
             )
         
         # Add lock for thread safety when updating results
