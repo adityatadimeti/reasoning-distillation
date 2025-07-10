@@ -168,3 +168,15 @@ aime_summary:
     {reasoning}
 
     SUMMARY:
+
+countdown_summary:
+  template: |
+    Summarize the following attempted solution to the problem:
+    
+    PROBLEM:
+    {question}
+
+    ATTEMPTED SOLUTION:
+    {reasoning}
+
+    SUMMARY:

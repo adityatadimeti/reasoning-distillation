@@ -1,0 +1,10 @@
+{
+  "source": "Jiayi-Pan/Countdown-Tasks-3to4",
+  "total_problems": 490364,
+  "description": "Countdown arithmetic puzzle problems where you combine numbers to reach a target",
+  "rules": [
+    "Use addition (+), subtraction (-), multiplication (*), and division (/)",
+    "Each number can be used at most once",
+    "Must reach exactly the target number"
+  ]
+}
