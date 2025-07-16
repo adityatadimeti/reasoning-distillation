@@ -1,0 +1,32 @@
+{
+  "source": "Custom generated countdown problems",
+  "total_problems": 35,
+  "difficulty_levels": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "problems_per_level": 5,
+  "number_range": [
+    1,
+    200
+  ],
+  "target_range": [
+    1,
+    100
+  ],
+  "description": "Countdown arithmetic puzzles with varying difficulty based on number count",
+  "rules": [
+    "Use addition (+), subtraction (-), multiplication (*), and division (/)",
+    "Each number must be used exactly once",
+    "Must reach exactly the target number"
+  ],
+  "generation_params": {
+    "seed": null,
+    "output_file": "data/countdown_custom.csv"
+  }
+}

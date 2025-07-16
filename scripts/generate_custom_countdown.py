@@ -134,7 +134,8 @@ class CountdownProblemGenerator:
                 'id': f'countdown_custom_{num_count}_{len(problems)+1:03d}',
                 'question': self.format_question(numbers, target),
                 'solution': expression,
-                'answer': str(target)
+                'answer': str(target),
+                'nums': numbers
             }
             
             problems.append(problem)
@@ -213,7 +214,7 @@ def main():
     # Save to CSV
     print(f"\nSaving {len(all_problems)} problems to {output_file}")
     with open(output_file, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['id', 'question', 'solution', 'answer'])
+        writer = csv.DictWriter(f, fieldnames=['id', 'question', 'solution', 'answer', 'nums'])
         writer.writeheader()
         writer.writerows(all_problems)
     

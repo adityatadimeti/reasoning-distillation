@@ -19,14 +19,56 @@ def extract_solution(solution_str):
     elif "<|im_start|>assistant" in solution_str:
         solution_str = solution_str.split("<|im_start|>assistant", 1)[1]
 
-    # Find all <answer>...</answer> tags
+    # Try standard <answer>...</answer> pattern first
     answer_pattern = r"<answer>(.*?)</answer>"
     matches = list(re.finditer(answer_pattern, solution_str, re.DOTALL))
 
     if matches:
         final_answer = matches[-1].group(1).strip()
     else:
-        final_answer = "N/A"
+        # Handle edge cases with malformed tags
+        
+        # Case 1: Double closing tags </answer></answer>
+        double_close_pattern = r"<answer>(.*?)</answer></answer>"
+        matches = list(re.finditer(double_close_pattern, solution_str, re.DOTALL))
+        if matches:
+            final_answer = matches[-1].group(1).strip()
+        
+        # Case 2: Only closing tag </answer>
+        elif "</answer>" in solution_str:
+            # Find content before the last </answer>
+            parts = solution_str.split("</answer>")
+            if len(parts) > 1:
+                # Get the last non-empty part before </answer>
+                for i in range(len(parts)-2, -1, -1):
+                    content = parts[i].strip()
+                    if content:
+                        # Extract the equation part (after any text)
+                        equation_match = re.search(r"[(\d+\-*/÷x×\s]+[\d)]$", content)
+                        if equation_match:
+                            final_answer = equation_match.group(0).strip()
+                            break
+                else:
+                    final_answer = "N/A"
+            else:
+                final_answer = "N/A"
+        
+        # Case 3: Only opening tag <answer>
+        elif "<answer>" in solution_str:
+            # Find content after the last <answer>
+            parts = solution_str.split("<answer>")
+            if len(parts) > 1:
+                content = parts[-1].strip()
+                # Extract equation until we hit non-equation text
+                equation_match = re.match(r"^[(\d+\-*/÷x×\s]+[\d)]", content)
+                if equation_match:
+                    final_answer = equation_match.group(0).strip()
+                else:
+                    final_answer = "N/A"
+            else:
+                final_answer = "N/A"
+        else:
+            final_answer = "N/A"
 
     return final_answer
 
@@ -34,8 +76,14 @@ def extract_solution(solution_str):
 def validate_equation(equation_str, available_numbers):
     """Validate that equation only uses available numbers and each number once."""
     try:
+        # Normalize operators first to ensure consistent number extraction
+        normalized_equation = equation_str
+        normalized_equation = normalized_equation.replace('÷', '/')
+        normalized_equation = normalized_equation.replace('x', '*')
+        normalized_equation = normalized_equation.replace('×', '*')
+        
         # Extract all numbers from the equation
-        numbers_in_eq = [int(n) for n in re.findall(r"\d+", equation_str)]
+        numbers_in_eq = [int(n) for n in re.findall(r"\d+", normalized_equation)]
 
         # Check if all numbers in equation are available
         available_numbers = sorted(available_numbers)
@@ -50,13 +98,19 @@ def validate_equation(equation_str, available_numbers):
 def evaluate_equation(equation_str):
     """Safely evaluate the arithmetic equation using eval() with precautions."""
     try:
+        # Normalize operators: convert ÷ to / and x/× to *
+        normalized_equation = equation_str
+        normalized_equation = normalized_equation.replace('÷', '/')
+        normalized_equation = normalized_equation.replace('x', '*')
+        normalized_equation = normalized_equation.replace('×', '*')
+        
         # Define a regex pattern that only allows numbers, operators, parentheses, and whitespace
         allowed_pattern = r"^[\d+\-*/().\s]+$"
-        if not re.match(allowed_pattern, equation_str):
+        if not re.match(allowed_pattern, normalized_equation):
             raise ValueError("Invalid characters in equation.")
 
         # Evaluate the equation with restricted globals and locals
-        result = eval(equation_str, {"__builtins__": None}, {})
+        result = eval(normalized_equation, {"__builtins__": None}, {})
         return result
     except Exception:
         return None
