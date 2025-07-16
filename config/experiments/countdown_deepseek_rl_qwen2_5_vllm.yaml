@@ -70,4 +70,4 @@ answer_extractor: "countdown"
 prompts:
   reasoning: "countdown"  # References config/prompts/reasoning.yaml
   summarize: "countdown_summary"  # References config/prompts/summarize.yaml
-  improved: "countdown"  # Use same reasoning prompt for improved iterations
+  improved: "countdown_your_approach"  # Use same reasoning prompt for improved iterations
