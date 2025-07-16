@@ -150,9 +150,46 @@ class CountdownProblemGenerator:
 
 def main():
     """Generate countdown problems for all difficulty levels."""
-    output_file = Path("data/countdown_custom.csv")
-    metadata_file = Path("data/countdown_custom_metadata.json")
-    stats_file = Path("data/countdown_custom_stats.json")
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Generate custom countdown problems")
+    parser.add_argument(
+        "--count-per-level", 
+        type=int, 
+        default=1000,
+        help="Number of problems to generate per difficulty level (default: 1000)"
+    )
+    parser.add_argument(
+        "--levels",
+        type=str,
+        default="4,5,6,7,8,9,10",
+        help="Comma-separated list of difficulty levels to generate (default: 4,5,6,7,8,9,10)"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="data/countdown_custom.csv",
+        help="Output CSV file path (default: data/countdown_custom.csv)"
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Random seed for reproducible generation"
+    )
+    
+    args = parser.parse_args()
+    
+    # Parse levels
+    levels = [int(x.strip()) for x in args.levels.split(",")]
+    
+    # Set random seed if provided
+    if args.seed is not None:
+        random.seed(args.seed)
+    
+    output_file = Path(args.output)
+    metadata_file = output_file.with_suffix("").with_suffix(".metadata.json")
+    stats_file = output_file.with_suffix("").with_suffix(".stats.json")
     
     # Ensure data directory exists
     output_file.parent.mkdir(exist_ok=True)
@@ -162,15 +199,15 @@ def main():
     stats = {}
     
     # Generate problems for each difficulty level
-    for num_count in range(4, 11):
+    for num_count in levels:
         print(f"\n=== Generating problems with {num_count} numbers ===")
-        problems = generator.generate_problems(num_count, count=1000)
+        problems = generator.generate_problems(num_count, count=args.count_per_level)
         all_problems.extend(problems)
         
         stats[f"{num_count}_numbers"] = {
             "count": len(problems),
-            "target": 1000,
-            "success_rate": len(problems) / 1000
+            "target": args.count_per_level,
+            "success_rate": len(problems) / args.count_per_level if args.count_per_level > 0 else 0
         }
     
     # Save to CSV
@@ -184,7 +221,8 @@ def main():
     metadata = {
         'source': 'Custom generated countdown problems',
         'total_problems': len(all_problems),
-        'difficulty_levels': list(range(4, 11)),
+        'difficulty_levels': levels,
+        'problems_per_level': args.count_per_level,
         'number_range': [1, 200],
         'target_range': [1, 100],
         'description': 'Countdown arithmetic puzzles with varying difficulty based on number count',
@@ -192,7 +230,11 @@ def main():
             'Use addition (+), subtraction (-), multiplication (*), and division (/)',
             'Each number must be used exactly once',
             'Must reach exactly the target number'
-        ]
+        ],
+        'generation_params': {
+            'seed': args.seed,
+            'output_file': str(output_file)
+        }
     }
     
     with open(metadata_file, 'w') as f:
