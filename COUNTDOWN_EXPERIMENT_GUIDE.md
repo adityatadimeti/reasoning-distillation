@@ -74,7 +74,7 @@ python run_experiment.py countdown_deepseek_rl_qwen2_5_vllm --parallel --concurr
 ### Test Run on Subset
 ```bash
 # Test on first 10 problems
-python run_experiment.py countdown_deepseek_rl_qwen2_5_vllm --index_range "0-9"
+python run_experiment.py countdown_deepseek_rl_qwen2_5_vllm --index_range "0-9" --parallel --concurrency 8
 
 # Test on specific problems
 python run_experiment.py countdown_deepseek_rl_qwen2_5_vllm --question_ids "countdown_1,countdown_5,countdown_10"
