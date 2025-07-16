@@ -10,19 +10,19 @@ dashboard_port: 8080
 
 # Model configuration for vLLM
 # DeepSeek-RL for reasoning (running on port 8001)
-reasoning_model: "deepseek-ai/DeepSeek-RL-Distill-Qwen-14B"
+reasoning_model: "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
 reasoning_model_provider: "vllm"
 
 # Qwen2.5 for summarization (running on port 8000)
 summarizer_type: "external"
-summarizer_model: "Qwen/Qwen2-5-14B-Instruct"
+summarizer_model: "Qwen/Qwen2.5-14B-Instruct"
 summarizer_model_provider: "vllm"
 
 # vLLM server configuration for reasoning model (DeepSeek on GPU 1)
 vllm_config:
   host: "localhost"
   port: 8001
-  max_model_len: 32768
+  max_model_len: 16384
 
 # vLLM server configuration for summarizer model (Qwen on GPU 0)
 summarizer_vllm_config:
@@ -40,7 +40,7 @@ frequency_penalty: 0.0
 
 # Continuation parameters for long reasoning traces
 enable_continuation: true
-max_total_tokens: 32768
+max_total_tokens: 16384
 max_continuations: 4
 
 # Iteration parameters
@@ -60,7 +60,7 @@ summary_presence_penalty: 0.0
 summary_frequency_penalty: 0.0
 
 # Summary continuation parameters
-summary_max_total_tokens: 32768
+summary_max_total_tokens: 16384
 summary_max_continuations: 4
 
 # Answer extraction - use Countdown-specific extractor
