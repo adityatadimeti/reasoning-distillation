@@ -1,36 +1,281 @@
-id,question,solution,answer
-countdown_custom_4_001,"Using the numbers 39, 90, 161, 150, create an equation that equals 40. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",((90 - 39) - (161 - 150)),40
-countdown_custom_4_002,"Using the numbers 98, 31, 138, 156, create an equation that equals 2. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",(98 / (156 - (138 - 31))),2
-countdown_custom_4_003,"Using the numbers 168, 24, 143, 50, create an equation that equals 86. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",((143 - 50) - (168 / 24)),86
-countdown_custom_4_004,"Using the numbers 45, 134, 174, 53, create an equation that equals 32. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",((174 - 53) - (134 - 45)),32
-countdown_custom_4_005,"Using the numbers 184, 108, 41, 77, create an equation that equals 41. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",(41 * (77 - (184 - 108))),41
-countdown_custom_5_001,"Using the numbers 29, 90, 122, 26, 72, create an equation that equals 10. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",((72 / (122 / (90 - 29))) - 26),10
-countdown_custom_5_002,"Using the numbers 59, 185, 64, 156, 22, create an equation that equals 74. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",((185 * (64 + 22)) / (59 + 156)),74
-countdown_custom_5_003,"Using the numbers 109, 75, 90, 146, 121, create an equation that equals 89. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",((109 * 146) - (75 * (90 + 121))),89
-countdown_custom_5_004,"Using the numbers 66, 34, 25, 151, 80, create an equation that equals 5. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",((34 + (66 * 151)) / (25 * 80)),5
-countdown_custom_5_005,"Using the numbers 158, 117, 85, 5, 43, create an equation that equals 22. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",(((117 * 85) / (158 - 5)) - 43),22
-countdown_custom_6_001,"Using the numbers 7, 34, 111, 91, 196, 72, create an equation that equals 5. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",(((72 + (111 * 196)) / 34) - (7 * 91)),5
-countdown_custom_6_002,"Using the numbers 41, 85, 149, 67, 173, 24, create an equation that equals 25. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",((173 + 24) - ((149 + 67) - (85 - 41))),25
-countdown_custom_6_003,"Using the numbers 5, 187, 159, 4, 76, 125, create an equation that equals 72. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",((159 * (5 + 187)) / ((4 * 125) - 76)),72
-countdown_custom_6_004,"Using the numbers 45, 129, 103, 41, 93, 8, create an equation that equals 55. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",((93 - 8) - ((45 + 129) - (103 + 41))),55
-countdown_custom_6_005,"Using the numbers 131, 43, 100, 83, 182, 141, create an equation that equals 30. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",(((131 - 43) - (100 - 83)) - (182 - 141)),30
-countdown_custom_7_001,"Using the numbers 157, 43, 42, 80, 103, 29, 86, create an equation that equals 72. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",(86 - ((42 * 103) / ((157 + 43) + (80 + 29)))),72
-countdown_custom_7_002,"Using the numbers 50, 40, 59, 85, 196, 151, 107, create an equation that equals 58. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",(196 - ((151 + (40 + 85)) / ((50 + 59) - 107))),58
-countdown_custom_7_003,"Using the numbers 67, 176, 86, 43, 153, 57, 59, create an equation that equals 53. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",(153 - (((67 + 176) - (86 - 43)) / (59 - 57))),53
-countdown_custom_7_004,"Using the numbers 79, 137, 148, 105, 170, 42, 187, create an equation that equals 77. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",(105 - ((170 * 42) / ((79 + 137) + (187 - 148)))),77
-countdown_custom_7_005,"Using the numbers 7, 18, 60, 169, 124, 44, 64, create an equation that equals 9. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",((7 + 18) - (64 / ((60 * 124) - (169 * 44)))),9
-countdown_custom_8_001,"Using the numbers 138, 20, 149, 42, 181, 87, 8, 55, create an equation that equals 21. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",((8 + 55) / ((181 + 87) - ((138 + 20) + (149 - 42)))),21
-countdown_custom_8_002,"Using the numbers 32, 78, 146, 133, 170, 79, 156, 61, create an equation that equals 6. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",(((156 + 61) - ((170 + 79) - (32 + 78))) / (146 - 133)),6
-countdown_custom_8_003,"Using the numbers 75, 13, 59, 88, 193, 165, 96, 115, create an equation that equals 51. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",(((59 + (75 + 13)) - 96) * ((193 - 165) - (115 - 88))),51
-countdown_custom_8_004,"Using the numbers 61, 47, 169, 21, 144, 6, 54, 154, create an equation that equals 42. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",(((54 * (61 + 47)) - ((169 + 21) - 154)) / (144 - 6)),42
-countdown_custom_8_005,"Using the numbers 187, 180, 43, 147, 7, 82, 66, 157, create an equation that equals 60. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",((157 - 82) - ((66 * (43 + 7)) / ((187 + 180) - 147))),60
-countdown_custom_9_001,"Using the numbers 65, 133, 88, 24, 163, 15, 13, 175, 62, create an equation that equals 9. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",(((65 + 133) - (175 - 13)) / ((163 + 15) - (62 + (88 + 24)))),9
-countdown_custom_9_002,"Using the numbers 48, 150, 86, 126, 43, 195, 101, 13, 6, create an equation that equals 28. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",((((101 + 13) / 6) * ((86 + 126) - (48 + 150))) - (43 + 195)),28
-countdown_custom_9_003,"Using the numbers 82, 198, 170, 22, 143, 31, 72, 101, 37, create an equation that equals 58. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",((143 + 31) / (72 / (((82 + 198) - (170 + 22)) - (101 - 37)))),58
-countdown_custom_9_004,"Using the numbers 142, 55, 94, 143, 168, 82, 177, 39, 29, create an equation that equals 63. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",(((94 + 143) - (168 - 82)) - ((29 + (142 + 55)) - (177 - 39))),63
-countdown_custom_9_005,"Using the numbers 88, 125, 163, 150, 98, 73, 172, 99, 37, create an equation that equals 89. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",(((163 + 150) + (98 - 73)) - ((172 - 99) + ((88 + 125) - 37))),89
-countdown_custom_10_001,"Using the numbers 178, 81, 63, 75, 11, 157, 129, 17, 28, 74, create an equation that equals 20. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",((((63 + 75) + (11 + 157)) - (129 + 17)) / ((28 * 74) / (178 + 81))),20
-countdown_custom_10_002,"Using the numbers 121, 184, 112, 167, 82, 96, 20, 39, 37, 74, create an equation that equals 66. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",(((82 + 96) - 74) - (((20 + 37) * ((121 + 184) - (112 + 167))) / 39)),66
-countdown_custom_10_003,"Using the numbers 4, 68, 123, 181, 23, 163, 103, 25, 171, 24, create an equation that equals 97. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",(((123 + 181) - (23 + 163)) - ((103 - 25) - ((171 * 24) / (4 + 68)))),97
-countdown_custom_10_004,"Using the numbers 46, 171, 77, 101, 150, 129, 33, 40, 172, 15, create an equation that equals 88. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",(((150 + 129) - (33 + 40)) - ((172 - 15) - ((46 + 171) - (77 + 101)))),88
-countdown_custom_10_005,"Using the numbers 5, 165, 80, 41, 125, 178, 191, 60, 108, 147, create an equation that equals 55. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.",((125 + 178) - (((5 + 165) * ((80 + 41) + (191 + 60))) / (108 + 147))),55
+id,question,solution,answer,nums
+countdown_custom_4_001,"Using all numbers from [27, 190, 23, 174], create an equation that equals 66.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((27 + 190) - (174 - 23)),66,"[27, 190, 23, 174]"
+countdown_custom_4_002,"Using all numbers from [60, 173, 115, 38], create an equation that equals 3.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",(60 / ((173 - 115) - 38)),3,"[60, 173, 115, 38]"
+countdown_custom_4_003,"Using all numbers from [76, 133, 82, 197], create an equation that equals 58.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((197 - 82) - (133 - 76)),58,"[76, 133, 82, 197]"
+countdown_custom_4_004,"Using all numbers from [175, 120, 77, 32], create an equation that equals 54.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((77 + 32) - (175 - 120)),54,"[175, 120, 77, 32]"
+countdown_custom_4_005,"Using all numbers from [184, 6, 59, 129], create an equation that equals 24.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",(6 * (129 - (184 - 59))),24,"[184, 6, 59, 129]"
+countdown_custom_5_001,"Using all numbers from [82, 53, 88, 23, 77], create an equation that equals 93.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",(((82 + (53 * 77)) / 23) - 88),93,"[82, 53, 88, 23, 77]"
+countdown_custom_5_002,"Using all numbers from [38, 21, 175, 112, 114], create an equation that equals 3.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((114 + (175 - 112)) / (38 + 21)),3,"[38, 21, 175, 112, 114]"
+countdown_custom_5_003,"Using all numbers from [173, 115, 19, 91, 95], create an equation that equals 81.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((95 + (173 - 115)) - (91 - 19)),81,"[173, 115, 19, 91, 95]"
+countdown_custom_5_004,"Using all numbers from [126, 189, 107, 29, 49], create an equation that equals 65.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((189 - 126) + ((107 - 49) / 29)),65,"[126, 189, 107, 29, 49]"
+countdown_custom_5_005,"Using all numbers from [20, 160, 171, 87, 169], create an equation that equals 77.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((169 - (160 / 20)) - (171 - 87)),77,"[20, 160, 171, 87, 169]"
+countdown_custom_6_001,"Using all numbers from [18, 67, 192, 3, 187, 65], create an equation that equals 42.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((65 + (192 + 187)) - ((18 * 67) / 3)),42,"[18, 67, 192, 3, 187, 65]"
+countdown_custom_6_002,"Using all numbers from [22, 74, 129, 183, 122, 88], create an equation that equals 26.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((88 * (74 - 22)) / (122 + (183 - 129))),26,"[22, 74, 129, 183, 122, 88]"
+countdown_custom_6_003,"Using all numbers from [136, 98, 125, 34, 53, 50], create an equation that equals 6.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((53 + (136 - 98)) - ((125 * 34) / 50)),6,"[136, 98, 125, 34, 53, 50]"
+countdown_custom_6_004,"Using all numbers from [136, 49, 115, 180, 128, 151], create an equation that equals 6.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",(((49 * (151 - 115)) - 180) / (136 + 128)),6,"[136, 49, 115, 180, 128, 151]"
+countdown_custom_6_005,"Using all numbers from [146, 18, 44, 125, 175, 171], create an equation that equals 16.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",(((44 + 175) - 171) / ((146 - 18) - 125)),16,"[146, 18, 44, 125, 175, 171]"
+countdown_custom_7_001,"Using all numbers from [36, 196, 143, 127, 56, 73, 100], create an equation that equals 98.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((56 * ((143 - 127) + ((36 + 196) - 73))) / 100),98,"[36, 196, 143, 127, 56, 73, 100]"
+countdown_custom_7_002,"Using all numbers from [24, 32, 165, 94, 62, 45, 52], create an equation that equals 29.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((165 - 94) - ((62 - (24 + 32)) * (52 - 45))),29,"[24, 32, 165, 94, 62, 45, 52]"
+countdown_custom_7_003,"Using all numbers from [188, 22, 80, 37, 111, 113, 32], create an equation that equals 40.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((188 + 22) - ((113 - 111) * ((80 + 37) - 32))),40,"[188, 22, 80, 37, 111, 113, 32]"
+countdown_custom_7_004,"Using all numbers from [97, 66, 28, 167, 8, 43, 67], create an equation that equals 84.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",(((97 + 66) - 67) - (((167 - 28) - 43) / 8)),84,"[97, 66, 28, 167, 8, 43, 67]"
+countdown_custom_7_005,"Using all numbers from [164, 38, 8, 27, 36, 79, 88], create an equation that equals 57.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",(((164 + 38) - 88) / ((79 - (27 + 36)) / 8)),57,"[164, 38, 8, 27, 36, 79, 88]"
+countdown_custom_8_001,"Using all numbers from [142, 158, 4, 172, 40, 108, 74, 67], create an equation that equals 49.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((((142 + 158) + (4 + 172)) / (108 - 40)) * (74 - 67)),49,"[142, 158, 4, 172, 40, 108, 74, 67]"
+countdown_custom_8_002,"Using all numbers from [103, 164, 68, 148, 128, 90, 10, 118], create an equation that equals 75.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",(((68 + 148) + ((103 + 164) - 128)) - (10 * (118 - 90))),75,"[103, 164, 68, 148, 128, 90, 10, 118]"
+countdown_custom_8_003,"Using all numbers from [51, 145, 191, 186, 22, 40, 157, 82], create an equation that equals 71.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",(((22 * ((191 + 186) - (157 + 82))) - (51 + 145)) / 40),71,"[51, 145, 191, 186, 22, 40, 157, 82]"
+countdown_custom_8_004,"Using all numbers from [10, 112, 128, 30, 191, 90, 69, 167], create an equation that equals 56.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",(((90 * (128 + 30)) / (167 - (10 + 112))) - (191 + 69)),56,"[10, 112, 128, 30, 191, 90, 69, 167]"
+countdown_custom_8_005,"Using all numbers from [182, 128, 173, 6, 142, 84, 146, 21], create an equation that equals 89.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((21 * ((173 + 6) - ((182 + 128) - 146))) - (142 + 84)),89,"[182, 128, 173, 6, 142, 84, 146, 21]"
+countdown_custom_9_001,"Using all numbers from [120, 149, 69, 32, 4, 75, 174, 114, 77], create an equation that equals 18.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((((114 * (120 + 149)) - 174) / 77) / ((69 + 32) - (4 + 75))),18,"[120, 149, 69, 32, 4, 75, 174, 114, 77]"
+countdown_custom_9_002,"Using all numbers from [71, 37, 138, 68, 101, 128, 79, 13, 174], create an equation that equals 91.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",(((71 + 37) - 13) - (((138 + 68) - (101 - 79)) / (174 - 128))),91,"[71, 37, 138, 68, 101, 128, 79, 13, 174]"
+countdown_custom_9_003,"Using all numbers from [167, 157, 183, 38, 140, 60, 120, 6, 105], create an equation that equals 67.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",(6 + (((167 + 157) - (140 - 60)) / ((120 + 105) - (183 + 38)))),67,"[167, 157, 183, 38, 140, 60, 120, 6, 105]"
+countdown_custom_9_004,"Using all numbers from [160, 106, 138, 189, 81, 32, 62, 132, 21], create an equation that equals 36.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",(((138 + 189) - (160 + 106)) - ((132 + (81 + 62)) / (32 - 21))),36,"[160, 106, 138, 189, 81, 32, 62, 132, 21]"
+countdown_custom_9_005,"Using all numbers from [131, 71, 93, 97, 60, 138, 105, 1, 160], create an equation that equals 3.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((60 + 138) / ((160 + (131 + 71)) - ((93 + 97) + (105 + 1)))),3,"[131, 71, 93, 97, 60, 138, 105, 1, 160]"
+countdown_custom_10_001,"Using all numbers from [79, 44, 165, 86, 97, 186, 151, 120, 28, 167], create an equation that equals 27.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",(167 - ((28 * ((97 + 186) - ((165 + 86) - (79 + 44)))) / (151 - 120))),27,"[79, 44, 165, 86, 97, 186, 151, 120, 28, 167]"
+countdown_custom_10_002,"Using all numbers from [159, 122, 172, 17, 93, 69, 56, 193, 109, 33], create an equation that equals 73.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((109 + (((159 + 122) - (172 + 17)) * ((93 + 69) - (193 - 56)))) / 33),73,"[159, 122, 172, 17, 93, 69, 56, 193, 109, 33]"
+countdown_custom_10_003,"Using all numbers from [171, 40, 97, 47, 114, 19, 24, 131, 95, 148], create an equation that equals 9.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",(((97 + 47) - ((171 + 40) - 95)) - ((114 + 19) / ((24 + 131) - 148))),9,"[171, 40, 97, 47, 114, 19, 24, 131, 95, 148]"
+countdown_custom_10_004,"Using all numbers from [46, 58, 106, 179, 20, 103, 145, 187, 17, 123], create an equation that equals 72.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((145 + (20 + 103)) - (((106 + 179) - 187) * (123 - (17 + (46 + 58))))),72,"[46, 58, 106, 179, 20, 103, 145, 187, 17, 123]"
+countdown_custom_10_005,"Using all numbers from [109, 138, 133, 93, 193, 182, 29, 178, 15, 79], create an equation that equals 86.
+
+Rules:
+- You must use every single number exactly once
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.",((15 + 79) - (((193 + 182) - (29 + 178)) / ((109 + 138) - (133 + 93)))),86,"[109, 138, 133, 93, 193, 182, 29, 178, 15, 79]"

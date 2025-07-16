@@ -96,9 +96,12 @@ class CountdownProblemGenerator:
     def format_question(self, numbers: List[int], target: int) -> str:
         """Format the question string."""
         nums_str = ", ".join(map(str, numbers))
-        return (f"Using the numbers {nums_str}, create an equation that equals {target}. "
-                f"You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. "
-                f"Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>.")
+        return (f"Using all numbers from [{nums_str}], create an equation that equals {target}.\n\n"
+                f"Rules:\n"
+                f"- You must use every single number exactly once\n"
+                f"- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n"
+                f"- Use parentheses to control order of operations\n\n"
+                f"Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.")
     
     def generate_problems(self, num_count: int, count: int = 1000) -> List[dict]:
         """Generate 'count' problems with 'num_count' numbers each."""

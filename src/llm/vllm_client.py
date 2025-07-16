@@ -211,7 +211,9 @@ class VLLMModelClient(ModelClient):
         if "stop" in kwargs:
             payload["stop"] = kwargs["stop"]
         
-        async with aiohttp.ClientSession() as session:
+        # Set timeout to prevent hanging on long requests
+        timeout = aiohttp.ClientTimeout(total=1200)  # 20 minute timeout for complex reasoning
+        async with aiohttp.ClientSession(timeout=timeout) as session:
             try:
                 if stream:
                     # For streaming, return an async iterator
