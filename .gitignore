@@ -79,3 +79,6 @@ v0
 
 # *harp*
 *test*
+
+# Large datasets that exceed GitHub limits
+data/countdown.csv

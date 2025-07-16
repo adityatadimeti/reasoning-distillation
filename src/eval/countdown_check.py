@@ -2,227 +2,120 @@
 Evaluation module for Countdown number puzzles.
 
 This module provides functions to evaluate whether a proposed solution
-to a Countdown puzzle is correct.
+to a Countdown puzzle is correct using the provided scoring functions.
 """
 
 import re
-import ast
-import operator
 import logging
 from typing import Optional, List, Union, Tuple, Dict, Any
 
 logger = logging.getLogger(__name__)
 
-# Define safe operators for expression evaluation
-SAFE_OPERATORS = {
-    ast.Add: operator.add,
-    ast.Sub: operator.sub,
-    ast.Mult: operator.mul,
-    ast.Div: operator.truediv,
-    ast.USub: operator.neg,
-    ast.UAdd: operator.pos,
-}
+def extract_solution(solution_str):
+    """Extract the last <answer>...</answer> equation from the solution string."""
+    # Remove conversation prefixes
+    if "Assistant:" in solution_str:
+        solution_str = solution_str.split("Assistant:", 1)[1]
+    elif "<|im_start|>assistant" in solution_str:
+        solution_str = solution_str.split("<|im_start|>assistant", 1)[1]
 
-def safe_eval(expression: str) -> Optional[float]:
-    """
-    Safely evaluate a mathematical expression containing only basic arithmetic.
-    
-    Args:
-        expression: String containing mathematical expression
-        
-    Returns:
-        The result of the expression, or None if evaluation fails
-    """
-    try:
-        # Parse the expression into an AST
-        node = ast.parse(expression, mode='eval')
-        
-        def _eval_node(node):
-            if isinstance(node, ast.Expression):
-                return _eval_node(node.body)
-            elif isinstance(node, ast.Constant):  # Python 3.8+
-                return node.value
-            elif isinstance(node, ast.Num):  # For older Python versions
-                return node.n
-            elif isinstance(node, ast.BinOp):
-                left = _eval_node(node.left)
-                right = _eval_node(node.right)
-                op = SAFE_OPERATORS.get(type(node.op))
-                if op is None:
-                    raise ValueError(f"Unsupported operator: {type(node.op)}")
-                # Handle division by zero
-                if isinstance(node.op, ast.Div) and right == 0:
-                    raise ZeroDivisionError("Division by zero")
-                return op(left, right)
-            elif isinstance(node, ast.UnaryOp):
-                operand = _eval_node(node.operand)
-                op = SAFE_OPERATORS.get(type(node.op))
-                if op is None:
-                    raise ValueError(f"Unsupported unary operator: {type(node.op)}")
-                return op(operand)
-            else:
-                raise ValueError(f"Unsupported node type: {type(node)}")
-        
-        result = _eval_node(node.body)
-        return float(result)
-    except Exception as e:
-        logger.warning(f"Failed to evaluate expression '{expression}': {e}")
-        return None
+    # Find all <answer>...</answer> tags
+    answer_pattern = r"<answer>(.*?)</answer>"
+    matches = list(re.finditer(answer_pattern, solution_str, re.DOTALL))
 
-def extract_numbers_from_expression(expression: str) -> List[int]:
-    """
-    Extract all numbers used in an arithmetic expression.
-    
-    Args:
-        expression: String containing mathematical expression
-        
-    Returns:
-        List of numbers found in the expression
-    """
-    # Remove spaces and find all numbers
-    numbers = re.findall(r'\d+', expression)
-    return [int(num) for num in numbers]
-
-def check_countdown_solution(
-    expression: str,
-    available_numbers: List[int],
-    target: int,
-    tolerance: float = 1e-9
-) -> Dict[str, Any]:
-    """
-    Check if a proposed Countdown solution is valid.
-    
-    Args:
-        expression: The arithmetic expression proposed as solution
-        available_numbers: List of numbers available to use
-        target: The target number to reach
-        tolerance: Numerical tolerance for floating point comparison
-        
-    Returns:
-        Dictionary containing evaluation results
-    """
-    result = {
-        'is_correct': False,
-        'expression': expression,
-        'target': target,
-        'available_numbers': available_numbers,
-        'computed_result': None,
-        'numbers_used': [],
-        'valid_number_usage': False,
-        'valid_computation': False,
-        'error_message': None
-    }
-    
-    try:
-        # Clean the expression - remove spaces and normalize
-        clean_expr = expression.replace(' ', '')
-        
-        # Extract numbers used in the expression
-        numbers_used = extract_numbers_from_expression(clean_expr)
-        result['numbers_used'] = numbers_used
-        
-        # Check if all used numbers are available
-        available_copy = available_numbers.copy()
-        for num in numbers_used:
-            if num in available_copy:
-                available_copy.remove(num)
-            else:
-                result['error_message'] = f"Number {num} not available or used multiple times"
-                return result
-        
-        result['valid_number_usage'] = True
-        
-        # Evaluate the expression
-        computed_result = safe_eval(clean_expr)
-        if computed_result is None:
-            result['error_message'] = "Failed to evaluate expression"
-            return result
-        
-        result['computed_result'] = computed_result
-        result['valid_computation'] = True
-        
-        # Check if the result matches the target (within tolerance)
-        if abs(computed_result - target) <= tolerance:
-            result['is_correct'] = True
-        else:
-            result['error_message'] = f"Expression evaluates to {computed_result}, not {target}"
-        
-    except Exception as e:
-        result['error_message'] = f"Error evaluating solution: {str(e)}"
-        logger.error(f"Error in check_countdown_solution: {e}")
-    
-    return result
-
-def parse_countdown_answer(answer: str) -> Optional[str]:
-    """
-    Parse a model's answer to extract the arithmetic expression.
-    
-    Args:
-        answer: The raw answer from the model
-        
-    Returns:
-        The cleaned arithmetic expression, or None if parsing fails
-    """
-    if not answer:
-        return None
-    
-    # If the answer contains an equals sign, extract the left side
-    if '=' in answer:
-        expression = answer.split('=')[0].strip()
+    if matches:
+        final_answer = matches[-1].group(1).strip()
     else:
-        expression = answer.strip()
-    
-    # Remove common prefixes/suffixes
-    prefixes_to_remove = ['expression:', 'answer:', 'solution:', 'final answer:']
-    for prefix in prefixes_to_remove:
-        if expression.lower().startswith(prefix):
-            expression = expression[len(prefix):].strip()
-    
-    # Check if the expression contains arithmetic operators
-    if not re.search(r'[\+\-\*\/]', expression):
-        logger.warning(f"No arithmetic operators found in expression: {expression}")
-        return None
-    
-    return expression
+        final_answer = "N/A"
 
-def evaluate_countdown_problem(
-    model_answer: str,
-    available_numbers: List[int],
-    target: int
-) -> Dict[str, Any]:
-    """
-    Evaluate a model's answer to a Countdown problem.
-    
+    return final_answer
+
+
+def validate_equation(equation_str, available_numbers):
+    """Validate that equation only uses available numbers and each number once."""
+    try:
+        # Extract all numbers from the equation
+        numbers_in_eq = [int(n) for n in re.findall(r"\d+", equation_str)]
+
+        # Check if all numbers in equation are available
+        available_numbers = sorted(available_numbers)
+        numbers_in_eq = sorted(numbers_in_eq)
+
+        # Each number should be used exactly once
+        return numbers_in_eq == available_numbers
+    except:
+        return False
+
+
+def evaluate_equation(equation_str):
+    """Safely evaluate the arithmetic equation using eval() with precautions."""
+    try:
+        # Define a regex pattern that only allows numbers, operators, parentheses, and whitespace
+        allowed_pattern = r"^[\d+\-*/().\s]+$"
+        if not re.match(allowed_pattern, equation_str):
+            raise ValueError("Invalid characters in equation.")
+
+        # Evaluate the equation with restricted globals and locals
+        result = eval(equation_str, {"__builtins__": None}, {})
+        return result
+    except Exception:
+        return None
+
+
+def compute_score(
+    solution_str, ground_truth, method="strict", format_score=0.0, score=1.0
+):
+    """The scoring function for countdown task.
+
     Args:
-        model_answer: The model's proposed solution
-        available_numbers: Numbers available for the puzzle
-        target: Target number to reach
-        
-    Returns:
-        Dictionary containing evaluation results
+        solution_str: the solution text
+        ground_truth: dictionary containing target number and available numbers
+        method: unused for now
+        format_score: always zero in this implementation
+        score: full score for a valid, correct answer
     """
-    if not model_answer:
-        return {
-            'is_correct': False,
-            'error_message': 'No answer provided',
-            'expression': None,
-            'target': target,
-            'available_numbers': available_numbers
-        }
-    
-    # Parse the answer to extract the expression
-    expression = parse_countdown_answer(model_answer)
-    if not expression:
-        return {
-            'is_correct': False,
-            'error_message': 'Could not parse arithmetic expression from answer',
-            'expression': model_answer,
-            'target': target,
-            'available_numbers': available_numbers
-        }
-    
-    # Check the solution
-    return check_countdown_solution(expression, available_numbers, target)
+    target = ground_truth["target"]
+    numbers = ground_truth["nums"]
+
+    equation = extract_solution(solution_str=solution_str)
+    do_print = False
+
+    if do_print:
+        print("--------------------------------")
+        print(f"Target: {target} | Numbers: {numbers}")
+        print(f"Extracted equation: {equation}")
+        print(f"Solution string: {solution_str}")
+
+    if equation == "N/A":
+        if do_print:
+            print("No equation found")
+        return 0
+
+    if not validate_equation(equation, numbers):
+        if do_print:
+            print("Invalid equation")
+        return format_score  # Always 0.0
+
+    try:
+        result = evaluate_equation(equation)
+        if result is None:
+            if do_print:
+                print("Could not evaluate equation")
+            return format_score  # Always 0.0
+
+        if abs(result - target) < 1e-5:
+            if do_print:
+                print(f"Correct equation: {equation} = {result}")
+            return score
+        else:
+            if do_print:
+                print(f"Wrong result: equation = {result}, target = {target}")
+            return format_score  # Always 0.0
+    except:
+        if do_print:
+            print("Error evaluating equation")
+        return format_score  # Always 0.0
+
 
 def check_one_countdown_answer(
     model_ans: Optional[str],
@@ -231,7 +124,7 @@ def check_one_countdown_answer(
     debug: bool = False
 ) -> Dict[str, Any]:
     """
-    Check a single Countdown answer (similar interface to check_one_latex_answer).
+    Check a single Countdown answer (compatible interface with other answer checkers).
     
     Args:
         model_ans: The model's answer string
@@ -253,28 +146,47 @@ def check_one_countdown_answer(
             result['debug_info'] = 'Model answer is None'
         return result
     
-    evaluation = evaluate_countdown_problem(model_ans, available_numbers, target)
+    # Create ground truth dictionary for compute_score
+    ground_truth = {
+        'target': target,
+        'nums': available_numbers
+    }
     
-    # Convert to format consistent with other answer checkers
+    # Use the provided scoring function
+    score = compute_score(model_ans, ground_truth)
+    is_correct = score > 0
+    
+    # Extract additional information for debugging
+    extracted_equation = extract_solution(model_ans)
+    
     result = {
-        'is_correct': evaluation['is_correct'],
+        'is_correct': is_correct,
+        'score': score,
         'target': target,
         'available_numbers': available_numbers,
         'model_answer': model_ans,
-        'parsed_expression': evaluation.get('expression'),
-        'computed_result': evaluation.get('computed_result'),
-        'numbers_used': evaluation.get('numbers_used', []),
-        'valid_number_usage': evaluation.get('valid_number_usage', False),
-        'valid_computation': evaluation.get('valid_computation', False)
+        'extracted_equation': extracted_equation
     }
     
-    if not evaluation['is_correct']:
-        result['error'] = evaluation.get('error_message', 'Solution is incorrect')
+    if not is_correct:
+        if extracted_equation == "N/A":
+            result['error'] = 'No equation found in answer tags'
+        elif not validate_equation(extracted_equation, available_numbers):
+            result['error'] = 'Invalid equation - numbers not used correctly'
+        else:
+            # Try to evaluate to see what the result was
+            eval_result = evaluate_equation(extracted_equation)
+            if eval_result is None:
+                result['error'] = 'Could not evaluate equation'
+            else:
+                result['error'] = f'Equation evaluates to {eval_result}, not {target}'
+                result['evaluated_result'] = eval_result
     
     if debug:
         result['debug_info'] = {
             'original_answer': model_ans,
-            'full_evaluation': evaluation
+            'extracted_equation': extracted_equation,
+            'ground_truth': ground_truth
         }
     
     return result

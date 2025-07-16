@@ -262,14 +262,10 @@ def extract_harp_answer(text: str) -> Optional[str]:
 @register_extractor('countdown')
 def extract_countdown_answer(text: str) -> Optional[str]:
     """
-    Extract the answer from Countdown model output.
+    Extract the answer from Countdown model output looking for <answer>...</answer> tags.
     
-    This extractor looks for arithmetic expressions that represent the solution.
-    It handles various formats like:
-    - "6 * 7 = 42"
-    - "The expression is: 6 * 7"
-    - "Final answer: (10 + 5) * 3 = 45"
-    - Simple expressions at the end of the text
+    This extractor specifically looks for equations within answer tags as specified
+    in the Countdown prompt format.
     
     Args:
         text: The full text output from the model
@@ -281,60 +277,20 @@ def extract_countdown_answer(text: str) -> Optional[str]:
         logger.warning("Input text is None, cannot extract answer")
         return None
     
-    # First, try to find expressions that equal the target
-    # Pattern: expression = number
-    equals_pattern = r'([\d\s\+\-\*\/\(\)]+)\s*=\s*(\d+)'
-    equals_matches = re.findall(equals_pattern, text)
+    # Use the same extraction logic as the evaluation module
+    from src.eval.countdown_check import extract_solution
     
-    if equals_matches:
-        # Get the last match (usually the final answer)
-        expression, result = equals_matches[-1]
-        expression = expression.strip()
-        # Return the full equation
-        answer = f"{expression} = {result}"
-        logger.info(f"Extracted Countdown answer with equals: {answer}")
-        return answer
-    
-    # Try to find expressions after key phrases
-    key_phrases = [
-        r'[Ff]inal answer[:\s]+([^\n]+)',
-        r'[Tt]he expression is[:\s]+([^\n]+)',
-        r'[Ss]olution[:\s]+([^\n]+)',
-        r'[Aa]nswer[:\s]+([^\n]+)'
-    ]
-    
-    for pattern in key_phrases:
-        matches = re.findall(pattern, text)
-        if matches:
-            potential_answer = matches[-1].strip()
-            # Check if it contains arithmetic operators
-            if re.search(r'[\+\-\*\/]', potential_answer):
-                logger.info(f"Extracted Countdown answer after key phrase: {potential_answer}")
-                return potential_answer
-    
-    # Look for standalone arithmetic expressions in the last few lines
-    lines = text.strip().split('\n')
-    for line in reversed(lines[-5:]):  # Check last 5 lines
-        # Pattern for arithmetic expressions
-        expr_pattern = r'^[\d\s\+\-\*\/\(\)]+$'
-        line = line.strip()
-        if re.match(expr_pattern, line) and re.search(r'[\+\-\*\/]', line):
-            logger.info(f"Extracted Countdown answer from line: {line}")
-            return line
-    
-    # Last resort: find any arithmetic expression in the text
-    # This is less reliable but might catch edge cases
-    arithmetic_pattern = r'(\d+\s*[\+\-\*\/]\s*\d+(?:\s*[\+\-\*\/]\s*\d+)*)'
-    arithmetic_matches = re.findall(arithmetic_pattern, text)
-    
-    if arithmetic_matches:
-        # Return the last arithmetic expression found
-        answer = arithmetic_matches[-1].strip()
-        logger.info(f"Extracted Countdown answer (last resort): {answer}")
-        return answer
-    
-    logger.warning("No Countdown answer found in the output")
-    return None
+    try:
+        extracted = extract_solution(text)
+        if extracted != "N/A":
+            logger.info(f"Extracted Countdown answer from <answer> tags: {extracted}")
+            return extracted
+        else:
+            logger.warning("No Countdown answer found in <answer> tags")
+            return None
+    except Exception as e:
+        logger.error(f"Error extracting Countdown answer: {e}")
+        return None
 
 
 def extract_post_think_content(text: str) -> Optional[str]:

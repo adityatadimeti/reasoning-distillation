@@ -11,7 +11,12 @@ Usage:
 
 import pandas as pd
 import os
+import sys
 from pathlib import Path
+
+# Add src to path to import our solver
+sys.path.append(str(Path(__file__).parent.parent))
+from src.utils.countdown_solver import solve_countdown_puzzle
 
 def format_question(nums, target):
     """
@@ -25,7 +30,25 @@ def format_question(nums, target):
         Formatted question string
     """
     nums_str = ", ".join(map(str, nums))
-    return f"Using the numbers {nums_str}, reach the target number {target}. You may use addition (+), subtraction (-), multiplication (*), and division (/). Each number can be used at most once."
+    return f"Using the numbers {nums_str}, create an equation that equals {target}. You can use basic arithmetic operations (+, -, *, /) and each number can only be used once. Return the final answer in <answer> </answer> tags, for example <answer> (1 + 2) / 3 </answer>."
+
+def generate_solution_and_explanation(nums, target):
+    """
+    Generate both expression and human explanation for a countdown problem.
+    
+    Args:
+        nums: List of available numbers
+        target: Target number to reach
+        
+    Returns:
+        Tuple of (expression, explanation)
+    """
+    try:
+        expression, explanation = solve_countdown_puzzle(nums, target)
+        return expression, explanation
+    except Exception as e:
+        print(f"Error generating solution for {nums} -> {target}: {e}")
+        return "No solution found", f"Could not generate a solution for this problem: {e}"
 
 def main():
     """Main conversion function."""
@@ -43,6 +66,8 @@ def main():
     # Convert to required format
     converted_data = []
     
+    print("Generating solutions for countdown problems...")
+    
     for idx, row in df.iterrows():
         # Extract nums and target
         nums = row['nums']
@@ -54,17 +79,20 @@ def main():
         # Format question
         question = format_question(nums, target)
         
-        # For solution, we'll leave it empty as it needs to be generated
-        # The answer is the target number itself
-        solution = ""
-        answer = str(target)
+        # Generate solution and explanation
+        expression, explanation = generate_solution_and_explanation(nums, target)
         
         converted_data.append({
             'id': problem_id,
             'question': question,
-            'solution': solution,
-            'answer': answer
+            'solution': expression,
+            'answer': str(target),
+            'human_eval': explanation
         })
+        
+        # Print progress every 100 problems
+        if (idx + 1) % 100 == 0:
+            print(f"Processed {idx + 1}/{len(df)} problems...")
     
     # Create DataFrame
     converted_df = pd.DataFrame(converted_data)
