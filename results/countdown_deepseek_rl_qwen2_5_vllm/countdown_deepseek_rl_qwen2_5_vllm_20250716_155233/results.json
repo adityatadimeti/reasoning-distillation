@@ -312,6 +312,36 @@
       "problem_id": "countdown_custom_6_002",
       "error": "400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'",
       "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_7_001",
+      "error": "400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_7_002",
+      "error": "400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_8_001",
+      "error": "400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_8_002",
+      "error": "400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_9_001",
+      "error": "400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_9_002",
+      "error": "400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'",
+      "status": "error"
     }
   ]
 }

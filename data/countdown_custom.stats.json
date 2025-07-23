@@ -1,37 +1,37 @@
 {
   "4_numbers": {
-    "count": 5,
-    "target": 5,
+    "count": 2,
+    "target": 2,
     "success_rate": 1.0
   },
   "5_numbers": {
-    "count": 5,
-    "target": 5,
+    "count": 2,
+    "target": 2,
     "success_rate": 1.0
   },
   "6_numbers": {
-    "count": 5,
-    "target": 5,
+    "count": 2,
+    "target": 2,
     "success_rate": 1.0
   },
   "7_numbers": {
-    "count": 5,
-    "target": 5,
+    "count": 2,
+    "target": 2,
     "success_rate": 1.0
   },
   "8_numbers": {
-    "count": 5,
-    "target": 5,
+    "count": 2,
+    "target": 2,
     "success_rate": 1.0
   },
   "9_numbers": {
-    "count": 5,
-    "target": 5,
+    "count": 2,
+    "target": 2,
     "success_rate": 1.0
   },
   "10_numbers": {
-    "count": 5,
-    "target": 5,
+    "count": 2,
+    "target": 2,
     "success_rate": 1.0
   }
 }

@@ -1,6 +1,6 @@
 {
   "source": "Custom generated countdown problems",
-  "total_problems": 35,
+  "total_problems": 14,
   "difficulty_levels": [
     4,
     5,
@@ -10,7 +10,7 @@
     9,
     10
   ],
-  "problems_per_level": 5,
+  "problems_per_level": 2,
   "number_range": [
     1,
     200

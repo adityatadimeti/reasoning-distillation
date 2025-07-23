@@ -1,7 +1,7 @@
 # Experiment configuration for Countdown puzzles using DeepSeek-RL reasoning with Qwen2.5 summarization via vLLM
 experiment_name: "countdown_deepseek_rl_qwen2_5_vllm"
 results_dir: "./results/countdown_deepseek_rl_qwen2_5_vllm"
-data_path: "./data/countdown.csv"
+data_path: "./data/countdown_custom.csv"
 save_intermediate: true
 experiment_type: "summarize"
 
@@ -22,7 +22,7 @@ summarizer_model_provider: "vllm"
 vllm_config:
   host: "localhost"
   port: 8001
-  max_model_len: 16384
+  max_model_len: 32768
 
 # vLLM server configuration for summarizer model (Qwen on GPU 0)
 summarizer_vllm_config:
@@ -40,7 +40,7 @@ frequency_penalty: 0.0
 
 # Continuation parameters for long reasoning traces
 enable_continuation: true
-max_total_tokens: 16384
+max_total_tokens: 32768
 max_continuations: 4
 
 # Iteration parameters
@@ -60,7 +60,7 @@ summary_presence_penalty: 0.0
 summary_frequency_penalty: 0.0
 
 # Summary continuation parameters
-summary_max_total_tokens: 16384
+summary_max_total_tokens: 32768
 summary_max_continuations: 4
 
 # Answer extraction - use Countdown-specific extractor
