@@ -212,7 +212,8 @@ class VLLMModelClient(ModelClient):
             payload["stop"] = kwargs["stop"]
         
         # Set timeout to prevent hanging on long requests
-        timeout = aiohttp.ClientTimeout(total=1200)  # 20 minute timeout for complex reasoning
+        # With max_tokens=30000, generation can take a long time
+        timeout = aiohttp.ClientTimeout(total=3600)  # 60 minute timeout for very long generations
         async with aiohttp.ClientSession(timeout=timeout) as session:
             try:
                 if stream:
