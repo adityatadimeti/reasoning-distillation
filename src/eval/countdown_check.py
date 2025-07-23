@@ -26,50 +26,14 @@ def extract_solution(solution_str):
     if matches:
         final_answer = matches[-1].group(1).strip()
     else:
-        # Handle edge cases with malformed tags
-        
-        # Case 1: Double closing tags </answer></answer>
-        double_close_pattern = r"<answer>(.*?)</answer></answer>"
-        matches = list(re.finditer(double_close_pattern, solution_str, re.DOTALL))
-        if matches:
-            final_answer = matches[-1].group(1).strip()
-        
-        # Case 2: Only closing tag </answer>
-        elif "</answer>" in solution_str:
-            # Find content before the last </answer>
-            parts = solution_str.split("</answer>")
-            if len(parts) > 1:
-                # Get the last non-empty part before </answer>
-                for i in range(len(parts)-2, -1, -1):
-                    content = parts[i].strip()
-                    if content:
-                        # Extract the equation part (after any text)
-                        equation_match = re.search(r"[(\d+\-*/÷x×\s]+[\d)]$", content)
-                        if equation_match:
-                            final_answer = equation_match.group(0).strip()
-                            break
-                else:
-                    final_answer = "N/A"
-            else:
-                final_answer = "N/A"
-        
-        # Case 3: Only opening tag <answer>
-        elif "<answer>" in solution_str:
-            # Find content after the last <answer>
-            parts = solution_str.split("<answer>")
-            if len(parts) > 1:
-                content = parts[-1].strip()
-                # Extract equation until we hit non-equation text
-                equation_match = re.match(r"^[(\d+\-*/÷x×\s]+[\d)]", content)
-                if equation_match:
-                    final_answer = equation_match.group(0).strip()
-                else:
-                    final_answer = "N/A"
-            else:
-                final_answer = "N/A"
-        else:
-            final_answer = "N/A"
-
+        # For edge cases, just return N/A instead of complex regex patterns
+        # that might extract partial equations
+        final_answer = "N/A"
+    
+    # Clean up the answer: if it contains '=', take only the part before it
+    if '=' in final_answer:
+        final_answer = final_answer.split('=')[0].strip()
+    
     return final_answer
 
 
