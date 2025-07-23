@@ -31,7 +31,7 @@ summarizer_vllm_config:
   max_model_len: 32768
 
 # Generation parameters for reasoning
-max_tokens: 30000  # Use most of 32K context in single generation
+max_tokens: 25000  # Extended reasoning trace
 temperature: 0.6
 top_p: 0.95
 top_k: 40
@@ -40,7 +40,7 @@ frequency_penalty: 0.0
 
 # Continuation parameters for long reasoning traces
 enable_continuation: false  # Disable to avoid context accumulation bug
-max_total_tokens: 30000
+max_total_tokens: 25000
 max_continuations: 1  # Set to 1 to avoid "maximum continuation limit (0)" error
 
 
@@ -53,7 +53,7 @@ enable_summarization: true
 enable_final_summarization: true
 allow_fallback: true
 extract_post_think_summary: false
-summary_max_tokens: 30000  # Use most of 32K context in single generation
+summary_max_tokens: 5000  # Concise summary
 summary_temperature: 0.6
 summary_top_p: 0.95
 summary_top_k: 40
@@ -61,7 +61,7 @@ summary_presence_penalty: 0.0
 summary_frequency_penalty: 0.0
 
 # Summary continuation parameters
-summary_max_total_tokens: 30000
+summary_max_total_tokens: 5000
 summary_max_continuations: 1  # Set to 1 to avoid "maximum continuation limit (0)" error
 
 
