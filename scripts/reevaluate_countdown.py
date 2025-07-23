@@ -13,7 +13,7 @@ import ast
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.eval.countdown_check import check_one_countdown_answer
+from src.eval.countdown_check import check_one_countdown_answer, validate_equation, evaluate_equation
 from src.reasoning.extractor import extract_answer_with_config
 
 logging.basicConfig(level=logging.INFO)
@@ -83,14 +83,26 @@ def reevaluate_countdown_results(results_file: str, output_file: str = None):
             # Re-evaluate using countdown checker
             old_correct = iteration.get('correct', False)
             
-            check_result = check_one_countdown_answer(
-                model_answer,
-                nums,
-                target,
-                debug=False
-            )
+            # Since we already have the extracted equation, evaluate directly
+            # Check if equation uses all numbers correctly
+            is_valid = validate_equation(model_answer, nums)
             
-            new_correct = check_result['is_correct']
+            if is_valid:
+                # Evaluate the equation
+                result = evaluate_equation(model_answer)
+                new_correct = result is not None and abs(result - target) < 1e-5
+                check_result = {
+                    'is_correct': new_correct,
+                    'evaluated_result': result
+                }
+                if not new_correct and result is not None:
+                    check_result['error'] = f'Equation evaluates to {result}, not {target}'
+            else:
+                new_correct = False
+                check_result = {
+                    'is_correct': False,
+                    'error': 'Invalid equation - numbers not used correctly'
+                }
             
             # Update the result
             iteration['correct'] = new_correct
@@ -108,14 +120,16 @@ def reevaluate_countdown_results(results_file: str, output_file: str = None):
             if 'summary_answer' in iteration:
                 summary_answer = iteration['summary_answer']
                 if summary_answer:
-                    summary_result = check_one_countdown_answer(
-                        summary_answer,
-                        nums,
-                        target,
-                        debug=False
-                    )
+                    # Evaluate summary answer directly
+                    is_valid_summary = validate_equation(summary_answer, nums)
+                    
+                    if is_valid_summary:
+                        result_summary = evaluate_equation(summary_answer)
+                        new_summary_correct = result_summary is not None and abs(result_summary - target) < 1e-5
+                    else:
+                        new_summary_correct = False
+                    
                     old_summary_correct = iteration.get('summary_correct', False)
-                    new_summary_correct = summary_result['is_correct']
                     iteration['summary_correct'] = new_summary_correct
                     
                     if old_summary_correct != new_summary_correct:
