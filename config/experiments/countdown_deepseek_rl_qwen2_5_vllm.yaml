@@ -41,7 +41,7 @@ frequency_penalty: 0.0
 # Continuation parameters for long reasoning traces
 enable_continuation: false  # Disable to avoid context accumulation bug
 max_total_tokens: 30000
-max_continuations: 0
+max_continuations: 1  # Set to 1 to avoid "maximum continuation limit (0)" error
 
 
 # Iteration parameters
@@ -62,7 +62,7 @@ summary_frequency_penalty: 0.0
 
 # Summary continuation parameters
 summary_max_total_tokens: 30000
-summary_max_continuations: 0
+summary_max_continuations: 1  # Set to 1 to avoid "maximum continuation limit (0)" error
 
 
 # Answer extraction - use Countdown-specific extractor
