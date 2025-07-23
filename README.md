@@ -166,7 +166,7 @@ Experiment results are saved in the specified `results_dir` directory from your 
 
 ## Citations
 
-Please cite our work if you find it useful in your own research
+Please cite our work if you find it useful in your own research:
 
 ```bibtex
 @inproceedings{
