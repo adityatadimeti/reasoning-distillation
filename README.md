@@ -1,6 +1,8 @@
 # Reasoning Distillation
 
-This project contains the implementation for *Simple, Scalable Reasoning via Iterated Summarization*, presented at ICML 2025's Workshop on Long-Context Foundation Models and ICML 2025's Workshop on AI for Math. We investigate methods for improving mathematical reasoning through summarization and reflection. 
+This project contains the implementation for *Simple, Scalable Reasoning via Iterated Summarization*, presented at ICML 2025's **Workshop on Long-Context Foundation Models** and **Workshop on AI for Math**. We investigate methods for improving mathematical reasoning through summarization and reflection. 
+
+[Paper](https://openreview.net/pdf?id=uhZLKclfGB)
 
 ## Setup
 
