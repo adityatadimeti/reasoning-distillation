@@ -22,7 +22,7 @@ summarizer_model_provider: "vllm"
 vllm_config:
   host: "localhost"
   port: 8001
-  max_model_len: 16384
+  max_model_len: 32768
 
 # vLLM server configuration for summarizer model (Qwen on GPU 0)
 summarizer_vllm_config:
@@ -31,7 +31,7 @@ summarizer_vllm_config:
   max_model_len: 32768
 
 # Generation parameters for reasoning
-max_tokens: 8192
+max_tokens: 30000  # Use most of 32K context in single generation
 temperature: 0.6
 top_p: 0.95
 top_k: 40
@@ -39,9 +39,9 @@ presence_penalty: 0.0
 frequency_penalty: 0.0
 
 # Continuation parameters for long reasoning traces
-enable_continuation: true
-max_total_tokens: 16384
-max_continuations: 4
+enable_continuation: false  # Disable to avoid context accumulation bug
+max_total_tokens: 30000
+max_continuations: 0
 
 # Iteration parameters
 max_iterations: 4
@@ -52,7 +52,7 @@ enable_summarization: true
 enable_final_summarization: true
 allow_fallback: true
 extract_post_think_summary: false
-summary_max_tokens: 8192
+summary_max_tokens: 30000  # Use most of 32K context in single generation
 summary_temperature: 0.6
 summary_top_p: 0.95
 summary_top_k: 40
@@ -60,8 +60,8 @@ summary_presence_penalty: 0.0
 summary_frequency_penalty: 0.0
 
 # Summary continuation parameters
-summary_max_total_tokens: 16384
-summary_max_continuations: 4
+summary_max_total_tokens: 30000
+summary_max_continuations: 0
 
 # Answer extraction - use Countdown-specific extractor
 answer_extractor: "countdown"
