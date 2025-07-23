@@ -1,0 +1,170 @@
+#!/usr/bin/env python3
+"""Re-evaluate countdown results with the updated evaluation logic."""
+
+import json
+import argparse
+import os
+import sys
+from pathlib import Path
+import logging
+import ast
+
+# Add the project root to the Python path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+from src.eval.countdown_check import check_one_countdown_answer
+from src.reasoning.extractor import extract_answer_with_config
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def reevaluate_countdown_results(results_file: str, output_file: str = None):
+    """Re-evaluate countdown results with proper validation."""
+    
+    # Load the results
+    with open(results_file, 'r') as f:
+        results = json.load(f)
+    
+    # Check if this is a countdown experiment
+    config = results.get('config', {})
+    if config.get('answer_extractor') != 'countdown':
+        logger.warning("This doesn't appear to be a countdown experiment. Proceeding anyway...")
+    
+    # Re-evaluate each problem
+    problems_fixed = 0
+    total_problems = 0
+    
+    for problem in results.get('results', []):
+        total_problems += 1
+        problem_id = problem.get('problem_id', 'unknown')
+        
+        # Get the ground truth
+        correct_answer = problem.get('correct_answer')
+        if not correct_answer:
+            logger.warning(f"Problem {problem_id} missing correct_answer")
+            continue
+            
+        # Try to get nums from the problem
+        nums = None
+        
+        # First check if it's already in processed_gt_answer
+        processed_gt = problem.get('processed_gt_answer')
+        if isinstance(processed_gt, dict) and 'nums' in processed_gt:
+            nums = processed_gt['nums']
+            target = processed_gt['target']
+        else:
+            # Try to extract nums from the question
+            question = problem.get('question', '')
+            import re
+            nums_match = re.search(r'\[([^\]]+)\]', question)
+            if nums_match:
+                try:
+                    nums = ast.literal_eval('[' + nums_match.group(1) + ']')
+                    target = int(correct_answer)
+                except:
+                    logger.warning(f"Problem {problem_id}: Failed to parse nums from question")
+                    continue
+            else:
+                logger.warning(f"Problem {problem_id}: No nums found")
+                continue
+        
+        if not nums:
+            logger.warning(f"Problem {problem_id}: Cannot determine available numbers")
+            continue
+        
+        # Re-evaluate all iterations
+        for iteration in problem.get('iterations', []):
+            # Get the model's answer
+            model_answer = iteration.get('answer')
+            if not model_answer:
+                continue
+            
+            # Re-evaluate using countdown checker
+            old_correct = iteration.get('correct', False)
+            
+            check_result = check_one_countdown_answer(
+                model_answer,
+                nums,
+                target,
+                debug=False
+            )
+            
+            new_correct = check_result['is_correct']
+            
+            # Update the result
+            iteration['correct'] = new_correct
+            
+            # Log if the evaluation changed
+            if old_correct != new_correct:
+                logger.info(f"Problem {problem_id}, iteration {iteration.get('iteration', 0)}: "
+                           f"Changed from {old_correct} to {new_correct}")
+                logger.info(f"  Answer: {model_answer}")
+                if 'error' in check_result:
+                    logger.info(f"  Reason: {check_result['error']}")
+                problems_fixed += 1
+            
+            # Also update summary results if present
+            if 'summary_answer' in iteration:
+                summary_answer = iteration['summary_answer']
+                if summary_answer:
+                    summary_result = check_one_countdown_answer(
+                        summary_answer,
+                        nums,
+                        target,
+                        debug=False
+                    )
+                    old_summary_correct = iteration.get('summary_correct', False)
+                    new_summary_correct = summary_result['is_correct']
+                    iteration['summary_correct'] = new_summary_correct
+                    
+                    if old_summary_correct != new_summary_correct:
+                        logger.info(f"Problem {problem_id}, iteration {iteration.get('iteration', 0)} summary: "
+                                   f"Changed from {old_summary_correct} to {new_summary_correct}")
+        
+        # Update the backward compatibility fields for iteration 0
+        if problem.get('iterations'):
+            iter0 = problem['iterations'][0]
+            problem['initial_correct'] = iter0.get('correct', False)
+            if 'summary_correct' in iter0:
+                problem['initial_summary_correct'] = iter0['summary_correct']
+    
+    # Update timestamp
+    import time
+    results['reevaluation_timestamp'] = time.time()
+    results['reevaluation_note'] = "Re-evaluated with proper countdown validation"
+    
+    # Save the updated results
+    if output_file is None:
+        # Create a new filename with _reevaluated suffix
+        base = os.path.splitext(results_file)[0]
+        output_file = f"{base}_reevaluated.json"
+    
+    with open(output_file, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"\nRe-evaluation complete!")
+    logger.info(f"Total problems: {total_problems}")
+    logger.info(f"Evaluations changed: {problems_fixed}")
+    logger.info(f"Results saved to: {output_file}")
+    
+    return output_file
+
+def main():
+    parser = argparse.ArgumentParser(description='Re-evaluate countdown results with updated validation')
+    parser.add_argument('results_file', help='Path to the results.json file')
+    parser.add_argument('--output', '-o', help='Output file path (default: adds _reevaluated suffix)')
+    
+    args = parser.parse_args()
+    
+    if not os.path.exists(args.results_file):
+        print(f"Error: Results file not found: {args.results_file}")
+        return
+    
+    output_file = reevaluate_countdown_results(args.results_file, args.output)
+    
+    print(f"\nYou can now view the re-evaluated results with:")
+    print(f"python view_results.py {output_file}")
+
+if __name__ == "__main__":
+    main()

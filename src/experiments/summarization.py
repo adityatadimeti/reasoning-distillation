@@ -17,8 +17,34 @@ from src.reasoning.extractor import extract_reasoning_trace, extract_answer_with
 from src.reasoning.summarizer import summarize_reasoning, summarize_reasoning_async
 from src.dashboard.server import DashboardServer
 from src.eval.latex_answer_check import get_gt_answer, check_one_latex_answer
+from src.eval.countdown_check import check_one_countdown_answer
 
 logger = logging.getLogger(__name__)
+
+def get_answer_checker(config: Dict[str, Any]):
+    """Get the appropriate answer checker based on configuration."""
+    answer_extractor = config.get("answer_extractor", "default")
+    
+    if answer_extractor == "countdown":
+        def checker(model_answer, gt_answer, **kwargs):
+            # For countdown, gt_answer should be a dict with 'target' and 'nums'
+            if isinstance(gt_answer, dict) and 'target' in gt_answer and 'nums' in gt_answer:
+                return check_one_countdown_answer(
+                    model_answer,
+                    gt_answer['nums'],
+                    gt_answer['target'],
+                    debug=kwargs.get('debug', False)
+                )
+            else:
+                # Fallback if gt_answer is not in expected format
+                logger.warning("Countdown checker called with non-dict gt_answer, falling back to latex checker")
+                return check_one_latex_answer(model_answer, gt_answer, **kwargs)
+    else:
+        # Default to LaTeX answer checker
+        def checker(model_answer, gt_answer, **kwargs):
+            return check_one_latex_answer(model_answer, gt_answer, **kwargs)
+    
+    return checker
 
 class SummarizationExperiment(BaseExperiment):
     """Experiment for testing reasoning improvement through summarization."""
@@ -305,7 +331,10 @@ class SummarizationExperiment(BaseExperiment):
             final_summary_answer = extract_answer_with_config(final_summary, self.config)
             
             # Check if the summary answer is correct using the LaTeX answer check
-            final_summary_check_result = check_one_latex_answer(
+            # Get the appropriate answer checker
+            answer_checker = get_answer_checker(self.config)
+            
+            final_summary_check_result = answer_checker(
                 final_summary_answer,
                 gt_answer,
                 extract_policy="none",  # Skip extraction since we already extracted the answer
@@ -358,10 +387,30 @@ class SummarizationExperiment(BaseExperiment):
         question = problem["question"]
         correct_answer = problem["answer"]
         
-        # Process ground truth answer using get_gt_answer
+        # Process ground truth answer based on answer type
         extract_policy = self.config.get("extract_policy", "flex")
         eval_policy = self.config.get("eval_policy", "aggressive")
-        gt_answer = get_gt_answer(correct_answer, extract_policy=extract_policy)
+        
+        # Check if this is a countdown problem
+        if self.config.get("answer_extractor") == "countdown":
+            # For countdown, prepare the ground truth as a dict with target and nums
+            if "nums" in problem:
+                # Parse nums if it's a string
+                import ast
+                nums = problem["nums"]
+                if isinstance(nums, str):
+                    nums = ast.literal_eval(nums)
+                gt_answer = {
+                    "target": int(correct_answer),
+                    "nums": nums
+                }
+            else:
+                # Fallback to regular processing if nums not available
+                logger.warning(f"Countdown problem {problem_id} missing 'nums' field, falling back to latex processing")
+                gt_answer = get_gt_answer(correct_answer, extract_policy=extract_policy)
+        else:
+            # Use regular LaTeX answer processing
+            gt_answer = get_gt_answer(correct_answer, extract_policy=extract_policy)
         
         # Check if we have preloaded initial reasoning for this problem
         if hasattr(self, 'initial_reasoning_map') and problem_id in self.initial_reasoning_map:
@@ -443,7 +492,10 @@ class SummarizationExperiment(BaseExperiment):
             iter0_answer = extract_answer_with_config(iter0_reasoning, self.config)
             
             # Check if answer is correct using the new LaTeX answer check
-            iter0_check_result = check_one_latex_answer(
+            # Get the appropriate answer checker
+            answer_checker = get_answer_checker(self.config)
+            
+            iter0_check_result = answer_checker(
                 iter0_answer,
                 gt_answer,
                 extract_policy="none",  # Skip extraction since we already extracted the answer
@@ -601,7 +653,10 @@ class SummarizationExperiment(BaseExperiment):
             summary_answer = extract_answer_with_config(summary, self.config)
             
             # Check if the summary answer is correct using the LaTeX answer check
-            summary_check_result = check_one_latex_answer(
+            # Get the appropriate answer checker
+            answer_checker = get_answer_checker(self.config)
+            
+            summary_check_result = answer_checker(
                 summary_answer,
                 gt_answer,
                 extract_policy="none",  # Skip extraction since we already extracted the answer
@@ -715,7 +770,10 @@ class SummarizationExperiment(BaseExperiment):
             next_answer = extract_answer_with_config(next_reasoning, self.config)
             
             # Check if answer is correct using the LaTeX answer check
-            next_check_result = check_one_latex_answer(
+            # Get the appropriate answer checker
+            answer_checker = get_answer_checker(self.config)
+            
+            next_check_result = answer_checker(
                 next_answer,
                 gt_answer,
                 extract_policy="none",  # Skip extraction since we already extracted the answer
@@ -795,10 +853,30 @@ class SummarizationExperiment(BaseExperiment):
         question = problem["question"]
         correct_answer = problem["answer"]
         
-        # Process ground truth answer using get_gt_answer
+        # Process ground truth answer based on answer type
         extract_policy = self.config.get("extract_policy", "flex")
         eval_policy = self.config.get("eval_policy", "aggressive")
-        gt_answer = get_gt_answer(correct_answer, extract_policy=extract_policy)
+        
+        # Check if this is a countdown problem
+        if self.config.get("answer_extractor") == "countdown":
+            # For countdown, prepare the ground truth as a dict with target and nums
+            if "nums" in problem:
+                # Parse nums if it's a string
+                import ast
+                nums = problem["nums"]
+                if isinstance(nums, str):
+                    nums = ast.literal_eval(nums)
+                gt_answer = {
+                    "target": int(correct_answer),
+                    "nums": nums
+                }
+            else:
+                # Fallback to regular processing if nums not available
+                logger.warning(f"Countdown problem {problem_id} missing 'nums' field, falling back to latex processing")
+                gt_answer = get_gt_answer(correct_answer, extract_policy=extract_policy)
+        else:
+            # Use regular LaTeX answer processing
+            gt_answer = get_gt_answer(correct_answer, extract_policy=extract_policy)
         
         # Initialize current problem result to track partial progress
         self._current_problem_result = {
@@ -885,7 +963,10 @@ class SummarizationExperiment(BaseExperiment):
             iter0_answer = extract_answer_with_config(iter0_reasoning, self.config)
             
             # Check if answer is correct using the new LaTeX answer check
-            iter0_check_result = check_one_latex_answer(
+            # Get the appropriate answer checker
+            answer_checker = get_answer_checker(self.config)
+            
+            iter0_check_result = answer_checker(
                 iter0_answer,
                 gt_answer,
                 extract_policy="none",  # Skip extraction since we already extracted the answer
@@ -1027,7 +1108,10 @@ class SummarizationExperiment(BaseExperiment):
             summary_answer = extract_answer_with_config(summary, self.config)
             
             # Check if the summary answer is correct using the LaTeX answer check
-            summary_check_result = check_one_latex_answer(
+            # Get the appropriate answer checker
+            answer_checker = get_answer_checker(self.config)
+            
+            summary_check_result = answer_checker(
                 summary_answer,
                 gt_answer,
                 extract_policy="none",  # Skip extraction since we already extracted the answer
@@ -1119,7 +1203,10 @@ class SummarizationExperiment(BaseExperiment):
             next_answer = extract_answer_with_config(next_reasoning, self.config)
             
             # Check if answer is correct using the LaTeX answer check
-            next_check_result = check_one_latex_answer(
+            # Get the appropriate answer checker
+            answer_checker = get_answer_checker(self.config)
+            
+            next_check_result = answer_checker(
                 next_answer,
                 gt_answer,
                 extract_policy="none",  # Skip extraction since we already extracted the answer
