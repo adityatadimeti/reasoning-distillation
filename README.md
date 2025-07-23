@@ -163,3 +163,18 @@ Experiment results are saved in the specified `results_dir` directory from your 
 3. The dashboard (`--dashboard` flag) provides real-time feedback on experiment progress.
 4. Make sure `ENABLE_API_CALLS=1` is set in your `.env` file to allow the system to make actual API calls.
 5. Check the logs for detailed information about the experiment run.
+
+## Citations
+
+Please cite our work if you find it useful in your own research
+
+```bibtex
+@inproceedings{
+vajipey2025simple,
+title={Simple, Scalable Reasoning via Iterated Summarization},
+author={Vivek Vajipey and Aditya Tadimeti and Justin Shen and Ben Prystawski and Michael Y. Li and Noah Goodman},
+booktitle={ICML 2025 Workshop on Long-Context Foundation Models},
+year={2025},
+url={[https://openreview.net/forum?id=uhZLKclfGB](https://openreview.net/forum?id=uhZLKclfGB)}
+}
+```
