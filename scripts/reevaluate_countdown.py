@@ -83,7 +83,14 @@ def reevaluate_countdown_results(results_file: str, output_file: str = None):
             # Re-evaluate using countdown checker
             old_correct = iteration.get('correct', False)
             
-            # Since we already have the extracted equation, evaluate directly
+            # The model_answer is already the extracted equation (no tags)
+            # We need to match exactly what the experiment does
+            # In the experiment, check_one_countdown_answer expects the answer WITH tags
+            # But here we have the already extracted equation
+            
+            # Since the answer is already extracted, we skip the extraction step
+            # and evaluate directly (matching what compute_score does internally)
+            
             # Check if equation uses all numbers correctly
             is_valid = validate_equation(model_answer, nums)
             

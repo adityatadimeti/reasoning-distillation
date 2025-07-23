@@ -29,12 +29,51 @@ def get_answer_checker(config: Dict[str, Any]):
         def checker(model_answer, gt_answer, **kwargs):
             # For countdown, gt_answer should be a dict with 'target' and 'nums'
             if isinstance(gt_answer, dict) and 'target' in gt_answer and 'nums' in gt_answer:
-                return check_one_countdown_answer(
-                    model_answer,
-                    gt_answer['nums'],
-                    gt_answer['target'],
-                    debug=kwargs.get('debug', False)
-                )
+                # The model_answer here is already extracted (no tags)
+                # check_one_countdown_answer expects answer WITH tags, so we need to wrap it
+                # But that would cause double extraction, so instead we evaluate directly
+                
+                from src.eval.countdown_check import validate_equation, evaluate_equation
+                
+                # Validate that equation uses all numbers correctly
+                is_valid = validate_equation(model_answer, gt_answer['nums'])
+                
+                if not is_valid:
+                    return {
+                        'is_correct': False,
+                        'error': 'Invalid equation - numbers not used correctly',
+                        'target': gt_answer['target'],
+                        'available_numbers': gt_answer['nums'],
+                        'model_answer': model_answer
+                    }
+                
+                # Evaluate the equation
+                result = evaluate_equation(model_answer)
+                
+                if result is None:
+                    return {
+                        'is_correct': False,
+                        'error': 'Could not evaluate equation',
+                        'target': gt_answer['target'],
+                        'available_numbers': gt_answer['nums'],
+                        'model_answer': model_answer
+                    }
+                
+                # Check if result matches target
+                is_correct = abs(result - gt_answer['target']) < 1e-5
+                
+                return_dict = {
+                    'is_correct': is_correct,
+                    'target': gt_answer['target'],
+                    'available_numbers': gt_answer['nums'],
+                    'model_answer': model_answer,
+                    'evaluated_result': result
+                }
+                
+                if not is_correct:
+                    return_dict['error'] = f'Equation evaluates to {result}, not {gt_answer["target"]}'
+                
+                return return_dict
             else:
                 # Fallback if gt_answer is not in expected format
                 logger.warning("Countdown checker called with non-dict gt_answer, falling back to latex checker")
