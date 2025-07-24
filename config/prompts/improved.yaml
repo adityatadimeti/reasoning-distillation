@@ -107,13 +107,7 @@ harp_your_approach:
 
 countdown_your_approach:
   template: |
-    Solve this Countdown numbers puzzle. You need to combine the given numbers using basic arithmetic operations (+, -, *, /) to reach the target number.
-    
-    Rules:
-    - You may use addition (+), subtraction (-), multiplication (*), and division (/)
-    - Each number can be used at most once
-    - You must reach exactly the target number
-    - Show your work step by step
+    Solve this problem. 
     
     PROBLEM:
     {question}

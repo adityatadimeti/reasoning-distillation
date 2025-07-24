@@ -180,3 +180,16 @@ countdown_summary:
     {reasoning}
 
     SUMMARY:
+
+
+countdown_summary_backtracking:
+  template: |
+    Summarize the following attempted solution to the problem, emphasizing the instances where the model changed its strategy, revised a previous decision, or explicitly backtracked from a prior line of reasoning:
+    
+    PROBLEM:
+    {question}
+
+    ATTEMPTED SOLUTION:
+    {reasoning}
+
+    SUMMARY:

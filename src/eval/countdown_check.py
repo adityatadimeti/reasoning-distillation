@@ -19,15 +19,47 @@ def extract_solution(solution_str):
     elif "<|im_start|>assistant" in solution_str:
         solution_str = solution_str.split("<|im_start|>assistant", 1)[1]
 
-    # Try standard <answer>...</answer> pattern first
-    answer_pattern = r"<answer>(.*?)</answer>"
-    matches = list(re.finditer(answer_pattern, solution_str, re.DOTALL))
-
-    if matches:
-        final_answer = matches[-1].group(1).strip()
+    # Find all answer tags by looking for complete pairs
+    # First, find all positions of <answer> and </answer> tags
+    answer_starts = []
+    answer_ends = []
+    
+    # Find all <answer> positions
+    pos = 0
+    while True:
+        pos = solution_str.find("<answer>", pos)
+        if pos == -1:
+            break
+        answer_starts.append(pos + 8)  # Position after <answer>
+        pos += 8
+    
+    # Find all </answer> positions
+    pos = 0
+    while True:
+        pos = solution_str.find("</answer>", pos)
+        if pos == -1:
+            break
+        answer_ends.append(pos)  # Position before </answer>
+        pos += 9
+    
+    # Match answer tags properly - each end tag with the nearest preceding start tag
+    valid_answers = []
+    for end_pos in answer_ends:
+        # Find the nearest start tag before this end tag
+        matching_start = None
+        for start_pos in reversed(answer_starts):
+            if start_pos < end_pos:
+                matching_start = start_pos
+                break
+        
+        if matching_start is not None:
+            content = solution_str[matching_start:end_pos].strip()
+            valid_answers.append(content)
+    
+    if valid_answers:
+        # Take the last valid answer
+        final_answer = valid_answers[-1]
     else:
-        # For edge cases, just return N/A instead of complex regex patterns
-        # that might extract partial equations
         final_answer = "N/A"
     
     # Clean up the answer: if it contains '=', take only the part before it

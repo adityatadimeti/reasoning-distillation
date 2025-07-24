@@ -17,7 +17,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from src.utils.countdown_solver import solve_countdown_puzzle
 
 class CountdownProblemGenerator:
-    def __init__(self, number_range=(1, 200), target_range=(1, 100)):
+    def __init__(self, number_range=(1, 100), target_range=(1, 100)):
         self.number_range = number_range
         self.target_range = target_range
         self.generated_problems = []
@@ -98,10 +98,11 @@ class CountdownProblemGenerator:
         nums_str = ", ".join(map(str, numbers))
         return (f"Using all numbers from [{nums_str}], create an equation that equals {target}.\n\n"
                 f"Rules:\n"
-                f"- You must use every single number exactly once\n"
+                f"- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n"
                 f"- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n"
                 f"- Use parentheses to control order of operations\n\n"
-                f"Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.")
+                f"- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\n"
+                f"Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n")
     
     def generate_problems(self, num_count: int, count: int = 1000) -> List[dict]:
         """Generate 'count' problems with 'num_count' numbers each."""
@@ -172,7 +173,7 @@ def main():
     parser.add_argument(
         "--output",
         type=str,
-        default="data/countdown_custom.csv",
+        default="data/countdown_custom_1.csv",
         help="Output CSV file path (default: data/countdown_custom.csv)"
     )
     parser.add_argument(
