@@ -160,13 +160,13 @@ def main():
     parser.add_argument(
         "--count-per-level", 
         type=int, 
-        default=1000,
+        default=10,
         help="Number of problems to generate per difficulty level (default: 1000)"
     )
     parser.add_argument(
         "--levels",
         type=str,
-        default="4,5,6,7,8,9,10",
+        default="4,5,6",
         help="Comma-separated list of difficulty levels to generate (default: 4,5,6,7,8,9,10)"
     )
     parser.add_argument(
@@ -227,7 +227,7 @@ def main():
         'total_problems': len(all_problems),
         'difficulty_levels': levels,
         'problems_per_level': args.count_per_level,
-        'number_range': [1, 200],
+        'number_range': [1, 100],
         'target_range': [1, 100],
         'description': 'Countdown arithmetic puzzles with varying difficulty based on number count',
         'rules': [
