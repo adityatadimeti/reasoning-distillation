@@ -1,9 +1,9 @@
 {
-  "total_problems": 18,
+  "total_problems": 30,
   "token_usage": {
-    "prompt_tokens": 443537,
-    "completion_tokens": 453464,
-    "total_tokens": 897001
+    "prompt_tokens": 1075249,
+    "completion_tokens": 1200198,
+    "total_tokens": 2275447
   },
   "cost_info": {
     "prompt_cost": 0.0,
@@ -11,12 +11,12 @@
     "total_cost": 0.0
   },
   "problems": {
-    "countdown_custom_4_002": {
+    "countdown_custom_4_001": {
       "token_usage": {
         "total": {
-          "prompt_tokens": 6963,
-          "completion_tokens": 4886,
-          "total_tokens": 11849
+          "prompt_tokens": 8944,
+          "completion_tokens": 7144,
+          "total_tokens": 16088
         }
       },
       "cost_info": {
@@ -27,12 +27,12 @@
         }
       }
     },
-    "countdown_custom_4_001": {
+    "countdown_custom_4_002": {
       "token_usage": {
         "total": {
-          "prompt_tokens": 8944,
-          "completion_tokens": 7144,
-          "total_tokens": 16088
+          "prompt_tokens": 6963,
+          "completion_tokens": 4886,
+          "total_tokens": 11849
         }
       },
       "cost_info": {
@@ -107,6 +107,22 @@
         }
       }
     },
+    "countdown_custom_4_007": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 48406,
+          "completion_tokens": 53679,
+          "total_tokens": 102085
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
     "countdown_custom_4_008": {
       "token_usage": {
         "total": {
@@ -155,12 +171,12 @@
         }
       }
     },
-    "countdown_custom_4_007": {
+    "countdown_custom_5_001": {
       "token_usage": {
         "total": {
-          "prompt_tokens": 48406,
-          "completion_tokens": 53679,
-          "total_tokens": 102085
+          "prompt_tokens": 62970,
+          "completion_tokens": 69990,
+          "total_tokens": 132960
         }
       },
       "cost_info": {
@@ -219,44 +235,12 @@
         }
       }
     },
-    "countdown_custom_5_001": {
-      "token_usage": {
-        "total": {
-          "prompt_tokens": 62970,
-          "completion_tokens": 69990,
-          "total_tokens": 132960
-        }
-      },
-      "cost_info": {
-        "total": {
-          "prompt_cost": 0.0,
-          "completion_cost": 0.0,
-          "total_cost": 0.0
-        }
-      }
-    },
     "countdown_custom_5_005": {
       "token_usage": {
         "total": {
           "prompt_tokens": 70303,
           "completion_tokens": 74296,
           "total_tokens": 144599
-        }
-      },
-      "cost_info": {
-        "total": {
-          "prompt_cost": 0.0,
-          "completion_cost": 0.0,
-          "total_cost": 0.0
-        }
-      }
-    },
-    "countdown_custom_5_007": {
-      "token_usage": {
-        "total": {
-          "prompt_tokens": 13449,
-          "completion_tokens": 11325,
-          "total_tokens": 24774
         }
       },
       "cost_info": {
@@ -283,12 +267,220 @@
         }
       }
     },
+    "countdown_custom_5_007": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 13449,
+          "completion_tokens": 11325,
+          "total_tokens": 24774
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_5_008": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 60603,
+          "completion_tokens": 82772,
+          "total_tokens": 143375
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
     "countdown_custom_5_009": {
       "token_usage": {
         "total": {
           "prompt_tokens": 12374,
           "completion_tokens": 9211,
           "total_tokens": 21585
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_5_010": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 36722,
+          "completion_tokens": 35065,
+          "total_tokens": 71787
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_6_001": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 43689,
+          "completion_tokens": 42828,
+          "total_tokens": 86517
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_6_002": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 59921,
+          "completion_tokens": 76723,
+          "total_tokens": 136644
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_6_003": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 46630,
+          "completion_tokens": 48251,
+          "total_tokens": 94881
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_6_004": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 70591,
+          "completion_tokens": 78201,
+          "total_tokens": 148792
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_6_005": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 77639,
+          "completion_tokens": 91186,
+          "total_tokens": 168825
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_6_006": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 56325,
+          "completion_tokens": 62017,
+          "total_tokens": 118342
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_6_007": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 42900,
+          "completion_tokens": 42007,
+          "total_tokens": 84907
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_6_008": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 64874,
+          "completion_tokens": 86855,
+          "total_tokens": 151729
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_6_009": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 55051,
+          "completion_tokens": 77400,
+          "total_tokens": 132451
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_6_010": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 54937,
+          "completion_tokens": 61294,
+          "total_tokens": 116231
         }
       },
       "cost_info": {
