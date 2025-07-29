@@ -1,0 +1,591 @@
+{
+  "total_problems": 36,
+  "token_usage": {
+    "prompt_tokens": 990618,
+    "completion_tokens": 1114257,
+    "total_tokens": 2104875
+  },
+  "cost_info": {
+    "prompt_cost": 0.0,
+    "completion_cost": 0.0,
+    "total_cost": 0.0
+  },
+  "problems": {
+    "countdown_custom_4_001": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 10112,
+          "completion_tokens": 8214,
+          "total_tokens": 18326
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_002": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 10905,
+          "completion_tokens": 8364,
+          "total_tokens": 19269
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_003": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 7144,
+          "completion_tokens": 4449,
+          "total_tokens": 11593
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_004": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 11484,
+          "completion_tokens": 8551,
+          "total_tokens": 20035
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_005": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 6293,
+          "completion_tokens": 4591,
+          "total_tokens": 10884
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_007": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 8757,
+          "completion_tokens": 6146,
+          "total_tokens": 14903
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_008": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 18625,
+          "completion_tokens": 15964,
+          "total_tokens": 34589
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_006": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 88790,
+          "completion_tokens": 125920,
+          "total_tokens": 214710
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_010": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 9263,
+          "completion_tokens": 7505,
+          "total_tokens": 16768
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_009": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 90086,
+          "completion_tokens": 126017,
+          "total_tokens": 216103
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_011": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 13071,
+          "completion_tokens": 10710,
+          "total_tokens": 23781
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_012": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 9688,
+          "completion_tokens": 6132,
+          "total_tokens": 15820
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_013": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 11730,
+          "completion_tokens": 8966,
+          "total_tokens": 20696
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_014": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 12997,
+          "completion_tokens": 10653,
+          "total_tokens": 23650
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_015": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 8037,
+          "completion_tokens": 5969,
+          "total_tokens": 14006
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_016": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 33793,
+          "completion_tokens": 31147,
+          "total_tokens": 64940
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_018": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 8638,
+          "completion_tokens": 6266,
+          "total_tokens": 14904
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_019": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 7537,
+          "completion_tokens": 5403,
+          "total_tokens": 12940
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_020": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 11392,
+          "completion_tokens": 8830,
+          "total_tokens": 20222
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_021": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 34798,
+          "completion_tokens": 32774,
+          "total_tokens": 67572
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_022": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 7020,
+          "completion_tokens": 4222,
+          "total_tokens": 11242
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_023": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 11041,
+          "completion_tokens": 8396,
+          "total_tokens": 19437
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_024": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 10734,
+          "completion_tokens": 7857,
+          "total_tokens": 18591
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_025": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 8932,
+          "completion_tokens": 6115,
+          "total_tokens": 15047
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_026": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 13296,
+          "completion_tokens": 10515,
+          "total_tokens": 23811
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_017": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 73930,
+          "completion_tokens": 112259,
+          "total_tokens": 186189
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_028": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 7685,
+          "completion_tokens": 4613,
+          "total_tokens": 12298
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_027": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 33105,
+          "completion_tokens": 29856,
+          "total_tokens": 62961
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_030": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 8748,
+          "completion_tokens": 7060,
+          "total_tokens": 15808
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_029": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 73364,
+          "completion_tokens": 90537,
+          "total_tokens": 163901
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_032": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 9977,
+          "completion_tokens": 7277,
+          "total_tokens": 17254
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_031": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 78024,
+          "completion_tokens": 109780,
+          "total_tokens": 187804
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_033": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 84604,
+          "completion_tokens": 82278,
+          "total_tokens": 166882
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_035": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 59558,
+          "completion_tokens": 57298,
+          "total_tokens": 116856
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_034": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 87313,
+          "completion_tokens": 125963,
+          "total_tokens": 213276
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_037": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 10147,
+          "completion_tokens": 7660,
+          "total_tokens": 17807
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    }
+  }
+}
