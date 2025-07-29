@@ -1,0 +1,361 @@
+id,question,solution,answer,nums
+countdown_custom_4_001,"Using all numbers from [49, 19, 70, 88], create an equation that equals 90.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",((70 + 88) - (49 + 19)),90,"[49, 19, 70, 88]"
+countdown_custom_4_002,"Using all numbers from [84, 50, 12, 52], create an equation that equals 81.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",((12 + (84 * 50)) / 52),81,"[84, 50, 12, 52]"
+countdown_custom_4_003,"Using all numbers from [37, 97, 1, 83], create an equation that equals 23.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",((1 * 83) - (97 - 37)),23,"[37, 97, 1, 83]"
+countdown_custom_4_004,"Using all numbers from [3, 96, 31, 88], create an equation that equals 77.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",(96 - ((88 - 31) / 3)),77,"[3, 96, 31, 88]"
+countdown_custom_4_005,"Using all numbers from [31, 68, 61, 74], create an equation that equals 98.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",((61 + 74) - (68 - 31)),98,"[31, 68, 61, 74]"
+countdown_custom_4_006,"Using all numbers from [4, 13, 73, 39], create an equation that equals 61.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",(73 - ((4 * 39) / 13)),61,"[4, 13, 73, 39]"
+countdown_custom_4_007,"Using all numbers from [33, 29, 7, 74], create an equation that equals 5.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",((74 - 7) - (33 + 29)),5,"[33, 29, 7, 74]"
+countdown_custom_4_008,"Using all numbers from [42, 84, 96, 50], create an equation that equals 7.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",((84 * (50 - 42)) / 96),7,"[42, 84, 96, 50]"
+countdown_custom_4_009,"Using all numbers from [1, 40, 57, 28], create an equation that equals 38.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",(40 - ((57 - 1) / 28)),38,"[1, 40, 57, 28]"
+countdown_custom_4_010,"Using all numbers from [86, 30, 71, 6], create an equation that equals 39.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",((86 + 30) - (71 + 6)),39,"[86, 30, 71, 6]"
+countdown_custom_5_001,"Using all numbers from [42, 14, 47, 91, 73], create an equation that equals 41.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",(47 - ((91 - 73) / (42 / 14))),41,"[42, 14, 47, 91, 73]"
+countdown_custom_5_002,"Using all numbers from [40, 71, 58, 60, 39], create an equation that equals 69.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",(71 - ((60 + (58 - 40)) / 39)),69,"[40, 71, 58, 60, 39]"
+countdown_custom_5_003,"Using all numbers from [16, 58, 70, 30, 80], create an equation that equals 73.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",(70 + ((58 + 80) / (16 + 30))),73,"[16, 58, 70, 30, 80]"
+countdown_custom_5_004,"Using all numbers from [82, 18, 43, 28, 23], create an equation that equals 7.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",(((82 + 43) / (28 - 23)) - 18),7,"[82, 18, 43, 28, 23]"
+countdown_custom_5_005,"Using all numbers from [26, 18, 48, 74, 51], create an equation that equals 58.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",(((26 + 18) * (51 - 48)) - 74),58,"[26, 18, 48, 74, 51]"
+countdown_custom_5_006,"Using all numbers from [25, 54, 47, 78, 11], create an equation that equals 22.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",(11 * ((78 - 47) - (54 - 25))),22,"[25, 54, 47, 78, 11]"
+countdown_custom_5_007,"Using all numbers from [31, 95, 65, 7, 57], create an equation that equals 82.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",(95 - ((57 + (65 - 31)) / 7)),82,"[31, 95, 65, 7, 57]"
+countdown_custom_5_008,"Using all numbers from [77, 16, 47, 87, 21], create an equation that equals 79.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",((21 * ((77 + 16) - 87)) - 47),79,"[77, 16, 47, 87, 21]"
+countdown_custom_5_009,"Using all numbers from [42, 1, 2, 60, 27], create an equation that equals 50.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",((2 * 60) - (27 + (42 + 1))),50,"[42, 1, 2, 60, 27]"
+countdown_custom_5_010,"Using all numbers from [32, 91, 48, 13, 96], create an equation that equals 53.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",(91 - ((32 - 13) * (96 / 48))),53,"[32, 91, 48, 13, 96]"
+countdown_custom_6_001,"Using all numbers from [18, 8, 47, 57, 39, 58], create an equation that equals 38.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",((8 * ((18 + 47) - 58)) - (57 - 39)),38,"[18, 8, 47, 57, 39, 58]"
+countdown_custom_6_002,"Using all numbers from [11, 22, 30, 70, 35, 8], create an equation that equals 92.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",((8 * (35 - (22 - 11))) - (30 + 70)),92,"[11, 22, 30, 70, 35, 8]"
+countdown_custom_6_003,"Using all numbers from [37, 84, 77, 30, 51, 9], create an equation that equals 44.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",(51 - ((84 * 30) / (9 * (77 - 37)))),44,"[37, 84, 77, 30, 51, 9]"
+countdown_custom_6_004,"Using all numbers from [57, 72, 25, 16, 43, 92], create an equation that equals 97.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",(92 + (((16 * (72 - 57)) - 25) / 43)),97,"[57, 72, 25, 16, 43, 92]"
+countdown_custom_6_005,"Using all numbers from [1, 54, 72, 77, 85, 29], create an equation that equals 84.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",((85 - (72 - 1)) * (29 - (77 - 54))),84,"[1, 54, 72, 77, 85, 29]"
+countdown_custom_6_006,"Using all numbers from [48, 91, 68, 9, 27, 52], create an equation that equals 65.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",(((68 * 9) - 27) / (52 - (91 - 48))),65,"[48, 91, 68, 9, 27, 52]"
+countdown_custom_6_007,"Using all numbers from [39, 73, 88, 78, 9, 76], create an equation that equals 95.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",((39 + 88) - ((73 - 9) / (78 - 76))),95,"[39, 73, 88, 78, 9, 76]"
+countdown_custom_6_008,"Using all numbers from [48, 13, 66, 32, 67, 83], create an equation that equals 7.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",((66 - (48 + 13)) + (32 / (83 - 67))),7,"[48, 13, 66, 32, 67, 83]"
+countdown_custom_6_009,"Using all numbers from [18, 83, 17, 43, 46, 76], create an equation that equals 25.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",((76 - 46) - ((83 - 18) - (17 + 43))),25,"[18, 83, 17, 43, 46, 76]"
+countdown_custom_6_010,"Using all numbers from [27, 38, 73, 86, 14, 59], create an equation that equals 36.
+
+Rules:
+- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)
+- Available operations: addition (+), subtraction (-), multiplication (*), division (/)
+- Use parentheses to control order of operations
+
+- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.
+
+Return your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.
+
+",(38 - (((73 - 27) + (86 - 14)) / 59)),36,"[27, 38, 73, 86, 14, 59]"

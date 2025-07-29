@@ -1,7 +1,7 @@
 # Experiment configuration for Countdown puzzles using DeepSeek-RL reasoning with Qwen2.5 summarization via vLLM
 experiment_name: "countdown_deepseek_rl_qwen2_5_vllm"
 results_dir: "./results/countdown_deepseek_rl_qwen2_5_vllm"
-data_path: "./data/countdown_custom.csv"
+data_path: "./data/countdown_custom_2.csv"
 save_intermediate: true
 experiment_type: "summarize"
 

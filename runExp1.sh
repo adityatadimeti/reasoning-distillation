@@ -9,7 +9,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=16
 #SBATCH --gres=gpu:2
-#SBATCH --time=12:00:00
+#SBATCH --time=36:00:00
 
 # Activate your conda or virtual environment
 source /sailhome/jshen3/miniconda3/etc/profile.d/conda.sh

@@ -1,593 +1,71 @@
 /scr/jshen3/miniconda3/envs/distill/lib/python3.10/site-packages/transformers/utils/hub.py:105: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
   warnings.warn(
-2025-07-22 17:21:09,493 - __main__ - INFO - Loaded 14 problems
-2025-07-22 17:21:09,577 - src.experiments.base - INFO - Results will be saved to ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250722_172109
-2025-07-22 17:21:09,591 - __main__ - INFO - Running experiment in parallel mode with max concurrency of 2
-2025-07-22 17:21:09,592 - src.experiments.summarization - INFO - Processing 14 problems with max concurrency of 2
-2025-07-22 17:21:09,593 - src.experiments.summarization - INFO - [1/14] Starting problem countdown_custom_4_001
-2025-07-22 17:21:09,600 - src.experiments.summarization - INFO - [2/14] Starting problem countdown_custom_4_002
-2025-07-22 17:22:22,827 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 0 finish reason: stop
-2025-07-22 17:22:22,874 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (192 - 151) + (127 - 124)
-2025-07-22 17:22:23,035 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_001, iteration 0
-2025-07-22 17:22:23,035 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 17:22:36,182 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, summary 0 finish reason: stop
-2025-07-22 17:22:36,183 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (192 - 151) + (127 - 124)
-2025-07-22 17:22:36,196 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 0 summary answer: (192 - 151) + (127 - 124)
-2025-07-22 17:22:36,196 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 0 summary correct: True
-2025-07-22 17:22:36,196 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: (192 - 151) + (127 - 124)
-2025-07-22 17:23:22,997 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 1 finish reason: stop
-2025-07-22 17:23:22,998 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (192 - 151) + (127 - 124)
-2025-07-22 17:23:23,011 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_001, iteration 1
-2025-07-22 17:23:23,011 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 17:23:37,342 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, summary 1 finish reason: stop
-2025-07-22 17:23:37,342 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (192 - 151) + (127 - 124)
-2025-07-22 17:23:37,354 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 1 summary answer: (192 - 151) + (127 - 124)
-2025-07-22 17:23:37,354 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 1 summary correct: True
-2025-07-22 17:23:37,354 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 1: (192 - 151) + (127 - 124)
-2025-07-22 17:24:22,360 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 2 finish reason: stop
-2025-07-22 17:24:22,361 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (192 - 151) + (127 - 124)
-2025-07-22 17:24:22,373 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_001, iteration 2
-2025-07-22 17:24:22,373 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 17:24:36,149 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, summary 2 finish reason: stop
-2025-07-22 17:24:36,149 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (192 - 151) + (127 - 124)
-2025-07-22 17:24:36,161 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 2 summary answer: (192 - 151) + (127 - 124)
-2025-07-22 17:24:36,161 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 2 summary correct: True
-2025-07-22 17:24:36,161 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 2: (192 - 151) + (127 - 124)
-2025-07-22 17:26:11,840 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 3 finish reason: stop
-2025-07-22 17:26:11,840 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (192 - 151) + (127 - 124)
-2025-07-22 17:26:11,854 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_001, iteration 3
-2025-07-22 17:26:11,854 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 17:26:19,231 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 0 finish reason: stop
-2025-07-22 17:26:19,231 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 95 - (172 / (36 + 136)) = 94
-2025-07-22 17:26:19,241 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_002, iteration 0
-2025-07-22 17:26:19,241 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 17:26:28,744 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, summary 3 finish reason: stop
-2025-07-22 17:26:28,744 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (192 - 151) + (127 - 124)
-2025-07-22 17:26:28,757 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 3 summary answer: (192 - 151) + (127 - 124)
-2025-07-22 17:26:28,757 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 3 summary correct: True
-2025-07-22 17:26:28,757 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 3: (192 - 151) + (127 - 124)
-2025-07-22 17:26:32,748 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, summary 0 finish reason: stop
-2025-07-22 17:26:32,748 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 95 - (172 / (36 + 136))
-2025-07-22 17:26:32,760 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 0 summary answer: 95 - (172 / (36 + 136))
-2025-07-22 17:26:32,760 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 0 summary correct: True
-2025-07-22 17:26:32,760 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: 95 - (172 / (36 + 136)) = 94
-2025-07-22 17:27:10,318 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 4 finish reason: stop
-2025-07-22 17:27:10,318 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (192 - 151) + (127 - 124)
-2025-07-22 17:27:10,335 - src.experiments.summarization - INFO - Final answer for problem countdown_custom_4_001: (192 - 151) + (127 - 124)
-2025-07-22 17:27:10,335 - src.experiments.summarization - INFO - Final answer correct: True
-2025-07-22 17:27:10,335 - src.experiments.summarization - INFO - [1/14] Completed problem countdown_custom_4_001
-2025-07-22 17:27:10,377 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250722_172109
-2025-07-22 17:27:10,377 - src.experiments.summarization - INFO - [3/14] Starting problem countdown_custom_5_001
-2025-07-22 17:27:16,145 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 1 finish reason: stop
-2025-07-22 17:27:16,145 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 95 - (172 / (36 + 136))
-2025-07-22 17:27:16,159 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_002, iteration 1
-2025-07-22 17:27:16,159 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 17:27:31,390 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, summary 1 finish reason: stop
-2025-07-22 17:27:31,390 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 95 - (172 / (36 + 136))
-2025-07-22 17:27:31,401 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 1 summary answer: 95 - (172 / (36 + 136))
-2025-07-22 17:27:31,401 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 1 summary correct: True
-2025-07-22 17:27:31,401 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 1: 95 - (172 / (36 + 136))
-2025-07-22 17:28:11,666 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 2 finish reason: stop
-2025-07-22 17:28:11,666 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 95 - (172 / (36 + 136))
-2025-07-22 17:28:11,679 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_002, iteration 2
-2025-07-22 17:28:11,679 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 17:28:22,773 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, summary 2 finish reason: stop
-2025-07-22 17:28:22,774 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 95 - (172 / (36 + 136))
-2025-07-22 17:28:22,785 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 2 summary answer: 95 - (172 / (36 + 136))
-2025-07-22 17:28:22,786 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 2 summary correct: True
-2025-07-22 17:28:22,786 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 2: 95 - (172 / (36 + 136))
-2025-07-22 17:28:56,257 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 3 finish reason: stop
-2025-07-22 17:28:56,257 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 95 - (172 / (36 + 136))
-2025-07-22 17:28:56,269 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_002, iteration 3
-2025-07-22 17:28:56,269 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 17:29:05,127 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, summary 3 finish reason: stop
-2025-07-22 17:29:05,128 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 17:29:05,128 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 3 summary answer: None
-2025-07-22 17:29:05,128 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 3 summary correct: False
-2025-07-22 17:29:05,128 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 3: 95 - (172 / (36 + 136))
-2025-07-22 17:30:00,072 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 4 finish reason: stop
-2025-07-22 17:30:00,072 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 95 - (172 / (36 + 136))
-2025-07-22 17:30:00,085 - src.experiments.summarization - INFO - Final answer for problem countdown_custom_4_002: 95 - (172 / (36 + 136))
-2025-07-22 17:30:00,085 - src.experiments.summarization - INFO - Final answer correct: True
-2025-07-22 17:30:00,085 - src.experiments.summarization - INFO - [2/14] Completed problem countdown_custom_4_002
-2025-07-22 17:30:00,091 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250722_172109
-2025-07-22 17:30:00,091 - src.experiments.summarization - INFO - [4/14] Starting problem countdown_custom_5_002
-2025-07-22 17:34:51,615 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 17:38:01,638 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 17:43:28,011 - src.llm.vllm_client - INFO - Continuing generation (continuation 2)
-2025-07-22 17:46:49,147 - src.llm.vllm_client - INFO - Continuing generation (continuation 2)
-2025-07-22 17:53:30,732 - src.llm.vllm_client - INFO - Continuing generation (continuation 3)
-2025-07-22 17:53:30,794 - src.llm.vllm_client - ERROR - vLLM async API request failed: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-2025-07-22 17:53:30,821 - src.experiments.summarization - ERROR - Error processing problem countdown_custom_5_001: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-Traceback (most recent call last):
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 205, in _process_problem_with_semaphore
-    result = await self._process_problem_async(problem)
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 413, in _process_problem_async
-    response = await self.reasoning_model.generate_response_async(
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/llm/vllm_client.py", line 300, in generate_response_async
-    response, token_usage, cost_info = await self.generate_completion_async(
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/llm/vllm_client.py", line 234, in generate_completion_async
-    response.raise_for_status()
-  File "/scr/jshen3/miniconda3/envs/distill/lib/python3.10/site-packages/aiohttp/client_reqrep.py", line 1161, in raise_for_status
-    raise ClientResponseError(
-aiohttp.client_exceptions.ClientResponseError: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-
-2025-07-22 17:53:30,827 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250722_172109
-2025-07-22 17:53:30,828 - src.experiments.summarization - INFO - [5/14] Starting problem countdown_custom_6_001
-2025-07-22 17:55:38,184 - src.llm.vllm_client - INFO - Continuing generation (continuation 3)
-2025-07-22 18:01:57,587 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 18:04:16,437 - src.llm.vllm_client - INFO - Continuing generation (continuation 4)
-2025-07-22 18:04:16,437 - src.llm.vllm_client - WARNING - Reached maximum continuation limit (4)
-2025-07-22 18:04:16,437 - src.experiments.summarization - INFO - Problem countdown_custom_5_002, iteration 0 finish reason: max_continuations
-2025-07-22 18:04:16,438 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 18:04:16,438 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_5_002, iteration 0
-2025-07-22 18:04:16,438 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 18:04:34,834 - src.experiments.summarization - INFO - Problem countdown_custom_5_002, summary 0 finish reason: stop
-2025-07-22 18:04:34,834 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 18:04:34,834 - src.experiments.summarization - INFO - Problem countdown_custom_5_002, iteration 0 summary answer: None
-2025-07-22 18:04:34,834 - src.experiments.summarization - INFO - Problem countdown_custom_5_002, iteration 0 summary correct: False
-2025-07-22 18:04:34,834 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: None
-2025-07-22 18:10:25,597 - src.llm.vllm_client - INFO - Continuing generation (continuation 2)
-2025-07-22 18:11:16,408 - src.experiments.summarization - INFO - Problem countdown_custom_6_001, iteration 0 finish reason: stop
-2025-07-22 18:11:16,408 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (192 / (165 - (81 - (198 / (115 - 59))))).
-2025-07-22 18:11:16,422 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_6_001, iteration 0
-2025-07-22 18:11:16,423 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 18:11:37,725 - src.experiments.summarization - INFO - Problem countdown_custom_6_001, summary 0 finish reason: stop
-2025-07-22 18:11:37,725 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 18:11:37,725 - src.experiments.summarization - INFO - Problem countdown_custom_6_001, iteration 0 summary answer: None
-2025-07-22 18:11:37,725 - src.experiments.summarization - INFO - Problem countdown_custom_6_001, iteration 0 summary correct: False
-2025-07-22 18:11:37,725 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: (192 / (165 - (81 - (198 / (115 - 59))))).
-2025-07-22 18:12:54,445 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 18:19:56,251 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 18:21:23,329 - src.llm.vllm_client - INFO - Continuing generation (continuation 2)
-2025-07-22 18:22:12,105 - src.experiments.summarization - INFO - Problem countdown_custom_6_001, iteration 1 finish reason: stop
-2025-07-22 18:22:12,106 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (192 - (165 / (81 - (198 / (115 - 59)))) )
-2025-07-22 18:22:12,119 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_6_001, iteration 1
-2025-07-22 18:22:12,119 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 18:22:28,526 - src.experiments.summarization - INFO - Problem countdown_custom_6_001, summary 1 finish reason: stop
-2025-07-22 18:22:28,526 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 18:22:28,526 - src.experiments.summarization - INFO - Problem countdown_custom_6_001, iteration 1 summary answer: None
-2025-07-22 18:22:28,526 - src.experiments.summarization - INFO - Problem countdown_custom_6_001, iteration 1 summary correct: False
-2025-07-22 18:22:28,526 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 1: (192 - (165 / (81 - (198 / (115 - 59)))) )
-2025-07-22 18:30:11,397 - src.llm.vllm_client - INFO - Continuing generation (continuation 3)
-2025-07-22 18:30:11,449 - src.llm.vllm_client - ERROR - vLLM async API request failed: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-2025-07-22 18:30:11,453 - src.experiments.summarization - ERROR - Error processing problem countdown_custom_5_002: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-Traceback (most recent call last):
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 205, in _process_problem_with_semaphore
-    result = await self._process_problem_async(problem)
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 669, in _process_problem_async
-    next_response = await self.reasoning_model.generate_response_async(
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/llm/vllm_client.py", line 300, in generate_response_async
-    response, token_usage, cost_info = await self.generate_completion_async(
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/llm/vllm_client.py", line 234, in generate_completion_async
-    response.raise_for_status()
-  File "/scr/jshen3/miniconda3/envs/distill/lib/python3.10/site-packages/aiohttp/client_reqrep.py", line 1161, in raise_for_status
-    raise ClientResponseError(
-aiohttp.client_exceptions.ClientResponseError: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-
-2025-07-22 18:30:11,461 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250722_172109
-2025-07-22 18:30:11,461 - src.experiments.summarization - INFO - [6/14] Starting problem countdown_custom_6_002
-2025-07-22 18:31:06,617 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 18:34:25,524 - src.experiments.summarization - INFO - Problem countdown_custom_6_001, iteration 2 finish reason: stop
-2025-07-22 18:34:25,525 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: It is not possible to reach exactly 23 using all the numbers [192, 165, 81, 198, 115, 59] with the given operations.
-2025-07-22 18:34:25,538 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_6_001, iteration 2
-2025-07-22 18:34:25,538 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 18:34:42,034 - src.experiments.summarization - INFO - Problem countdown_custom_6_001, summary 2 finish reason: stop
-2025-07-22 18:34:42,034 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 18:34:42,034 - src.experiments.summarization - INFO - Problem countdown_custom_6_001, iteration 2 summary answer: None
-2025-07-22 18:34:42,034 - src.experiments.summarization - INFO - Problem countdown_custom_6_001, iteration 2 summary correct: False
-2025-07-22 18:34:42,034 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 2: It is not possible to reach exactly 23 using all the numbers [192, 165, 81, 198, 115, 59] with the given operations.
-2025-07-22 18:37:37,318 - src.experiments.summarization - INFO - Problem countdown_custom_6_002, iteration 0 finish reason: stop
-2025-07-22 18:37:37,318 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (88 - 39) * (27 / 27) * (113 / 113) * (150 / 150) * (173 / 173) = 49
-2025-07-22 18:37:37,327 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_6_002, iteration 0
-2025-07-22 18:37:37,328 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 18:38:00,123 - src.experiments.summarization - INFO - Problem countdown_custom_6_002, summary 0 finish reason: stop
-2025-07-22 18:38:00,124 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (88 - 39) * (27 / 27) * (113 / 113) * (150 / 150) * (173 / 173)
-2025-07-22 18:38:00,139 - src.experiments.summarization - INFO - Problem countdown_custom_6_002, iteration 0 summary answer: (88 - 39) * (27 / 27) * (113 / 113) * (150 / 150) * (173 / 173)
-2025-07-22 18:38:00,139 - src.experiments.summarization - INFO - Problem countdown_custom_6_002, iteration 0 summary correct: True
-2025-07-22 18:38:00,139 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: (88 - 39) * (27 / 27) * (113 / 113) * (150 / 150) * (173 / 173) = 49
-2025-07-22 18:39:14,431 - src.experiments.summarization - INFO - Problem countdown_custom_6_002, iteration 1 finish reason: stop
-2025-07-22 18:39:14,431 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (88 - 39) * (27 / 27) * (113 / 113) * (150 / 150) * (173 / 173)
-2025-07-22 18:39:14,446 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_6_002, iteration 1
-2025-07-22 18:39:14,446 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 18:39:25,038 - src.experiments.summarization - INFO - Problem countdown_custom_6_002, summary 1 finish reason: stop
-2025-07-22 18:39:25,038 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (88 - 39) * (27 / 27) * (113 / 113) * (150 / 150) * (173 / 173)
-2025-07-22 18:39:25,051 - src.experiments.summarization - INFO - Problem countdown_custom_6_002, iteration 1 summary answer: (88 - 39) * (27 / 27) * (113 / 113) * (150 / 150) * (173 / 173)
-2025-07-22 18:39:25,051 - src.experiments.summarization - INFO - Problem countdown_custom_6_002, iteration 1 summary correct: True
-2025-07-22 18:39:25,051 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 1: (88 - 39) * (27 / 27) * (113 / 113) * (150 / 150) * (173 / 173)
-2025-07-22 18:40:15,325 - src.experiments.summarization - INFO - Problem countdown_custom_6_002, iteration 2 finish reason: stop
-2025-07-22 18:40:15,325 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (88 - 39) * (27 / 27) * (113 / 113) * (150 / 150) * (173 / 173)
-2025-07-22 18:40:15,338 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_6_002, iteration 2
-2025-07-22 18:40:15,338 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 18:40:32,226 - src.experiments.summarization - INFO - Problem countdown_custom_6_002, summary 2 finish reason: stop
-2025-07-22 18:40:32,226 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (88 - 39) * (27/27) * (113/113) * (150/150) * (173/173)
-2025-07-22 18:40:32,243 - src.experiments.summarization - INFO - Problem countdown_custom_6_002, iteration 2 summary answer: (88 - 39) * (27/27) * (113/113) * (150/150) * (173/173)
-2025-07-22 18:40:32,243 - src.experiments.summarization - INFO - Problem countdown_custom_6_002, iteration 2 summary correct: True
-2025-07-22 18:40:32,243 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 2: (88 - 39) * (27 / 27) * (113 / 113) * (150 / 150) * (173 / 173)
-2025-07-22 18:42:29,704 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 18:48:52,594 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 18:49:48,672 - src.experiments.summarization - INFO - Problem countdown_custom_6_002, iteration 3 finish reason: stop
-2025-07-22 18:49:48,672 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (88 - 39) * (27 / 27) * (113 / 113) * (150 / 150) * (173 / 173)
-2025-07-22 18:49:48,693 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_6_002, iteration 3
-2025-07-22 18:49:48,693 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 18:50:13,175 - src.experiments.summarization - INFO - Problem countdown_custom_6_002, summary 3 finish reason: stop
-2025-07-22 18:50:13,175 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (88 - 39) * (27 / 27) * (113 / 113) * (150 / 150) * (173 / 173)
-2025-07-22 18:50:13,189 - src.experiments.summarization - INFO - Problem countdown_custom_6_002, iteration 3 summary answer: (88 - 39) * (27 / 27) * (113 / 113) * (150 / 150) * (173 / 173)
-2025-07-22 18:50:13,189 - src.experiments.summarization - INFO - Problem countdown_custom_6_002, iteration 3 summary correct: True
-2025-07-22 18:50:13,189 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 3: (88 - 39) * (27 / 27) * (113 / 113) * (150 / 150) * (173 / 173)
-2025-07-22 18:50:59,932 - src.llm.vllm_client - INFO - Continuing generation (continuation 2)
-2025-07-22 18:52:00,724 - src.experiments.summarization - INFO - Problem countdown_custom_6_001, iteration 3 finish reason: stop
-2025-07-22 18:52:00,724 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: \boxed{23}
-2025-07-22 18:52:00,725 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_6_001, iteration 3
-2025-07-22 18:52:00,725 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 18:52:32,182 - src.experiments.summarization - INFO - Problem countdown_custom_6_001, summary 3 finish reason: stop
-2025-07-22 18:52:32,182 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 18:52:32,182 - src.experiments.summarization - INFO - Problem countdown_custom_6_001, iteration 3 summary answer: None
-2025-07-22 18:52:32,182 - src.experiments.summarization - INFO - Problem countdown_custom_6_001, iteration 3 summary correct: False
-2025-07-22 18:52:32,182 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 3: \boxed{23}
-2025-07-22 18:58:19,851 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 18:59:12,831 - src.experiments.summarization - INFO - Problem countdown_custom_6_002, iteration 4 finish reason: stop
-2025-07-22 18:59:12,831 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (88 - 39) * (27 / 27) * (113 / 113) * (150 / 150) * (173 / 173)
-2025-07-22 18:59:12,846 - src.experiments.summarization - INFO - Final answer for problem countdown_custom_6_002: (88 - 39) * (27 / 27) * (113 / 113) * (150 / 150) * (173 / 173)
-2025-07-22 18:59:12,846 - src.experiments.summarization - INFO - Final answer correct: True
-2025-07-22 18:59:12,846 - src.experiments.summarization - INFO - [6/14] Completed problem countdown_custom_6_002
-2025-07-22 18:59:12,854 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250722_172109
-2025-07-22 18:59:12,854 - src.experiments.summarization - INFO - [7/14] Starting problem countdown_custom_7_001
-2025-07-22 19:00:35,371 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 19:01:42,993 - src.experiments.summarization - INFO - Problem countdown_custom_6_001, iteration 4 finish reason: stop
-2025-07-22 19:01:42,993 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (192 / (165 - (81 - (198 / (115 - 59))))).
-2025-07-22 19:01:43,006 - src.experiments.summarization - INFO - Final answer for problem countdown_custom_6_001: \boxed{23}
-2025-07-22 19:01:43,006 - src.experiments.summarization - INFO - Final answer correct: True
-2025-07-22 19:01:43,006 - src.experiments.summarization - INFO - [5/14] Completed problem countdown_custom_6_001
-2025-07-22 19:01:43,018 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250722_172109
-2025-07-22 19:01:43,018 - src.experiments.summarization - INFO - [8/14] Starting problem countdown_custom_7_002
-2025-07-22 19:07:08,098 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 19:08:18,662 - src.experiments.summarization - INFO - Problem countdown_custom_7_001, iteration 0 finish reason: stop
-2025-07-22 19:08:18,662 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: ((60 - 50) - 9 + 22) * ((164 - 113 - 103) / (164 - 113 - 103)) = 23
-2025-07-22 19:08:18,670 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_7_001, iteration 0
-2025-07-22 19:08:18,670 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 19:08:47,076 - src.experiments.summarization - INFO - Problem countdown_custom_7_001, summary 0 finish reason: stop
-2025-07-22 19:08:47,076 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: ((60 - 50) - 9 + 22) * ((164 - 113 - 103) / (164 - 113 - 103))
-2025-07-22 19:08:47,088 - src.experiments.summarization - INFO - Problem countdown_custom_7_001, iteration 0 summary answer: ((60 - 50) - 9 + 22) * ((164 - 113 - 103) / (164 - 113 - 103))
-2025-07-22 19:08:47,088 - src.experiments.summarization - INFO - Problem countdown_custom_7_001, iteration 0 summary correct: True
-2025-07-22 19:08:47,088 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: ((60 - 50) - 9 + 22) * ((164 - 113 - 103) / (164 - 113 - 103)) = 23
-2025-07-22 19:09:27,806 - src.experiments.summarization - INFO - Problem countdown_custom_7_001, iteration 1 finish reason: stop
-2025-07-22 19:09:27,806 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: ((60 - 50 - 9) + 22) * ((164 - 113 - 103) / (164 - 113 - 103))
-2025-07-22 19:09:27,817 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_7_001, iteration 1
-2025-07-22 19:09:27,818 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 19:09:35,968 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 19:09:50,245 - src.experiments.summarization - INFO - Problem countdown_custom_7_001, summary 1 finish reason: stop
-2025-07-22 19:09:50,246 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: } ((60 - 50) - 9 + 22) \times \left(\frac{164 - 113 - 103}{164 - 113 - 103}\right) \text{
-2025-07-22 19:09:50,265 - src.experiments.summarization - INFO - Problem countdown_custom_7_001, iteration 1 summary answer: } ((60 - 50) - 9 + 22) \times \left(\frac{164 - 113 - 103}{164 - 113 - 103}\right) \text{
-2025-07-22 19:09:50,265 - src.experiments.summarization - INFO - Problem countdown_custom_7_001, iteration 1 summary correct: False
-2025-07-22 19:09:50,265 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 1: ((60 - 50 - 9) + 22) * ((164 - 113 - 103) / (164 - 113 - 103))
-2025-07-22 19:10:39,005 - src.experiments.summarization - INFO - Problem countdown_custom_7_001, iteration 2 finish reason: stop
-2025-07-22 19:10:39,005 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: ((60 - 50) - 9 + 22) * ((164 - 113 - 103) / (164 - 113 - 103))
-2025-07-22 19:10:39,019 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_7_001, iteration 2
-2025-07-22 19:10:39,019 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 19:10:51,719 - src.experiments.summarization - INFO - Problem countdown_custom_7_001, summary 2 finish reason: stop
-2025-07-22 19:10:51,719 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: ((60 - 50) - 9 + 22) * ((164 - 113 - 103)/(164 - 113 - 103))
-2025-07-22 19:10:51,734 - src.experiments.summarization - INFO - Problem countdown_custom_7_001, iteration 2 summary answer: ((60 - 50) - 9 + 22) * ((164 - 113 - 103)/(164 - 113 - 103))
-2025-07-22 19:10:51,734 - src.experiments.summarization - INFO - Problem countdown_custom_7_001, iteration 2 summary correct: True
-2025-07-22 19:10:51,734 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 2: ((60 - 50) - 9 + 22) * ((164 - 113 - 103) / (164 - 113 - 103))
-2025-07-22 19:12:22,030 - src.experiments.summarization - INFO - Problem countdown_custom_7_001, iteration 3 finish reason: stop
-2025-07-22 19:12:22,030 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: ((60 - 50 - 9) + 22) * ((164 - 113 - 103)/(164 - 113 - 103))
-2025-07-22 19:12:22,050 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_7_001, iteration 3
-2025-07-22 19:12:22,050 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 19:12:37,511 - src.experiments.summarization - INFO - Problem countdown_custom_7_001, summary 3 finish reason: stop
-2025-07-22 19:12:37,511 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: ((60 - 50 - 9) + 22) * ((164 - 113 - 103)/(164 - 113 - 103))
-2025-07-22 19:12:37,525 - src.experiments.summarization - INFO - Problem countdown_custom_7_001, iteration 3 summary answer: ((60 - 50 - 9) + 22) * ((164 - 113 - 103)/(164 - 113 - 103))
-2025-07-22 19:12:37,526 - src.experiments.summarization - INFO - Problem countdown_custom_7_001, iteration 3 summary correct: True
-2025-07-22 19:12:37,526 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 3: ((60 - 50 - 9) + 22) * ((164 - 113 - 103)/(164 - 113 - 103))
-2025-07-22 19:14:19,219 - src.experiments.summarization - INFO - Problem countdown_custom_7_001, iteration 4 finish reason: stop
-2025-07-22 19:14:19,220 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: ((60 - 50) - 9 + 22) * ((164 - 113 - 103)/(164 - 113 - 103))
-2025-07-22 19:14:19,232 - src.experiments.summarization - INFO - Final answer for problem countdown_custom_7_001: ((60 - 50 - 9) + 22) * ((164 - 113 - 103)/(164 - 113 - 103))
-2025-07-22 19:14:19,232 - src.experiments.summarization - INFO - Final answer correct: True
-2025-07-22 19:14:19,232 - src.experiments.summarization - INFO - [7/14] Completed problem countdown_custom_7_001
-2025-07-22 19:14:19,245 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250722_172109
-2025-07-22 19:14:19,245 - src.experiments.summarization - INFO - [9/14] Starting problem countdown_custom_8_001
-2025-07-22 19:17:49,378 - src.llm.vllm_client - INFO - Continuing generation (continuation 2)
-2025-07-22 19:18:32,855 - src.experiments.summarization - INFO - Problem countdown_custom_7_002, iteration 0 finish reason: stop
-2025-07-22 19:18:32,855 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (194 - 181) + 82 + (114 - 20) * (125 / 182) = 95
-2025-07-22 19:18:32,867 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_7_002, iteration 0
-2025-07-22 19:18:32,867 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 19:18:54,282 - src.experiments.summarization - INFO - Problem countdown_custom_7_002, summary 0 finish reason: stop
-2025-07-22 19:18:54,282 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 19:18:54,282 - src.experiments.summarization - INFO - Problem countdown_custom_7_002, iteration 0 summary answer: None
-2025-07-22 19:18:54,282 - src.experiments.summarization - INFO - Problem countdown_custom_7_002, iteration 0 summary correct: False
-2025-07-22 19:18:54,282 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: (194 - 181) + 82 + (114 - 20) * (125 / 182) = 95
-2025-07-22 19:22:27,672 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 19:23:15,279 - src.experiments.summarization - INFO - Problem countdown_custom_8_001, iteration 0 finish reason: stop
-2025-07-22 19:23:15,279 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (188 - (126 + 70) / 25) - (89 - 64) - 116 = 86
-2025-07-22 19:23:15,288 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_8_001, iteration 0
-2025-07-22 19:23:15,288 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 19:23:33,844 - src.experiments.summarization - INFO - Problem countdown_custom_8_001, summary 0 finish reason: stop
-2025-07-22 19:23:33,845 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 19:23:33,845 - src.experiments.summarization - INFO - Problem countdown_custom_8_001, iteration 0 summary answer: None
-2025-07-22 19:23:33,845 - src.experiments.summarization - INFO - Problem countdown_custom_8_001, iteration 0 summary correct: False
-2025-07-22 19:23:33,845 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: (188 - (126 + 70) / 25) - (89 - 64) - 116 = 86
-2025-07-22 19:26:47,979 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 19:30:56,722 - src.experiments.summarization - INFO - Problem countdown_custom_7_002, iteration 1 finish reason: stop
-2025-07-22 19:30:56,722 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (194 - 181) + 82 = 95
-2025-07-22 19:30:56,733 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_7_002, iteration 1
-2025-07-22 19:30:56,733 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 19:31:19,383 - src.experiments.summarization - INFO - Problem countdown_custom_7_002, summary 1 finish reason: stop
-2025-07-22 19:31:19,383 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 19:31:19,384 - src.experiments.summarization - INFO - Problem countdown_custom_7_002, iteration 1 summary answer: None
-2025-07-22 19:31:19,384 - src.experiments.summarization - INFO - Problem countdown_custom_7_002, iteration 1 summary correct: False
-2025-07-22 19:31:19,384 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 1: (194 - 181) + 82 = 95
-2025-07-22 19:31:40,971 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 19:39:01,799 - src.experiments.summarization - INFO - Problem countdown_custom_7_002, iteration 2 finish reason: stop
-2025-07-22 19:39:01,799 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: It appears that after extensive exploration, a valid equation using all the numbers [114, 20, 125, 82, 181, 182, 194] exactly once to reach 95 could not be found. The constraints of using each number precisely once and the operations available make it impossible to form a valid expression without reusing numbers or resulting in non-integer values.
-2025-07-22 19:39:01,822 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_7_002, iteration 2
-2025-07-22 19:39:01,822 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 19:39:24,662 - src.experiments.summarization - INFO - Problem countdown_custom_7_002, summary 2 finish reason: stop
-2025-07-22 19:39:24,662 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 19:39:24,662 - src.experiments.summarization - INFO - Problem countdown_custom_7_002, iteration 2 summary answer: None
-2025-07-22 19:39:24,662 - src.experiments.summarization - INFO - Problem countdown_custom_7_002, iteration 2 summary correct: False
-2025-07-22 19:39:24,662 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 2: It appears that after extensive exploration, a valid equation using all the numbers [114, 20, 125, 82, 181, 182, 194] exactly once to reach 95 could not be found. The constraints of using each number precisely once and the operations available make it impossible to form a valid expression without reusing numbers or resulting in non-integer values.
-2025-07-22 19:40:02,915 - src.llm.vllm_client - INFO - Continuing generation (continuation 2)
-2025-07-22 19:44:51,500 - src.experiments.summarization - INFO - Problem countdown_custom_7_002, iteration 3 finish reason: stop
-2025-07-22 19:44:51,500 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: It is not possible to solve the puzzle with the given numbers under the specified rules.
-2025-07-22 19:44:51,519 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_7_002, iteration 3
-2025-07-22 19:44:51,519 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 19:45:04,281 - src.experiments.summarization - INFO - Problem countdown_custom_7_002, summary 3 finish reason: stop
-2025-07-22 19:45:04,281 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 19:45:04,281 - src.experiments.summarization - INFO - Problem countdown_custom_7_002, iteration 3 summary answer: None
-2025-07-22 19:45:04,281 - src.experiments.summarization - INFO - Problem countdown_custom_7_002, iteration 3 summary correct: False
-2025-07-22 19:45:04,281 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 3: It is not possible to solve the puzzle with the given numbers under the specified rules.
-2025-07-22 19:48:48,570 - src.llm.vllm_client - INFO - Continuing generation (continuation 3)
-2025-07-22 19:48:48,625 - src.llm.vllm_client - ERROR - vLLM async API request failed: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-2025-07-22 19:48:48,628 - src.experiments.summarization - ERROR - Error processing problem countdown_custom_8_001: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-Traceback (most recent call last):
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 205, in _process_problem_with_semaphore
-    result = await self._process_problem_async(problem)
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 669, in _process_problem_async
-    next_response = await self.reasoning_model.generate_response_async(
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/llm/vllm_client.py", line 300, in generate_response_async
-    response, token_usage, cost_info = await self.generate_completion_async(
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/llm/vllm_client.py", line 234, in generate_completion_async
-    response.raise_for_status()
-  File "/scr/jshen3/miniconda3/envs/distill/lib/python3.10/site-packages/aiohttp/client_reqrep.py", line 1161, in raise_for_status
-    raise ClientResponseError(
-aiohttp.client_exceptions.ClientResponseError: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-
-2025-07-22 19:48:48,645 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250722_172109
-2025-07-22 19:48:48,645 - src.experiments.summarization - INFO - [10/14] Starting problem countdown_custom_8_002
-2025-07-22 19:53:20,420 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 19:54:18,612 - src.experiments.summarization - INFO - Problem countdown_custom_7_002, iteration 4 finish reason: stop
-2025-07-22 19:54:18,612 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (194 - 181) + 82 = 95
-2025-07-22 19:54:18,621 - src.experiments.summarization - INFO - Final answer for problem countdown_custom_7_002: It is not possible to solve the puzzle with the given numbers under the specified rules.
-2025-07-22 19:54:18,621 - src.experiments.summarization - INFO - Final answer correct: False
-2025-07-22 19:54:18,622 - src.experiments.summarization - INFO - [8/14] Completed problem countdown_custom_7_002
-2025-07-22 19:54:18,638 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250722_172109
-2025-07-22 19:54:18,638 - src.experiments.summarization - INFO - [11/14] Starting problem countdown_custom_9_001
-2025-07-22 19:56:46,384 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 19:58:26,692 - src.experiments.summarization - INFO - Problem countdown_custom_8_002, iteration 0 finish reason: stop
-2025-07-22 19:58:26,692 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 19:58:26,692 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_8_002, iteration 0
-2025-07-22 19:58:26,692 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 19:58:46,435 - src.experiments.summarization - INFO - Problem countdown_custom_8_002, summary 0 finish reason: stop
-2025-07-22 19:58:46,435 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 19:58:46,435 - src.experiments.summarization - INFO - Problem countdown_custom_8_002, iteration 0 summary answer: None
-2025-07-22 19:58:46,435 - src.experiments.summarization - INFO - Problem countdown_custom_8_002, iteration 0 summary correct: False
-2025-07-22 19:58:46,435 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: None
-2025-07-22 20:02:12,919 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 20:03:16,285 - src.experiments.summarization - INFO - Problem countdown_custom_9_001, iteration 0 finish reason: stop
-2025-07-22 20:03:16,285 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (185 / (23 + (158 - 149))) * (163 - 159) - (110 - 73) + 49
-2025-07-22 20:03:16,299 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_9_001, iteration 0
-2025-07-22 20:03:16,299 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 20:03:38,550 - src.experiments.summarization - INFO - Problem countdown_custom_9_001, summary 0 finish reason: stop
-2025-07-22 20:03:38,550 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 20:03:38,550 - src.experiments.summarization - INFO - Problem countdown_custom_9_001, iteration 0 summary answer: None
-2025-07-22 20:03:38,550 - src.experiments.summarization - INFO - Problem countdown_custom_9_001, iteration 0 summary correct: False
-2025-07-22 20:03:38,550 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: (185 / (23 + (158 - 149))) * (163 - 159) - (110 - 73) + 49
-2025-07-22 20:06:40,710 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 20:11:50,355 - src.experiments.summarization - INFO - Problem countdown_custom_8_002, iteration 1 finish reason: stop
-2025-07-22 20:11:50,355 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (174 - 107) + (115 - 83) + (129 - 59 - 53 + 45) = 67 + 32 + 62 = 161
-2025-07-22 20:11:50,370 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_8_002, iteration 1
-2025-07-22 20:11:50,370 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 20:11:50,864 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 20:12:08,323 - src.experiments.summarization - INFO - Problem countdown_custom_8_002, summary 1 finish reason: stop
-2025-07-22 20:12:08,323 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 20:12:08,323 - src.experiments.summarization - INFO - Problem countdown_custom_8_002, iteration 1 summary answer: None
-2025-07-22 20:12:08,323 - src.experiments.summarization - INFO - Problem countdown_custom_8_002, iteration 1 summary correct: False
-2025-07-22 20:12:08,323 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 1: (174 - 107) + (115 - 83) + (129 - 59 - 53 + 45) = 67 + 32 + 62 = 161
-2025-07-22 20:20:13,224 - src.llm.vllm_client - INFO - Continuing generation (continuation 2)
-2025-07-22 20:20:35,933 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 20:28:57,885 - src.llm.vllm_client - INFO - Continuing generation (continuation 3)
-2025-07-22 20:33:36,304 - src.llm.vllm_client - INFO - Continuing generation (continuation 2)
-2025-07-22 20:37:46,871 - src.llm.vllm_client - INFO - Continuing generation (continuation 4)
-2025-07-22 20:37:46,871 - src.llm.vllm_client - WARNING - Reached maximum continuation limit (4)
-2025-07-22 20:37:46,871 - src.experiments.summarization - INFO - Problem countdown_custom_9_001, iteration 1 finish reason: max_continuations
-2025-07-22 20:37:46,872 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 20:37:46,872 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_9_001, iteration 1
-2025-07-22 20:37:46,872 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 20:38:11,734 - src.experiments.summarization - INFO - Problem countdown_custom_9_001, summary 1 finish reason: stop
-2025-07-22 20:38:11,734 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 20:38:11,734 - src.experiments.summarization - INFO - Problem countdown_custom_9_001, iteration 1 summary answer: None
-2025-07-22 20:38:11,734 - src.experiments.summarization - INFO - Problem countdown_custom_9_001, iteration 1 summary correct: False
-2025-07-22 20:38:11,734 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 1: None
-2025-07-22 20:44:18,846 - src.llm.vllm_client - INFO - Continuing generation (continuation 3)
-2025-07-22 20:44:18,904 - src.llm.vllm_client - ERROR - vLLM async API request failed: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-2025-07-22 20:44:18,906 - src.experiments.summarization - ERROR - Error processing problem countdown_custom_8_002: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-Traceback (most recent call last):
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 205, in _process_problem_with_semaphore
-    result = await self._process_problem_async(problem)
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 669, in _process_problem_async
-    next_response = await self.reasoning_model.generate_response_async(
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/llm/vllm_client.py", line 300, in generate_response_async
-    response, token_usage, cost_info = await self.generate_completion_async(
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/llm/vllm_client.py", line 234, in generate_completion_async
-    response.raise_for_status()
-  File "/scr/jshen3/miniconda3/envs/distill/lib/python3.10/site-packages/aiohttp/client_reqrep.py", line 1161, in raise_for_status
-    raise ClientResponseError(
-aiohttp.client_exceptions.ClientResponseError: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-
-2025-07-22 20:44:18,925 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250722_172109
-2025-07-22 20:44:18,925 - src.experiments.summarization - INFO - [12/14] Starting problem countdown_custom_9_002
-2025-07-22 20:46:40,785 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 20:47:47,892 - src.experiments.summarization - INFO - Problem countdown_custom_9_001, iteration 2 finish reason: stop
-2025-07-22 20:47:47,892 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 163 - (73 + (158 - 149)) = 81
-2025-07-22 20:47:47,901 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_9_001, iteration 2
-2025-07-22 20:47:47,901 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 20:48:12,797 - src.experiments.summarization - INFO - Problem countdown_custom_9_001, summary 2 finish reason: stop
-2025-07-22 20:48:12,797 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 20:48:12,797 - src.experiments.summarization - INFO - Problem countdown_custom_9_001, iteration 2 summary answer: None
-2025-07-22 20:48:12,797 - src.experiments.summarization - INFO - Problem countdown_custom_9_001, iteration 2 summary correct: False
-2025-07-22 20:48:12,797 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 2: 163 - (73 + (158 - 149)) = 81
-2025-07-22 20:52:14,060 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 20:56:21,380 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 20:57:54,742 - src.experiments.summarization - INFO - Problem countdown_custom_9_001, iteration 3 finish reason: stop
-2025-07-22 20:57:54,742 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (163 - (73 + (158 - 149))) - (159 - 110) - (185 / 23) + 49 = 81
-2025-07-22 20:57:54,753 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_9_001, iteration 3
-2025-07-22 20:57:54,753 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 20:58:11,774 - src.experiments.summarization - INFO - Problem countdown_custom_9_001, summary 3 finish reason: stop
-2025-07-22 20:58:11,774 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 20:58:11,775 - src.experiments.summarization - INFO - Problem countdown_custom_9_001, iteration 3 summary answer: None
-2025-07-22 20:58:11,775 - src.experiments.summarization - INFO - Problem countdown_custom_9_001, iteration 3 summary correct: False
-2025-07-22 20:58:11,775 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 3: (163 - (73 + (158 - 149))) - (159 - 110) - (185 / 23) + 49 = 81
-2025-07-22 21:00:42,285 - src.llm.vllm_client - INFO - Continuing generation (continuation 2)
-2025-07-22 21:06:55,279 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 21:09:33,015 - src.llm.vllm_client - INFO - Continuing generation (continuation 3)
-2025-07-22 21:09:33,067 - src.llm.vllm_client - ERROR - vLLM async API request failed: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-2025-07-22 21:09:33,070 - src.experiments.summarization - ERROR - Error processing problem countdown_custom_9_002: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-Traceback (most recent call last):
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 205, in _process_problem_with_semaphore
-    result = await self._process_problem_async(problem)
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 413, in _process_problem_async
-    response = await self.reasoning_model.generate_response_async(
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/llm/vllm_client.py", line 300, in generate_response_async
-    response, token_usage, cost_info = await self.generate_completion_async(
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/llm/vllm_client.py", line 234, in generate_completion_async
-    response.raise_for_status()
-  File "/scr/jshen3/miniconda3/envs/distill/lib/python3.10/site-packages/aiohttp/client_reqrep.py", line 1161, in raise_for_status
-    raise ClientResponseError(
-aiohttp.client_exceptions.ClientResponseError: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-
-2025-07-22 21:09:33,088 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250722_172109
-2025-07-22 21:09:33,088 - src.experiments.summarization - INFO - [13/14] Starting problem countdown_custom_10_001
-2025-07-22 21:16:56,028 - src.llm.vllm_client - INFO - Continuing generation (continuation 2)
-2025-07-22 21:18:07,301 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 21:19:28,328 - src.experiments.summarization - INFO - Problem countdown_custom_10_001, iteration 0 finish reason: stop
-2025-07-22 21:19:28,329 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (191 - (147 + (115 - (64 + 21)) / 50) - (157 - 18) / 128)
-2025-07-22 21:19:28,343 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_10_001, iteration 0
-2025-07-22 21:19:28,343 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 21:19:51,652 - src.experiments.summarization - INFO - Problem countdown_custom_10_001, summary 0 finish reason: stop
-2025-07-22 21:19:51,653 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 21:19:51,653 - src.experiments.summarization - INFO - Problem countdown_custom_10_001, iteration 0 summary answer: None
-2025-07-22 21:19:51,653 - src.experiments.summarization - INFO - Problem countdown_custom_10_001, iteration 0 summary correct: False
-2025-07-22 21:19:51,653 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: (191 - (147 + (115 - (64 + 21)) / 50) - (157 - 18) / 128)
-2025-07-22 21:25:49,180 - src.llm.vllm_client - INFO - Continuing generation (continuation 3)
-2025-07-22 21:25:49,237 - src.llm.vllm_client - ERROR - vLLM async API request failed: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-2025-07-22 21:25:49,240 - src.experiments.summarization - ERROR - Error processing problem countdown_custom_9_001: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-Traceback (most recent call last):
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 205, in _process_problem_with_semaphore
-    result = await self._process_problem_async(problem)
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 669, in _process_problem_async
-    next_response = await self.reasoning_model.generate_response_async(
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/llm/vllm_client.py", line 300, in generate_response_async
-    response, token_usage, cost_info = await self.generate_completion_async(
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/llm/vllm_client.py", line 234, in generate_completion_async
-    response.raise_for_status()
-  File "/scr/jshen3/miniconda3/envs/distill/lib/python3.10/site-packages/aiohttp/client_reqrep.py", line 1161, in raise_for_status
-    raise ClientResponseError(
-aiohttp.client_exceptions.ClientResponseError: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-
-2025-07-22 21:25:49,260 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250722_172109
-2025-07-22 21:25:49,260 - src.experiments.summarization - INFO - [14/14] Starting problem countdown_custom_10_002
-2025-07-22 21:28:19,896 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 21:34:02,091 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 21:36:51,008 - src.llm.vllm_client - INFO - Continuing generation (continuation 2)
-2025-07-22 21:42:04,838 - src.experiments.summarization - INFO - Problem countdown_custom_10_002, iteration 0 finish reason: stop
-2025-07-22 21:42:04,838 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (188 - (130 + 102 - 83) / (63 - 20) + 7) / (140 - 108) = 87
-2025-07-22 21:42:04,847 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_10_002, iteration 0
-2025-07-22 21:42:04,847 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 21:42:24,517 - src.experiments.summarization - INFO - Problem countdown_custom_10_002, summary 0 finish reason: stop
-2025-07-22 21:42:24,517 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 21:42:24,517 - src.experiments.summarization - INFO - Problem countdown_custom_10_002, iteration 0 summary answer: None
-2025-07-22 21:42:24,517 - src.experiments.summarization - INFO - Problem countdown_custom_10_002, iteration 0 summary correct: False
-2025-07-22 21:42:24,517 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: (188 - (130 + 102 - 83) / (63 - 20) + 7) / (140 - 108) = 87
-2025-07-22 21:47:37,947 - src.llm.vllm_client - INFO - Continuing generation (continuation 3)
-2025-07-22 21:47:37,996 - src.llm.vllm_client - ERROR - vLLM async API request failed: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-2025-07-22 21:47:38,000 - src.experiments.summarization - ERROR - Error processing problem countdown_custom_10_001: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-Traceback (most recent call last):
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 205, in _process_problem_with_semaphore
-    result = await self._process_problem_async(problem)
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 669, in _process_problem_async
-    next_response = await self.reasoning_model.generate_response_async(
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/llm/vllm_client.py", line 300, in generate_response_async
-    response, token_usage, cost_info = await self.generate_completion_async(
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/llm/vllm_client.py", line 234, in generate_completion_async
-    response.raise_for_status()
-  File "/scr/jshen3/miniconda3/envs/distill/lib/python3.10/site-packages/aiohttp/client_reqrep.py", line 1161, in raise_for_status
-    raise ClientResponseError(
-aiohttp.client_exceptions.ClientResponseError: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-
-2025-07-22 21:47:38,018 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250722_172109
-2025-07-22 21:50:36,800 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 21:54:33,257 - src.experiments.summarization - INFO - Problem countdown_custom_10_002, iteration 1 finish reason: stop
-2025-07-22 21:54:33,257 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (130 - (63 - 20)) + (188 - 188) + (102 - 102) + (83 - 83) + (140 - 140) + (108 - 108) + (89 - 89) + (7 - 7) = 87
-2025-07-22 21:54:33,269 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_10_002, iteration 1
-2025-07-22 21:54:33,269 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 21:54:48,757 - src.experiments.summarization - INFO - Problem countdown_custom_10_002, summary 1 finish reason: stop
-2025-07-22 21:54:48,757 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 21:54:48,757 - src.experiments.summarization - INFO - Problem countdown_custom_10_002, iteration 1 summary answer: None
-2025-07-22 21:54:48,757 - src.experiments.summarization - INFO - Problem countdown_custom_10_002, iteration 1 summary correct: False
-2025-07-22 21:54:48,757 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 1: (130 - (63 - 20)) + (188 - 188) + (102 - 102) + (83 - 83) + (140 - 140) + (108 - 108) + (89 - 89) + (7 - 7) = 87
-2025-07-22 22:02:09,345 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 22:04:40,135 - src.experiments.summarization - INFO - Problem countdown_custom_10_002, iteration 2 finish reason: stop
-2025-07-22 22:04:40,136 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: It seems that constructing an equation using all ten numbers exactly once to reach 87 is highly complex and may not be possible with the given numbers. After extensive exploration, the correct solution, which uses all numbers exactly once and equals 87, is:
-
-\boxed{(130 - (63 - (20 + 7))) - (188 - 102 - 83 - 140 - 108 - 89 - 63 - 20 - 7)}
-
-However, upon closer inspection, this equation does not correctly balance to 87. Therefore, it appears that no valid equation exists under the given constraints.
-2025-07-22 22:04:40,164 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_10_002, iteration 2
-2025-07-22 22:04:40,164 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 22:04:55,770 - src.experiments.summarization - INFO - Problem countdown_custom_10_002, summary 2 finish reason: stop
-2025-07-22 22:04:55,770 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 22:04:55,770 - src.experiments.summarization - INFO - Problem countdown_custom_10_002, iteration 2 summary answer: None
-2025-07-22 22:04:55,770 - src.experiments.summarization - INFO - Problem countdown_custom_10_002, iteration 2 summary correct: False
-2025-07-22 22:04:55,771 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 2: It seems that constructing an equation using all ten numbers exactly once to reach 87 is highly complex and may not be possible with the given numbers. After extensive exploration, the correct solution, which uses all numbers exactly once and equals 87, is:
-
-\boxed{(130 - (63 - (20 + 7))) - (188 - 102 - 83 - 140 - 108 - 89 - 63 - 20 - 7)}
-
-However, upon closer inspection, this equation does not correctly balance to 87. Therefore, it appears that no valid equation exists under the given constraints.
-2025-07-22 22:12:17,362 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 22:20:10,489 - src.llm.vllm_client - INFO - Continuing generation (continuation 2)
-2025-07-22 22:28:00,806 - src.llm.vllm_client - INFO - Continuing generation (continuation 3)
-2025-07-22 22:36:16,896 - src.llm.vllm_client - INFO - Continuing generation (continuation 4)
-2025-07-22 22:36:16,896 - src.llm.vllm_client - WARNING - Reached maximum continuation limit (4)
-2025-07-22 22:36:16,896 - src.experiments.summarization - INFO - Problem countdown_custom_10_002, iteration 3 finish reason: max_continuations
-2025-07-22 22:36:16,898 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (130 - (63 - 20)) - (188 - 102 - 83 - 140 - 108 - 89 - 7) = 87
-2025-07-22 22:36:16,907 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_10_002, iteration 3
-2025-07-22 22:36:16,907 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-22 22:36:39,482 - src.experiments.summarization - INFO - Problem countdown_custom_10_002, summary 3 finish reason: stop
-2025-07-22 22:36:39,482 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-22 22:36:39,482 - src.experiments.summarization - INFO - Problem countdown_custom_10_002, iteration 3 summary answer: None
-2025-07-22 22:36:39,482 - src.experiments.summarization - INFO - Problem countdown_custom_10_002, iteration 3 summary correct: False
-2025-07-22 22:36:39,482 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 3: (130 - (63 - 20)) - (188 - 102 - 83 - 140 - 108 - 89 - 7) = 87
-2025-07-22 22:44:02,578 - src.llm.vllm_client - INFO - Continuing generation (continuation 1)
-2025-07-22 22:51:56,674 - src.llm.vllm_client - INFO - Continuing generation (continuation 2)
-2025-07-22 23:00:16,284 - src.llm.vllm_client - INFO - Continuing generation (continuation 3)
-2025-07-22 23:00:16,336 - src.llm.vllm_client - ERROR - vLLM async API request failed: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-2025-07-22 23:00:16,340 - src.experiments.summarization - ERROR - Error processing problem countdown_custom_10_002: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-Traceback (most recent call last):
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 205, in _process_problem_with_semaphore
-    result = await self._process_problem_async(problem)
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 669, in _process_problem_async
-    next_response = await self.reasoning_model.generate_response_async(
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/llm/vllm_client.py", line 300, in generate_response_async
-    response, token_usage, cost_info = await self.generate_completion_async(
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/llm/vllm_client.py", line 234, in generate_completion_async
-    response.raise_for_status()
-  File "/scr/jshen3/miniconda3/envs/distill/lib/python3.10/site-packages/aiohttp/client_reqrep.py", line 1161, in raise_for_status
-    raise ClientResponseError(
-aiohttp.client_exceptions.ClientResponseError: 400, message='Bad Request', url='http://localhost:8001/v1/chat/completions'
-
-2025-07-22 23:00:16,361 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250722_172109
-2025-07-22 23:00:16,379 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250722_172109
-2025-07-22 23:00:16,381 - __main__ - INFO - Total token usage: {'prompt_tokens': 637366, 'completion_tokens': 390043, 'total_tokens': 1027409}
-2025-07-22 23:00:16,381 - __main__ - INFO - Total cost: $0.0000
-2025-07-22 23:00:16,400 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250722_172109
-2025-07-22 23:00:16,400 - __main__ - INFO - Experiment completed successfully
+2025-07-28 17:03:58,869 - __main__ - INFO - Loaded 50 problems
+2025-07-28 17:03:58,871 - src.experiments.base - INFO - Results will be saved to ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250728_170358
+2025-07-28 17:03:58,882 - __main__ - INFO - Running experiment in parallel mode with max concurrency of 2
+2025-07-28 17:03:58,883 - src.experiments.summarization - INFO - Processing 50 problems with max concurrency of 2
+2025-07-28 17:03:58,884 - src.experiments.summarization - INFO - [1/50] Starting problem countdown_custom_4_001
+2025-07-28 17:03:58,884 - src.experiments.summarization - INFO - [2/50] Starting problem countdown_custom_4_002
+2025-07-28 17:04:53,385 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 0 finish reason: stop
+2025-07-28 17:04:53,385 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 72 / (96 / (49 - 1))
+2025-07-28 17:04:53,386 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_002, iteration 0
+2025-07-28 17:04:53,386 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-07-28 17:05:05,498 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, summary 0 finish reason: stop
+2025-07-28 17:05:05,498 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 72 / (96 / (49 - 1))
+2025-07-28 17:05:05,498 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 0 summary answer: 72 / (96 / (49 - 1))
+2025-07-28 17:05:05,498 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 0 summary correct: True
+2025-07-28 17:05:05,498 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: 72 / (96 / (49 - 1))
+2025-07-28 17:05:41,934 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 0 finish reason: stop
+2025-07-28 17:05:41,934 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 19 * (60 / (89 - 32))
+2025-07-28 17:05:41,935 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_001, iteration 0
+2025-07-28 17:05:41,935 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-07-28 17:05:56,847 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, summary 0 finish reason: stop
+2025-07-28 17:05:56,848 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 19 * (60 / (89 - 32))
+2025-07-28 17:05:56,848 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 0 summary answer: 19 * (60 / (89 - 32))
+2025-07-28 17:05:56,848 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 0 summary correct: True
+2025-07-28 17:05:56,848 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: 19 * (60 / (89 - 32))
+2025-07-28 17:06:30,691 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 1 finish reason: stop
+2025-07-28 17:06:30,691 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 19 * (60 / (89 - 32))
+2025-07-28 17:06:30,691 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_001, iteration 1
+2025-07-28 17:06:30,691 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-07-28 17:06:40,644 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, summary 1 finish reason: stop
+2025-07-28 17:06:40,644 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 19 * (60 / (89 - 32))
+2025-07-28 17:06:40,644 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 1 summary answer: 19 * (60 / (89 - 32))
+2025-07-28 17:06:40,644 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 1 summary correct: True
+2025-07-28 17:06:40,644 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 1: 19 * (60 / (89 - 32))
+2025-07-28 17:06:48,515 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 1 finish reason: stop
+2025-07-28 17:06:48,515 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 72 / (96 / (49 - 1))
+2025-07-28 17:06:48,516 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_002, iteration 1
+2025-07-28 17:06:48,516 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-07-28 17:07:04,852 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, summary 1 finish reason: stop
+2025-07-28 17:07:04,852 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 72 / (96 / (49 - 1))
+2025-07-28 17:07:04,852 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 1 summary answer: 72 / (96 / (49 - 1))
+2025-07-28 17:07:04,852 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 1 summary correct: True
+2025-07-28 17:07:04,852 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 1: 72 / (96 / (49 - 1))
+2025-07-28 17:07:37,421 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 2 finish reason: stop
+2025-07-28 17:07:37,421 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 19 * (60 / (89 - 32))
+2025-07-28 17:07:37,421 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_001, iteration 2
+2025-07-28 17:07:37,422 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-07-28 17:07:50,921 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, summary 2 finish reason: stop
+2025-07-28 17:07:50,921 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 19 * (60 / (89 - 32))
+2025-07-28 17:07:50,921 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 2 summary answer: 19 * (60 / (89 - 32))
+2025-07-28 17:07:50,921 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 2 summary correct: True
+2025-07-28 17:07:50,921 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 2: 19 * (60 / (89 - 32))
+2025-07-28 17:09:25,552 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 2 finish reason: stop
+2025-07-28 17:09:25,552 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 72 / (96 / (49 - 1))
+2025-07-28 17:09:25,552 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_002, iteration 2
+2025-07-28 17:09:25,552 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-07-28 17:09:41,794 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, summary 2 finish reason: stop
+2025-07-28 17:09:41,795 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
+2025-07-28 17:09:41,795 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 2 summary answer: None
+2025-07-28 17:09:41,795 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 2 summary correct: False
+2025-07-28 17:09:41,795 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 2: 72 / (96 / (49 - 1))
+2025-07-28 17:09:48,215 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 3 finish reason: stop
+2025-07-28 17:09:48,216 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 19 * (60 / (89 - 32))
+2025-07-28 17:09:48,216 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_001, iteration 3
+2025-07-28 17:09:48,216 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-07-28 17:10:10,598 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, summary 3 finish reason: stop
+2025-07-28 17:10:10,598 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 19 * (60 / (89 - 32))
+2025-07-28 17:10:10,598 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 3 summary answer: 19 * (60 / (89 - 32))
+2025-07-28 17:10:10,598 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 3 summary correct: True
+2025-07-28 17:10:10,598 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 3: 19 * (60 / (89 - 32))

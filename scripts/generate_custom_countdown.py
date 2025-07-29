@@ -161,19 +161,19 @@ def main():
     parser.add_argument(
         "--count-per-level", 
         type=int, 
-        default=10,
+        default=50,
         help="Number of problems to generate per difficulty level (default: 1000)"
     )
     parser.add_argument(
         "--levels",
         type=str,
-        default="4,5,6",
+        default="4",
         help="Comma-separated list of difficulty levels to generate (default: 4,5,6,7,8,9,10)"
     )
     parser.add_argument(
         "--output",
         type=str,
-        default="data/countdown_custom_1.csv",
+        default="data/countdown_custom_2.csv",
         help="Output CSV file path (default: data/countdown_custom.csv)"
     )
     parser.add_argument(

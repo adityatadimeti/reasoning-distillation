@@ -1,0 +1,74 @@
+/scr/jshen3/miniconda3/envs/distill/lib/python3.10/site-packages/transformers/utils/hub.py:105: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+INFO 07-28 16:54:09 [__init__.py:244] Automatically detected platform cuda.
+INFO 07-28 16:54:12 [api_server.py:1395] vLLM API server version 0.9.2
+INFO 07-28 16:54:12 [cli_args.py:325] non-default args: {'host': '0.0.0.0', 'port': 8002, 'model': 'Qwen/Qwen2.5-14B-Instruct', 'dtype': 'bfloat16', 'max_model_len': 32768, 'gpu_memory_utilization': 0.85}
+INFO 07-28 16:54:19 [config.py:841] This model supports multiple tasks: {'classify', 'reward', 'generate', 'embed'}. Defaulting to 'generate'.
+INFO 07-28 16:54:19 [config.py:1472] Using max model len 32768
+INFO 07-28 16:54:20 [api_server.py:268] Started engine process with PID 3226822
+/scr/jshen3/miniconda3/envs/distill/lib/python3.10/site-packages/transformers/utils/hub.py:105: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+INFO 07-28 16:54:24 [__init__.py:244] Automatically detected platform cuda.
+INFO 07-28 16:54:26 [llm_engine.py:230] Initializing a V0 LLM engine (v0.9.2) with config: model='Qwen/Qwen2.5-14B-Instruct', speculative_config=None, tokenizer='Qwen/Qwen2.5-14B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config={}, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=32768, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto,  device_config=cuda, decoding_config=DecodingConfig(backend='xgrammar', disable_fallback=False, disable_any_whitespace=False, disable_additional_properties=False, reasoning_backend=''), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None), seed=None, served_model_name=Qwen/Qwen2.5-14B-Instruct, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=None, chunked_prefill_enabled=False, use_async_output_proc=True, pooler_config=None, compilation_config={"level":0,"debug_dump_path":"","cache_dir":"","backend":"","custom_ops":[],"splitting_ops":[],"use_inductor":true,"compile_sizes":[],"inductor_compile_config":{"enable_auto_functionalized_v2":false},"inductor_passes":{},"use_cudagraph":false,"cudagraph_num_of_warmups":0,"cudagraph_capture_sizes":[256,248,240,232,224,216,208,200,192,184,176,168,160,152,144,136,128,120,112,104,96,88,80,72,64,56,48,40,32,24,16,8,4,2,1],"cudagraph_copy_inputs":false,"full_cuda_graph":false,"max_capture_size":256,"local_cache_dir":null}, use_cached_outputs=True, 
+INFO 07-28 16:54:27 [cuda.py:363] Using Flash Attention backend.
+INFO 07-28 16:54:27 [parallel_state.py:1076] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, TP rank 0, EP rank 0
+INFO 07-28 16:54:27 [model_runner.py:1171] Starting to load model Qwen/Qwen2.5-14B-Instruct...
+INFO 07-28 16:54:28 [weight_utils.py:292] Using model weights format ['*.safetensors']
+Loading safetensors checkpoint shards:   0% Completed | 0/8 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards:  12% Completed | 1/8 [00:00<00:03,  1.90it/s]
+Loading safetensors checkpoint shards:  25% Completed | 2/8 [00:01<00:03,  1.66it/s]
+Loading safetensors checkpoint shards:  38% Completed | 3/8 [00:01<00:03,  1.59it/s]
+Loading safetensors checkpoint shards:  50% Completed | 4/8 [00:02<00:02,  1.60it/s]
+Loading safetensors checkpoint shards:  62% Completed | 5/8 [00:03<00:01,  1.62it/s]
+Loading safetensors checkpoint shards:  75% Completed | 6/8 [00:03<00:01,  1.59it/s]
+Loading safetensors checkpoint shards:  88% Completed | 7/8 [00:04<00:00,  1.67it/s]
+Loading safetensors checkpoint shards: 100% Completed | 8/8 [00:04<00:00,  2.01it/s]
+Loading safetensors checkpoint shards: 100% Completed | 8/8 [00:04<00:00,  1.77it/s]
+
+INFO 07-28 16:54:33 [default_loader.py:272] Loading weights took 4.57 seconds
+INFO 07-28 16:54:33 [model_runner.py:1203] Model loading took 27.5681 GiB and 5.342944 seconds
+INFO 07-28 16:54:42 [worker.py:294] Memory profiling takes 8.37 seconds
+INFO 07-28 16:54:42 [worker.py:294] the current vLLM instance can use total_gpu_memory (44.35GiB) x gpu_memory_utilization (0.85) = 37.70GiB
+INFO 07-28 16:54:42 [worker.py:294] model weights take 27.57GiB; non_torch_memory takes 0.06GiB; PyTorch activation peak memory takes 3.79GiB; the rest of the memory reserved for KV Cache is 6.28GiB.
+INFO 07-28 16:54:42 [executor_base.py:113] # cuda blocks: 2143, # CPU blocks: 1365
+INFO 07-28 16:54:42 [executor_base.py:118] Maximum concurrency for 32768 tokens per request: 1.05x
+INFO 07-28 16:54:45 [model_runner.py:1513] Capturing cudagraphs for decoding. This may lead to unexpected consequences if the model is not static. To run the model in eager mode, set 'enforce_eager=True' or use '--enforce-eager' in the CLI. If out-of-memory error occurs during cudagraph capture, consider decreasing `gpu_memory_utilization` or switching to eager mode. You can also reduce the `max_num_seqs` as needed to decrease memory usage.
+Capturing CUDA graph shapes:   0%|          | 0/35 [00:00<?, ?it/s]Capturing CUDA graph shapes:   3%|▎         | 1/35 [00:00<00:21,  1.55it/s]Capturing CUDA graph shapes:   6%|▌         | 2/35 [00:01<00:20,  1.58it/s]Capturing CUDA graph shapes:   9%|▊         | 3/35 [00:01<00:20,  1.60it/s]Capturing CUDA graph shapes:  11%|█▏        | 4/35 [00:02<00:19,  1.60it/s]Capturing CUDA graph shapes:  14%|█▍        | 5/35 [00:03<00:18,  1.61it/s]Capturing CUDA graph shapes:  17%|█▋        | 6/35 [00:03<00:17,  1.61it/s]Capturing CUDA graph shapes:  20%|██        | 7/35 [00:04<00:17,  1.61it/s]Capturing CUDA graph shapes:  23%|██▎       | 8/35 [00:04<00:16,  1.61it/s]Capturing CUDA graph shapes:  26%|██▌       | 9/35 [00:05<00:16,  1.62it/s]Capturing CUDA graph shapes:  29%|██▊       | 10/35 [00:06<00:15,  1.63it/s]Capturing CUDA graph shapes:  31%|███▏      | 11/35 [00:06<00:14,  1.63it/s]Capturing CUDA graph shapes:  34%|███▍      | 12/35 [00:07<00:14,  1.64it/s]Capturing CUDA graph shapes:  37%|███▋      | 13/35 [00:08<00:13,  1.64it/s]Capturing CUDA graph shapes:  40%|████      | 14/35 [00:08<00:12,  1.65it/s]Capturing CUDA graph shapes:  43%|████▎     | 15/35 [00:09<00:12,  1.65it/s]Capturing CUDA graph shapes:  46%|████▌     | 16/35 [00:09<00:11,  1.64it/s]Capturing CUDA graph shapes:  49%|████▊     | 17/35 [00:10<00:10,  1.66it/s]Capturing CUDA graph shapes:  51%|█████▏    | 18/35 [00:11<00:10,  1.68it/s]Capturing CUDA graph shapes:  54%|█████▍    | 19/35 [00:11<00:09,  1.70it/s]Capturing CUDA graph shapes:  57%|█████▋    | 20/35 [00:12<00:08,  1.71it/s]Capturing CUDA graph shapes:  60%|██████    | 21/35 [00:12<00:08,  1.71it/s]Capturing CUDA graph shapes:  63%|██████▎   | 22/35 [00:13<00:07,  1.72it/s]Capturing CUDA graph shapes:  66%|██████▌   | 23/35 [00:13<00:06,  1.72it/s]Capturing CUDA graph shapes:  69%|██████▊   | 24/35 [00:14<00:06,  1.71it/s]Capturing CUDA graph shapes:  71%|███████▏  | 25/35 [00:15<00:05,  1.72it/s]Capturing CUDA graph shapes:  74%|███████▍  | 26/35 [00:15<00:05,  1.72it/s]Capturing CUDA graph shapes:  77%|███████▋  | 27/35 [00:16<00:04,  1.70it/s]Capturing CUDA graph shapes:  80%|████████  | 28/35 [00:16<00:04,  1.71it/s]Capturing CUDA graph shapes:  83%|████████▎ | 29/35 [00:17<00:03,  1.72it/s]Capturing CUDA graph shapes:  86%|████████▌ | 30/35 [00:17<00:02,  1.72it/s]Capturing CUDA graph shapes:  89%|████████▊ | 31/35 [00:18<00:02,  1.73it/s]Capturing CUDA graph shapes:  91%|█████████▏| 32/35 [00:19<00:01,  1.75it/s]Capturing CUDA graph shapes:  94%|█████████▍| 33/35 [00:19<00:01,  1.75it/s]Capturing CUDA graph shapes:  97%|█████████▋| 34/35 [00:20<00:00,  1.76it/s]Capturing CUDA graph shapes: 100%|██████████| 35/35 [00:20<00:00,  1.76it/s]Capturing CUDA graph shapes: 100%|██████████| 35/35 [00:20<00:00,  1.68it/s]
+INFO 07-28 16:55:06 [model_runner.py:1671] Graph capturing finished in 21 secs, took 1.32 GiB
+INFO 07-28 16:55:06 [llm_engine.py:428] init engine (profile, create kv cache, warmup model) took 32.20 seconds
+WARNING 07-28 16:55:06 [config.py:1392] Default sampling parameters have been overridden by the model's Hugging Face generation config recommended from the model creator. If this is not intended, please relaunch vLLM instance with `--generation-config vllm`.
+INFO 07-28 16:55:06 [serving_chat.py:125] Using default chat sampling params from model: {'repetition_penalty': 1.05, 'temperature': 0.7, 'top_k': 20, 'top_p': 0.8}
+INFO 07-28 16:55:06 [serving_completion.py:72] Using default completion sampling params from model: {'repetition_penalty': 1.05, 'temperature': 0.7, 'top_k': 20, 'top_p': 0.8}
+INFO 07-28 16:55:06 [api_server.py:1457] Starting vLLM API server 0 on http://0.0.0.0:8002
+INFO 07-28 16:55:06 [launcher.py:29] Available routes are:
+INFO 07-28 16:55:06 [launcher.py:37] Route: /openapi.json, Methods: HEAD, GET
+INFO 07-28 16:55:06 [launcher.py:37] Route: /docs, Methods: HEAD, GET
+INFO 07-28 16:55:06 [launcher.py:37] Route: /docs/oauth2-redirect, Methods: HEAD, GET
+INFO 07-28 16:55:06 [launcher.py:37] Route: /redoc, Methods: HEAD, GET
+INFO 07-28 16:55:06 [launcher.py:37] Route: /health, Methods: GET
+INFO 07-28 16:55:06 [launcher.py:37] Route: /load, Methods: GET
+INFO 07-28 16:55:06 [launcher.py:37] Route: /ping, Methods: POST
+INFO 07-28 16:55:06 [launcher.py:37] Route: /ping, Methods: GET
+INFO 07-28 16:55:06 [launcher.py:37] Route: /tokenize, Methods: POST
+INFO 07-28 16:55:06 [launcher.py:37] Route: /detokenize, Methods: POST
+INFO 07-28 16:55:06 [launcher.py:37] Route: /v1/models, Methods: GET
+INFO 07-28 16:55:06 [launcher.py:37] Route: /version, Methods: GET
+INFO 07-28 16:55:06 [launcher.py:37] Route: /v1/chat/completions, Methods: POST
+INFO 07-28 16:55:06 [launcher.py:37] Route: /v1/completions, Methods: POST
+INFO 07-28 16:55:06 [launcher.py:37] Route: /v1/embeddings, Methods: POST
+INFO 07-28 16:55:06 [launcher.py:37] Route: /pooling, Methods: POST
+INFO 07-28 16:55:06 [launcher.py:37] Route: /classify, Methods: POST
+INFO 07-28 16:55:06 [launcher.py:37] Route: /score, Methods: POST
+INFO 07-28 16:55:06 [launcher.py:37] Route: /v1/score, Methods: POST
+INFO 07-28 16:55:06 [launcher.py:37] Route: /v1/audio/transcriptions, Methods: POST
+INFO 07-28 16:55:06 [launcher.py:37] Route: /v1/audio/translations, Methods: POST
+INFO 07-28 16:55:06 [launcher.py:37] Route: /rerank, Methods: POST
+INFO 07-28 16:55:06 [launcher.py:37] Route: /v1/rerank, Methods: POST
+INFO 07-28 16:55:06 [launcher.py:37] Route: /v2/rerank, Methods: POST
+INFO 07-28 16:55:06 [launcher.py:37] Route: /invocations, Methods: POST
+INFO 07-28 16:55:06 [launcher.py:37] Route: /metrics, Methods: GET
+INFO:     Started server process [3226694]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:43600 - "GET /v1/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43610 - "GET /health HTTP/1.1" 200 OK

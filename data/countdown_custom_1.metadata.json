@@ -23,6 +23,6 @@
   ],
   "generation_params": {
     "seed": null,
-    "output_file": "data/countdown_custom.csv"
+    "output_file": "data/countdown_custom_1.csv"
   }
 }
