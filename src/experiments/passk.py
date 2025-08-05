@@ -140,20 +140,19 @@ class PassKExperiment(BaseExperiment):
         # Get the question text
         question = problem.get("question", "")
         
-        logger.info(f"Processing problem {problem_id} ({index+1}/{total})")
-        
-        # Update dashboard
-        if self.dashboard:
-            self.dashboard.update_problem_status(problem_id, "in-progress", question)
-            self.dashboard.update_experiment_status({
-                "total": total,
-                "completed": index,
-                "status": f"Processing problem {problem_id}",
-                "config": self.config
-            })
-        
         # Acquire the semaphore before processing
         async with semaphore:
+            logger.info(f"Processing problem {problem_id} ({index+1}/{total})")
+            
+            # Update dashboard
+            if self.dashboard:
+                self.dashboard.update_problem_status(problem_id, "in-progress", question)
+                self.dashboard.update_experiment_status({
+                    "total": total,
+                    "completed": index,
+                    "status": f"Processing problem {problem_id}",
+                    "config": self.config
+                })
             try:
                 # Process the problem
                 result = await self._process_problem_async(problem)
