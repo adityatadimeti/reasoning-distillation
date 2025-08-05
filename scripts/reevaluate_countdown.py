@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 import logging
 import ast
+import re
 
 # Add the project root to the Python path
 project_root = Path(__file__).parent.parent
@@ -56,7 +57,6 @@ def reevaluate_countdown_results(results_file: str, output_file: str = None):
         else:
             # Try to extract nums from the question
             question = problem.get('question', '')
-            import re
             nums_match = re.search(r'\[([^\]]+)\]', question)
             if nums_match:
                 try:
@@ -75,41 +75,52 @@ def reevaluate_countdown_results(results_file: str, output_file: str = None):
         
         # Re-evaluate all iterations
         for iteration in problem.get('iterations', []):
-            # Get the model's answer
-            model_answer = iteration.get('answer')
-            if not model_answer:
-                continue
+            # Get the reasoning text to re-extract answer
+            reasoning_text = iteration.get('reasoning', '')
+            
+            # Re-extract the answer from reasoning using countdown extractor
+            from src.reasoning.extractor import extract_countdown_answer
+            model_answer = extract_countdown_answer(reasoning_text)
+            
+            # Update the stored answer
+            old_answer = iteration.get('answer')
+            iteration['answer'] = model_answer
+            
+            if old_answer != model_answer:
+                logger.info(f"Problem {problem_id}, iteration {iteration.get('iteration', 0)}: "
+                           f"Re-extracted answer from '{old_answer}' to '{model_answer}'")
             
             # Re-evaluate using countdown checker
             old_correct = iteration.get('correct', False)
             
-            # The model_answer is already the extracted equation (no tags)
-            # We need to match exactly what the experiment does
-            # In the experiment, check_one_countdown_answer expects the answer WITH tags
-            # But here we have the already extracted equation
-            
-            # Since the answer is already extracted, we skip the extraction step
-            # and evaluate directly (matching what compute_score does internally)
-            
-            # Check if equation uses all numbers correctly
-            is_valid = validate_equation(model_answer, nums)
-            
-            if is_valid:
-                # Evaluate the equation
-                result = evaluate_equation(model_answer)
-                new_correct = result is not None and abs(result - target) < 1e-5
-                check_result = {
-                    'is_correct': new_correct,
-                    'evaluated_result': result
-                }
-                if not new_correct and result is not None:
-                    check_result['error'] = f'Equation evaluates to {result}, not {target}'
-            else:
+            # Skip if no answer was extracted
+            if not model_answer:
                 new_correct = False
                 check_result = {
                     'is_correct': False,
-                    'error': 'Invalid equation - numbers not used correctly'
+                    'error': 'No answer extracted from reasoning'
                 }
+            else:
+                # Check if equation uses all numbers correctly
+                is_valid = validate_equation(model_answer, nums)
+            
+                
+                if is_valid:
+                    # Evaluate the equation
+                    result = evaluate_equation(model_answer)
+                    new_correct = result is not None and abs(result - target) < 1e-5
+                    check_result = {
+                        'is_correct': new_correct,
+                        'evaluated_result': result
+                    }
+                    if not new_correct and result is not None:
+                        check_result['error'] = f'Equation evaluates to {result}, not {target}'
+                else:
+                    new_correct = False
+                    check_result = {
+                        'is_correct': False,
+                        'error': 'Invalid equation - numbers not used correctly'
+                    }
             
             # Update the result
             iteration['correct'] = new_correct
@@ -123,9 +134,21 @@ def reevaluate_countdown_results(results_file: str, output_file: str = None):
                     logger.info(f"  Reason: {check_result['error']}")
                 problems_fixed += 1
             
-            # Also update summary results if present
-            if 'summary_answer' in iteration:
-                summary_answer = iteration['summary_answer']
+            # Also update summary results if present  
+            if 'summary' in iteration:
+                summary_text = iteration.get('summary', '')
+                
+                # Re-extract answer from summary
+                summary_answer = extract_countdown_answer(summary_text)
+                
+                # Update the stored summary answer
+                old_summary_answer = iteration.get('summary_answer')
+                iteration['summary_answer'] = summary_answer
+                
+                if old_summary_answer != summary_answer:
+                    logger.info(f"Problem {problem_id}, iteration {iteration.get('iteration', 0)} summary: "
+                               f"Re-extracted answer from '{old_summary_answer}' to '{summary_answer}'")
+                
                 if summary_answer:
                     # Evaluate summary answer directly
                     is_valid_summary = validate_equation(summary_answer, nums)
@@ -135,13 +158,15 @@ def reevaluate_countdown_results(results_file: str, output_file: str = None):
                         new_summary_correct = result_summary is not None and abs(result_summary - target) < 1e-5
                     else:
                         new_summary_correct = False
-                    
-                    old_summary_correct = iteration.get('summary_correct', False)
-                    iteration['summary_correct'] = new_summary_correct
-                    
-                    if old_summary_correct != new_summary_correct:
-                        logger.info(f"Problem {problem_id}, iteration {iteration.get('iteration', 0)} summary: "
-                                   f"Changed from {old_summary_correct} to {new_summary_correct}")
+                else:
+                    new_summary_correct = False
+                
+                old_summary_correct = iteration.get('summary_correct', False)
+                iteration['summary_correct'] = new_summary_correct
+                
+                if old_summary_correct != new_summary_correct:
+                    logger.info(f"Problem {problem_id}, iteration {iteration.get('iteration', 0)} summary: "
+                               f"Changed from {old_summary_correct} to {new_summary_correct}")
         
         # Update the backward compatibility fields for iteration 0
         if problem.get('iterations'):

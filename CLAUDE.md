@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Python research project investigating methods for improving mathematical reasoning through summarization and reflection. The codebase focuses on distilling reasoning capabilities from large language models, particularly for mathematical problem-solving tasks (AIME, GPQA, GSM8K, HARP).
+This is a Python research project investigating methods for improving mathematical reasoning through summarization and reflection. The codebase focuses on distilling reasoning capabilities from large language models, particularly for mathematical problem-solving tasks (AIME, GPQA, GSM8K, HARP, Countdown).
 
 ## Key Commands
 
@@ -17,24 +17,27 @@ pip install -r requirements.txt
 # OPENAI_API_KEY=your-key
 # FIREWORKS_API_KEY=your-key  
 # TOGETHER_API_KEY=your-key
+# ENABLE_API_CALLS=1
 ```
 
 ### Running Experiments
 ```bash
-# Basic experiment run
+# Basic experiment run (config name only, no path needed)
 python run_experiment.py <config_name>
 
-# With web dashboard monitoring
+# With web dashboard monitoring (port 8080 by default)
 python run_experiment.py <config_name> --dashboard
 
 # With parallel processing (N workers)
 python run_experiment.py <config_name> --parallel --concurrency N
 
 # Resume from previous reasoning results
-python run_experiment.py <config_name> --load_initial_reasoning
+python run_experiment.py <config_name> --load_initial_reasoning /path/to/previous_results.json
 
-# Run batch experiments
-python -m scripts.batch_run_experiments
+# Filter problems by ID or index
+python run_experiment.py <config_name> --question_ids id1,id2,id3
+python run_experiment.py <config_name> --exclude_question_ids id1,id2
+python run_experiment.py <config_name> --index_range 0-4
 ```
 
 ### Testing
@@ -43,24 +46,22 @@ python -m scripts.batch_run_experiments
 pytest tests/
 
 # Run specific test file
-pytest tests/test_reasoning_extraction.py
+pytest tests/experiments/test_reasoning_extraction.py
 
 # Run with verbose output
 pytest -v tests/
 ```
 
-### Development Scripts
+### Common Scripts
 ```bash
-# Test LLM connections
-python scripts/test_llm.py
-python scripts/test_vllm.py
+# Re-evaluate countdown results with updated validation
+python scripts/reevaluate_countdown.py results_file.json
 
-# Analyze results
-python scripts/analyze_results.py
-python scripts/model_size_analysis.py
+# View experiment results
+python view_results.py results_file.json
 
-# Data processing
-python scripts/convert_to_csv.py
+# Countdown solver testing
+python scripts/test_countdown_solver.py
 ```
 
 ## Architecture Overview
@@ -69,82 +70,59 @@ python scripts/convert_to_csv.py
 
 1. **LLM Clients** (`src/llm/`):
    - `openai_client.py`: OpenAI API integration
-   - `fireworks_client.py`: Fireworks AI integration
+   - `fireworks_client.py`: Fireworks AI integration  
    - `together_client.py`: Together AI integration
-   - `vllm_client.py`: Local vLLM server integration
-   - All clients implement async streaming interface with token tracking
+   - `vllm_client.py`: Local vLLM server integration (see VLLM_GUIDE.md)
+   - All clients implement async streaming with token tracking and cost estimation
 
-2. **Experiment Framework** (`src/experiments/`):
-   - `summarization_experiment.py`: Main experiment runner for reasoning + summarization
-   - `pass_k_experiment.py`: Pass@K evaluation experiments
-   - Handles iteration loops, continuation for long traces, parallel processing
+2. **Experiment Types** (`src/experiments/`):
+   - `summarization.py`: Main experiment runner for iterative reasoning + summarization
+   - `passk.py`: Pass@K evaluation for measuring solution diversity
+   - `pass_continuation.py`: Handles truncated solution continuations
+   - Supports parallel processing, checkpointing, and real-time monitoring
 
-3. **Reasoning Engine** (`src/reasoning/`):
-   - `extraction.py`: Answer extraction from mathematical solutions
-   - `summarization.py`: Creates summaries from reasoning traces
-   - Supports multiple prompt templates configurable via YAML
+3. **Reasoning Components** (`src/reasoning/`):
+   - `extractor.py`: Answer extraction with dataset-specific parsers (math, countdown, multiple choice)
+   - `summarizer.py`: Creates condensed summaries from reasoning traces
+   - `HARP_utils.py`: Utilities for HARP dataset processing
+   - Prompt templates configured via YAML in `config/prompts/`
 
-4. **Dashboard** (`src/dashboard/`):
-   - Real-time web interface for monitoring experiments
-   - Shows progress, token usage, costs, and results
-   - Built with asyncio and websockets
+4. **Evaluation** (`src/eval/`):
+   - `countdown_check.py`: Specialized evaluation for Countdown number puzzles
+   - `latex_answer_check.py`: LaTeX math expression evaluation
+   - `parsing_lib.py`: General parsing utilities
+   - Dataset-specific answer checking and validation
+
+5. **Dashboard** (`src/dashboard/`):
+   - Real-time web interface on port 8080 (configurable)
+   - WebSocket-based updates for progress, token usage, costs
+   - Auto-opens browser when using `--dashboard` flag
 
 ### Configuration System
 
-- Experiments configured via YAML files in `config/experiments/`
-- Prompt templates in `config/prompts/`
-- Supports model-specific settings, temperature, max tokens, etc.
-- Can override settings via command-line arguments
+Experiments use YAML configs in `config/experiments/` with these key sections:
+- `experiment_type`: "summarize" (default) or "pass_k"
+- `reasoning_model`: Model name/path and provider
+- `summarizer_type`: "self" (same model) or specific model
+- `prompts`: References to prompt versions in `config/prompts/`
+- Generation parameters: temperature, max_tokens, top_p, etc.
+- `answer_extractor`: Dataset-specific extractor ("default", "countdown", "mc")
 
-### Data Flow
+### Data Processing Flow
 
-1. Problems loaded from CSV files in `data/` directory
-2. Reasoning phase: LLM generates solution traces
-3. Optional summarization: Creates condensed versions of reasoning
-4. Answer extraction: Parses mathematical answers from text
-5. Results saved to `results/` directory as JSON
+1. **Input**: CSV files with columns: id, question, solution, answer
+2. **Reasoning**: Model generates solution with configurable prompts
+3. **Continuation**: Automatic handling of truncated responses
+4. **Summarization**: Optional condensation of reasoning traces
+5. **Extraction**: Dataset-specific answer parsing
+6. **Evaluation**: Comparison against ground truth
+7. **Output**: JSON results with full traces, metrics, and costs
 
-### Key Design Patterns
+### Key Implementation Details
 
-- **Async everywhere**: Uses asyncio for concurrent API calls
-- **Streaming responses**: Handles token-by-token streaming from LLMs
-- **Continuation support**: Automatically continues when hitting token limits
-- **Checkpoint/resume**: Can save and load intermediate results
-- **Cost tracking**: Monitors API usage and estimates costs
-
-## Important Considerations
-
-1. **Token Limits**: Different models have different context windows. The system handles continuation automatically but be aware of limits.
-
-2. **API Keys**: Required in `.env` file. The system will fail gracefully if keys are missing.
-
-3. **vLLM Setup**: For local inference, requires separate vLLM server. See VLLM_GUIDE.md for setup instructions.
-
-4. **Parallel Processing**: Use `--concurrency` flag carefully. Too many parallel requests can hit rate limits.
-
-5. **Results Storage**: All results saved in `results/` with timestamps. Check disk space for large experiments.
-
-6. **Answer Extraction**: The system uses sophisticated regex patterns for mathematical answers. Check `src/reasoning/extraction.py` for supported formats.
-
-## Common Development Tasks
-
-### Adding a New LLM Provider
-1. Create new client in `src/llm/` implementing the base interface
-2. Add provider to `src/llm/factory.py`
-3. Update experiment configs to use new provider
-
-### Modifying Prompts
-1. Edit YAML files in `config/prompts/`
-2. Reference new prompts in experiment configs
-3. Test with small dataset first
-
-### Adding New Datasets
-1. Convert to CSV format with columns: id, question, solution, answer
-2. Place in `data/` directory
-3. Update experiment configs to reference new dataset
-
-### Debugging Experiments
-1. Use `--verbose` flag for detailed logging
-2. Check `results/` for intermediate outputs
-3. Use dashboard (`--dashboard`) for real-time monitoring
-4. Small test runs: limit problems in config file
+- **Async Architecture**: All LLM calls use asyncio for concurrency
+- **Streaming**: Token-by-token processing with finish reason tracking
+- **Rate Limiting**: Built-in backoff and retry logic
+- **Memory Efficiency**: Streaming prevents loading full responses in memory
+- **Error Recovery**: Graceful handling of API failures and timeouts
+- **Cost Tracking**: Real-time token counting and pricing calculations

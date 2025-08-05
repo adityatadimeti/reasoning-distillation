@@ -21,13 +21,20 @@ def aggregate_passk_results(results_path):
     total = len(results)
     pass_count = sum(1 for r in results if r.get("pass_at_k", False))
     consensus_count = sum(1 for r in results if r.get("consensus_correct", False))
+    
+    # Calculate overall percentage correct
+    total_correct = sum(r.get("num_correct", 0) for r in results)
+    k = results[0].get("solutions") and len(results[0]["solutions"]) or 5  # Default to 5 if not found
+    total_attempts = total * k
 
     pass_pct = (pass_count / total) * 100 if total > 0 else 0.0
     consensus_pct = (consensus_count / total) * 100 if total > 0 else 0.0
+    correct_pct = (total_correct / total_attempts) * 100 if total_attempts > 0 else 0.0
 
     print(f"Total problems: {total}")
     print(f"Pass@k: {pass_count} ({pass_pct:.2f}%)")
     print(f"Consensus@k: {consensus_count} ({consensus_pct:.2f}%)")
+    print(f"Percentage correct: {total_correct}/{total_attempts} ({correct_pct:.2f}%)")
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

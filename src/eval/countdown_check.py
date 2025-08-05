@@ -19,51 +19,72 @@ def extract_solution(solution_str):
     elif "<|im_start|>assistant" in solution_str:
         solution_str = solution_str.split("<|im_start|>assistant", 1)[1]
 
-    # Find all answer tags by looking for complete pairs
-    # First, find all positions of <answer> and </answer> tags
-    answer_starts = []
-    answer_ends = []
+    import re
     
-    # Find all <answer> positions
-    pos = 0
-    while True:
-        pos = solution_str.find("<answer>", pos)
-        if pos == -1:
-            break
-        answer_starts.append(pos + 8)  # Position after <answer>
-        pos += 8
+    # Try to find answer content with various tag patterns
+    # This regex looks for content between any combination of answer tags
+    # It handles: <answer>content</answer>, </answer>content</answer>, 
+    # <answer>content<answer>, </answer>content<answer>, etc.
     
-    # Find all </answer> positions
-    pos = 0
-    while True:
-        pos = solution_str.find("</answer>", pos)
-        if pos == -1:
-            break
-        answer_ends.append(pos)  # Position before </answer>
-        pos += 9
+    # Collect all answers from all patterns to find the last one
+    all_answers = []
     
-    # Match answer tags properly - each end tag with the nearest preceding start tag
-    valid_answers = []
-    for end_pos in answer_ends:
-        # Find the nearest start tag before this end tag
-        matching_start = None
-        for start_pos in reversed(answer_starts):
-            if start_pos < end_pos:
-                matching_start = start_pos
-                break
-        
-        if matching_start is not None:
-            content = solution_str[matching_start:end_pos].strip()
-            valid_answers.append(content)
+    # Standard pattern
+    standard_pattern = r'<answer>(.*?)</answer>'
+    standard_matches = re.findall(standard_pattern, solution_str, re.DOTALL)
+    all_answers.extend([(m.start(), match.strip()) for m, match in zip(re.finditer(standard_pattern, solution_str, re.DOTALL), standard_matches) if match.strip()])
     
-    if valid_answers:
-        # Take the last valid answer
-        final_answer = valid_answers[-1]
+    # Alternative patterns for malformed tags
+    alternative_patterns = [
+        r'</answer>(.*?)</answer>',  # </answer>content</answer>
+        r'<answer>(.*?)<answer>',     # <answer>content<answer>
+        r'</answer>(.*?)<answer>',    # </answer>content<answer>
+    ]
+    
+    for pattern in alternative_patterns:
+        matches = re.findall(pattern, solution_str, re.DOTALL)
+        positions = [(m.start(), match.strip()) for m, match in zip(re.finditer(pattern, solution_str, re.DOTALL), matches) if match.strip()]
+        all_answers.extend(positions)
+    
+    if all_answers:
+        # Sort by position and take the last one
+        all_answers.sort(key=lambda x: x[0])
+        final_answer = all_answers[-1][1]
     else:
         final_answer = "N/A"
+        
+        # If still no answer found, look for content between any answer-like tags
+        if final_answer == "N/A":
+            # Look for any content that appears to be an equation between tag-like markers
+            # This pattern finds content between > and < that contains mathematical operators
+            loose_pattern = r'>([^<>]*[+\-*/()][^<>]*)<'
+            loose_matches = re.findall(loose_pattern, solution_str)
+            
+            # Filter to find ones that look like countdown equations
+            equation_candidates = []
+            for match in loose_matches:
+                match = match.strip()
+                # Check if it contains numbers and operators
+                if re.search(r'\d', match) and re.search(r'[+\-*/()]', match):
+                    # Exclude ones that are clearly not equations
+                    if not any(word in match.lower() for word in ['answer', 'think', 'let', 'is', 'the', 'we']):
+                        equation_candidates.append(match)
+            
+            if equation_candidates:
+                # Take the last one
+                final_answer = equation_candidates[-1]
+        
+        # If still no answer, look for \boxed{} format
+        if final_answer == "N/A":
+            boxed_pattern = r'\\boxed\{([^}]+)\}'
+            boxed_matches = re.findall(boxed_pattern, solution_str)
+            
+            if boxed_matches:
+                # Take the last boxed answer
+                final_answer = boxed_matches[-1].strip()
     
     # Clean up the answer: if it contains '=', take only the part before it
-    if '=' in final_answer:
+    if final_answer != "N/A" and '=' in final_answer:
         final_answer = final_answer.split('=')[0].strip()
     
     return final_answer

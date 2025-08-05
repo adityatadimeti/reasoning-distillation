@@ -302,6 +302,7 @@ class PassKExperiment(BaseExperiment):
         num_correct = sum(1 for s in result["solutions"] if s["correct"])
         result["pass_at_k"] = num_correct > 0
         result["num_correct"] = num_correct
+        result["percentage_correct"] = (num_correct / k) * 100 if k > 0 else 0
         
         # Calculate consensus answer (most common answer)
         answers = [s["answer"] for s in result["solutions"] if s["answer"] is not None]
@@ -335,7 +336,7 @@ class PassKExperiment(BaseExperiment):
             result["cost_info"] = self.cost_info["problems"].get(problem_id, {})
 
         # Log the results
-        logger.info(f"Problem {problem_id}: pass@{k}={result['pass_at_k']}, consensus@{k}={consensus_correct} (count={consensus_count}/{k})")
+        logger.info(f"Problem {problem_id}: pass@{k}={result['pass_at_k']}, consensus@{k}={consensus_correct} (count={consensus_count}/{k}), correct={num_correct}/{k} ({result['percentage_correct']:.1f}%)")
         
         return result
     
@@ -408,6 +409,15 @@ class PassKExperiment(BaseExperiment):
             "k": k,
             "count": consensus_correct_count,
             "percentage": (consensus_correct_count / total_problems) * 100 if total_problems > 0 else 0
+        }
+        
+        # Calculate overall percentage of correct answers out of K
+        total_correct_answers = sum(r.get("num_correct", 0) for r in self.results)
+        total_attempts = total_problems * k
+        metrics["percentage_correct_out_of_k"] = {
+            "correct_count": total_correct_answers,
+            "total_attempts": total_attempts,
+            "percentage": (total_correct_answers / total_attempts) * 100 if total_attempts > 0 else 0
         }
         
         return metrics
