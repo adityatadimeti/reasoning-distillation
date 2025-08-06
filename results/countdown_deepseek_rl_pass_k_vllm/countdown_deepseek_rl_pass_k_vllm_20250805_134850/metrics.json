@@ -1,9 +1,9 @@
 {
-  "total_problems": 12,
+  "total_problems": 16,
   "token_usage": {
-    "prompt_tokens": 12205,
-    "completion_tokens": 664129,
-    "total_tokens": 676334
+    "prompt_tokens": 16280,
+    "completion_tokens": 797080,
+    "total_tokens": 813360
   },
   "cost_info": {
     "prompt_cost": 0.0,
@@ -238,21 +238,97 @@
           "total_cost": 0.0
         }
       }
+    },
+    "countdown_custom_4_014": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 1015,
+          "completion_tokens": 10763,
+          "total_tokens": 11778
+        },
+        "prompt_tokens": 1015,
+        "completion_tokens": 10763,
+        "total_tokens": 11778
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_015": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 1020,
+          "completion_tokens": 8118,
+          "total_tokens": 9138
+        },
+        "prompt_tokens": 1020,
+        "completion_tokens": 8118,
+        "total_tokens": 9138
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_013": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 1020,
+          "completion_tokens": 57611,
+          "total_tokens": 58631
+        },
+        "prompt_tokens": 1020,
+        "completion_tokens": 57611,
+        "total_tokens": 58631
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_016": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 1020,
+          "completion_tokens": 56459,
+          "total_tokens": 57479
+        },
+        "prompt_tokens": 1020,
+        "completion_tokens": 56459,
+        "total_tokens": 57479
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
     }
   },
   "pass_at_k": {
     "k": 5,
-    "count": 9,
-    "percentage": 75.0
+    "count": 13,
+    "percentage": 81.25
   },
   "consensus_at_k": {
     "k": 5,
-    "count": 8,
-    "percentage": 66.66666666666666
+    "count": 12,
+    "percentage": 75.0
   },
   "percentage_correct_out_of_k": {
-    "correct_count": 36,
-    "total_attempts": 60,
-    "percentage": 60.0
+    "correct_count": 52,
+    "total_attempts": 80,
+    "percentage": 65.0
   }
 }
