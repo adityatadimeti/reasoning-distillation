@@ -1,0 +1,9 @@
+/scr/jshen3/miniconda3/envs/distill/lib/python3.10/site-packages/transformers/utils/hub.py:105: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+2025-08-06 23:22:07,212 - __main__ - INFO - Loaded 1 of 50 problems
+2025-08-06 23:22:07,225 - src.experiments.base - INFO - Results will be saved to ./results/countdown_deepseek_rl_pass_k_vllm/countdown_deepseek_rl_pass_k_vllm_20250806_232207
+2025-08-06 23:22:07,230 - __main__ - INFO - Running experiment in parallel mode with max concurrency of 2
+2025-08-06 23:22:07,231 - src.experiments.passk - INFO - Processing problem countdown_custom_4_050 (1/1)
+2025-08-06 23:22:07,236 - src.experiments.passk - INFO - Generating solution 1/5 for problem countdown_custom_4_050
+2025-08-06 23:37:36,712 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (86 - 59) - (38 / 14)
+2025-08-06 23:37:36,886 - src.experiments.passk - INFO - Generating solution 2/5 for problem countdown_custom_4_050

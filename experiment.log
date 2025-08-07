@@ -1,71 +1,25 @@
 /scr/jshen3/miniconda3/envs/distill/lib/python3.10/site-packages/transformers/utils/hub.py:105: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
   warnings.warn(
-2025-07-28 17:03:58,869 - __main__ - INFO - Loaded 50 problems
-2025-07-28 17:03:58,871 - src.experiments.base - INFO - Results will be saved to ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250728_170358
-2025-07-28 17:03:58,882 - __main__ - INFO - Running experiment in parallel mode with max concurrency of 2
-2025-07-28 17:03:58,883 - src.experiments.summarization - INFO - Processing 50 problems with max concurrency of 2
-2025-07-28 17:03:58,884 - src.experiments.summarization - INFO - [1/50] Starting problem countdown_custom_4_001
-2025-07-28 17:03:58,884 - src.experiments.summarization - INFO - [2/50] Starting problem countdown_custom_4_002
-2025-07-28 17:04:53,385 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 0 finish reason: stop
-2025-07-28 17:04:53,385 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 72 / (96 / (49 - 1))
-2025-07-28 17:04:53,386 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_002, iteration 0
-2025-07-28 17:04:53,386 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-28 17:05:05,498 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, summary 0 finish reason: stop
-2025-07-28 17:05:05,498 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 72 / (96 / (49 - 1))
-2025-07-28 17:05:05,498 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 0 summary answer: 72 / (96 / (49 - 1))
-2025-07-28 17:05:05,498 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 0 summary correct: True
-2025-07-28 17:05:05,498 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: 72 / (96 / (49 - 1))
-2025-07-28 17:05:41,934 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 0 finish reason: stop
-2025-07-28 17:05:41,934 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 19 * (60 / (89 - 32))
-2025-07-28 17:05:41,935 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_001, iteration 0
-2025-07-28 17:05:41,935 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-28 17:05:56,847 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, summary 0 finish reason: stop
-2025-07-28 17:05:56,848 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 19 * (60 / (89 - 32))
-2025-07-28 17:05:56,848 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 0 summary answer: 19 * (60 / (89 - 32))
-2025-07-28 17:05:56,848 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 0 summary correct: True
-2025-07-28 17:05:56,848 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: 19 * (60 / (89 - 32))
-2025-07-28 17:06:30,691 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 1 finish reason: stop
-2025-07-28 17:06:30,691 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 19 * (60 / (89 - 32))
-2025-07-28 17:06:30,691 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_001, iteration 1
-2025-07-28 17:06:30,691 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-28 17:06:40,644 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, summary 1 finish reason: stop
-2025-07-28 17:06:40,644 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 19 * (60 / (89 - 32))
-2025-07-28 17:06:40,644 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 1 summary answer: 19 * (60 / (89 - 32))
-2025-07-28 17:06:40,644 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 1 summary correct: True
-2025-07-28 17:06:40,644 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 1: 19 * (60 / (89 - 32))
-2025-07-28 17:06:48,515 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 1 finish reason: stop
-2025-07-28 17:06:48,515 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 72 / (96 / (49 - 1))
-2025-07-28 17:06:48,516 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_002, iteration 1
-2025-07-28 17:06:48,516 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-28 17:07:04,852 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, summary 1 finish reason: stop
-2025-07-28 17:07:04,852 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 72 / (96 / (49 - 1))
-2025-07-28 17:07:04,852 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 1 summary answer: 72 / (96 / (49 - 1))
-2025-07-28 17:07:04,852 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 1 summary correct: True
-2025-07-28 17:07:04,852 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 1: 72 / (96 / (49 - 1))
-2025-07-28 17:07:37,421 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 2 finish reason: stop
-2025-07-28 17:07:37,421 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 19 * (60 / (89 - 32))
-2025-07-28 17:07:37,421 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_001, iteration 2
-2025-07-28 17:07:37,422 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-28 17:07:50,921 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, summary 2 finish reason: stop
-2025-07-28 17:07:50,921 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 19 * (60 / (89 - 32))
-2025-07-28 17:07:50,921 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 2 summary answer: 19 * (60 / (89 - 32))
-2025-07-28 17:07:50,921 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 2 summary correct: True
-2025-07-28 17:07:50,921 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 2: 19 * (60 / (89 - 32))
-2025-07-28 17:09:25,552 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 2 finish reason: stop
-2025-07-28 17:09:25,552 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 72 / (96 / (49 - 1))
-2025-07-28 17:09:25,552 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_002, iteration 2
-2025-07-28 17:09:25,552 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-28 17:09:41,794 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, summary 2 finish reason: stop
-2025-07-28 17:09:41,795 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
-2025-07-28 17:09:41,795 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 2 summary answer: None
-2025-07-28 17:09:41,795 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 2 summary correct: False
-2025-07-28 17:09:41,795 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 2: 72 / (96 / (49 - 1))
-2025-07-28 17:09:48,215 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 3 finish reason: stop
-2025-07-28 17:09:48,216 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 19 * (60 / (89 - 32))
-2025-07-28 17:09:48,216 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_001, iteration 3
-2025-07-28 17:09:48,216 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
-2025-07-28 17:10:10,598 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, summary 3 finish reason: stop
-2025-07-28 17:10:10,598 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 19 * (60 / (89 - 32))
-2025-07-28 17:10:10,598 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 3 summary answer: 19 * (60 / (89 - 32))
-2025-07-28 17:10:10,598 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 3 summary correct: True
-2025-07-28 17:10:10,598 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 3: 19 * (60 / (89 - 32))
+2025-08-06 23:52:22,465 - __main__ - INFO - Loaded 50 problems
+2025-08-06 23:52:22,467 - src.experiments.base - INFO - Results will be saved to ./results/countdown_deepseek_rl_answer_only_vllm/countdown_deepseek_rl_answer_only_vllm_20250806_235222
+2025-08-06 23:52:22,476 - __main__ - INFO - Loading initial reasoning from /afs/cs.stanford.edu/u/jshen3/research_projects/reasoning-distillation/results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250729_035159/results_reevaluated.json
+2025-08-06 23:52:22,478 - __main__ - ERROR - Experiment failed: Expecting value: line 1 column 1 (char 0)
+2025-08-06 23:52:22,479 - __main__ - ERROR - Traceback (most recent call last):
+  File "/sailhome/jshen3/research_projects/reasoning-distillation/run_experiment.py", line 458, in main
+    run_experiment(
+  File "/sailhome/jshen3/research_projects/reasoning-distillation/run_experiment.py", line 253, in run_experiment
+    experiment.initialize_with_previous_results(load_initial_reasoning)
+  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 1394, in initialize_with_previous_results
+    self.initial_reasoning_map = self.load_initial_reasoning(source_results_path)
+  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 1352, in load_initial_reasoning
+    source_results = json.load(f)
+  File "/scr/jshen3/miniconda3/envs/distill/lib/python3.10/json/__init__.py", line 293, in load
+    return loads(fp.read(),
+  File "/scr/jshen3/miniconda3/envs/distill/lib/python3.10/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+  File "/scr/jshen3/miniconda3/envs/distill/lib/python3.10/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "/scr/jshen3/miniconda3/envs/distill/lib/python3.10/json/decoder.py", line 355, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+

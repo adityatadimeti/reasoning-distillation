@@ -76,5 +76,5 @@ echo "Both models are now available!"
 # Run experimental script (optional)
 # -----------------------------------
 echo "Running experiment script..."
-python run_experiment.py countdown_deepseek_rl_qwen2_5_vllm_backtracking --parallel --question_ids countdown_custom_6_001,countdown_custom_6_003,countdown_custom_6_004,countdown_custom_6_005,countdown_custom_6_006,countdown_custom_6_007,countdown_custom_6_008,countdown_custom_6_009,countdown_custom_6_010 --concurrency 2 > experiment_2.log 2>&1 
+python run_experiment.py countdown_deepseek_rl_qwen2_5_vllm_backtracking --parallel --concurrency 2 > experiment_2.log 2>&1 
 

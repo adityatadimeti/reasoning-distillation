@@ -49,7 +49,7 @@ export TORCH_COMPILE_CACHE=/scr/jshen3/torch_compile_cache
 CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
   --model deepseek-ai/DeepSeek-R1-Distill-Qwen-14B \
   --host 0.0.0.0 \
-  --port 8004 \
+  --port 8001 \
   --max-model-len 32768 \
   --dtype bfloat16 \
   --gpu-memory-utilization 0.85 \
@@ -60,8 +60,8 @@ CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
 # -----------------------------------
 echo "Waiting for model servers to become available..."
 
-until curl -s http://localhost:8004/v1/models &>/dev/null; do
-  echo "Waiting for Deepseek on port 8004..."
+until curl -s http://localhost:8001/v1/models &>/dev/null; do
+  echo "Waiting for Deepseek on port 8001..."
   sleep 5
 done
 
@@ -76,5 +76,5 @@ echo "Both models are now available!"
 # Run experimental script (optional)
 # -----------------------------------
 echo "Running experiment script..."
-python run_experiment.py countdown_deepseek_rl_pass_k_vllm.yaml --parallel --concurrency 2 > baselines.log 2>&1 
+python run_experiment.py countdown_deepseek_rl_pass_k_vllm --question_ids countdown_custom_4_050 --parallel --concurrency 2 > baselines.log 2>&1 
 
