@@ -638,6 +638,14 @@ class SummarizationExperiment(BaseExperiment):
                     token_usage = TokenUsage(prompt_tokens=0, completion_tokens=0, total_tokens=0)
                     cost_info = CostInfo(total_cost=0.0, prompt_cost=0.0, completion_cost=0.0, prompt_tokens=0, completion_tokens=0)
                     logger.info(f"Using answer-only mode for problem {problem_id}, iteration {current_iteration}: {summary}")
+                elif summarization_mode == "post_think":
+                    # For post-think mode, extract post-think content directly from reasoning
+                    post_think_content = extract_post_think_content(current_reasoning)
+                    summary = post_think_content if post_think_content is not None else "No post-think content found"
+                    summary_finish_reason = "post_think"
+                    token_usage = TokenUsage(prompt_tokens=0, completion_tokens=0, total_tokens=0)
+                    cost_info = CostInfo(total_cost=0.0, prompt_cost=0.0, completion_cost=0.0, prompt_tokens=0, completion_tokens=0)
+                    logger.info(f"Using post-think mode for problem {problem_id}, iteration {current_iteration}: {summary}")
                 else:
                     # Use the async model interface for regular summarization
                     summary_response = await self.summarizer.generate_response_async(
