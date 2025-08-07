@@ -627,38 +627,50 @@ class SummarizationExperiment(BaseExperiment):
                 # Format the summarization prompt
                 summarize_prompt = summarize_template.replace("{reasoning}", reasoning_trace).replace("{question}", question)
                 
-                # Use the async model interface
-                summary_response = await self.summarizer.generate_response_async(
-                    summarize_prompt,
-                    max_tokens=self.config.get("summary_max_tokens", self.config["max_tokens"]),
-                    temperature=self.config.get("summary_temperature", self.config["temperature"]),
-                    top_p=self.config.get("summary_top_p", self.config["top_p"]),
-                    top_k=self.config.get("summary_top_k", self.config["top_k"]) if hasattr(self.summarizer, "top_k") else None,
-                    presence_penalty=self.config.get("summary_presence_penalty", self.config["presence_penalty"]),
-                    frequency_penalty=self.config.get("summary_frequency_penalty", self.config["frequency_penalty"]),
-                    verbose=self.verbose,
-                    enable_continuation=enable_continuation,
-                    max_total_tokens=summary_total_tokens,
-                    max_continuations=summary_continuations,
-                    track_token_callback=self.track_token_usage_and_cost,
-                    track_token_callback_args={
-                        "problem_id": problem_id,
-                        "iteration": current_iteration,
-                        "step": "summary"
-                    }
-                )
+                # Check for answer-only summarization mode
+                summarization_mode = self.config.get("summarization_mode", "full")
                 
-                # Handle the response
-                try:
-                    # Try to unpack with 5 elements (new format with detailed metrics)
-                    summary, summary_finish_reason, token_usage, cost_info, summary_detailed_api_calls = summary_response
-                    
-                    # Store detailed API call information in the result
-                    result["detailed_metrics"][f"iteration_{current_iteration}_summary"] = summary_detailed_api_calls
-                except ValueError:
-                    # Fall back to the old format with 4 elements if needed
-                    logger.warning(f"Summary response doesn't include detailed metrics, falling back to old format")
-                    summary, summary_finish_reason, token_usage, cost_info = summary_response
+                if summarization_mode == "answer_only":
+                    # For answer-only mode, extract answer from reasoning and use as summary
+                    reasoning_answer = extract_answer_with_config(current_reasoning, self.config)
+                    summary = reasoning_answer if reasoning_answer is not None else "No answer extracted"
+                    summary_finish_reason = "answer_only"
+                    token_usage = TokenUsage(prompt_tokens=0, completion_tokens=0, total_tokens=0)
+                    cost_info = CostInfo(total_cost=0.0, prompt_cost=0.0, completion_cost=0.0, prompt_tokens=0, completion_tokens=0)
+                    logger.info(f"Using answer-only mode for problem {problem_id}, iteration {current_iteration}: {summary}")
+                else:
+                    # Use the async model interface for regular summarization
+                    summary_response = await self.summarizer.generate_response_async(
+                        summarize_prompt,
+                        max_tokens=self.config.get("summary_max_tokens", self.config["max_tokens"]),
+                        temperature=self.config.get("summary_temperature", self.config["temperature"]),
+                        top_p=self.config.get("summary_top_p", self.config["top_p"]),
+                        top_k=self.config.get("summary_top_k", self.config["top_k"]) if hasattr(self.summarizer, "top_k") else None,
+                        presence_penalty=self.config.get("summary_presence_penalty", self.config["presence_penalty"]),
+                        frequency_penalty=self.config.get("summary_frequency_penalty", self.config["frequency_penalty"]),
+                        verbose=self.verbose,
+                        enable_continuation=enable_continuation,
+                        max_total_tokens=summary_total_tokens,
+                        max_continuations=summary_continuations,
+                        track_token_callback=self.track_token_usage_and_cost,
+                        track_token_callback_args={
+                            "problem_id": problem_id,
+                            "iteration": current_iteration,
+                            "step": "summary"
+                        }
+                    )
+                
+                    # Handle the response
+                    try:
+                        # Try to unpack with 5 elements (new format with detailed metrics)
+                        summary, summary_finish_reason, token_usage, cost_info, summary_detailed_api_calls = summary_response
+                        
+                        # Store detailed API call information in the result
+                        result["detailed_metrics"][f"iteration_{current_iteration}_summary"] = summary_detailed_api_calls
+                    except ValueError:
+                        # Fall back to the old format with 4 elements if needed
+                        logger.warning(f"Summary response doesn't include detailed metrics, falling back to old format")
+                        summary, summary_finish_reason, token_usage, cost_info = summary_response
             except Exception as e:
                 error_str = str(e).lower()
                 
@@ -678,9 +690,10 @@ class SummarizationExperiment(BaseExperiment):
             # Log the finish reason for the summary
             logger.info(f"Problem {problem_id}, summary {current_iteration} finish reason: {summary_finish_reason}")
             
-            # Extract post-think content from summary if enabled
+            # Extract post-think content from summary if enabled (via mode or legacy parameter)
             post_think_summary = summary
-            if self.config.get("extract_post_think_summary", False):
+            summarization_mode = self.config.get("summarization_mode", "full")
+            if summarization_mode == "post_think" or self.config.get("extract_post_think_summary", False):
                 extracted = extract_post_think_content(summary)
                 if extracted is not None:
                     post_think_summary = extracted
@@ -1133,9 +1146,10 @@ class SummarizationExperiment(BaseExperiment):
             # Log the finish reason for the summary
             logger.info(f"Problem {problem_id}, summary {current_iteration} finish reason: {summary_finish_reason}")
             
-            # Extract post-think content from summary if enabled
+            # Extract post-think content from summary if enabled (via mode or legacy parameter)
             post_think_summary = summary
-            if self.config.get("extract_post_think_summary", False):
+            summarization_mode = self.config.get("summarization_mode", "full")
+            if summarization_mode == "post_think" or self.config.get("extract_post_think_summary", False):
                 extracted = extract_post_think_content(summary)
                 if extracted is not None:
                     post_think_summary = extracted
