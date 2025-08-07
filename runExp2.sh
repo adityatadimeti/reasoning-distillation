@@ -31,17 +31,17 @@ export PIP_CACHE_DIR=/scr/jshen3/pip_cache
 export TORCH_COMPILE_CACHE=/scr/jshen3/torch_compile_cache
 
 
-# -----------------------------------
-# Launch Model 1 on GPU 0
-# -----------------------------------
-CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
-  --model Qwen/Qwen2.5-14B-Instruct \
-  --host 0.0.0.0 \
-  --port 8002 \
-  --max-model-len 32768 \
-  --dtype bfloat16 \
-  --gpu-memory-utilization 0.85 \
-  > qwen2_2.log 2>&1 &
+# # -----------------------------------
+# # Launch Model 1 on GPU 0
+# # -----------------------------------
+# CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
+#   --model Qwen/Qwen2.5-14B-Instruct \
+#   --host 0.0.0.0 \
+#   --port 8002 \
+#   --max-model-len 32768 \
+#   --dtype bfloat16 \
+#   --gpu-memory-utilization 0.85 \
+#   > qwen2_2.log 2>&1 &
 
 # -----------------------------------
 # Launch Model 2 on GPU 1
@@ -60,10 +60,10 @@ CUDA_VISIBLE_DEVICES=1 nohup python -m vllm.entrypoints.openai.api_server \
 # -----------------------------------
 echo "Waiting for model servers to become available..."
 
-until curl -s http://localhost:8002/v1/models &>/dev/null; do
-  echo "Waiting for Qwen2.5 on port 8002..."
-  sleep 5
-done
+# until curl -s http://localhost:8002/v1/models &>/dev/null; do
+#   echo "Waiting for Qwen2.5 on port 8002..."
+#   sleep 5
+# done
 
 until curl -s http://localhost:8003/v1/models &>/dev/null; do
   echo "Waiting for DeepSeek on port 8003..."
@@ -76,5 +76,5 @@ echo "Both models are now available!"
 # Run experimental script (optional)
 # -----------------------------------
 echo "Running experiment script..."
-python run_experiment.py countdown_deepseek_rl_qwen2_5_vllm_backtracking --parallel --concurrency 2 > experiment_2.log 2>&1 
+python run_experiment.py countdown_deepseek_rl_post_think_vllm --parallel --concurrency 2 --load_initial_reasoning /afs/cs.stanford.edu/u/jshen3/research_projects/reasoning-distillation/results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250729_035159/results_reevaluated.json > experiment.log 2>&1 
 
