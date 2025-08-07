@@ -1,9 +1,9 @@
 {
-  "total_problems": 44,
+  "total_problems": 49,
   "token_usage": {
-    "prompt_tokens": 44755,
-    "completion_tokens": 2154195,
-    "total_tokens": 2198950
+    "prompt_tokens": 49850,
+    "completion_tokens": 2480242,
+    "total_tokens": 2530092
   },
   "cost_info": {
     "prompt_cost": 0.0,
@@ -846,21 +846,116 @@
           "total_cost": 0.0
         }
       }
+    },
+    "countdown_custom_4_045": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 1015,
+          "completion_tokens": 125000,
+          "total_tokens": 126015
+        },
+        "prompt_tokens": 1015,
+        "completion_tokens": 125000,
+        "total_tokens": 126015
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_046": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 1020,
+          "completion_tokens": 125000,
+          "total_tokens": 126020
+        },
+        "prompt_tokens": 1020,
+        "completion_tokens": 125000,
+        "total_tokens": 126020
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_048": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 1020,
+          "completion_tokens": 12130,
+          "total_tokens": 13150
+        },
+        "prompt_tokens": 1020,
+        "completion_tokens": 12130,
+        "total_tokens": 13150
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_049": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 1020,
+          "completion_tokens": 8909,
+          "total_tokens": 9929
+        },
+        "prompt_tokens": 1020,
+        "completion_tokens": 8909,
+        "total_tokens": 9929
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    },
+    "countdown_custom_4_047": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 1020,
+          "completion_tokens": 55008,
+          "total_tokens": 56028
+        },
+        "prompt_tokens": 1020,
+        "completion_tokens": 55008,
+        "total_tokens": 56028
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
     }
   },
   "pass_at_k": {
     "k": 5,
-    "count": 36,
-    "percentage": 81.81818181818183
+    "count": 39,
+    "percentage": 79.59183673469387
   },
   "consensus_at_k": {
     "k": 5,
-    "count": 34,
-    "percentage": 77.27272727272727
+    "count": 37,
+    "percentage": 75.51020408163265
   },
   "percentage_correct_out_of_k": {
-    "correct_count": 143,
-    "total_attempts": 220,
-    "percentage": 65.0
+    "correct_count": 156,
+    "total_attempts": 245,
+    "percentage": 63.6734693877551
   }
 }
