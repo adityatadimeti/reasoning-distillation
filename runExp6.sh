@@ -1,10 +1,10 @@
 #!/bin/zsh
-#SBATCH --job-name=qwen3_14b_backtracking
+#SBATCH --job-name=qwen3_4b_base
 #SBATCH --account=cocoflops
 #SBATCH --partition=cocoflops
 #SBATCH --nodelist=cocoflops2
-#SBATCH --output=slurm-output/serve_qwen3_8b.log
-#SBATCH --error=slurm-output/serve_qwen3_8b.err
+#SBATCH --output=slurm-output/serve_qwen3_4b.log
+#SBATCH --error=slurm-output/serve_qwen3_4b.err
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=16

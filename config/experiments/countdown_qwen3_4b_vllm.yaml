@@ -1,6 +1,6 @@
 # Experiment configuration for Countdown puzzles using Qwen3-14B for both reasoning and summarization via vLLM
-experiment_name: "countdown_qwen3_4b_vllm"
-results_dir: "./results/countdown_qwen3_4b_vllm"
+experiment_name: "countdown_qwen3_4b_vllm_base"
+results_dir: "./results/countdown_qwen3_4b_vllm_base"
 data_path: "./data/countdown_custom_2.csv"
 save_intermediate: true
 experiment_type: "summarize"
