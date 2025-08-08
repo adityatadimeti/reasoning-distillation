@@ -245,6 +245,7 @@ class PassKExperiment(BaseExperiment):
                 enable_continuation=self.config.get("enable_continuation", False),
                 max_total_tokens=self.config.get("max_total_tokens", self.config["max_tokens"]),
                 max_continuations=self.config.get("max_continuations", 0),
+                qwen3_context="reasoning",  # Qwen3 thinking mode for reasoning
                 verbose=self.verbose
             )
             

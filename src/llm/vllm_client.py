@@ -48,8 +48,53 @@ class VLLMModelClient(ModelClient):
         self.input_price_per_million_tokens = 0.0
         self.output_price_per_million_tokens = 0.0
         
+        # Detect if this is a Qwen3 model for special handling
+        self.is_qwen3 = self._is_qwen3_model()
+        
         # Verify server is running
         self._verify_server()
+    
+    def _is_qwen3_model(self) -> bool:
+        """Check if this is a Qwen3 model that supports thinking/non-thinking modes."""
+        return "Qwen3" in self.model_name
+    
+    def _format_qwen3_messages(self, messages: List[Dict[str, str]], enable_thinking: bool = True) -> List[Dict[str, str]]:
+        """
+        Format messages for Qwen3 with thinking/non-thinking mode control.
+        
+        Args:
+            messages: Original messages
+            enable_thinking: True for reasoning (thinking mode), False for summarization (non-thinking mode)
+        
+        Returns:
+            Formatted messages with appropriate system instructions
+        """
+        if not self.is_qwen3:
+            return messages  # Return unchanged for non-Qwen3 models
+        
+        # Create a copy to avoid modifying the original
+        formatted_messages = messages.copy()
+        
+        if enable_thinking:
+            # For reasoning: Enable thinking mode
+            thinking_instruction = "Think step by step and show your reasoning process."
+            if formatted_messages and formatted_messages[0]["role"] == "system":
+                # Append to existing system message
+                formatted_messages[0]["content"] += f"\n{thinking_instruction}"
+            else:
+                # Add new system message at the beginning
+                formatted_messages.insert(0, {"role": "system", "content": thinking_instruction})
+        else:
+            # For summarization: Disable thinking mode, request concise response
+            no_thinking_instruction = "Provide a direct, concise response without showing your thinking process. Do not use <think> tags."
+            if formatted_messages and formatted_messages[0]["role"] == "system":
+                # Append to existing system message
+                formatted_messages[0]["content"] += f"\n{no_thinking_instruction}"
+            else:
+                # Add new system message at the beginning
+                formatted_messages.insert(0, {"role": "system", "content": no_thinking_instruction})
+        
+        return formatted_messages
     
     def _verify_server(self):
         """Verify that the vLLM server is running and accessible."""
@@ -266,6 +311,7 @@ class VLLMModelClient(ModelClient):
         stream: bool = False,
         enable_continuation: bool = True,
         max_total_tokens: int = 24576,
+        qwen3_context: Optional[str] = None,  # "reasoning" or "summarization" for Qwen3 mode control
         **kwargs
     ) -> Tuple[str, str, TokenUsage, CostInfo]:
         """
@@ -274,6 +320,11 @@ class VLLMModelClient(ModelClient):
         Supports automatic continuation if the response is truncated.
         """
         messages = [{"role": "user", "content": prompt}]
+        
+        # Apply Qwen3 mode formatting if applicable
+        if self.is_qwen3 and qwen3_context:
+            enable_thinking = qwen3_context == "reasoning"
+            messages = self._format_qwen3_messages(messages, enable_thinking)
         
         # Track API calls for detailed metrics
         api_calls = []

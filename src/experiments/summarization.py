@@ -510,6 +510,7 @@ class SummarizationExperiment(BaseExperiment):
                 enable_continuation=self.config.get("enable_continuation", True),
                 max_total_tokens=self.config.get("max_total_tokens", 24576),
                 max_continuations=self.config.get("max_continuations", 3),
+                qwen3_context="reasoning",  # Qwen3 thinking mode for reasoning
                 track_token_callback=self.track_token_usage_and_cost,
                 track_token_callback_args={
                     "problem_id": problem_id,
@@ -660,6 +661,7 @@ class SummarizationExperiment(BaseExperiment):
                         enable_continuation=enable_continuation,
                         max_total_tokens=summary_total_tokens,
                         max_continuations=summary_continuations,
+                        qwen3_context="summarization",  # Qwen3 non-thinking mode for summarization
                         track_token_callback=self.track_token_usage_and_cost,
                         track_token_callback_args={
                             "problem_id": problem_id,
@@ -793,6 +795,7 @@ class SummarizationExperiment(BaseExperiment):
                 enable_continuation=self.config.get("enable_continuation", True),
                 max_total_tokens=self.config.get("max_total_tokens", 24576),
                 max_continuations=self.config.get("max_continuations", 3),
+                qwen3_context="reasoning",  # Qwen3 thinking mode for reasoning
                 track_token_callback=self.track_token_usage_and_cost,
                 track_token_callback_args={
                     "problem_id": problem_id,

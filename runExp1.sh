@@ -31,17 +31,17 @@ export PIP_CACHE_DIR=/scr/jshen3/pip_cache
 export TORCH_COMPILE_CACHE=/scr/jshen3/torch_compile_cache
 
 
-# -----------------------------------
-# Launch Model 1 on GPU 0
-# -----------------------------------
-#CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
-#  --model Qwen/Qwen2.5-14B-Instruct \
-#  --host 0.0.0.0 \
-#  --port 8000 \
-#  --max-model-len 32768 \
-#  --dtype bfloat16 \
-#  --gpu-memory-utilization 0.85 \
-#  > qwen2.log 2>&1 &
+-----------------------------------
+Launch Model 1 on GPU 0
+-----------------------------------
+CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
+ --model Qwen/Qwen2.5-14B-Instruct \
+ --host 0.0.0.0 \
+ --port 8000 \
+ --max-model-len 32768 \
+ --dtype bfloat16 \
+ --gpu-memory-utilization 0.85 \
+ > qwen2.log 2>&1 &
 
 # -----------------------------------
 # Launch Model 2 on GPU 1
@@ -49,7 +49,7 @@ export TORCH_COMPILE_CACHE=/scr/jshen3/torch_compile_cache
 CUDA_VISIBLE_DEVICES=1 nohup python -m vllm.entrypoints.openai.api_server \
   --model deepseek-ai/DeepSeek-R1-Distill-Qwen-14B \
   --host 0.0.0.0 \
-  --port 8000 \
+  --port 8001 \
   --max-model-len 32768 \
   --dtype bfloat16 \
   --gpu-memory-utilization 0.85 \
@@ -60,13 +60,13 @@ CUDA_VISIBLE_DEVICES=1 nohup python -m vllm.entrypoints.openai.api_server \
 # -----------------------------------
 echo "Waiting for model servers to become available..."
 
-#until curl -s http://localhost:8000/v1/models &>/dev/null; do
-#  echo "Waiting for Qwen2.5 on port 8000..."
-#  sleep 5
-#done
-
 until curl -s http://localhost:8000/v1/models &>/dev/null; do
-  echo "Waiting for DeepSeek on port 8000..."
+ echo "Waiting for Qwen2.5 on port 8000..."
+ sleep 5
+done
+
+until curl -s http://localhost:8001/v1/models &>/dev/null; do
+  echo "Waiting for DeepSeek on port 8001..."
   sleep 5
 done
 
