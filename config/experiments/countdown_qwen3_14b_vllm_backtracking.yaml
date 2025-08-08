@@ -1,6 +1,6 @@
-# Experiment configuration for Countdown puzzles using DeepSeek-RL reasoning with Qwen2.5 summarization via vLLM
-experiment_name: "countdown_deepseek_rl_qwen2_5_vllm_backtracking"
-results_dir: "./results/countdown_deepseek_rl_qwen2_5_vllm_backtracking"
+# Experiment configuration for Countdown puzzles using Qwen3-14B for both reasoning and summarization via vLLM
+experiment_name: "countdown_qwen3_14b_vllm_backtracking"
+results_dir: "./results/countdown_qwen3_14b_vllm_backtracking"
 data_path: "./data/countdown_custom_2.csv"
 save_intermediate: true
 experiment_type: "summarize"
@@ -8,26 +8,25 @@ experiment_type: "summarize"
 # Dashboard configuration
 dashboard_port: 8080
 
-# Model configuration for vLLM
-# DeepSeek-RL for reasoning (running on port 8001)
-reasoning_model: "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
+# Model configuration for vLLM - Same Qwen3-14B model for both reasoning and summarization
+reasoning_model: "Qwen/Qwen3-14B"
 reasoning_model_provider: "vllm"
 
-# Qwen2.5 for summarization (running on port 8000)
+# Same Qwen3-14B model for summarization - addresses reviewer robustness concerns
 summarizer_type: "external"
-summarizer_model: "Qwen/Qwen2.5-14B-Instruct"
+summarizer_model: "Qwen/Qwen3-14B"
 summarizer_model_provider: "vllm"
 
-# vLLM server configuration for reasoning model (DeepSeek on GPU 1)
+# vLLM server configuration - Single server for both reasoning and summarization
 vllm_config:
   host: "localhost"
-  port: 8003
+  port: 8006
   max_model_len: 32768
 
-# vLLM server configuration for summarizer model (Qwen on GPU 0)
+# Both reasoning and summarization use same server
 summarizer_vllm_config:
   host: "localhost"
-  port: 8002
+  port: 8006  # Same server as reasoning
   max_model_len: 32768
 
 # Generation parameters for reasoning
@@ -42,7 +41,6 @@ frequency_penalty: 0.0
 enable_continuation: false  # Disable to avoid context accumulation bug
 max_total_tokens: 25000
 max_continuations: 1  # Set to 1 to avoid "maximum continuation limit (0)" error
-
 
 # Iteration parameters
 max_iterations: 4
@@ -63,7 +61,6 @@ summary_frequency_penalty: 0.0
 # Summary continuation parameters
 summary_max_total_tokens: 5000
 summary_max_continuations: 1  # Set to 1 to avoid "maximum continuation limit (0)" error
-
 
 # Answer extraction - use Countdown-specific extractor
 answer_extractor: "countdown"
