@@ -101,13 +101,11 @@ class VLLMModelClient(ModelClient):
             "presence_penalty": kwargs.get("presence_penalty", 0.0),
         }
         
-        # Add Qwen3 thinking mode control via prompt prefixes (workaround for vLLM compatibility issues)
+        # Add Qwen3 thinking mode control via chat_template_kwargs
         qwen3_context = kwargs.get("qwen3_context")
         if self.is_qwen3 and qwen3_context:
-            if qwen3_context == "summarization":
-                # Add /no_think prefix to disable thinking mode for summarization
-                if messages and messages[-1]["role"] == "user":
-                    messages[-1]["content"] = "/no_think " + messages[-1]["content"]
+            enable_thinking = qwen3_context == "reasoning"
+            payload["chat_template_kwargs"] = {"enable_thinking": enable_thinking}
         
         # Add optional parameters if provided
         if "top_k" in kwargs and kwargs["top_k"] is not None:
@@ -222,13 +220,11 @@ class VLLMModelClient(ModelClient):
             "presence_penalty": kwargs.get("presence_penalty", 0.0),
         }
         
-        # Add Qwen3 thinking mode control via prompt prefixes (workaround for vLLM compatibility issues)
+        # Add Qwen3 thinking mode control via chat_template_kwargs
         qwen3_context = kwargs.get("qwen3_context")
         if self.is_qwen3 and qwen3_context:
-            if qwen3_context == "summarization":
-                # Add /no_think prefix to disable thinking mode for summarization
-                if messages and messages[-1]["role"] == "user":
-                    messages[-1]["content"] = "/no_think " + messages[-1]["content"]
+            enable_thinking = qwen3_context == "reasoning"
+            payload["chat_template_kwargs"] = {"enable_thinking": enable_thinking}
         
         # Add optional parameters if provided
         if "top_k" in kwargs and kwargs["top_k"] is not None:
@@ -299,14 +295,9 @@ class VLLMModelClient(ModelClient):
         
         Supports automatic continuation if the response is truncated.
         """
-        # Add Qwen3 thinking mode control via prompt prefixes for summarization
-        qwen3_context = kwargs.get("qwen3_context")
-        if self.is_qwen3 and qwen3_context == "summarization":
-            prompt = "/no_think " + prompt
-            
         messages = [{"role": "user", "content": prompt}]
         
-        # Qwen3 mode control is now handled via prompt prefixes (workaround for vLLM compatibility issues)
+        # Qwen3 mode control is handled via chat_template_kwargs in the API payload
         
         # Track API calls for detailed metrics
         api_calls = []

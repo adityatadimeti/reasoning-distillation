@@ -40,6 +40,8 @@ CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
  --max-model-len 32768 \
  --dtype bfloat16 \
  --gpu-memory-utilization 0.85 \
+ --enable-reasoning \
+ --reasoning-parser qwen3 \
  > qwen3.log 2>&1 &
 
 # -----------------------------------
