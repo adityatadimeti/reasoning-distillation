@@ -30,7 +30,7 @@ summarizer_vllm_config:
   max_model_len: 40960
 
 # Generation parameters for reasoning - keep existing settings
-max_tokens: 25000  # Extended reasoning trace
+max_tokens: 35000  # Extended reasoning trace
 temperature: 0.6
 top_p: 0.95
 top_k: 40
@@ -39,7 +39,7 @@ frequency_penalty: 0.0
 
 # Continuation parameters for long reasoning traces
 enable_continuation: false  # Disable to avoid context accumulation bug
-max_total_tokens: 25000
+max_total_tokens: 35000
 max_continuations: 1  # Set to 1 to avoid "maximum continuation limit (0)" error
 
 # Iteration parameters

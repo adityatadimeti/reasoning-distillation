@@ -2,7 +2,7 @@
 #SBATCH --job-name=magistral-mistral
 #SBATCH --account=cocoflops
 #SBATCH --partition=cocoflops
-#SBATCH --nodelist=cocoflops2
+#SBATCH --nodelist=cocoflops-hgx-1
 #SBATCH --output=slurm-output/serve_magistral_mistral.log
 #SBATCH --error=slurm-output/serve_magistral_mistral.err
 #SBATCH --nodes=1
