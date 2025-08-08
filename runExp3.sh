@@ -3,12 +3,12 @@
 #SBATCH --account=cocoflops
 #SBATCH --partition=cocoflops
 #SBATCH --nodelist=cocoflops2
-#SBATCH --output=slurm-output/serve_qwen3.log
-#SBATCH --error=slurm-output/serve_qwen3.err
+#SBATCH --output=slurm-output/serve_qwen3_14b.log
+#SBATCH --error=slurm-output/serve_qwen3_14b.err
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=16
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:2
 #SBATCH --time=24:00:00
 
 # Activate your conda or virtual environment
@@ -31,7 +31,7 @@ export PIP_CACHE_DIR=/scr/jshen3/pip_cache
 export TORCH_COMPILE_CACHE=/scr/jshen3/torch_compile_cache
 
 # -----------------------------------
-# Launch Qwen3-14B model on GPU 0 (single model for both reasoning and summarization)
+# Launch Qwen3-14B for reasoning on GPU 0
 # -----------------------------------
 CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
   --model Qwen/Qwen3-14B \
@@ -40,22 +40,39 @@ CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
   --max-model-len 32768 \
   --dtype bfloat16 \
   --gpu-memory-utilization 0.85 \
-  > qwen3.log 2>&1 &
+  > qwen3_reasoning.log 2>&1 &
 
 # -----------------------------------
-# Wait for server to be ready
+# Launch Qwen3-14B for summarization on GPU 1
 # -----------------------------------
-echo "Waiting for Qwen3 model server to become available..."
+CUDA_VISIBLE_DEVICES=1 nohup python -m vllm.entrypoints.openai.api_server \
+  --model Qwen/Qwen3-14B \
+  --host 0.0.0.0 \
+  --port 8005 \
+  --max-model-len 32768 \
+  --dtype bfloat16 \
+  --gpu-memory-utilization 0.85 \
+  > qwen3_summarization.log 2>&1 &
+
+# -----------------------------------
+# Wait for both servers to be ready
+# -----------------------------------
+echo "Waiting for Qwen3 model servers to become available..."
 
 until curl -s http://localhost:8004/v1/models &>/dev/null; do
-  echo "Waiting for Qwen3 on port 8004..."
+  echo "Waiting for Qwen3 reasoning server on port 8004..."
   sleep 5
 done
 
-echo "Qwen3 model is now available!"
+until curl -s http://localhost:8005/v1/models &>/dev/null; do
+  echo "Waiting for Qwen3 summarization server on port 8005..."
+  sleep 5
+done
+
+echo "Both Qwen3 models are now available!"
 
 # -----------------------------------
 # Run experimental script (optional)
 # -----------------------------------
 echo "Running Qwen3 countdown experiment..."
-python run_experiment.py countdown_qwen3_14b_vllm --parallel --concurrency 2 > qwen3_experiment.log 2>&1
+python run_experiment.py countdown_qwen3_14b_vllm --parallel --concurrency 2 > qwen3_14b_experiment.log 2>&1

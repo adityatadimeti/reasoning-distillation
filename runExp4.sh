@@ -1,5 +1,5 @@
 #!/bin/zsh
-#SBATCH --job-name=qwen3
+#SBATCH --job-name=qwen3-8b
 #SBATCH --account=cocoflops
 #SBATCH --partition=cocoflops
 #SBATCH --nodelist=cocoflops2
@@ -8,7 +8,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=16
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:2
 #SBATCH --time=24:00:00
 
 # Activate your conda or virtual environment
@@ -31,28 +31,45 @@ export PIP_CACHE_DIR=/scr/jshen3/pip_cache
 export TORCH_COMPILE_CACHE=/scr/jshen3/torch_compile_cache
 
 # -----------------------------------
-# Launch Qwen3-14B model on GPU 0 (single model for both reasoning and summarization)
+# Launch Qwen3-8B for reasoning on GPU 0
 # -----------------------------------
 CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
   --model Qwen/Qwen3-8B \
   --host 0.0.0.0 \
-  --port 8005 \
+  --port 8008 \
   --max-model-len 32768 \
   --dtype bfloat16 \
   --gpu-memory-utilization 0.85 \
-  > qwen3_8b.log 2>&1 &
+  > qwen3_8b_reasoning.log 2>&1 &
 
 # -----------------------------------
-# Wait for server to be ready
+# Launch Qwen3-8B for summarization on GPU 1
 # -----------------------------------
-echo "Waiting for Qwen3 model server to become available..."
+CUDA_VISIBLE_DEVICES=1 nohup python -m vllm.entrypoints.openai.api_server \
+  --model Qwen/Qwen3-8B \
+  --host 0.0.0.0 \
+  --port 8009 \
+  --max-model-len 32768 \
+  --dtype bfloat16 \
+  --gpu-memory-utilization 0.85 \
+  > qwen3_8b_summarization.log 2>&1 &
 
-until curl -s http://localhost:8005/v1/models &>/dev/null; do
-  echo "Waiting for Qwen3 on port 8005..."
+# -----------------------------------
+# Wait for both servers to be ready
+# -----------------------------------
+echo "Waiting for Qwen3-8B model servers to become available..."
+
+until curl -s http://localhost:8008/v1/models &>/dev/null; do
+  echo "Waiting for Qwen3-8B reasoning server on port 8008..."
   sleep 5
 done
 
-echo "Qwen3 model is now available!"
+until curl -s http://localhost:8009/v1/models &>/dev/null; do
+  echo "Waiting for Qwen3-8B summarization server on port 8009..."
+  sleep 5
+done
+
+echo "Both Qwen3-8B models are now available!"
 
 # -----------------------------------
 # Run experimental script (optional)

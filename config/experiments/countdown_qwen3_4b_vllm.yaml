@@ -1,6 +1,6 @@
 # Experiment configuration for Countdown puzzles using Qwen3-14B for both reasoning and summarization via vLLM
-experiment_name: "countdown_qwen3_4b_vllm_base"
-results_dir: "./results/countdown_qwen3_4b_vllm_base"
+experiment_name: "countdown_qwen3_4b_vllm"
+results_dir: "./results/countdown_qwen3_4b_vllm"
 data_path: "./data/countdown_custom_2.csv"
 save_intermediate: true
 experiment_type: "summarize"
@@ -8,25 +8,25 @@ experiment_type: "summarize"
 # Dashboard configuration
 dashboard_port: 8080
 
-# Model configuration for vLLM - Same Qwen3-14B model for both reasoning and summarization
+# Model configuration for vLLM - Same Qwen3-4B model for both reasoning and summarization
 reasoning_model: "Qwen/Qwen3-4B"
 reasoning_model_provider: "vllm"
 
-# Same Qwen3-14B model for summarization - addresses reviewer robustness concerns
+# Same Qwen3-4B model for summarization - addresses reviewer robustness concerns
 summarizer_type: "external"
 summarizer_model: "Qwen/Qwen3-4B"
 summarizer_model_provider: "vllm"
 
-# vLLM server configuration - Single server for both reasoning and summarization
+# vLLM server configuration for reasoning model (Qwen3-4B on GPU 0)
 vllm_config:
   host: "localhost"
   port: 8006
   max_model_len: 32768
 
-# Both reasoning and summarization use same server
+# vLLM server configuration for summarizer model (Qwen3-4B on GPU 1)
 summarizer_vllm_config:
   host: "localhost"
-  port: 8006  # Same server as reasoning
+  port: 8007  # Separate server instance for summarization
   max_model_len: 32768
 
 # Generation parameters for reasoning
