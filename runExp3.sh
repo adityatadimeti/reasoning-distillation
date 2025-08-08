@@ -36,7 +36,7 @@ export TORCH_COMPILE_CACHE=/scr/jshen3/torch_compile_cache
 CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
   --model Qwen/Qwen3-14B \
   --host 0.0.0.0 \
-  --port 8000 \
+  --port 8004 \
   --max-model-len 32768 \
   --dtype bfloat16 \
   --gpu-memory-utilization 0.85 \
