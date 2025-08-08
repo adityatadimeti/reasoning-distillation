@@ -1,0 +1,72 @@
+# Experiment configuration for Countdown puzzles using Magistral Small 2506 for reasoning and Mistral Small 3.1 for summarization via vLLM
+experiment_name: "countdown_magistral_mistral_vllm"
+results_dir: "./results/countdown_magistral_mistral_vllm"
+data_path: "./data/countdown_custom_2.csv"
+save_intermediate: true
+experiment_type: "summarize"
+
+# Dashboard configuration
+dashboard_port: 8080
+
+# Model configuration for vLLM - Magistral Small 2506 for reasoning
+reasoning_model: "mistralai/Magistral-Small-2506"
+reasoning_model_provider: "vllm"
+
+# Mistral Small 3.1 for summarization
+summarizer_type: "external"
+summarizer_model: "mistralai/Mistral-Small-3.1-24B-Instruct-2503"
+summarizer_model_provider: "vllm"
+
+# vLLM server configuration for reasoning model (Magistral on GPU 0)
+vllm_config:
+  host: "localhost"
+  port: 8010
+  max_model_len: 40960  # Magistral recommended limit
+
+# vLLM server configuration for summarizer model (Mistral on GPU 1)
+summarizer_vllm_config:
+  host: "localhost"
+  port: 8011  # Separate server instance for summarization
+  max_model_len: 40960
+
+# Generation parameters for reasoning - keep existing settings
+max_tokens: 25000  # Extended reasoning trace
+temperature: 0.6
+top_p: 0.95
+top_k: 40
+presence_penalty: 0.0
+frequency_penalty: 0.0
+
+# Continuation parameters for long reasoning traces
+enable_continuation: false  # Disable to avoid context accumulation bug
+max_total_tokens: 25000
+max_continuations: 1  # Set to 1 to avoid "maximum continuation limit (0)" error
+
+# Iteration parameters
+max_iterations: 4
+continue_after_correct: true
+
+# Summarization parameters - keep existing settings
+enable_summarization: true
+enable_final_summarization: true
+allow_fallback: true
+extract_post_think_summary: false
+summary_max_tokens: 5000  # Concise summary
+summary_temperature: 0.6   # Keep same as existing experiments
+summary_top_p: 0.95
+summary_top_k: 40
+summary_presence_penalty: 0.0
+summary_frequency_penalty: 0.0
+
+# Summary continuation parameters
+summary_max_total_tokens: 5000
+summary_max_continuations: 1  # Set to 1 to avoid "maximum continuation limit (0)" error
+
+# Answer extraction - use Countdown-specific extractor
+answer_extractor: "countdown"
+
+# Prompt configurations
+prompts:
+  reasoning: "countdown"  # References config/prompts/reasoning.yaml
+  summarize: "countdown_summary"  # References config/prompts/summarize.yaml
+  improved: "countdown_your_approach"  # Use same reasoning prompt for improved iterations
