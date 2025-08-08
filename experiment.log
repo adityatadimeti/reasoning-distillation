@@ -1,25 +1,269 @@
-/scr/jshen3/miniconda3/envs/distill/lib/python3.10/site-packages/transformers/utils/hub.py:105: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+/scr/jshen3/miniconda3/envs/distill/lib/python3.10/site-packages/transformers/utils/hub.py:111: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
   warnings.warn(
-2025-08-06 23:52:22,465 - __main__ - INFO - Loaded 50 problems
-2025-08-06 23:52:22,467 - src.experiments.base - INFO - Results will be saved to ./results/countdown_deepseek_rl_answer_only_vllm/countdown_deepseek_rl_answer_only_vllm_20250806_235222
-2025-08-06 23:52:22,476 - __main__ - INFO - Loading initial reasoning from /afs/cs.stanford.edu/u/jshen3/research_projects/reasoning-distillation/results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250729_035159/results_reevaluated.json
-2025-08-06 23:52:22,478 - __main__ - ERROR - Experiment failed: Expecting value: line 1 column 1 (char 0)
-2025-08-06 23:52:22,479 - __main__ - ERROR - Traceback (most recent call last):
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/run_experiment.py", line 458, in main
-    run_experiment(
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/run_experiment.py", line 253, in run_experiment
-    experiment.initialize_with_previous_results(load_initial_reasoning)
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 1394, in initialize_with_previous_results
-    self.initial_reasoning_map = self.load_initial_reasoning(source_results_path)
-  File "/sailhome/jshen3/research_projects/reasoning-distillation/src/experiments/summarization.py", line 1352, in load_initial_reasoning
-    source_results = json.load(f)
-  File "/scr/jshen3/miniconda3/envs/distill/lib/python3.10/json/__init__.py", line 293, in load
-    return loads(fp.read(),
-  File "/scr/jshen3/miniconda3/envs/distill/lib/python3.10/json/__init__.py", line 346, in loads
-    return _default_decoder.decode(s)
-  File "/scr/jshen3/miniconda3/envs/distill/lib/python3.10/json/decoder.py", line 337, in decode
-    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
-  File "/scr/jshen3/miniconda3/envs/distill/lib/python3.10/json/decoder.py", line 355, in raw_decode
-    raise JSONDecodeError("Expecting value", s, err.value) from None
-json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
-
+2025-08-08 02:04:07,728 - __main__ - INFO - Loaded 50 problems
+2025-08-08 02:04:07,730 - src.experiments.base - INFO - Results will be saved to ./results/countdown_deepseek_rl_post_think_vllm/countdown_deepseek_rl_post_think_vllm_20250808_020407
+2025-08-08 02:04:07,739 - __main__ - INFO - Loading initial reasoning from ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250729_035159/results_reevaluated.json
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_001
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_002
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_003
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_004
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_005
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_006
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_007
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_008
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_009
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_010
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_011
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_012
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_013
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_014
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_015
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_016
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_017
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_018
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_019
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_020
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_021
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_022
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_023
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_024
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_025
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_026
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_027
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_028
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_029
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_030
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_031
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_032
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_033
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_034
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_035
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_036
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_037
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_038
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_039
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_040
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_041
+2025-08-08 02:04:07,767 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_042
+2025-08-08 02:04:07,768 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_043
+2025-08-08 02:04:07,768 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_044
+2025-08-08 02:04:07,768 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_045
+2025-08-08 02:04:07,768 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_046
+2025-08-08 02:04:07,768 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_047
+2025-08-08 02:04:07,768 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_048
+2025-08-08 02:04:07,768 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_049
+2025-08-08 02:04:07,768 - src.experiments.summarization - INFO - Loaded initial reasoning for problem countdown_custom_4_050
+2025-08-08 02:04:07,768 - src.experiments.summarization - INFO - Loaded initial reasoning for 50 problems from ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250729_035159/results_reevaluated.json
+2025-08-08 02:04:07,768 - src.experiments.summarization - INFO - Initialized experiment with 50 preloaded reasonings
+2025-08-08 02:04:07,768 - __main__ - INFO - Running experiment in parallel mode with max concurrency of 2
+2025-08-08 02:04:07,768 - src.experiments.summarization - INFO - Processing 50 problems with max concurrency of 2
+2025-08-08 02:04:07,769 - src.experiments.summarization - INFO - [1/50] Starting problem countdown_custom_4_001
+2025-08-08 02:04:07,769 - src.experiments.summarization - INFO - Using preloaded initial reasoning for problem countdown_custom_4_001
+2025-08-08 02:04:07,769 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_001, iteration 0
+2025-08-08 02:04:07,769 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-08-08 02:04:07,769 - src.reasoning.extractor - INFO - Successfully extracted post-think content: 130 characters
+2025-08-08 02:04:07,769 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, summary 0 finish reason: post_think
+2025-08-08 02:04:07,769 - src.reasoning.extractor - WARNING - No </think> tag found in the text
+2025-08-08 02:04:07,769 - src.experiments.summarization - INFO - No post-think content found in summary for problem countdown_custom_4_001, iteration 0. Using full summary.
+2025-08-08 02:04:07,769 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (60 / (89 - 32)) + 19
+2025-08-08 02:04:07,769 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 0 summary answer: (60 / (89 - 32)) + 19
+2025-08-08 02:04:07,769 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 0 summary correct: False
+2025-08-08 02:04:07,769 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: (60 / (89 - 32)) + 19
+2025-08-08 02:04:07,770 - src.experiments.summarization - INFO - [2/50] Starting problem countdown_custom_4_002
+2025-08-08 02:04:07,770 - src.experiments.summarization - INFO - Using preloaded initial reasoning for problem countdown_custom_4_002
+2025-08-08 02:04:07,770 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_002, iteration 0
+2025-08-08 02:04:07,770 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-08-08 02:04:07,770 - src.reasoning.extractor - INFO - Successfully extracted post-think content: 181 characters
+2025-08-08 02:04:07,770 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, summary 0 finish reason: post_think
+2025-08-08 02:04:07,770 - src.reasoning.extractor - WARNING - No </think> tag found in the text
+2025-08-08 02:04:07,770 - src.experiments.summarization - INFO - No post-think content found in summary for problem countdown_custom_4_002, iteration 0. Using full summary.
+2025-08-08 02:04:07,770 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 72 / (96 / (49 - 1))
+2025-08-08 02:04:07,770 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 0 summary answer: 72 / (96 / (49 - 1))
+2025-08-08 02:04:07,770 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 0 summary correct: True
+2025-08-08 02:04:07,770 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: 72 / (96 / (49 - 1))
+2025-08-08 02:05:08,187 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 1 finish reason: stop
+2025-08-08 02:05:08,187 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 60 / ((89 - 32) / 19)
+2025-08-08 02:05:08,187 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_001, iteration 1
+2025-08-08 02:05:08,187 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-08-08 02:05:08,187 - src.reasoning.extractor - INFO - Successfully extracted post-think content: 133 characters
+2025-08-08 02:05:08,187 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, summary 1 finish reason: post_think
+2025-08-08 02:05:08,187 - src.reasoning.extractor - WARNING - No </think> tag found in the text
+2025-08-08 02:05:08,187 - src.experiments.summarization - INFO - No post-think content found in summary for problem countdown_custom_4_001, iteration 1. Using full summary.
+2025-08-08 02:05:08,188 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 60 / ((89 - 32) / 19)
+2025-08-08 02:05:08,188 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 1 summary answer: 60 / ((89 - 32) / 19)
+2025-08-08 02:05:08,188 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 1 summary correct: True
+2025-08-08 02:05:08,188 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 1: 60 / ((89 - 32) / 19)
+2025-08-08 02:05:36,646 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 2 finish reason: stop
+2025-08-08 02:05:36,646 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 60 / ((89 - 32) / 19)
+2025-08-08 02:05:36,646 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_001, iteration 2
+2025-08-08 02:05:36,646 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-08-08 02:05:36,646 - src.reasoning.extractor - INFO - Successfully extracted post-think content: 138 characters
+2025-08-08 02:05:36,646 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, summary 2 finish reason: post_think
+2025-08-08 02:05:36,646 - src.reasoning.extractor - WARNING - No </think> tag found in the text
+2025-08-08 02:05:36,646 - src.experiments.summarization - INFO - No post-think content found in summary for problem countdown_custom_4_001, iteration 2. Using full summary.
+2025-08-08 02:05:36,647 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 60 / ((89 - 32) / 19)
+2025-08-08 02:05:36,647 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 2 summary answer: 60 / ((89 - 32) / 19)
+2025-08-08 02:05:36,647 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 2 summary correct: True
+2025-08-08 02:05:36,647 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 2: 60 / ((89 - 32) / 19)
+2025-08-08 02:05:39,643 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 1 finish reason: stop
+2025-08-08 02:05:39,643 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 72 / (96 / (49 - 1))
+2025-08-08 02:05:39,643 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_002, iteration 1
+2025-08-08 02:05:39,643 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-08-08 02:05:39,643 - src.reasoning.extractor - INFO - Successfully extracted post-think content: 133 characters
+2025-08-08 02:05:39,643 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, summary 1 finish reason: post_think
+2025-08-08 02:05:39,643 - src.reasoning.extractor - WARNING - No </think> tag found in the text
+2025-08-08 02:05:39,643 - src.experiments.summarization - INFO - No post-think content found in summary for problem countdown_custom_4_002, iteration 1. Using full summary.
+2025-08-08 02:05:39,643 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 72 / (96 / (49 - 1))
+2025-08-08 02:05:39,643 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 1 summary answer: 72 / (96 / (49 - 1))
+2025-08-08 02:05:39,643 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 1 summary correct: True
+2025-08-08 02:05:39,644 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 1: 72 / (96 / (49 - 1))
+2025-08-08 02:06:14,298 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 3 finish reason: stop
+2025-08-08 02:06:14,298 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 60 / ((89 - 32) / 19)
+2025-08-08 02:06:14,298 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_001, iteration 3
+2025-08-08 02:06:14,298 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-08-08 02:06:14,298 - src.reasoning.extractor - INFO - Successfully extracted post-think content: 178 characters
+2025-08-08 02:06:14,298 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, summary 3 finish reason: post_think
+2025-08-08 02:06:14,298 - src.reasoning.extractor - WARNING - No </think> tag found in the text
+2025-08-08 02:06:14,299 - src.experiments.summarization - INFO - No post-think content found in summary for problem countdown_custom_4_001, iteration 3. Using full summary.
+2025-08-08 02:06:14,299 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 60 / ((89 - 32) / 19)
+2025-08-08 02:06:14,299 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 3 summary answer: 60 / ((89 - 32) / 19)
+2025-08-08 02:06:14,299 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 3 summary correct: True
+2025-08-08 02:06:14,299 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 3: 60 / ((89 - 32) / 19)
+2025-08-08 02:06:59,019 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 2 finish reason: stop
+2025-08-08 02:06:59,019 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 72 / (96 / (49 - 1))
+2025-08-08 02:06:59,019 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_002, iteration 2
+2025-08-08 02:06:59,019 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-08-08 02:06:59,019 - src.reasoning.extractor - INFO - Successfully extracted post-think content: 132 characters
+2025-08-08 02:06:59,019 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, summary 2 finish reason: post_think
+2025-08-08 02:06:59,019 - src.reasoning.extractor - WARNING - No </think> tag found in the text
+2025-08-08 02:06:59,019 - src.experiments.summarization - INFO - No post-think content found in summary for problem countdown_custom_4_002, iteration 2. Using full summary.
+2025-08-08 02:06:59,019 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 72 / (96 / (49 - 1))
+2025-08-08 02:06:59,019 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 2 summary answer: 72 / (96 / (49 - 1))
+2025-08-08 02:06:59,020 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 2 summary correct: True
+2025-08-08 02:06:59,020 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 2: 72 / (96 / (49 - 1))
+2025-08-08 02:07:10,886 - src.experiments.summarization - INFO - Problem countdown_custom_4_001, iteration 4 finish reason: stop
+2025-08-08 02:07:10,887 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 60 / ((89 - 32) / 19)
+2025-08-08 02:07:10,887 - src.experiments.summarization - INFO - Final answer for problem countdown_custom_4_001: 60 / ((89 - 32) / 19)
+2025-08-08 02:07:10,887 - src.experiments.summarization - INFO - Final answer correct: True
+2025-08-08 02:07:10,887 - src.experiments.summarization - INFO - [1/50] Completed problem countdown_custom_4_001
+2025-08-08 02:07:10,893 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_post_think_vllm/countdown_deepseek_rl_post_think_vllm_20250808_020407
+2025-08-08 02:07:10,893 - src.experiments.summarization - INFO - [3/50] Starting problem countdown_custom_4_003
+2025-08-08 02:07:10,894 - src.experiments.summarization - INFO - Using preloaded initial reasoning for problem countdown_custom_4_003
+2025-08-08 02:07:10,894 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_003, iteration 0
+2025-08-08 02:07:10,894 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-08-08 02:07:10,894 - src.reasoning.extractor - INFO - Successfully extracted post-think content: 179 characters
+2025-08-08 02:07:10,894 - src.experiments.summarization - INFO - Problem countdown_custom_4_003, summary 0 finish reason: post_think
+2025-08-08 02:07:10,894 - src.reasoning.extractor - WARNING - No </think> tag found in the text
+2025-08-08 02:07:10,894 - src.experiments.summarization - INFO - No post-think content found in summary for problem countdown_custom_4_003, iteration 0. Using full summary.
+2025-08-08 02:07:10,894 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (43 + 42) - (92 / 4)
+2025-08-08 02:07:10,894 - src.experiments.summarization - INFO - Problem countdown_custom_4_003, iteration 0 summary answer: (43 + 42) - (92 / 4)
+2025-08-08 02:07:10,894 - src.experiments.summarization - INFO - Problem countdown_custom_4_003, iteration 0 summary correct: True
+2025-08-08 02:07:10,894 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: (43 + 42) - (92 / 4)
+2025-08-08 02:07:41,400 - src.experiments.summarization - INFO - Problem countdown_custom_4_003, iteration 1 finish reason: stop
+2025-08-08 02:07:41,401 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (42 + 43) - (92 / 4)
+2025-08-08 02:07:41,401 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_003, iteration 1
+2025-08-08 02:07:41,401 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-08-08 02:07:41,401 - src.reasoning.extractor - INFO - Successfully extracted post-think content: 143 characters
+2025-08-08 02:07:41,401 - src.experiments.summarization - INFO - Problem countdown_custom_4_003, summary 1 finish reason: post_think
+2025-08-08 02:07:41,401 - src.reasoning.extractor - WARNING - No </think> tag found in the text
+2025-08-08 02:07:41,401 - src.experiments.summarization - INFO - No post-think content found in summary for problem countdown_custom_4_003, iteration 1. Using full summary.
+2025-08-08 02:07:41,401 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (42 + 43) - (92 / 4)
+2025-08-08 02:07:41,401 - src.experiments.summarization - INFO - Problem countdown_custom_4_003, iteration 1 summary answer: (42 + 43) - (92 / 4)
+2025-08-08 02:07:41,401 - src.experiments.summarization - INFO - Problem countdown_custom_4_003, iteration 1 summary correct: True
+2025-08-08 02:07:41,401 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 1: (42 + 43) - (92 / 4)
+2025-08-08 02:08:02,845 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 3 finish reason: stop
+2025-08-08 02:08:02,846 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 72 / (96 / (49 - 1))
+2025-08-08 02:08:02,846 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_002, iteration 3
+2025-08-08 02:08:02,846 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-08-08 02:08:02,846 - src.reasoning.extractor - INFO - Successfully extracted post-think content: 186 characters
+2025-08-08 02:08:02,846 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, summary 3 finish reason: post_think
+2025-08-08 02:08:02,846 - src.reasoning.extractor - WARNING - No </think> tag found in the text
+2025-08-08 02:08:02,846 - src.experiments.summarization - INFO - No post-think content found in summary for problem countdown_custom_4_002, iteration 3. Using full summary.
+2025-08-08 02:08:02,846 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 72 / (96 / (49 - 1))
+2025-08-08 02:08:02,846 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 3 summary answer: 72 / (96 / (49 - 1))
+2025-08-08 02:08:02,846 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 3 summary correct: True
+2025-08-08 02:08:02,846 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 3: 72 / (96 / (49 - 1))
+2025-08-08 02:08:09,112 - src.experiments.summarization - INFO - Problem countdown_custom_4_003, iteration 2 finish reason: stop
+2025-08-08 02:08:09,112 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (42 + 43) - (92 / 4)
+2025-08-08 02:08:09,112 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_003, iteration 2
+2025-08-08 02:08:09,112 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-08-08 02:08:09,112 - src.reasoning.extractor - INFO - Successfully extracted post-think content: 143 characters
+2025-08-08 02:08:09,112 - src.experiments.summarization - INFO - Problem countdown_custom_4_003, summary 2 finish reason: post_think
+2025-08-08 02:08:09,112 - src.reasoning.extractor - WARNING - No </think> tag found in the text
+2025-08-08 02:08:09,113 - src.experiments.summarization - INFO - No post-think content found in summary for problem countdown_custom_4_003, iteration 2. Using full summary.
+2025-08-08 02:08:09,113 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (42 + 43) - (92 / 4)
+2025-08-08 02:08:09,113 - src.experiments.summarization - INFO - Problem countdown_custom_4_003, iteration 2 summary answer: (42 + 43) - (92 / 4)
+2025-08-08 02:08:09,113 - src.experiments.summarization - INFO - Problem countdown_custom_4_003, iteration 2 summary correct: True
+2025-08-08 02:08:09,113 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 2: (42 + 43) - (92 / 4)
+2025-08-08 02:08:20,497 - src.experiments.summarization - INFO - Problem countdown_custom_4_002, iteration 4 finish reason: stop
+2025-08-08 02:08:20,497 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 72 / (96 / (49 - 1))
+2025-08-08 02:08:20,497 - src.experiments.summarization - INFO - Final answer for problem countdown_custom_4_002: 72 / (96 / (49 - 1))
+2025-08-08 02:08:20,497 - src.experiments.summarization - INFO - Final answer correct: True
+2025-08-08 02:08:20,497 - src.experiments.summarization - INFO - [2/50] Completed problem countdown_custom_4_002
+2025-08-08 02:08:20,505 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_post_think_vllm/countdown_deepseek_rl_post_think_vllm_20250808_020407
+2025-08-08 02:08:20,506 - src.experiments.summarization - INFO - [4/50] Starting problem countdown_custom_4_004
+2025-08-08 02:08:20,506 - src.experiments.summarization - INFO - Using preloaded initial reasoning for problem countdown_custom_4_004
+2025-08-08 02:08:20,506 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_004, iteration 0
+2025-08-08 02:08:20,506 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-08-08 02:08:20,506 - src.reasoning.extractor - INFO - Successfully extracted post-think content: 238 characters
+2025-08-08 02:08:20,506 - src.experiments.summarization - INFO - Problem countdown_custom_4_004, summary 0 finish reason: post_think
+2025-08-08 02:08:20,506 - src.reasoning.extractor - WARNING - No </think> tag found in the text
+2025-08-08 02:08:20,506 - src.experiments.summarization - INFO - No post-think content found in summary for problem countdown_custom_4_004, iteration 0. Using full summary.
+2025-08-08 02:08:20,506 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 50 + (90 - 78) / 12
+2025-08-08 02:08:20,506 - src.experiments.summarization - INFO - Problem countdown_custom_4_004, iteration 0 summary answer: 50 + (90 - 78) / 12
+2025-08-08 02:08:20,506 - src.experiments.summarization - INFO - Problem countdown_custom_4_004, iteration 0 summary correct: True
+2025-08-08 02:08:20,506 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: 50 + (90 - 78) / 12
+2025-08-08 02:08:30,368 - src.experiments.summarization - INFO - Problem countdown_custom_4_003, iteration 3 finish reason: stop
+2025-08-08 02:08:30,368 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (42 + 43) - (92 / 4)
+2025-08-08 02:08:30,368 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_003, iteration 3
+2025-08-08 02:08:30,368 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-08-08 02:08:30,368 - src.reasoning.extractor - INFO - Successfully extracted post-think content: 148 characters
+2025-08-08 02:08:30,368 - src.experiments.summarization - INFO - Problem countdown_custom_4_003, summary 3 finish reason: post_think
+2025-08-08 02:08:30,368 - src.reasoning.extractor - WARNING - No </think> tag found in the text
+2025-08-08 02:08:30,369 - src.experiments.summarization - INFO - No post-think content found in summary for problem countdown_custom_4_003, iteration 3. Using full summary.
+2025-08-08 02:08:30,369 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (42 + 43) - (92 / 4)
+2025-08-08 02:08:30,369 - src.experiments.summarization - INFO - Problem countdown_custom_4_003, iteration 3 summary answer: (42 + 43) - (92 / 4)
+2025-08-08 02:08:30,369 - src.experiments.summarization - INFO - Problem countdown_custom_4_003, iteration 3 summary correct: True
+2025-08-08 02:08:30,369 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 3: (42 + 43) - (92 / 4)
+2025-08-08 02:08:54,242 - src.experiments.summarization - INFO - Problem countdown_custom_4_003, iteration 4 finish reason: stop
+2025-08-08 02:08:54,243 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (42 + 43) - (92 / 4)
+2025-08-08 02:08:54,243 - src.experiments.summarization - INFO - Final answer for problem countdown_custom_4_003: (42 + 43) - (92 / 4)
+2025-08-08 02:08:54,243 - src.experiments.summarization - INFO - Final answer correct: True
+2025-08-08 02:08:54,243 - src.experiments.summarization - INFO - [3/50] Completed problem countdown_custom_4_003
+2025-08-08 02:08:54,252 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_post_think_vllm/countdown_deepseek_rl_post_think_vllm_20250808_020407
+2025-08-08 02:08:54,252 - src.experiments.summarization - INFO - [5/50] Starting problem countdown_custom_4_005
+2025-08-08 02:08:54,252 - src.experiments.summarization - INFO - Using preloaded initial reasoning for problem countdown_custom_4_005
+2025-08-08 02:08:54,252 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_005, iteration 0
+2025-08-08 02:08:54,252 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-08-08 02:08:54,252 - src.reasoning.extractor - INFO - Successfully extracted post-think content: 1110 characters
+2025-08-08 02:08:54,253 - src.experiments.summarization - INFO - Problem countdown_custom_4_005, summary 0 finish reason: post_think
+2025-08-08 02:08:54,253 - src.reasoning.extractor - WARNING - No </think> tag found in the text
+2025-08-08 02:08:54,253 - src.experiments.summarization - INFO - No post-think content found in summary for problem countdown_custom_4_005, iteration 0. Using full summary.
+2025-08-08 02:08:54,253 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (54 - (88 / (44 + 6)))
+2025-08-08 02:08:54,253 - src.experiments.summarization - INFO - Problem countdown_custom_4_005, iteration 0 summary answer: (54 - (88 / (44 + 6)))
+2025-08-08 02:08:54,253 - src.experiments.summarization - INFO - Problem countdown_custom_4_005, iteration 0 summary correct: False
+2025-08-08 02:08:54,253 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 0: (54 - (88 / (44 + 6)))
+2025-08-08 02:09:07,987 - src.experiments.summarization - INFO - Problem countdown_custom_4_004, iteration 1 finish reason: stop
+2025-08-08 02:09:07,987 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 50 + (90 - 78) / 12
+2025-08-08 02:09:07,987 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_004, iteration 1
+2025-08-08 02:09:07,987 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-08-08 02:09:07,988 - src.reasoning.extractor - INFO - Successfully extracted post-think content: 121 characters
+2025-08-08 02:09:07,988 - src.experiments.summarization - INFO - Problem countdown_custom_4_004, summary 1 finish reason: post_think
+2025-08-08 02:09:07,988 - src.reasoning.extractor - WARNING - No </think> tag found in the text
+2025-08-08 02:09:07,988 - src.experiments.summarization - INFO - No post-think content found in summary for problem countdown_custom_4_004, iteration 1. Using full summary.
+2025-08-08 02:09:07,988 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 50 + (90 - 78) / 12
+2025-08-08 02:09:07,988 - src.experiments.summarization - INFO - Problem countdown_custom_4_004, iteration 1 summary answer: 50 + (90 - 78) / 12
+2025-08-08 02:09:07,988 - src.experiments.summarization - INFO - Problem countdown_custom_4_004, iteration 1 summary correct: True
+2025-08-08 02:09:07,988 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 1: 50 + (90 - 78) / 12
+2025-08-08 02:09:56,770 - src.experiments.summarization - INFO - Problem countdown_custom_4_004, iteration 2 finish reason: stop
+2025-08-08 02:09:56,770 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 50 + (90 - 78) / 12
+2025-08-08 02:09:56,770 - src.experiments.summarization - INFO - Generating summary for problem countdown_custom_4_004, iteration 2
+2025-08-08 02:09:56,771 - src.reasoning.extractor - INFO - Found </think> tag without matching <think> tag. Using content before </think> as reasoning trace.
+2025-08-08 02:09:56,771 - src.reasoning.extractor - INFO - Successfully extracted post-think content: 130 characters
+2025-08-08 02:09:56,771 - src.experiments.summarization - INFO - Problem countdown_custom_4_004, summary 2 finish reason: post_think
+2025-08-08 02:09:56,771 - src.reasoning.extractor - WARNING - No </think> tag found in the text
+2025-08-08 02:09:56,771 - src.experiments.summarization - INFO - No post-think content found in summary for problem countdown_custom_4_004, iteration 2. Using full summary.
+2025-08-08 02:09:56,771 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 50 + (90 - 78) / 12
+2025-08-08 02:09:56,771 - src.experiments.summarization - INFO - Problem countdown_custom_4_004, iteration 2 summary answer: 50 + (90 - 78) / 12
+2025-08-08 02:09:56,771 - src.experiments.summarization - INFO - Problem countdown_custom_4_004, iteration 2 summary correct: True
+2025-08-08 02:09:56,771 - src.experiments.summarization - INFO - Retrieved reasoning answer for iteration 2: 50 + (90 - 78) / 12

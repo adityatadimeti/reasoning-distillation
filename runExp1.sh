@@ -2,7 +2,7 @@
 #SBATCH --job-name=run_vllm
 #SBATCH --account=cocoflops
 #SBATCH --partition=cocoflops
-#SBATCH --nodelist=cocoflops1
+#SBATCH --nodelist=cocoflops2
 #SBATCH --output=slurm-output/serve_models.log
 #SBATCH --error=slurm-output/serve_models.err
 #SBATCH --nodes=1
@@ -76,5 +76,5 @@ echo "Both models are now available!"
 # Run experimental script (optional)
 # -----------------------------------
 echo "Running experiment script..."
-python run_experiment.py countdown_deepseek_rl_answer_only_vllm --parallel --concurrency 2 --load_initial_reasoning /afs/cs.stanford.edu/u/jshen3/research_projects/reasoning-distillation/results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250729_035159/results_reevaluated.json > experiment.log 2>&1 
+python run_experiment.py countdown_deepseek_rl_answer_only_vllm --parallel --concurrency 2 --load_initial_reasoning ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250729_035159/results_reevaluated.json > experiment.log 2>&1 
 

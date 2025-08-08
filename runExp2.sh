@@ -1,8 +1,8 @@
 #!/bin/zsh
-#SBATCH --job-name=experiment2
+#SBATCH --job-name=post-think
 #SBATCH --account=cocoflops
 #SBATCH --partition=cocoflops
-#SBATCH --nodelist=cocoflops1
+#SBATCH --nodelist=cocoflops2
 #SBATCH --output=slurm-output/serve_models.log
 #SBATCH --error=slurm-output/serve_models.err
 #SBATCH --nodes=1
@@ -34,14 +34,14 @@ export TORCH_COMPILE_CACHE=/scr/jshen3/torch_compile_cache
 # -----------------------------------
 # Launch Model 1 on GPU 0
 # -----------------------------------
-CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
-  --model Qwen/Qwen2.5-14B-Instruct \
-  --host 0.0.0.0 \
-  --port 8002 \
-  --max-model-len 32768 \
-  --dtype bfloat16 \
-  --gpu-memory-utilization 0.85 \
-  > qwen2_2.log 2>&1 &
+#CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
+#  --model Qwen/Qwen2.5-14B-Instruct \
+#  --host 0.0.0.0 \
+#  --port 8002 \
+#  --max-model-len 32768 \
+#  --dtype bfloat16 \
+#  --gpu-memory-utilization 0.85 \
+#  > qwen2_2.log 2>&1 &
 
 # -----------------------------------
 # Launch Model 2 on GPU 1
@@ -60,10 +60,10 @@ CUDA_VISIBLE_DEVICES=1 nohup python -m vllm.entrypoints.openai.api_server \
 # -----------------------------------
 echo "Waiting for model servers to become available..."
 
-until curl -s http://localhost:8002/v1/models &>/dev/null; do
-  echo "Waiting for Qwen2.5 on port 8002..."
-  sleep 5
-done
+#until curl -s http://localhost:8002/v1/models &>/dev/null; do
+#  echo "Waiting for Qwen2.5 on port 8002..."
+#  sleep 5
+#done
 
 until curl -s http://localhost:8003/v1/models &>/dev/null; do
   echo "Waiting for DeepSeek on port 8003..."
@@ -76,5 +76,6 @@ echo "Both models are now available!"
 # Run experimental script (optional)
 # -----------------------------------
 echo "Running experiment script..."
-python run_experiment.py countdown_deepseek_rl_qwen2_5_vllm_backtracking --parallel --concurrency 2 > experiment_2.log 2>&1 
+python run_experiment.py countdown_deepseek_rl_post_think_vllm --parallel --concurrency 2 --load_initial_reasoning ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250729_035159/results_reevaluated.json > experiment_2.log 2>&1 
+ 
 
