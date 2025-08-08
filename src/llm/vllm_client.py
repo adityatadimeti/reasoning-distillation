@@ -58,43 +58,7 @@ class VLLMModelClient(ModelClient):
         """Check if this is a Qwen3 model that supports thinking/non-thinking modes."""
         return "Qwen3" in self.model_name
     
-    def _format_qwen3_messages(self, messages: List[Dict[str, str]], enable_thinking: bool = True) -> List[Dict[str, str]]:
-        """
-        Format messages for Qwen3 with thinking/non-thinking mode control.
-        
-        Args:
-            messages: Original messages
-            enable_thinking: True for reasoning (thinking mode), False for summarization (non-thinking mode)
-        
-        Returns:
-            Formatted messages with appropriate system instructions
-        """
-        if not self.is_qwen3:
-            return messages  # Return unchanged for non-Qwen3 models
-        
-        # Create a copy to avoid modifying the original
-        formatted_messages = messages.copy()
-        
-        if enable_thinking:
-            # For reasoning: Enable thinking mode
-            thinking_instruction = "Think step by step and show your reasoning process."
-            if formatted_messages and formatted_messages[0]["role"] == "system":
-                # Append to existing system message
-                formatted_messages[0]["content"] += f"\n{thinking_instruction}"
-            else:
-                # Add new system message at the beginning
-                formatted_messages.insert(0, {"role": "system", "content": thinking_instruction})
-        else:
-            # For summarization: Disable thinking mode, request concise response
-            no_thinking_instruction = "Provide a direct, concise response without showing your thinking process. Do not use <think> tags."
-            if formatted_messages and formatted_messages[0]["role"] == "system":
-                # Append to existing system message
-                formatted_messages[0]["content"] += f"\n{no_thinking_instruction}"
-            else:
-                # Add new system message at the beginning
-                formatted_messages.insert(0, {"role": "system", "content": no_thinking_instruction})
-        
-        return formatted_messages
+    # _format_qwen3_messages method removed - now using proper chat_template_kwargs API parameter
     
     def _verify_server(self):
         """Verify that the vLLM server is running and accessible."""
@@ -136,6 +100,12 @@ class VLLMModelClient(ModelClient):
             "frequency_penalty": kwargs.get("frequency_penalty", 0.0),
             "presence_penalty": kwargs.get("presence_penalty", 0.0),
         }
+        
+        # Add Qwen3 thinking mode control via chat_template_kwargs
+        qwen3_context = kwargs.get("qwen3_context")
+        if self.is_qwen3 and qwen3_context:
+            enable_thinking = qwen3_context == "reasoning"
+            payload["chat_template_kwargs"] = {"enable_thinking": enable_thinking}
         
         # Add optional parameters if provided
         if "top_k" in kwargs and kwargs["top_k"] is not None:
@@ -250,6 +220,12 @@ class VLLMModelClient(ModelClient):
             "presence_penalty": kwargs.get("presence_penalty", 0.0),
         }
         
+        # Add Qwen3 thinking mode control via chat_template_kwargs
+        qwen3_context = kwargs.get("qwen3_context")
+        if self.is_qwen3 and qwen3_context:
+            enable_thinking = qwen3_context == "reasoning"
+            payload["chat_template_kwargs"] = {"enable_thinking": enable_thinking}
+        
         # Add optional parameters if provided
         if "top_k" in kwargs and kwargs["top_k"] is not None:
             payload["top_k"] = kwargs["top_k"]
@@ -321,10 +297,7 @@ class VLLMModelClient(ModelClient):
         """
         messages = [{"role": "user", "content": prompt}]
         
-        # Apply Qwen3 mode formatting if applicable
-        if self.is_qwen3 and qwen3_context:
-            enable_thinking = qwen3_context == "reasoning"
-            messages = self._format_qwen3_messages(messages, enable_thinking)
+        # Qwen3 mode control is now handled via chat_template_kwargs in the API payload
         
         # Track API calls for detailed metrics
         api_calls = []
