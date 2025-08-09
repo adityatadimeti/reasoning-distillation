@@ -35,6 +35,7 @@ export TORCH_COMPILE_CACHE=/scr/jshen3/torch_compile_cache
 # -----------------------------------
 CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
   --model mistralai/Magistral-Small-2506 \
+  --trust-remote-code \
   --host 0.0.0.0 \
   --port 8010 \
   --max-model-len 40960 \
@@ -47,6 +48,7 @@ CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
 # -----------------------------------
 CUDA_VISIBLE_DEVICES=1 nohup python -m vllm.entrypoints.openai.api_server \
   --model mistralai/Mistral-Small-3.1-24B-Instruct-2503 \
+  --trust-remote-code \
   --host 0.0.0.0 \
   --port 8011 \
   --max-model-len 40960 \
