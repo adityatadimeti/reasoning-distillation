@@ -323,7 +323,7 @@ class VLLMModelClient(ModelClient):
             
             # Generate response
             response, token_usage, cost_info = await self.generate_completion_async(
-                messages, remaining_tokens, temperature, stream=False, **kwargs
+                messages, remaining_tokens, temperature, stream=False, qwen3_context=qwen3_context, **kwargs
             )
             
             # Extract content and finish reason
