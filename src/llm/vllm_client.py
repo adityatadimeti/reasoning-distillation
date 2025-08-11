@@ -51,12 +51,19 @@ class VLLMModelClient(ModelClient):
         # Detect if this is a Qwen3 model for special handling
         self.is_qwen3 = self._is_qwen3_model()
         
+        # Detect if this is a GPT-OSS model for special handling
+        self.is_gpt_oss = self._is_gpt_oss_model()
+        
         # Verify server is running
         self._verify_server()
     
     def _is_qwen3_model(self) -> bool:
         """Check if this is a Qwen3 model that supports thinking/non-thinking modes."""
         return "Qwen3" in self.model_name
+    
+    def _is_gpt_oss_model(self) -> bool:
+        """Check if this is a GPT-OSS model that supports reasoning effort control."""
+        return "gpt-oss" in self.model_name.lower()
     
     # _format_qwen3_messages method removed - now using proper chat_template_kwargs API parameter
     
@@ -106,6 +113,12 @@ class VLLMModelClient(ModelClient):
         if self.is_qwen3 and qwen3_context:
             enable_thinking = qwen3_context == "reasoning"
             payload["chat_template_kwargs"] = {"enable_thinking": enable_thinking}
+        
+        # Add GPT-OSS reasoning effort control via chat_template_kwargs
+        gpt_oss_context = kwargs.get("gpt_oss_context")
+        if self.is_gpt_oss and gpt_oss_context:
+            reasoning_effort = "high" if gpt_oss_context == "reasoning" else "low"
+            payload["chat_template_kwargs"] = {"reasoning_effort": reasoning_effort}
         
         # Add optional parameters if provided
         if "top_k" in kwargs and kwargs["top_k"] is not None:
@@ -226,6 +239,12 @@ class VLLMModelClient(ModelClient):
             enable_thinking = qwen3_context == "reasoning"
             payload["chat_template_kwargs"] = {"enable_thinking": enable_thinking}
         
+        # Add GPT-OSS reasoning effort control via chat_template_kwargs
+        gpt_oss_context = kwargs.get("gpt_oss_context")
+        if self.is_gpt_oss and gpt_oss_context:
+            reasoning_effort = "high" if gpt_oss_context == "reasoning" else "low"
+            payload["chat_template_kwargs"] = {"reasoning_effort": reasoning_effort}
+        
         # Add optional parameters if provided
         if "top_k" in kwargs and kwargs["top_k"] is not None:
             payload["top_k"] = kwargs["top_k"]
@@ -288,6 +307,7 @@ class VLLMModelClient(ModelClient):
         enable_continuation: bool = True,
         max_total_tokens: int = 24576,
         qwen3_context: Optional[str] = None,  # "reasoning" or "summarization" for Qwen3 mode control
+        gpt_oss_context: Optional[str] = None,  # "reasoning" or "summarization" for GPT-OSS effort control
         **kwargs
     ) -> Tuple[str, str, TokenUsage, CostInfo]:
         """
@@ -323,7 +343,7 @@ class VLLMModelClient(ModelClient):
             
             # Generate response
             response, token_usage, cost_info = await self.generate_completion_async(
-                messages, remaining_tokens, temperature, stream=False, qwen3_context=qwen3_context, **kwargs
+                messages, remaining_tokens, temperature, stream=False, qwen3_context=qwen3_context, gpt_oss_context=gpt_oss_context, **kwargs
             )
             
             # Extract content and finish reason
