@@ -1,7 +1,7 @@
 # Experiment configuration for Countdown puzzles using Qwen3-14B for both reasoning and summarization via vLLM
 experiment_name: "countdown_qwen3_14b_vllm_backtracking"
 results_dir: "./results/countdown_qwen3_14b_vllm_backtracking"
-data_path: "./data/countdown_custom_2.csv"
+data_path: "./data/countdown_final.csv"
 save_intermediate: true
 experiment_type: "summarize"
 
@@ -20,17 +20,17 @@ summarizer_model_provider: "vllm"
 # vLLM server configuration - Single server for both reasoning and summarization
 vllm_config:
   host: "localhost"
-  port: 8005
+  port: 8007
   max_model_len: 32768
 
 # Both reasoning and summarization use same server
 summarizer_vllm_config:
   host: "localhost"
-  port: 8006  # Same server as reasoning
+  port: 8008  # Same server as reasoning
   max_model_len: 32768
 
 # Generation parameters for reasoning
-max_tokens: 25000  # Extended reasoning trace
+max_tokens: 27000  # Extended reasoning trace
 temperature: 0.6
 top_p: 0.95
 top_k: 40
@@ -39,7 +39,7 @@ frequency_penalty: 0.0
 
 # Continuation parameters for long reasoning traces
 enable_continuation: false  # Disable to avoid context accumulation bug
-max_total_tokens: 25000
+max_total_tokens: 27000
 max_continuations: 1  # Set to 1 to avoid "maximum continuation limit (0)" error
 
 # Iteration parameters
@@ -51,7 +51,7 @@ enable_summarization: true
 enable_final_summarization: true
 allow_fallback: true
 extract_post_think_summary: false
-summary_max_tokens: 5000  # Concise summary
+summary_max_tokens: 1000  # Concise summary
 summary_temperature: 0.6
 summary_top_p: 0.95
 summary_top_k: 40
@@ -59,7 +59,7 @@ summary_presence_penalty: 0.0
 summary_frequency_penalty: 0.0
 
 # Summary continuation parameters
-summary_max_total_tokens: 5000
+summary_max_total_tokens: 1000
 summary_max_continuations: 1  # Set to 1 to avoid "maximum continuation limit (0)" error
 
 # Answer extraction - use Countdown-specific extractor

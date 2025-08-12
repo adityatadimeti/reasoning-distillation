@@ -1,7 +1,7 @@
 # Pass@K experiment configuration for Countdown puzzles using Magistral Small 2506 for reasoning and Mistral Small 3.1 for summarization via vLLM
 experiment_name: "countdown_magistral_mistral_vllm_baselines"
 results_dir: "./results/countdown_magistral_mistral_vllm_baselines"
-data_path: "./data/countdown_custom_2.csv"
+data_path: "./data/countdown_final.csv"
 save_intermediate: true
 experiment_type: "pass_k"
 pass_k_iterations: 5
@@ -21,7 +21,7 @@ vllm_config:
   max_model_len: 32768
 
 # Generation parameters for reasoning
-max_tokens: 25000  # Extended reasoning trace
+max_tokens: 27000  # Extended reasoning trace
 temperature: 0.6
 top_p: 0.95
 top_k: 40
@@ -30,7 +30,7 @@ frequency_penalty: 0.0
 
 # Continuation parameters for long reasoning traces
 enable_continuation: false  # Disable to avoid context accumulation bug
-max_total_tokens: 25000
+max_total_tokens: 27000
 max_continuations: 1  # Set to 1 to avoid "maximum continuation limit (0)" error
 
 # Answer extraction - use Countdown-specific extractor

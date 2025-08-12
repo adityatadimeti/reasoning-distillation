@@ -36,7 +36,7 @@ export TORCH_COMPILE_CACHE=/scr/jshen3/torch_compile_cache
 CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
   --model Qwen/Qwen3-14B \
   --host 0.0.0.0 \
-  --port 8007 \
+  --port 8005 \
   --max-model-len 32768 \
   --dtype bfloat16 \
   --gpu-memory-utilization 0.85 \
@@ -49,7 +49,7 @@ CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
 CUDA_VISIBLE_DEVICES=1 nohup python -m vllm.entrypoints.openai.api_server \
   --model Qwen/Qwen3-14B \
   --host 0.0.0.0 \
-  --port 8008 \
+  --port 8006 \
   --max-model-len 32768 \
   --dtype bfloat16 \
   --gpu-memory-utilization 0.85 \
@@ -61,13 +61,13 @@ CUDA_VISIBLE_DEVICES=1 nohup python -m vllm.entrypoints.openai.api_server \
 # -----------------------------------
 echo "Waiting for Qwen3 model servers to become available..."
 
-until curl -s http://localhost:8007/v1/models &>/dev/null; do
-  echo "Waiting for Qwen3 reasoning server on port 8007..."
+until curl -s http://localhost:8005/v1/models &>/dev/null; do
+  echo "Waiting for Qwen3 reasoning server on port 8005..."
   sleep 5
 done
 
-until curl -s http://localhost:8008/v1/models &>/dev/null; do
-  echo "Waiting for Qwen3 summarization server on port 8008..."
+until curl -s http://localhost:8006/v1/models &>/dev/null; do
+  echo "Waiting for Qwen3 summarization server on port 8006..."
   sleep 5
 done
 
