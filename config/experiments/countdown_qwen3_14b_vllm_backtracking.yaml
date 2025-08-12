@@ -20,7 +20,7 @@ summarizer_model_provider: "vllm"
 # vLLM server configuration - Single server for both reasoning and summarization
 vllm_config:
   host: "localhost"
-  port: 8006
+  port: 8005
   max_model_len: 32768
 
 # Both reasoning and summarization use same server

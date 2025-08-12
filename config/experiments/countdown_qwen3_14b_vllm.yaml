@@ -20,13 +20,13 @@ summarizer_model_provider: "vllm"
 # vLLM server configuration for reasoning model (Qwen3 on GPU 0)
 vllm_config:
   host: "localhost"
-  port: 8004
+  port: 8007
   max_model_len: 32768
 
 # vLLM server configuration for summarizer model (Qwen3 on GPU 1)
 summarizer_vllm_config:
   host: "localhost"
-  port: 8005  # Separate server instance for summarization
+  port: 8008  # Separate server instance for summarization
   max_model_len: 32768
 
 # Generation parameters for reasoning

@@ -173,7 +173,7 @@ def main():
     parser.add_argument(
         "--output",
         type=str,
-        default="data/countdown_custom_2.csv",
+        default="data/countdown_custom_3.csv",
         help="Output CSV file path (default: data/countdown_custom.csv)"
     )
     parser.add_argument(

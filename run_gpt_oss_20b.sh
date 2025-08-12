@@ -13,9 +13,15 @@
 
 # Activate your conda or virtual environment
 source /sailhome/jshen3/miniconda3/etc/profile.d/conda.sh
-conda activate distill
+conda activate gpt-oss
 
 export VLLM_USE_V1=0
+
+# Custom GLIBC setup for vLLM compatibility
+export GLIBC_NEW=/scr/jshen3/glibc-2.38
+export CONDA=/scr/jshen3/miniconda3/envs/gpt-oss
+export GCC_LIBDIR="$(dirname "$(gcc -print-file-name=libstdc++.so.6)")"
+export LD_LIBRARY_PATH="$GLIBC_NEW/lib:$CONDA/lib:$GCC_LIBDIR:${CUDA_HOME:+$CUDA_HOME/lib64}:$LD_LIBRARY_PATH"
 
 # Hugging Face & transformers
 export HF_HOME=/scr/jshen3/huggingface
@@ -34,7 +40,9 @@ export TORCH_COMPILE_CACHE=/scr/jshen3/torch_compile_cache
 # -----------------------------------
 # Launch GPT-OSS-20B for reasoning on GPU 0 (high effort)
 # -----------------------------------
-CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
+CUDA_VISIBLE_DEVICES=0 nohup $GLIBC_NEW/lib/ld-linux-x86-64.so.2 \
+  --library-path "$GLIBC_NEW/lib:$CONDA/lib:$GCC_LIBDIR:${CUDA_HOME:+$CUDA_HOME/lib64}:$LD_LIBRARY_PATH" \
+  "$CONDA/bin/python" -m vllm.entrypoints.openai.api_server \
   --model openai/gpt-oss-20b \
   --trust-remote-code \
   --host 0.0.0.0 \
@@ -47,7 +55,9 @@ CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
 # -----------------------------------
 # Launch GPT-OSS-20B for summarization on GPU 1 (low effort)
 # -----------------------------------
-CUDA_VISIBLE_DEVICES=1 nohup python -m vllm.entrypoints.openai.api_server \
+CUDA_VISIBLE_DEVICES=1 nohup $GLIBC_NEW/lib/ld-linux-x86-64.so.2 \
+  --library-path "$GLIBC_NEW/lib:$CONDA/lib:$GCC_LIBDIR:${CUDA_HOME:+$CUDA_HOME/lib64}:$LD_LIBRARY_PATH" \
+  "$CONDA/bin/python" -m vllm.entrypoints.openai.api_server \
   --model openai/gpt-oss-20b \
   --trust-remote-code \
   --host 0.0.0.0 \

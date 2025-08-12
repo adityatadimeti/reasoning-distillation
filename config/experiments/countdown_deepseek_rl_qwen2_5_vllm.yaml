@@ -21,13 +21,13 @@ summarizer_model_provider: "vllm"
 # vLLM server configuration for reasoning model (DeepSeek on GPU 1)
 vllm_config:
   host: "localhost"
-  port: 8001
+  port: 8004
   max_model_len: 32768
 
 # vLLM server configuration for summarizer model (Qwen on GPU 0)
 summarizer_vllm_config:
   host: "localhost"
-  port: 8000
+  port: 8005
   max_model_len: 32768
 
 # Generation parameters for reasoning

@@ -1,10 +1,10 @@
 #!/bin/zsh
-#SBATCH --job-name=qwen3-8b
+#SBATCH --job-name=mm_small_backtracking
 #SBATCH --account=cocoflops
 #SBATCH --partition=cocoflops
-#SBATCH --nodelist=cocoflops2
-#SBATCH --output=slurm-output/serve_qwen3_8b.log
-#SBATCH --error=slurm-output/serve_qwen3_8b.err
+#SBATCH --nodelist=cocoflops-hgx-1
+#SBATCH --output=slurm-output/serve_mm_small_backtracking.log
+#SBATCH --error=slurm-output/serve_mm_small_backtracking.err
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=16
@@ -31,50 +31,51 @@ export PIP_CACHE_DIR=/scr/jshen3/pip_cache
 export TORCH_COMPILE_CACHE=/scr/jshen3/torch_compile_cache
 
 # -----------------------------------
-# Launch Qwen3-8B for reasoning on GPU 0
+# Launch Magistral Small 2506 for reasoning on GPU 0
 # -----------------------------------
 CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
-  --model Qwen/Qwen3-8B \
+  --model mistralai/Magistral-Small-2506 \
+  --tokenizer mistralai/Mistral-Small-3.1-24B-Instruct-2503 \
+  --trust-remote-code \
   --host 0.0.0.0 \
-  --port 8008 \
-  --max-model-len 32768 \
+  --port 8002 \
+  --max-model-len 40960 \
   --dtype bfloat16 \
   --gpu-memory-utilization 0.85 \
-  --reasoning-parser qwen3 \
-  > qwen3_8b_reasoning.log 2>&1 &
+  > magistral_small_backtracking_reasoning.log 2>&1 &
 
 # -----------------------------------
-# Launch Qwen3-8B for summarization on GPU 1
+# Launch Mistral Small 3.1 for summarization on GPU 1
 # -----------------------------------
 CUDA_VISIBLE_DEVICES=1 nohup python -m vllm.entrypoints.openai.api_server \
-  --model Qwen/Qwen3-8B \
+  --model mistralai/Mistral-Small-3.1-24B-Instruct-2503 \
+  --trust-remote-code \
   --host 0.0.0.0 \
-  --port 8009 \
-  --max-model-len 32768 \
+  --port 8003 \
+  --max-model-len 40960 \
   --dtype bfloat16 \
   --gpu-memory-utilization 0.85 \
-  --reasoning-parser qwen3 \
-  > qwen3_8b_summarization.log 2>&1 &
+  > mistral_small_backtracking_summarization.log 2>&1 &
 
 # -----------------------------------
 # Wait for both servers to be ready
 # -----------------------------------
-echo "Waiting for Qwen3-8B model servers to become available..."
+echo "Waiting for Magistral and Mistral model servers to become available..."
 
-until curl -s http://localhost:8008/v1/models &>/dev/null; do
-  echo "Waiting for Qwen3-8B reasoning server on port 8008..."
+until curl -s http://localhost:8002/v1/models &>/dev/null; do
+  echo "Waiting for Magistral reasoning server on port 8002..."
   sleep 5
 done
 
-until curl -s http://localhost:8009/v1/models &>/dev/null; do
-  echo "Waiting for Qwen3-8B summarization server on port 8009..."
+until curl -s http://localhost:8003/v1/models &>/dev/null; do
+  echo "Waiting for Mistral summarization server on port 8003..."
   sleep 5
 done
 
-echo "Both Qwen3-8B models are now available!"
+echo "Both Magistral and Mistral models are now available!"
 
 # -----------------------------------
 # Run experimental script (optional)
 # -----------------------------------
-echo "Running Qwen3 countdown experiment..."
-python run_experiment.py countdown_qwen3_8b_vllm --parallel --concurrency 2 > qwen3_8b_experiment.log 2>&1
+echo "Running Magistral/Mistral countdown experiment..."
+python run_experiment.py countdown_magistral_mistral_vllm_backtracking --parallel --concurrency 2 > magistral_small_backtracking_experiment.log 2>&1

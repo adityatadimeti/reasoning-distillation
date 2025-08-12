@@ -20,13 +20,13 @@ summarizer_model_provider: "vllm"
 # vLLM server configuration for reasoning model (Magistral on GPU 0)
 vllm_config:
   host: "localhost"
-  port: 8010
+  port: 8000
   max_model_len: 40960  # Magistral recommended limit
 
 # vLLM server configuration for summarizer model (Mistral on GPU 1)
 summarizer_vllm_config:
   host: "localhost"
-  port: 8011  # Separate server instance for summarization
+  port: 8001  # Separate server instance for summarization
   max_model_len: 40960
 
 # Generation parameters for reasoning - keep existing settings
@@ -51,7 +51,7 @@ enable_summarization: true
 enable_final_summarization: true
 allow_fallback: true
 extract_post_think_summary: false
-summary_max_tokens: 5000  # Concise summary
+summary_max_tokens: 1000  # Concise summary
 summary_temperature: 0.6   # Keep same as existing experiments
 summary_top_p: 0.95
 summary_top_k: 40
@@ -59,7 +59,7 @@ summary_presence_penalty: 0.0
 summary_frequency_penalty: 0.0
 
 # Summary continuation parameters
-summary_max_total_tokens: 5000
+summary_max_total_tokens: 1000
 summary_max_continuations: 1  # Set to 1 to avoid "maximum continuation limit (0)" error
 
 # Answer extraction - use Countdown-specific extractor

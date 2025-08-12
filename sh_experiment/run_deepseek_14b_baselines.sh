@@ -1,15 +1,15 @@
 #!/bin/zsh
-#SBATCH --job-name=qwen3
+#SBATCH --job-name=q3_14b_backtracking
 #SBATCH --account=cocoflops
 #SBATCH --partition=cocoflops
 #SBATCH --nodelist=cocoflops2
-#SBATCH --output=slurm-output/serve_qwen3_14b.log
-#SBATCH --error=slurm-output/serve_qwen3_14b.err
+#SBATCH --output=slurm-output/serve_q3_14b_backtracking.log
+#SBATCH --error=slurm-output/serve_q3_14b_backtracking.err
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=16
 #SBATCH --gres=gpu:2
-#SBATCH --time=24:00:00
+#SBATCH --time=96:00:00
 
 # Activate your conda or virtual environment
 source /sailhome/jshen3/miniconda3/etc/profile.d/conda.sh

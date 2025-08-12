@@ -1,19 +1,19 @@
 #!/bin/zsh
-#SBATCH --job-name=run_vllm
+#SBATCH --job-name=q3_14b_base_summ
 #SBATCH --account=cocoflops
 #SBATCH --partition=cocoflops
 #SBATCH --nodelist=cocoflops2
-#SBATCH --output=slurm-output/serve_models.log
-#SBATCH --error=slurm-output/serve_models.err
+#SBATCH --output=slurm-output/serve_q3_14b_base_summ.log
+#SBATCH --error=slurm-output/serve_q3_14b_base_summ.err
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=16
 #SBATCH --gres=gpu:2
-#SBATCH --time=36:00:00
+#SBATCH --time=96:00:00
 
 # Activate your conda or virtual environment
 source /sailhome/jshen3/miniconda3/etc/profile.d/conda.sh
-conda activate distill  # or use: conda activate myenv
+conda activate distill
 
 export VLLM_USE_V1=0
 
@@ -30,51 +30,51 @@ export PIP_CACHE_DIR=/scr/jshen3/pip_cache
 # torch cache
 export TORCH_COMPILE_CACHE=/scr/jshen3/torch_compile_cache
 
-
 # -----------------------------------
-# Launch Model 1 on GPU 0
+# Launch Qwen3-14B for reasoning on GPU 0
 # -----------------------------------
 CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
- --model Qwen/Qwen2.5-14B-Instruct \
- --host 0.0.0.0 \
- --port 8000 \
- --max-model-len 32768 \
- --dtype bfloat16 \
- --gpu-memory-utilization 0.85 \
- > qwen2.log 2>&1 &
-
-# -----------------------------------
-# Launch Model 2 on GPU 1
-# -----------------------------------
-CUDA_VISIBLE_DEVICES=1 nohup python -m vllm.entrypoints.openai.api_server \
-  --model deepseek-ai/DeepSeek-R1-Distill-Qwen-14B \
+  --model Qwen/Qwen3-14B \
   --host 0.0.0.0 \
-  --port 8001 \
+  --port 8007 \
   --max-model-len 32768 \
   --dtype bfloat16 \
   --gpu-memory-utilization 0.85 \
-  > deepseek.log 2>&1 &
+  --reasoning-parser qwen3 \
+  > qwen3_base_summ_reasoning.log 2>&1 &
+
+# -----------------------------------
+# Launch Qwen3-14B for summarization on GPU 1
+# -----------------------------------
+CUDA_VISIBLE_DEVICES=1 nohup python -m vllm.entrypoints.openai.api_server \
+  --model Qwen/Qwen3-14B \
+  --host 0.0.0.0 \
+  --port 8008 \
+  --max-model-len 32768 \
+  --dtype bfloat16 \
+  --gpu-memory-utilization 0.85 \
+  --reasoning-parser qwen3 \
+  > qwen3_base_summ_summarization.log 2>&1 &
 
 # -----------------------------------
 # Wait for both servers to be ready
 # -----------------------------------
-echo "Waiting for model servers to become available..."
+echo "Waiting for Qwen3 model servers to become available..."
 
-until curl -s http://localhost:8000/v1/models &>/dev/null; do
- echo "Waiting for Qwen2.5 on port 8000..."
- sleep 5
-done
-
-until curl -s http://localhost:8001/v1/models &>/dev/null; do
-  echo "Waiting for DeepSeek on port 8001..."
+until curl -s http://localhost:8007/v1/models &>/dev/null; do
+  echo "Waiting for Qwen3 reasoning server on port 8007..."
   sleep 5
 done
 
-echo "Both models are now available!"
+until curl -s http://localhost:8008/v1/models &>/dev/null; do
+  echo "Waiting for Qwen3 summarization server on port 8008..."
+  sleep 5
+done
+
+echo "Both Qwen3 models are now available!"
 
 # -----------------------------------
 # Run experimental script (optional)
 # -----------------------------------
-echo "Running experiment script..."
-python run_experiment.py countdown_deepseek_rl_answer_only_vllm --parallel --concurrency 2 --load_initial_reasoning ./results/countdown_deepseek_rl_qwen2_5_vllm/countdown_deepseek_rl_qwen2_5_vllm_20250729_035159/results_reevaluated.json > experiment.log 2>&1 
-
+echo "Running Qwen3 countdown experiment..."
+python run_experiment.py countdown_qwen3_14b_vllm --parallel --concurrency 2 > qwen3_14b_base_summ_experiment.log 2>&1
