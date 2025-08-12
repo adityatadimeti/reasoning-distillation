@@ -1,7 +1,7 @@
 # Experiment configuration for Countdown puzzles using Magistral Small 2506 for reasoning and Mistral Small 3.1 for summarization via vLLM
 experiment_name: "countdown_magistral_mistral_vllm"
 results_dir: "./results/countdown_magistral_mistral_vllm"
-data_path: "./data/countdown_custom_2.csv"
+data_path: "./data/countdown_final.csv"
 save_intermediate: true
 experiment_type: "summarize"
 
