@@ -1,6 +1,6 @@
 # Experiment configuration for Countdown puzzles using Qwen3-14B for both reasoning and summarization via vLLM
-experiment_name: "countdown_qwen3_14b_vllm"
-results_dir: "./results/countdown_qwen3_14b_vllm"
+experiment_name: "countdown_qwen3_8b_vllm_backtracking"
+results_dir: "./results/countdown_qwen3_8b_vllm_backtracking"
 data_path: "./data/countdown_final.csv"
 save_intermediate: true
 experiment_type: "summarize"
@@ -9,24 +9,24 @@ experiment_type: "summarize"
 dashboard_port: 8080
 
 # Model configuration for vLLM - Same Qwen3-14B model for both reasoning and summarization
-reasoning_model: "Qwen/Qwen3-14B"
+reasoning_model: "Qwen/Qwen3-8B"
 reasoning_model_provider: "vllm"
 
 # Same Qwen3-14B model for summarization - addresses reviewer robustness concerns
 summarizer_type: "external"
-summarizer_model: "Qwen/Qwen3-14B"
+summarizer_model: "Qwen/Qwen3-8B"
 summarizer_model_provider: "vllm"
 
-# vLLM server configuration for reasoning model (Qwen3 on GPU 0)
+# vLLM server configuration - Single server for both reasoning and summarization
 vllm_config:
   host: "localhost"
-  port: 8010
+  port: 8012  # Reasoning
   max_model_len: 32768
 
-# vLLM server configuration for summarizer model (Qwen3 on GPU 1)
+# Both reasoning and summarization use same server
 summarizer_vllm_config:
   host: "localhost"
-  port: 8011  # Separate server instance for summarization
+  port: 8013  # Same server as reasoning
   max_model_len: 32768
 
 # Generation parameters for reasoning
@@ -68,5 +68,5 @@ answer_extractor: "countdown"
 # Prompt configurations
 prompts:
   reasoning: "countdown"  # References config/prompts/reasoning.yaml
-  summarize: "countdown_summary"  # References config/prompts/summarize.yaml
+  summarize: "countdown_summary_backtracking"  # References config/prompts/summarize.yaml
   improved: "countdown_your_approach"  # Use same reasoning prompt for improved iterations
