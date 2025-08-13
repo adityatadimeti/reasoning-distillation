@@ -1,0 +1,59 @@
+{
+  "experiment_name": "countdown_deepseek_rl_qwen2_5_vllm",
+  "config": {
+    "experiment_name": "countdown_deepseek_rl_qwen2_5_vllm",
+    "results_dir": "./results/countdown_deepseek_rl_qwen2_5_vllm",
+    "data_path": "./data/countdown_custom_2.csv",
+    "save_intermediate": true,
+    "experiment_type": "summarize",
+    "dashboard_port": 8080,
+    "reasoning_model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B",
+    "reasoning_model_provider": "vllm",
+    "summarizer_type": "external",
+    "summarizer_model": "Qwen/Qwen2.5-14B-Instruct",
+    "summarizer_model_provider": "vllm",
+    "vllm_config": {
+      "host": "localhost",
+      "port": 8003,
+      "max_model_len": 32768
+    },
+    "summarizer_vllm_config": {
+      "host": "localhost",
+      "port": 8002,
+      "max_model_len": 32768
+    },
+    "max_tokens": 25000,
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "top_k": 40,
+    "presence_penalty": 0.0,
+    "frequency_penalty": 0.0,
+    "enable_continuation": false,
+    "max_total_tokens": 25000,
+    "max_continuations": 1,
+    "max_iterations": 4,
+    "continue_after_correct": true,
+    "enable_summarization": true,
+    "enable_final_summarization": true,
+    "allow_fallback": true,
+    "extract_post_think_summary": false,
+    "summary_max_tokens": 5000,
+    "summary_temperature": 0.6,
+    "summary_top_p": 0.95,
+    "summary_top_k": 40,
+    "summary_presence_penalty": 0.0,
+    "summary_frequency_penalty": 0.0,
+    "summary_max_total_tokens": 5000,
+    "summary_max_continuations": 1,
+    "answer_extractor": "countdown",
+    "prompts": {
+      "reasoning": "countdown",
+      "summarize": "countdown_summary_backtracking",
+      "improved": "countdown_your_approach"
+    },
+    "reasoning_prompt_template": "PROBLEM:\n{question}",
+    "summarize_prompt_template": "Summarize the following attempted solution to the problem, emphasizing the instances where the model changed its strategy, revised a previous decision, or explicitly backtracked from a prior line of reasoning:\n\nPROBLEM:\n{question}\n\nATTEMPTED SOLUTION:\n{reasoning}\n\nSUMMARY:",
+    "improved_prompt_template": "Solve this problem. \n\nPROBLEM:\n{question}\n\nHere are summaries of your previous solution attempts:\n{summaries}\n\nBased on your previous solution attempts, evaluate whether the most recent approach and answer are correct. If not, consider a different approach.\n"
+  },
+  "results": []
+}

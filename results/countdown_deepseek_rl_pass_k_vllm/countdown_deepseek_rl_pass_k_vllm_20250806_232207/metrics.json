@@ -1,0 +1,49 @@
+{
+  "total_problems": 1,
+  "token_usage": {
+    "prompt_tokens": 1020,
+    "completion_tokens": 116773,
+    "total_tokens": 117793
+  },
+  "cost_info": {
+    "prompt_cost": 0.0,
+    "completion_cost": 0.0,
+    "total_cost": 0.0
+  },
+  "problems": {
+    "countdown_custom_4_050": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 1020,
+          "completion_tokens": 116773,
+          "total_tokens": 117793
+        },
+        "prompt_tokens": 1020,
+        "completion_tokens": 116773,
+        "total_tokens": 117793
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    }
+  },
+  "pass_at_k": {
+    "k": 5,
+    "count": 0,
+    "percentage": 0.0
+  },
+  "consensus_at_k": {
+    "k": 5,
+    "count": 0,
+    "percentage": 0.0
+  },
+  "percentage_correct_out_of_k": {
+    "correct_count": 0,
+    "total_attempts": 5,
+    "percentage": 0.0
+  }
+}

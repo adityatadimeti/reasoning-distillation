@@ -1,0 +1,335 @@
+{
+  "experiment_name": "countdown_magistral_mistral_vllm_baselines",
+  "config": {
+    "experiment_name": "countdown_magistral_mistral_vllm_baselines",
+    "results_dir": "./results/countdown_magistral_mistral_vllm_baselines",
+    "data_path": "./data/countdown_custom_2.csv",
+    "save_intermediate": true,
+    "experiment_type": "pass_k",
+    "pass_k_iterations": 5,
+    "dashboard_port": 8080,
+    "reasoning_model": "mistralai/Magistral-Small-2506",
+    "reasoning_model_provider": "vllm",
+    "vllm_config": {
+      "host": "localhost",
+      "port": 8004,
+      "max_model_len": 32768
+    },
+    "max_tokens": 35000,
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "top_k": 40,
+    "presence_penalty": 0.0,
+    "frequency_penalty": 0.0,
+    "enable_continuation": false,
+    "max_total_tokens": 35000,
+    "max_continuations": 1,
+    "answer_extractor": "countdown",
+    "prompts": {
+      "reasoning": "countdown"
+    },
+    "reasoning_prompt_template": "PROBLEM:\n{question}"
+  },
+  "results": [
+    {
+      "problem_id": "countdown_custom_4_001",
+      "question": "Using all numbers from [19, 60, 89, 32], create an equation that equals 20.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_002",
+      "question": "Using all numbers from [49, 1, 96, 72], create an equation that equals 36.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_003",
+      "question": "Using all numbers from [4, 42, 43, 92], create an equation that equals 62.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_004",
+      "question": "Using all numbers from [90, 12, 78, 50], create an equation that equals 51.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_005",
+      "question": "Using all numbers from [6, 88, 44, 54], create an equation that equals 51.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_006",
+      "question": "Using all numbers from [50, 85, 23, 11], create an equation that equals 2.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_007",
+      "question": "Using all numbers from [9, 44, 53, 18], create an equation that equals 7.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_008",
+      "question": "Using all numbers from [59, 68, 83, 35], create an equation that equals 34.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_009",
+      "question": "Using all numbers from [41, 79, 33, 29], create an equation that equals 3.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_010",
+      "question": "Using all numbers from [13, 43, 37, 73], create an equation that equals 80.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_011",
+      "question": "Using all numbers from [96, 13, 58, 18], create an equation that equals 80.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_012",
+      "question": "Using all numbers from [13, 29, 76, 37], create an equation that equals 23.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_013",
+      "question": "Using all numbers from [82, 24, 94, 26], create an equation that equals 52.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_014",
+      "question": "Using all numbers from [66, 7, 42, 73], create an equation that equals 28.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_015",
+      "question": "Using all numbers from [94, 55, 34, 63], create an equation that equals 10.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_016",
+      "question": "Using all numbers from [26, 17, 63, 21], create an equation that equals 28.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_017",
+      "question": "Using all numbers from [75, 84, 71, 45], create an equation that equals 24.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_018",
+      "question": "Using all numbers from [16, 75, 50, 26], create an equation that equals 35.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_019",
+      "question": "Using all numbers from [4, 89, 45, 22], create an equation that equals 26.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_020",
+      "question": "Using all numbers from [91, 98, 12, 76], create an equation that equals 81.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_021",
+      "question": "Using all numbers from [30, 20, 93, 50], create an equation that equals 7.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_022",
+      "question": "Using all numbers from [12, 72, 86, 67], create an equation that equals 13.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_023",
+      "question": "Using all numbers from [29, 9, 38, 59], create an equation that equals 58.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_024",
+      "question": "Using all numbers from [25, 94, 88, 69], create an equation that equals 92.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_025",
+      "question": "Using all numbers from [30, 43, 85, 52], create an equation that equals 40.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_026",
+      "question": "Using all numbers from [89, 35, 49, 21], create an equation that equals 85.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_027",
+      "question": "Using all numbers from [99, 1, 96, 69], create an equation that equals 23.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_028",
+      "question": "Using all numbers from [36, 75, 73, 18], create an equation that equals 9.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_029",
+      "question": "Using all numbers from [81, 40, 4, 55], create an equation that equals 74.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_030",
+      "question": "Using all numbers from [46, 95, 63, 93], create an equation that equals 34.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_031",
+      "question": "Using all numbers from [74, 15, 17, 42], create an equation that equals 79.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_032",
+      "question": "Using all numbers from [42, 8, 95, 66], create an equation that equals 92.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_033",
+      "question": "Using all numbers from [26, 3, 53, 92], create an equation that equals 41.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_034",
+      "question": "Using all numbers from [19, 30, 74, 40], create an equation that equals 2.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_035",
+      "question": "Using all numbers from [69, 87, 18, 46], create an equation that equals 75.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_036",
+      "question": "Using all numbers from [72, 17, 4, 38], create an equation that equals 37.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_037",
+      "question": "Using all numbers from [29, 65, 15, 77], create an equation that equals 32.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_038",
+      "question": "Using all numbers from [4, 73, 92, 26], create an equation that equals 41.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_039",
+      "question": "Using all numbers from [67, 63, 25, 90], create an equation that equals 65.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_040",
+      "question": "Using all numbers from [79, 64, 45, 4], create an equation that equals 3.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_041",
+      "question": "Using all numbers from [96, 67, 4, 44], create an equation that equals 80.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_042",
+      "question": "Using all numbers from [47, 14, 74, 71], create an equation that equals 84.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_043",
+      "question": "Using all numbers from [26, 30, 2, 79], create an equation that equals 3.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_044",
+      "question": "Using all numbers from [96, 20, 58, 4], create an equation that equals 52.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_045",
+      "question": "Using all numbers from [59, 76, 33, 3], create an equation that equals 12.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_046",
+      "question": "Using all numbers from [13, 56, 37, 63], create an equation that equals 12.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_047",
+      "question": "Using all numbers from [40, 54, 56, 11], create an equation that equals 15.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_048",
+      "question": "Using all numbers from [75, 29, 52, 72], create an equation that equals 84.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_049",
+      "question": "Using all numbers from [79, 32, 10, 50], create an equation that equals 71.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    },
+    {
+      "problem_id": "countdown_custom_4_050",
+      "question": "Using all numbers from [86, 38, 14, 59], create an equation that equals 24.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "error": "400, message='Bad Request', url='http://localhost:8004/v1/chat/completions'",
+      "status": "error"
+    }
+  ]
+}

@@ -1,0 +1,545 @@
+{
+  "experiment_name": "countdown_qwen3_14b_vllm",
+  "config": {
+    "experiment_name": "countdown_qwen3_14b_vllm",
+    "results_dir": "./results/countdown_qwen3_14b_vllm",
+    "data_path": "./data/countdown_custom_2.csv",
+    "save_intermediate": true,
+    "experiment_type": "summarize",
+    "dashboard_port": 8080,
+    "reasoning_model": "Qwen/Qwen3-14B",
+    "reasoning_model_provider": "vllm",
+    "summarizer_type": "external",
+    "summarizer_model": "Qwen/Qwen3-14B",
+    "summarizer_model_provider": "vllm",
+    "vllm_config": {
+      "host": "localhost",
+      "port": 8004,
+      "max_model_len": 32768
+    },
+    "summarizer_vllm_config": {
+      "host": "localhost",
+      "port": 8005,
+      "max_model_len": 32768
+    },
+    "max_tokens": 25000,
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "top_k": 40,
+    "presence_penalty": 0.0,
+    "frequency_penalty": 0.0,
+    "enable_continuation": false,
+    "max_total_tokens": 25000,
+    "max_continuations": 1,
+    "max_iterations": 4,
+    "continue_after_correct": true,
+    "enable_summarization": true,
+    "enable_final_summarization": true,
+    "allow_fallback": true,
+    "extract_post_think_summary": false,
+    "summary_max_tokens": 5000,
+    "summary_temperature": 0.6,
+    "summary_top_p": 0.95,
+    "summary_top_k": 40,
+    "summary_presence_penalty": 0.0,
+    "summary_frequency_penalty": 0.0,
+    "summary_max_total_tokens": 5000,
+    "summary_max_continuations": 1,
+    "answer_extractor": "countdown",
+    "prompts": {
+      "reasoning": "countdown",
+      "summarize": "countdown_summary",
+      "improved": "countdown_your_approach"
+    },
+    "reasoning_prompt_template": "PROBLEM:\n{question}",
+    "summarize_prompt_template": "Summarize the following attempted solution to the problem:\n\nPROBLEM:\n{question}\n\nATTEMPTED SOLUTION:\n{reasoning}\n\nSUMMARY:\n",
+    "improved_prompt_template": "Solve this problem. \n\nPROBLEM:\n{question}\n\nHere are summaries of your previous solution attempts:\n{summaries}\n\nBased on your previous solution attempts, evaluate whether the most recent approach and answer are correct. If not, consider a different approach.\n"
+  },
+  "results": [
+    {
+      "problem_id": "countdown_custom_4_002",
+      "question": "Using all numbers from [49, 1, 96, 72], create an equation that equals 36.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "correct_answer": "36",
+      "processed_gt_answer": {
+        "target": 36,
+        "nums": [
+          49,
+          1,
+          96,
+          72
+        ]
+      },
+      "iterations": [
+        {
+          "iteration": 0,
+          "reasoning": "\n\n<answer> 72 / (96 / (49 - 1)) </answer>",
+          "answer": "72 / (96 / (49 - 1))",
+          "correct": true,
+          "finish_reason": "stop",
+          "summary": "The attempted solution proposes the equation:  \n**<answer> 72 / (96 / (49 - 1)) </answer>**\n\n**Summary:**  \nThe solution uses all four numbers (72, 96, 49, and 1) exactly once, as required. It applies parentheses to control the order of operations. The innermost operation is **49 - 1 = 48**, then **96 / 48 = 2**, and finally **72 / 2 = 36**, which matches the target value of 36. This is a valid and correct solution to the problem.",
+          "post_think_summary": "The attempted solution proposes the equation:  \n**<answer> 72 / (96 / (49 - 1)) </answer>**\n\n**Summary:**  \nThe solution uses all four numbers (72, 96, 49, and 1) exactly once, as required. It applies parentheses to control the order of operations. The innermost operation is **49 - 1 = 48**, then **96 / 48 = 2**, and finally **72 / 2 = 36**, which matches the target value of 36. This is a valid and correct solution to the problem.",
+          "summary_finish_reason": "stop",
+          "summary_answer": "72 / (96 / (49 - 1))",
+          "summary_correct": true,
+          "final_answer": "72 / (96 / (49 - 1))",
+          "final_correct": true
+        },
+        {
+          "iteration": 1,
+          "reasoning": "\n\n<answer> 72 / (96 / (49 - 1)) </answer>",
+          "answer": "72 / (96 / (49 - 1))",
+          "correct": true,
+          "finish_reason": "stop",
+          "summary": "The attempted solution proposes the equation:  \n**72 / (96 / (49 - 1))**\n\n**Summary:**  \nThe solution uses all four numbers (72, 96, 49, 1) exactly once, and applies the allowed operations (subtraction, division) with parentheses to control the order of operations. However, it does **not** evaluate to the target number **36**. Instead, it simplifies to:  \n\n**72 / (96 / 48) = 72 / 2 = 36**, which **does** equal the target.  \n\nThus, the attempted solution is **correct** and satisfies all the given rules.",
+          "post_think_summary": "The attempted solution proposes the equation:  \n**72 / (96 / (49 - 1))**\n\n**Summary:**  \nThe solution uses all four numbers (72, 96, 49, 1) exactly once, and applies the allowed operations (subtraction, division) with parentheses to control the order of operations. However, it does **not** evaluate to the target number **36**. Instead, it simplifies to:  \n\n**72 / (96 / 48) = 72 / 2 = 36**, which **does** equal the target.  \n\nThus, the attempted solution is **correct** and satisfies all the given rules.",
+          "summary_finish_reason": "stop",
+          "summary_answer": null,
+          "summary_correct": false,
+          "final_answer": "72 / (96 / (49 - 1))",
+          "final_correct": true
+        },
+        {
+          "iteration": 2,
+          "reasoning": "\n\n<answer> 72 / (96 / (49 - 1)) </answer>",
+          "answer": "72 / (96 / (49 - 1))",
+          "correct": true,
+          "finish_reason": "stop",
+          "summary": "The attempted solution proposes the equation:  \n**72 / (96 / (49 - 1))**\n\n**Summary:**  \nThis solution uses all four numbers (72, 96, 49, and 1) exactly once, as required. It applies valid operations (subtraction, division) and uses parentheses to control the order of operations. However, it does **not** evaluate to the target number **36**, which is the goal of the problem. Therefore, while the structure follows the rules, it is **not a correct solution** to the problem.",
+          "post_think_summary": "The attempted solution proposes the equation:  \n**72 / (96 / (49 - 1))**\n\n**Summary:**  \nThis solution uses all four numbers (72, 96, 49, and 1) exactly once, as required. It applies valid operations (subtraction, division) and uses parentheses to control the order of operations. However, it does **not** evaluate to the target number **36**, which is the goal of the problem. Therefore, while the structure follows the rules, it is **not a correct solution** to the problem.",
+          "summary_finish_reason": "stop",
+          "summary_answer": null,
+          "summary_correct": false,
+          "final_answer": "72 / (96 / (49 - 1))",
+          "final_correct": true
+        },
+        {
+          "iteration": 3,
+          "reasoning": "\n\n<answer> 72 / (96 / (49 - 1)) </answer>",
+          "answer": "72 / (96 / (49 - 1))",
+          "correct": true,
+          "finish_reason": "stop",
+          "summary": "The attempted solution proposes the equation:  \n**72 / (96 / (49 - 1))**\n\n**Summary:**  \nThis equation uses all four numbers from the list [49, 1, 96, 72], each exactly once, and applies valid operations (subtraction, division). It uses parentheses to control the order of operations. The expression simplifies as follows:\n\n1. Compute the innermost parentheses: **49 - 1 = 48**\n2. Then: **96 / 48 = 2**\n3. Finally: **72 / 2 = 36**\n\nThe result is **36**, which matches the target. Therefore, the attempted solution is **correct** and satisfies all the problem's rules.",
+          "post_think_summary": "The attempted solution proposes the equation:  \n**72 / (96 / (49 - 1))**\n\n**Summary:**  \nThis equation uses all four numbers from the list [49, 1, 96, 72], each exactly once, and applies valid operations (subtraction, division). It uses parentheses to control the order of operations. The expression simplifies as follows:\n\n1. Compute the innermost parentheses: **49 - 1 = 48**\n2. Then: **96 / 48 = 2**\n3. Finally: **72 / 2 = 36**\n\nThe result is **36**, which matches the target. Therefore, the attempted solution is **correct** and satisfies all the problem's rules.",
+          "summary_finish_reason": "stop",
+          "summary_answer": null,
+          "summary_correct": false,
+          "final_answer": "72 / (96 / (49 - 1))",
+          "final_correct": true
+        },
+        {
+          "iteration": 4,
+          "reasoning": "\n\n<answer> 72 / (96 / (49 - 1)) </answer>",
+          "answer": "72 / (96 / (49 - 1))",
+          "correct": true,
+          "finish_reason": "stop"
+        }
+      ],
+      "timestamp": 1754875732.392669,
+      "initial_reasoning": "\n\n<answer> 72 / (96 / (49 - 1)) </answer>",
+      "initial_answer": "72 / (96 / (49 - 1))",
+      "initial_correct": true,
+      "initial_finish_reason": "stop",
+      "detailed_metrics": {
+        "iteration_0_reasoning": [
+          {
+            "continuation": 0,
+            "tokens": {
+              "prompt_tokens": 206,
+              "completion_tokens": 1528,
+              "total_tokens": 1734
+            },
+            "cost": {
+              "prompt_cost": 0.0,
+              "completion_cost": 0.0,
+              "total_cost": 0.0
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "iteration_0_summary": [
+          {
+            "continuation": 0,
+            "tokens": {
+              "prompt_tokens": 252,
+              "completion_tokens": 136,
+              "total_tokens": 388
+            },
+            "cost": {
+              "prompt_cost": 0.0,
+              "completion_cost": 0.0,
+              "total_cost": 0.0
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "iteration_1_reasoning": [
+          {
+            "continuation": 0,
+            "tokens": {
+              "prompt_tokens": 390,
+              "completion_tokens": 995,
+              "total_tokens": 1385
+            },
+            "cost": {
+              "prompt_cost": 0.0,
+              "completion_cost": 0.0,
+              "total_cost": 0.0
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "iteration_1_summary": [
+          {
+            "continuation": 0,
+            "tokens": {
+              "prompt_tokens": 252,
+              "completion_tokens": 147,
+              "total_tokens": 399
+            },
+            "cost": {
+              "prompt_cost": 0.0,
+              "completion_cost": 0.0,
+              "total_cost": 0.0
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "iteration_2_reasoning": [
+          {
+            "continuation": 0,
+            "tokens": {
+              "prompt_tokens": 543,
+              "completion_tokens": 892,
+              "total_tokens": 1435
+            },
+            "cost": {
+              "prompt_cost": 0.0,
+              "completion_cost": 0.0,
+              "total_cost": 0.0
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "iteration_2_summary": [
+          {
+            "continuation": 0,
+            "tokens": {
+              "prompt_tokens": 252,
+              "completion_tokens": 122,
+              "total_tokens": 374
+            },
+            "cost": {
+              "prompt_cost": 0.0,
+              "completion_cost": 0.0,
+              "total_cost": 0.0
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "iteration_3_reasoning": [
+          {
+            "continuation": 0,
+            "tokens": {
+              "prompt_tokens": 671,
+              "completion_tokens": 448,
+              "total_tokens": 1119
+            },
+            "cost": {
+              "prompt_cost": 0.0,
+              "completion_cost": 0.0,
+              "total_cost": 0.0
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "iteration_3_summary": [
+          {
+            "continuation": 0,
+            "tokens": {
+              "prompt_tokens": 252,
+              "completion_tokens": 162,
+              "total_tokens": 414
+            },
+            "cost": {
+              "prompt_cost": 0.0,
+              "completion_cost": 0.0,
+              "total_cost": 0.0
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "iteration_4_reasoning": [
+          {
+            "continuation": 0,
+            "tokens": {
+              "prompt_tokens": 839,
+              "completion_tokens": 297,
+              "total_tokens": 1136
+            },
+            "cost": {
+              "prompt_cost": 0.0,
+              "completion_cost": 0.0,
+              "total_cost": 0.0
+            },
+            "finish_reason": "stop"
+          }
+        ]
+      },
+      "summary": "The attempted solution proposes the equation:  \n**72 / (96 / (49 - 1))**\n\n**Summary:**  \nThis equation uses all four numbers from the list [49, 1, 96, 72], each exactly once, and applies valid operations (subtraction, division). It uses parentheses to control the order of operations. The expression simplifies as follows:\n\n1. Compute the innermost parentheses: **49 - 1 = 48**\n2. Then: **96 / 48 = 2**\n3. Finally: **72 / 2 = 36**\n\nThe result is **36**, which matches the target. Therefore, the attempted solution is **correct** and satisfies all the problem's rules.",
+      "summary_finish_reason": "stop",
+      "summary_answer": null,
+      "summary_correct": false,
+      "improved_reasoning": "\n\n<answer> 72 / (96 / (49 - 1)) </answer>",
+      "improved_answer": "72 / (96 / (49 - 1))",
+      "improved_correct": true,
+      "improved_finish_reason": "stop",
+      "final_answer": "72 / (96 / (49 - 1))",
+      "final_correct": true
+    },
+    {
+      "problem_id": "countdown_custom_4_001",
+      "question": "Using all numbers from [19, 60, 89, 32], create an equation that equals 20.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n",
+      "correct_answer": "20",
+      "processed_gt_answer": {
+        "target": 20,
+        "nums": [
+          19,
+          60,
+          89,
+          32
+        ]
+      },
+      "iterations": [
+        {
+          "iteration": 0,
+          "reasoning": "\n\n<answer> 60 / ((89 - 32) / 19) </answer>",
+          "answer": "60 / ((89 - 32) / 19)",
+          "correct": true,
+          "finish_reason": "stop",
+          "summary": "The attempted solution proposes the equation:  \n**60 / ((89 - 32) / 19)**\n\n**Summary:**  \nThis equation uses all four numbers (60, 89, 32, and 19) exactly once, and applies valid operations (subtraction, division). However, it does **not** evaluate to the target number **20**. Instead, it evaluates to a different result, meaning it does **not** solve the problem as required.",
+          "post_think_summary": "The attempted solution proposes the equation:  \n**60 / ((89 - 32) / 19)**\n\n**Summary:**  \nThis equation uses all four numbers (60, 89, 32, and 19) exactly once, and applies valid operations (subtraction, division). However, it does **not** evaluate to the target number **20**. Instead, it evaluates to a different result, meaning it does **not** solve the problem as required.",
+          "summary_finish_reason": "stop",
+          "summary_answer": null,
+          "summary_correct": false,
+          "final_answer": "60 / ((89 - 32) / 19)",
+          "final_correct": true
+        },
+        {
+          "iteration": 1,
+          "reasoning": "\n\n<answer> 60 / ((89 - 32) / 19) </answer>",
+          "answer": "60 / ((89 - 32) / 19)",
+          "correct": true,
+          "finish_reason": "stop",
+          "summary": "The attempted solution proposes the equation:  \n**<answer> 60 / ((89 - 32) / 19) </answer>**\n\n**Summary:**  \nThis equation uses all four numbers from the input list [19, 60, 89, 32] exactly once, and applies valid operations (subtraction, division). It attempts to reach the target value of 20 by first computing (89 - 32) = 57, then dividing 60 by (57 / 19). However, this evaluates to approximately **20.35**, not exactly 20, so it does **not** correctly solve the problem.",
+          "post_think_summary": "The attempted solution proposes the equation:  \n**<answer> 60 / ((89 - 32) / 19) </answer>**\n\n**Summary:**  \nThis equation uses all four numbers from the input list [19, 60, 89, 32] exactly once, and applies valid operations (subtraction, division). It attempts to reach the target value of 20 by first computing (89 - 32) = 57, then dividing 60 by (57 / 19). However, this evaluates to approximately **20.35**, not exactly 20, so it does **not** correctly solve the problem.",
+          "summary_finish_reason": "stop",
+          "summary_answer": "60 / ((89 - 32) / 19)",
+          "summary_correct": true,
+          "final_answer": "60 / ((89 - 32) / 19)",
+          "final_correct": true
+        },
+        {
+          "iteration": 2,
+          "reasoning": "\n\n<answer>60 / ((89 - 32) / 19)</answer>",
+          "answer": "60 / ((89 - 32) / 19)",
+          "correct": true,
+          "finish_reason": "stop",
+          "summary": "The attempted solution proposes the equation:  \n**60 / ((89 - 32) / 19)**\n\n**Summary:**  \nThe solution uses all four numbers from the list [19, 60, 89, 32] exactly once, and applies valid operations (subtraction, division). It uses parentheses to control the order of operations. The equation simplifies as follows:\n\n1. Compute the inner parentheses: (89 - 32) = 57  \n2. Then divide: 60 / (57 / 19) = 60 / 3 = 20  \n\nThus, the attempted solution **correctly** achieves the target value of 20 using all the required numbers and operations.",
+          "post_think_summary": "The attempted solution proposes the equation:  \n**60 / ((89 - 32) / 19)**\n\n**Summary:**  \nThe solution uses all four numbers from the list [19, 60, 89, 32] exactly once, and applies valid operations (subtraction, division). It uses parentheses to control the order of operations. The equation simplifies as follows:\n\n1. Compute the inner parentheses: (89 - 32) = 57  \n2. Then divide: 60 / (57 / 19) = 60 / 3 = 20  \n\nThus, the attempted solution **correctly** achieves the target value of 20 using all the required numbers and operations.",
+          "summary_finish_reason": "stop",
+          "summary_answer": null,
+          "summary_correct": false,
+          "final_answer": "60 / ((89 - 32) / 19)",
+          "final_correct": true
+        },
+        {
+          "iteration": 3,
+          "reasoning": "\n\n<answer> 60 / ((89 - 32) / 19) </answer>",
+          "answer": "60 / ((89 - 32) / 19)",
+          "correct": true,
+          "finish_reason": "stop",
+          "summary": "The attempted solution proposes the equation:  \n**<answer> 60 / ((89 - 32) / 19) </answer>**\n\n**Summary:**  \nThe solution uses all four numbers (60, 89, 32, 19) exactly once, as required. It applies subtraction inside parentheses (89 - 32 = 57), then divides 60 by the result of that division (60 / (57 / 19)). However, this does not equal 20, so it is not a valid solution to the problem.",
+          "post_think_summary": "The attempted solution proposes the equation:  \n**<answer> 60 / ((89 - 32) / 19) </answer>**\n\n**Summary:**  \nThe solution uses all four numbers (60, 89, 32, 19) exactly once, as required. It applies subtraction inside parentheses (89 - 32 = 57), then divides 60 by the result of that division (60 / (57 / 19)). However, this does not equal 20, so it is not a valid solution to the problem.",
+          "summary_finish_reason": "stop",
+          "summary_answer": "60 / ((89 - 32) / 19)",
+          "summary_correct": true,
+          "final_answer": "60 / ((89 - 32) / 19)",
+          "final_correct": true
+        },
+        {
+          "iteration": 4,
+          "reasoning": "\n\n<answer> 60 / ((89 - 32) / 19) </answer>",
+          "answer": "60 / ((89 - 32) / 19)",
+          "correct": true,
+          "finish_reason": "stop"
+        }
+      ],
+      "timestamp": 1754875816.9689667,
+      "initial_reasoning": "\n\n<answer> 60 / ((89 - 32) / 19) </answer>",
+      "initial_answer": "60 / ((89 - 32) / 19)",
+      "initial_correct": true,
+      "initial_finish_reason": "stop",
+      "detailed_metrics": {
+        "iteration_0_reasoning": [
+          {
+            "continuation": 0,
+            "tokens": {
+              "prompt_tokens": 207,
+              "completion_tokens": 3054,
+              "total_tokens": 3261
+            },
+            "cost": {
+              "prompt_cost": 0.0,
+              "completion_cost": 0.0,
+              "total_cost": 0.0
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "iteration_0_summary": [
+          {
+            "continuation": 0,
+            "tokens": {
+              "prompt_tokens": 255,
+              "completion_tokens": 105,
+              "total_tokens": 360
+            },
+            "cost": {
+              "prompt_cost": 0.0,
+              "completion_cost": 0.0,
+              "total_cost": 0.0
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "iteration_1_reasoning": [
+          {
+            "continuation": 0,
+            "tokens": {
+              "prompt_tokens": 360,
+              "completion_tokens": 1601,
+              "total_tokens": 1961
+            },
+            "cost": {
+              "prompt_cost": 0.0,
+              "completion_cost": 0.0,
+              "total_cost": 0.0
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "iteration_1_summary": [
+          {
+            "continuation": 0,
+            "tokens": {
+              "prompt_tokens": 255,
+              "completion_tokens": 148,
+              "total_tokens": 403
+            },
+            "cost": {
+              "prompt_cost": 0.0,
+              "completion_cost": 0.0,
+              "total_cost": 0.0
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "iteration_2_reasoning": [
+          {
+            "continuation": 0,
+            "tokens": {
+              "prompt_tokens": 514,
+              "completion_tokens": 732,
+              "total_tokens": 1246
+            },
+            "cost": {
+              "prompt_cost": 0.0,
+              "completion_cost": 0.0,
+              "total_cost": 0.0
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "iteration_2_summary": [
+          {
+            "continuation": 0,
+            "tokens": {
+              "prompt_tokens": 253,
+              "completion_tokens": 160,
+              "total_tokens": 413
+            },
+            "cost": {
+              "prompt_cost": 0.0,
+              "completion_cost": 0.0,
+              "total_cost": 0.0
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "iteration_3_reasoning": [
+          {
+            "continuation": 0,
+            "tokens": {
+              "prompt_tokens": 680,
+              "completion_tokens": 349,
+              "total_tokens": 1029
+            },
+            "cost": {
+              "prompt_cost": 0.0,
+              "completion_cost": 0.0,
+              "total_cost": 0.0
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "iteration_3_summary": [
+          {
+            "continuation": 0,
+            "tokens": {
+              "prompt_tokens": 255,
+              "completion_tokens": 127,
+              "total_tokens": 382
+            },
+            "cost": {
+              "prompt_cost": 0.0,
+              "completion_cost": 0.0,
+              "total_cost": 0.0
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "iteration_4_reasoning": [
+          {
+            "continuation": 0,
+            "tokens": {
+              "prompt_tokens": 813,
+              "completion_tokens": 563,
+              "total_tokens": 1376
+            },
+            "cost": {
+              "prompt_cost": 0.0,
+              "completion_cost": 0.0,
+              "total_cost": 0.0
+            },
+            "finish_reason": "stop"
+          }
+        ]
+      },
+      "summary": "The attempted solution proposes the equation:  \n**<answer> 60 / ((89 - 32) / 19) </answer>**\n\n**Summary:**  \nThe solution uses all four numbers (60, 89, 32, 19) exactly once, as required. It applies subtraction inside parentheses (89 - 32 = 57), then divides 60 by the result of that division (60 / (57 / 19)). However, this does not equal 20, so it is not a valid solution to the problem.",
+      "summary_finish_reason": "stop",
+      "summary_answer": "60 / ((89 - 32) / 19)",
+      "summary_correct": true,
+      "improved_reasoning": "\n\n<answer> 60 / ((89 - 32) / 19) </answer>",
+      "improved_answer": "60 / ((89 - 32) / 19)",
+      "improved_correct": true,
+      "improved_finish_reason": "stop",
+      "final_answer": "60 / ((89 - 32) / 19)",
+      "final_correct": true
+    },
+    {
+      "problem_id": "countdown_custom_4_003",
+      "error": "Server disconnected",
+      "status": "error"
+    }
+  ]
+}

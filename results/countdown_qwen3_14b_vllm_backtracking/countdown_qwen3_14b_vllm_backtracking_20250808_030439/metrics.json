@@ -1,0 +1,31 @@
+{
+  "total_problems": 1,
+  "token_usage": {
+    "prompt_tokens": 9972,
+    "completion_tokens": 6366,
+    "total_tokens": 16338
+  },
+  "cost_info": {
+    "prompt_cost": 0.0,
+    "completion_cost": 0.0,
+    "total_cost": 0.0
+  },
+  "problems": {
+    "countdown_custom_4_002": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 5578,
+          "completion_tokens": 3313,
+          "total_tokens": 8891
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0,
+          "completion_cost": 0.0,
+          "total_cost": 0.0
+        }
+      }
+    }
+  }
+}

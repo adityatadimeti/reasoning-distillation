@@ -1,0 +1,54 @@
+{
+  "experiment_name": "harp_deepseek_qwen_14b_summ_base_sum_4iter_l6",
+  "config": {
+    "experiment_name": "harp_deepseek_qwen_14b_summ_base_sum_4iter_l6",
+    "results_dir": "./results/harp_deepseek_qwen_14b_summ_base_sum_4iter_l6",
+    "data_path": "./data/harp_level6.csv",
+    "save_intermediate": true,
+    "experiment_type": "summarize",
+    "dashboard_port": 8080,
+    "reasoning_model": "accounts/vineeth-vajipey-7e1414/deployedModels/deepseek-r1-distill-qwen-14b-xx4lazz0",
+    "reasoning_model_provider": "fireworks",
+    "summarizer_type": "external",
+    "summarizer_model": "accounts/vineeth-vajipey-7e1414/deployedModels/qwen-v2p5-14b-instruct-m86rbdlh",
+    "max_tokens": 8192,
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "top_k": 40,
+    "presence_penalty": 0.0,
+    "frequency_penalty": 0.0,
+    "enable_continuation": true,
+    "max_total_tokens": 32000,
+    "max_continuations": 4,
+    "max_iterations": 4,
+    "continue_after_correct": true,
+    "enable_summarization": true,
+    "enable_final_summarization": true,
+    "allow_fallback": true,
+    "extract_post_think_summary": false,
+    "summary_max_tokens": 8192,
+    "summary_temperature": 0.6,
+    "summary_top_p": 0.95,
+    "summary_top_k": 40,
+    "summary_presence_penalty": 0.0,
+    "summary_frequency_penalty": 0.0,
+    "summary_max_total_tokens": 32000,
+    "summary_max_continuations": 4,
+    "answer_extractor": "harp",
+    "prompts": {
+      "reasoning": "aime",
+      "summarize": "aime_summary",
+      "improved": "aime_your_approach"
+    },
+    "reasoning_prompt_template": "Solve the following AIME problem. All answers are integers ranging from 0 to 999, inclusive.  Report your answer in \\boxed{} format.\n\nPROBLEM:\n{question}\n",
+    "summarize_prompt_template": "Summarize the following attempted solution to the problem:\n\nPROBLEM:\n{question}\n\nATTEMPTED SOLUTION:\n{reasoning}\n\nSUMMARY:",
+    "improved_prompt_template": "Solve the following AIME problem. All answers are integers ranging from 0 to 999, inclusive. Report your answer in \\boxed{} format.\n\nPROBLEM:\n{question}\n\nHere are summaries of your previous solution attempts:\n{summaries}\n\nBased on your previous solution attempts, evaluate whether the most recent approach and answer are correct. If not, consider a different approach.\n"
+  },
+  "results": [
+    {
+      "problem_id": "H6-141",
+      "error": "Prompt too long error, please decrease summary_max_total_tokens",
+      "status": "error"
+    }
+  ]
+}

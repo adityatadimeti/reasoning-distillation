@@ -1,0 +1,175 @@
+{
+  "total_problems": 10,
+  "token_usage": {
+    "prompt_tokens": 3686674,
+    "completion_tokens": 1746970,
+    "total_tokens": 5433644
+  },
+  "cost_info": {
+    "prompt_cost": 1.8433369999999996,
+    "completion_cost": 0.8734849999999996,
+    "total_cost": 2.716821999999998
+  },
+  "problems": {
+    "H6-129": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 429660,
+          "completion_tokens": 193840,
+          "total_tokens": 623500
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.21483000000000002,
+          "completion_cost": 0.09692,
+          "total_cost": 0.31174999999999997
+        }
+      }
+    },
+    "H6-140": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 731036,
+          "completion_tokens": 306044,
+          "total_tokens": 1037080
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.3655179999999999,
+          "completion_cost": 0.15302200000000005,
+          "total_cost": 0.5185400000000001
+        }
+      }
+    },
+    "H6-141": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 108928,
+          "completion_tokens": 64000,
+          "total_tokens": 172928
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.054464,
+          "completion_cost": 0.032,
+          "total_cost": 0.08646399999999999
+        }
+      }
+    },
+    "H6-146": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 73764,
+          "completion_tokens": 61204,
+          "total_tokens": 134968
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.036882000000000005,
+          "completion_cost": 0.030601999999999997,
+          "total_cost": 0.06748400000000003
+        }
+      }
+    },
+    "H6-152": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 168406,
+          "completion_tokens": 116288,
+          "total_tokens": 284694
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.08420300000000001,
+          "completion_cost": 0.058144,
+          "total_cost": 0.142347
+        }
+      }
+    },
+    "H6-163": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 520478,
+          "completion_tokens": 240342,
+          "total_tokens": 760820
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.26023899999999994,
+          "completion_cost": 0.120171,
+          "total_cost": 0.3804099999999999
+        }
+      }
+    },
+    "H6-165": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 671830,
+          "completion_tokens": 282340,
+          "total_tokens": 954170
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.33591499999999996,
+          "completion_cost": 0.14117000000000002,
+          "total_cost": 0.477085
+        }
+      }
+    },
+    "H6-167": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 464644,
+          "completion_tokens": 206586,
+          "total_tokens": 671230
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.23232199999999992,
+          "completion_cost": 0.10329300000000002,
+          "total_cost": 0.3356149999999999
+        }
+      }
+    },
+    "H6-168": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 406368,
+          "completion_tokens": 192554,
+          "total_tokens": 598922
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.203184,
+          "completion_cost": 0.09627700000000003,
+          "total_cost": 0.2994609999999999
+        }
+      }
+    },
+    "H6-193": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 111560,
+          "completion_tokens": 83772,
+          "total_tokens": 195332
+        }
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.05578000000000001,
+          "completion_cost": 0.04188599999999999,
+          "total_cost": 0.09766599999999998
+        }
+      }
+    }
+  }
+}

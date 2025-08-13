@@ -1,0 +1,179 @@
+{
+  "total_problems": 7,
+  "token_usage": {
+    "prompt_tokens": 394573,
+    "completion_tokens": 684487,
+    "total_tokens": 1079060
+  },
+  "cost_info": {
+    "prompt_cost": 0.19728649999999995,
+    "completion_cost": 0.3422434999999999,
+    "total_cost": 0.5395299999999998
+  },
+  "problems": {
+    "H6-077": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 705,
+          "completion_tokens": 26367,
+          "total_tokens": 27072
+        },
+        "prompt_tokens": 705,
+        "completion_tokens": 26367,
+        "total_tokens": 27072
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.00035250000000000006,
+          "completion_cost": 0.0131835,
+          "total_cost": 0.013535999999999998
+        },
+        "prompt_cost": 0.00035250000000000006,
+        "completion_cost": 0.0131835,
+        "total_cost": 0.013535999999999998
+      }
+    },
+    "H6-074": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 17833,
+          "completion_tokens": 42867,
+          "total_tokens": 60700
+        },
+        "prompt_tokens": 17833,
+        "completion_tokens": 42867,
+        "total_tokens": 60700
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0089165,
+          "completion_cost": 0.0214335,
+          "total_cost": 0.030350000000000002
+        },
+        "prompt_cost": 0.0089165,
+        "completion_cost": 0.0214335,
+        "total_cost": 0.030350000000000002
+      }
+    },
+    "H6-076": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 26336,
+          "completion_tokens": 47530,
+          "total_tokens": 73866
+        },
+        "prompt_tokens": 26336,
+        "completion_tokens": 47530,
+        "total_tokens": 73866
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.013168000000000001,
+          "completion_cost": 0.023764999999999998,
+          "total_cost": 0.036933
+        },
+        "prompt_cost": 0.013168000000000001,
+        "completion_cost": 0.023764999999999998,
+        "total_cost": 0.036933
+      }
+    },
+    "H6-062": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 17441,
+          "completion_tokens": 48363,
+          "total_tokens": 65804
+        },
+        "prompt_tokens": 17441,
+        "completion_tokens": 48363,
+        "total_tokens": 65804
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.008720499999999999,
+          "completion_cost": 0.0241815,
+          "total_cost": 0.032902
+        },
+        "prompt_cost": 0.008720499999999999,
+        "completion_cost": 0.0241815,
+        "total_cost": 0.032902
+      }
+    },
+    "H6-056": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 17469,
+          "completion_tokens": 47789,
+          "total_tokens": 65258
+        },
+        "prompt_tokens": 17469,
+        "completion_tokens": 47789,
+        "total_tokens": 65258
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.008734500000000003,
+          "completion_cost": 0.0238945,
+          "total_cost": 0.032629
+        },
+        "prompt_cost": 0.008734500000000003,
+        "completion_cost": 0.0238945,
+        "total_cost": 0.032629
+      }
+    },
+    "H6-064": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 17875,
+          "completion_tokens": 46767,
+          "total_tokens": 64642
+        },
+        "prompt_tokens": 17875,
+        "completion_tokens": 46767,
+        "total_tokens": 64642
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0089375,
+          "completion_cost": 0.0233835,
+          "total_cost": 0.032320999999999996
+        },
+        "prompt_cost": 0.0089375,
+        "completion_cost": 0.0233835,
+        "total_cost": 0.032320999999999996
+      }
+    },
+    "H6-083": {
+      "token_usage": {
+        "total": {
+          "prompt_tokens": 575,
+          "completion_tokens": 24529,
+          "total_tokens": 25104
+        },
+        "prompt_tokens": 575,
+        "completion_tokens": 24529,
+        "total_tokens": 25104
+      },
+      "cost_info": {
+        "total": {
+          "prompt_cost": 0.0002875,
+          "completion_cost": 0.0122645,
+          "total_cost": 0.012552
+        },
+        "prompt_cost": 0.0002875,
+        "completion_cost": 0.0122645,
+        "total_cost": 0.012552
+      }
+    }
+  },
+  "pass_at_k": {
+    "k": 5,
+    "count": 6,
+    "percentage": 85.71428571428571
+  },
+  "consensus_at_k": {
+    "k": 5,
+    "count": 5,
+    "percentage": 71.42857142857143
+  }
+}
