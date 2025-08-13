@@ -1,0 +1,33 @@
+/scr/jshen3/miniconda3/envs/gpt-oss/lib/python3.12/site-packages/transformers/utils/hub.py:111: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+INFO 08-10 23:58:56 [__init__.py:241] Automatically detected platform cuda.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/scr/jshen3/miniconda3/envs/gpt-oss/lib/python3.12/site-packages/vllm/entrypoints/openai/api_server.py", line 40, in <module>
+    from vllm.config import VllmConfig
+  File "/scr/jshen3/miniconda3/envs/gpt-oss/lib/python3.12/site-packages/vllm/config.py", line 36, in <module>
+    from vllm.model_executor.layers.quantization import QuantizationMethods
+  File "/scr/jshen3/miniconda3/envs/gpt-oss/lib/python3.12/site-packages/vllm/model_executor/__init__.py", line 4, in <module>
+    from vllm.model_executor.parameter import (BasevLLMParameter,
+  File "/scr/jshen3/miniconda3/envs/gpt-oss/lib/python3.12/site-packages/vllm/model_executor/parameter.py", line 10, in <module>
+    from vllm.distributed import get_tensor_model_parallel_rank
+  File "/scr/jshen3/miniconda3/envs/gpt-oss/lib/python3.12/site-packages/vllm/distributed/__init__.py", line 4, in <module>
+    from .communication_op import *
+  File "/scr/jshen3/miniconda3/envs/gpt-oss/lib/python3.12/site-packages/vllm/distributed/communication_op.py", line 9, in <module>
+    from .parallel_state import get_tp_group
+  File "/scr/jshen3/miniconda3/envs/gpt-oss/lib/python3.12/site-packages/vllm/distributed/parallel_state.py", line 150, in <module>
+    from vllm.platforms import current_platform
+  File "/scr/jshen3/miniconda3/envs/gpt-oss/lib/python3.12/site-packages/vllm/platforms/__init__.py", line 273, in __getattr__
+    _current_platform = resolve_obj_by_qualname(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/scr/jshen3/miniconda3/envs/gpt-oss/lib/python3.12/site-packages/vllm/utils/__init__.py", line 2509, in resolve_obj_by_qualname
+    module = importlib.import_module(module_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/scr/jshen3/miniconda3/envs/gpt-oss/lib/python3.12/importlib/__init__.py", line 90, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/scr/jshen3/miniconda3/envs/gpt-oss/lib/python3.12/site-packages/vllm/platforms/cuda.py", line 18, in <module>
+    import vllm._C  # noqa
+    ^^^^^^^^^^^^^^
+ImportError: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.32' not found (required by /scr/jshen3/miniconda3/envs/gpt-oss/lib/python3.12/site-packages/vllm/_C.abi3.so)

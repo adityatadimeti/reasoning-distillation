@@ -12,7 +12,7 @@
 #SBATCH --time=36:00:00
 
 # Hugging Face token for model access
-export HF_TOKEN="your_token_here"
+
 
 echo "Starting GPT-OSS-20B Docker containers..."
 
