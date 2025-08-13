@@ -201,8 +201,16 @@ class VLLMModelClient(ModelClient):
                 messages, max_tokens, temperature, stream=False, **kwargs
             )
             
-            content = response["choices"][0]["message"]["content"]
+            message = response["choices"][0]["message"]
+            content = message["content"]
             finish_reason = response["choices"][0]["finish_reason"]
+            
+            # For Qwen3 thinking mode, combine reasoning_content with final content
+            if "reasoning_content" in message and message["reasoning_content"]:
+                reasoning = message["reasoning_content"]
+                # For reasoning tasks, use the reasoning content as the main content
+                # and append the final answer
+                content = reasoning + "\n\n" + content
             
             return content, finish_reason, token_usage, cost_info
     
@@ -348,8 +356,16 @@ class VLLMModelClient(ModelClient):
             
             # Extract content and finish reason
             choice = response["choices"][0]
-            content = choice["message"]["content"]
+            message = choice["message"]
+            content = message["content"]
             current_finish_reason = choice["finish_reason"]
+            
+            # For Qwen3 thinking mode, combine reasoning_content with final content
+            if "reasoning_content" in message and message["reasoning_content"]:
+                reasoning = message["reasoning_content"]
+                # For reasoning tasks, use the reasoning content as the main content
+                # and append the final answer
+                content = reasoning + "\n\n" + content
             
             # Accumulate content and tokens
             total_content += content
