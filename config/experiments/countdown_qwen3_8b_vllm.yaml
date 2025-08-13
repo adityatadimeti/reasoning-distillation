@@ -9,12 +9,12 @@ experiment_type: "summarize"
 dashboard_port: 8080
 
 # Model configuration for vLLM - Same Qwen3-14B model for both reasoning and summarization
-reasoning_model: "Qwen/Qwen3-14B"
+reasoning_model: "Qwen/Qwen3-8B"
 reasoning_model_provider: "vllm"
 
 # Same Qwen3-14B model for summarization - addresses reviewer robustness concerns
 summarizer_type: "external"
-summarizer_model: "Qwen/Qwen3-14B"
+summarizer_model: "Qwen/Qwen3-8B"
 summarizer_model_provider: "vllm"
 
 # vLLM server configuration for reasoning model (Qwen3 on GPU 0)

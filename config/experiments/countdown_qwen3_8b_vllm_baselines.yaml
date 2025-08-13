@@ -11,7 +11,7 @@ dashboard_port: 8080
 
 # Model configuration for vLLM
 # DeepSeek-RL for reasoning (running on port 8001)
-reasoning_model: "Qwen/Qwen3-14B"
+reasoning_model: "Qwen/Qwen3-8B"
 reasoning_model_provider: "vllm"
 
 # vLLM server configuration for reasoning model (DeepSeek on GPU 1)
