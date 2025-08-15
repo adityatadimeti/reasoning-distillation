@@ -2,7 +2,7 @@
 #SBATCH --job-name=q3_14b_base_summ
 #SBATCH --account=cocoflops
 #SBATCH --partition=cocoflops
-#SBATCH --nodelist=cocoflops2
+#SBATCH --nodelist=cocoflops-hgx-1
 #SBATCH --output=slurm-output/serve_q3_14b_base_summ.log
 #SBATCH --error=slurm-output/serve_q3_14b_base_summ.err
 #SBATCH --nodes=1
@@ -77,4 +77,4 @@ echo "Both Qwen3 models are now available!"
 # Run experimental script (optional)
 # -----------------------------------
 echo "Running Qwen3 countdown experiment..."
-python run_experiment.py countdown_qwen3_14b_vllm --parallel --concurrency 2 > qwen3_14b_base_summ_experiment.log 2>&1
+python run_experiment.py countdown_qwen3_14b_vllm --parallel --concurrency 2 --load_initial_reasoning ./final_results/countdown_qwen3_14b_vllm_backtracking_20250812_223753/results_reevaluated.json > qwen3_14b_base_summ_experiment.log 2>&1

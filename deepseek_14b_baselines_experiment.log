@@ -1,0 +1,52 @@
+/scr/jshen3/miniconda3/envs/distill/lib/python3.10/site-packages/transformers/utils/hub.py:111: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+2025-08-15 12:10:16,930 - __main__ - INFO - Loaded 500 problems
+2025-08-15 12:10:17,019 - src.experiments.base - INFO - Results will be saved to ./results/countdown_deepseek_rl_baselines/countdown_deepseek_rl_baselines_20250815_121016
+2025-08-15 12:10:17,025 - __main__ - INFO - Running experiment in parallel mode with max concurrency of 2
+2025-08-15 12:10:17,031 - src.experiments.passk - INFO - Processing problem countdown_custom_4_001 (1/500)
+2025-08-15 12:10:17,036 - src.experiments.passk - INFO - Generating solution 1/5 for problem countdown_custom_4_001
+2025-08-15 12:10:17,036 - src.experiments.passk - INFO - Processing problem countdown_custom_4_002 (2/500)
+2025-08-15 12:10:17,040 - src.experiments.passk - INFO - Generating solution 1/5 for problem countdown_custom_4_002
+2025-08-15 12:11:00,596 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 47 - (95 - 89) - 24
+2025-08-15 12:11:00,759 - src.experiments.passk - INFO - Generating solution 2/5 for problem countdown_custom_4_001
+2025-08-15 12:12:11,999 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (47 - 24) - (95 - 89)
+2025-08-15 12:12:12,009 - src.experiments.passk - INFO - Generating solution 3/5 for problem countdown_custom_4_001
+2025-08-15 12:12:23,618 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (31 + 38) / (22 + 1)
+2025-08-15 12:12:23,628 - src.experiments.passk - INFO - Generating solution 2/5 for problem countdown_custom_4_002
+2025-08-15 12:12:58,279 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (47 - 24) - (95 - 89)
+2025-08-15 12:12:58,289 - src.experiments.passk - INFO - Generating solution 4/5 for problem countdown_custom_4_001
+2025-08-15 12:13:15,810 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (22 - 1) / (38 - 31)
+2025-08-15 12:13:15,820 - src.experiments.passk - INFO - Generating solution 3/5 for problem countdown_custom_4_002
+2025-08-15 12:14:06,116 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (47 - 24) - (95 - 89)
+2025-08-15 12:14:06,126 - src.experiments.passk - INFO - Generating solution 5/5 for problem countdown_custom_4_001
+2025-08-15 12:15:41,485 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (47 - 24) - (95 - 89)
+2025-08-15 12:15:41,504 - src.experiments.passk - INFO - Problem countdown_custom_4_001: pass@5=True, consensus@5=True (count=4/5), correct=5/5 (100.0%)
+2025-08-15 12:15:41,508 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_baselines/countdown_deepseek_rl_baselines_20250815_121016
+2025-08-15 12:15:41,508 - src.experiments.passk - INFO - Processing problem countdown_custom_4_003 (3/500)
+2025-08-15 12:15:41,511 - src.experiments.passk - INFO - Generating solution 1/5 for problem countdown_custom_4_003
+2025-08-15 12:16:54,447 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (76 - 58) + (34 - 6)
+2025-08-15 12:16:54,457 - src.experiments.passk - INFO - Generating solution 2/5 for problem countdown_custom_4_003
+2025-08-15 12:17:47,996 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 76 - (58 - (34 - 6))
+2025-08-15 12:17:48,009 - src.experiments.passk - INFO - Generating solution 3/5 for problem countdown_custom_4_003
+2025-08-15 12:19:19,655 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: 76 - (58 - 34) - 6
+2025-08-15 12:19:19,668 - src.experiments.passk - INFO - Generating solution 4/5 for problem countdown_custom_4_003
+2025-08-15 12:20:51,806 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (76 - 58) + 34 - 6
+2025-08-15 12:20:51,819 - src.experiments.passk - INFO - Generating solution 5/5 for problem countdown_custom_4_003
+2025-08-15 12:24:38,032 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (76 + 34) - (58 + 6)
+2025-08-15 12:24:38,053 - src.experiments.passk - INFO - Problem countdown_custom_4_003: pass@5=True, consensus@5=True (count=1/5), correct=5/5 (100.0%)
+2025-08-15 12:24:38,059 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_baselines/countdown_deepseek_rl_baselines_20250815_121016
+2025-08-15 12:24:38,059 - src.experiments.passk - INFO - Processing problem countdown_custom_4_004 (4/500)
+2025-08-15 12:24:38,062 - src.experiments.passk - INFO - Generating solution 1/5 for problem countdown_custom_4_004
+2025-08-15 12:40:21,692 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
+2025-08-15 12:40:21,692 - src.experiments.passk - INFO - Generating solution 4/5 for problem countdown_custom_4_002
+2025-08-15 12:43:10,987 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (22 - 1) / (38 - 31)
+2025-08-15 12:43:11,001 - src.experiments.passk - INFO - Generating solution 5/5 for problem countdown_custom_4_002
+2025-08-15 12:43:45,065 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (30 / (81 - 71)) - (62 / 62)
+2025-08-15 12:43:45,077 - src.experiments.passk - INFO - Generating solution 2/5 for problem countdown_custom_4_004
+2025-08-15 12:48:27,883 - src.reasoning.extractor - INFO - Extracted Countdown answer from <answer> tags: (31 + 38) / (22 + 1)
+2025-08-15 12:48:27,902 - src.experiments.passk - INFO - Problem countdown_custom_4_002: pass@5=True, consensus@5=True (count=2/5), correct=4/5 (80.0%)
+2025-08-15 12:48:27,908 - src.experiments.base - INFO - Results saved to ./results/countdown_deepseek_rl_baselines/countdown_deepseek_rl_baselines_20250815_121016
+2025-08-15 12:48:27,908 - src.experiments.passk - INFO - Processing problem countdown_custom_4_005 (5/500)
+2025-08-15 12:48:27,912 - src.experiments.passk - INFO - Generating solution 1/5 for problem countdown_custom_4_005
+2025-08-15 13:10:57,859 - src.reasoning.extractor - WARNING - No Countdown answer found in <answer> tags
+2025-08-15 13:10:57,860 - src.experiments.passk - INFO - Generating solution 3/5 for problem countdown_custom_4_004
