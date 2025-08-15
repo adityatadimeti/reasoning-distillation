@@ -77,4 +77,4 @@ echo "Both Qwen3 models are now available!"
 # Run experimental script (optional)
 # -----------------------------------
 echo "Running Qwen3 countdown experiment..."
-python run_experiment.py countdown_qwen3_8b_vllm --parallel --concurrency 2 > qwen3_8b_base_summ_experiment.log 2>&1
+python run_experiment.py countdown_qwen3_8b_vllm --parallel --concurrency 2 --load_initial_reasoning ./final_results/countdown_qwen3_8b_vllm_backtracking_20250812_223753/results_reevaluated.json > qwen3_8b_base_summ_experiment.log 2>&1
