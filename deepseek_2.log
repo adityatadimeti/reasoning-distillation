@@ -1,81 +1,0 @@
-/scr/jshen3/miniconda3/envs/distill/lib/python3.10/site-packages/transformers/utils/hub.py:111: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-INFO 08-08 02:13:53 [__init__.py:235] Automatically detected platform cuda.
-INFO 08-08 02:13:56 [api_server.py:1755] vLLM API server version 0.10.0
-INFO 08-08 02:13:56 [cli_args.py:261] non-default args: {'host': '0.0.0.0', 'port': 8003, 'model': 'deepseek-ai/DeepSeek-R1-Distill-Qwen-14B', 'dtype': 'bfloat16', 'max_model_len': 32768, 'gpu_memory_utilization': 0.85}
-INFO 08-08 02:14:03 [config.py:1604] Using max model len 32768
-INFO 08-08 02:14:05 [api_server.py:268] Started engine process with PID 361079
-/scr/jshen3/miniconda3/envs/distill/lib/python3.10/site-packages/transformers/utils/hub.py:111: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-INFO 08-08 02:14:09 [__init__.py:235] Automatically detected platform cuda.
-INFO 08-08 02:14:10 [llm_engine.py:228] Initializing a V0 LLM engine (v0.10.0) with config: model='deepseek-ai/DeepSeek-R1-Distill-Qwen-14B', speculative_config=None, tokenizer='deepseek-ai/DeepSeek-R1-Distill-Qwen-14B', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config={}, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=32768, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto,  device_config=cuda, decoding_config=DecodingConfig(backend='xgrammar', disable_fallback=False, disable_any_whitespace=False, disable_additional_properties=False, reasoning_backend=''), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None), seed=None, served_model_name=deepseek-ai/DeepSeek-R1-Distill-Qwen-14B, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=None, chunked_prefill_enabled=False, use_async_output_proc=True, pooler_config=None, compilation_config={"level":0,"debug_dump_path":"","cache_dir":"","backend":"","custom_ops":[],"splitting_ops":[],"use_inductor":true,"compile_sizes":[],"inductor_compile_config":{"enable_auto_functionalized_v2":false},"inductor_passes":{},"use_cudagraph":false,"cudagraph_num_of_warmups":0,"cudagraph_capture_sizes":[256,248,240,232,224,216,208,200,192,184,176,168,160,152,144,136,128,120,112,104,96,88,80,72,64,56,48,40,32,24,16,8,4,2,1],"cudagraph_copy_inputs":false,"full_cuda_graph":false,"max_capture_size":256,"local_cache_dir":null}, use_cached_outputs=True, 
-INFO 08-08 02:14:12 [cuda.py:398] Using Flash Attention backend.
-INFO 08-08 02:14:13 [parallel_state.py:1102] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, TP rank 0, EP rank 0
-INFO 08-08 02:14:13 [model_runner.py:1083] Starting to load model deepseek-ai/DeepSeek-R1-Distill-Qwen-14B...
-INFO 08-08 02:14:13 [weight_utils.py:296] Using model weights format ['*.safetensors']
-Loading safetensors checkpoint shards:   0% Completed | 0/4 [00:00<?, ?it/s]
-Loading safetensors checkpoint shards:  25% Completed | 1/4 [00:00<00:02,  1.22it/s]
-Loading safetensors checkpoint shards:  50% Completed | 2/4 [00:01<00:01,  1.12it/s]
-Loading safetensors checkpoint shards:  75% Completed | 3/4 [00:02<00:00,  1.09it/s]
-Loading safetensors checkpoint shards: 100% Completed | 4/4 [00:03<00:00,  1.37it/s]
-Loading safetensors checkpoint shards: 100% Completed | 4/4 [00:03<00:00,  1.27it/s]
-
-INFO 08-08 02:14:17 [default_loader.py:262] Loading weights took 3.19 seconds
-INFO 08-08 02:14:17 [model_runner.py:1115] Model loading took 27.5916 GiB and 3.797916 seconds
-INFO 08-08 02:14:26 [worker.py:295] Memory profiling takes 8.14 seconds
-INFO 08-08 02:14:26 [worker.py:295] the current vLLM instance can use total_gpu_memory (44.43GiB) x gpu_memory_utilization (0.85) = 37.77GiB
-INFO 08-08 02:14:26 [worker.py:295] model weights take 27.59GiB; non_torch_memory takes 0.06GiB; PyTorch activation peak memory takes 3.79GiB; the rest of the memory reserved for KV Cache is 6.33GiB.
-INFO 08-08 02:14:26 [executor_base.py:113] # cuda blocks: 2159, # CPU blocks: 1365
-INFO 08-08 02:14:26 [executor_base.py:118] Maximum concurrency for 32768 tokens per request: 1.05x
-INFO 08-08 02:14:28 [model_runner.py:1385] Capturing cudagraphs for decoding. This may lead to unexpected consequences if the model is not static. To run the model in eager mode, set 'enforce_eager=True' or use '--enforce-eager' in the CLI. If out-of-memory error occurs during cudagraph capture, consider decreasing `gpu_memory_utilization` or switching to eager mode. You can also reduce the `max_num_seqs` as needed to decrease memory usage.
-Capturing CUDA graph shapes:   0%|          | 0/35 [00:00<?, ?it/s]Capturing CUDA graph shapes:   3%|▎         | 1/35 [00:00<00:21,  1.60it/s]Capturing CUDA graph shapes:   6%|▌         | 2/35 [00:01<00:20,  1.63it/s]Capturing CUDA graph shapes:   9%|▊         | 3/35 [00:01<00:19,  1.63it/s]Capturing CUDA graph shapes:  11%|█▏        | 4/35 [00:02<00:18,  1.64it/s]Capturing CUDA graph shapes:  14%|█▍        | 5/35 [00:03<00:18,  1.64it/s]Capturing CUDA graph shapes:  17%|█▋        | 6/35 [00:03<00:17,  1.65it/s]Capturing CUDA graph shapes:  20%|██        | 7/35 [00:04<00:17,  1.65it/s]Capturing CUDA graph shapes:  23%|██▎       | 8/35 [00:04<00:16,  1.65it/s]Capturing CUDA graph shapes:  26%|██▌       | 9/35 [00:05<00:15,  1.66it/s]Capturing CUDA graph shapes:  29%|██▊       | 10/35 [00:06<00:15,  1.67it/s]Capturing CUDA graph shapes:  31%|███▏      | 11/35 [00:06<00:14,  1.66it/s]Capturing CUDA graph shapes:  34%|███▍      | 12/35 [00:07<00:13,  1.67it/s]Capturing CUDA graph shapes:  37%|███▋      | 13/35 [00:07<00:13,  1.67it/s]Capturing CUDA graph shapes:  40%|████      | 14/35 [00:08<00:12,  1.67it/s]Capturing CUDA graph shapes:  43%|████▎     | 15/35 [00:09<00:11,  1.68it/s]Capturing CUDA graph shapes:  46%|████▌     | 16/35 [00:09<00:11,  1.66it/s]Capturing CUDA graph shapes:  49%|████▊     | 17/35 [00:10<00:10,  1.69it/s]Capturing CUDA graph shapes:  51%|█████▏    | 18/35 [00:10<00:09,  1.71it/s]Capturing CUDA graph shapes:  54%|█████▍    | 19/35 [00:11<00:09,  1.73it/s]Capturing CUDA graph shapes:  57%|█████▋    | 20/35 [00:11<00:08,  1.74it/s]Capturing CUDA graph shapes:  60%|██████    | 21/35 [00:12<00:08,  1.74it/s]Capturing CUDA graph shapes:  63%|██████▎   | 22/35 [00:13<00:07,  1.75it/s]Capturing CUDA graph shapes:  66%|██████▌   | 23/35 [00:13<00:06,  1.75it/s]Capturing CUDA graph shapes:  69%|██████▊   | 24/35 [00:14<00:06,  1.74it/s]Capturing CUDA graph shapes:  71%|███████▏  | 25/35 [00:14<00:05,  1.74it/s]Capturing CUDA graph shapes:  74%|███████▍  | 26/35 [00:15<00:05,  1.75it/s]Capturing CUDA graph shapes:  77%|███████▋  | 27/35 [00:15<00:04,  1.75it/s]Capturing CUDA graph shapes:  80%|████████  | 28/35 [00:16<00:03,  1.75it/s]Capturing CUDA graph shapes:  83%|████████▎ | 29/35 [00:17<00:03,  1.76it/s]Capturing CUDA graph shapes:  86%|████████▌ | 30/35 [00:17<00:02,  1.77it/s]Capturing CUDA graph shapes:  89%|████████▊ | 31/35 [00:18<00:02,  1.77it/s]Capturing CUDA graph shapes:  91%|█████████▏| 32/35 [00:18<00:01,  1.78it/s]Capturing CUDA graph shapes:  94%|█████████▍| 33/35 [00:19<00:01,  1.79it/s]Capturing CUDA graph shapes:  97%|█████████▋| 34/35 [00:19<00:00,  1.80it/s]Capturing CUDA graph shapes: 100%|██████████| 35/35 [00:20<00:00,  1.80it/s]Capturing CUDA graph shapes: 100%|██████████| 35/35 [00:20<00:00,  1.72it/s]
-INFO 08-08 02:14:48 [model_runner.py:1537] Graph capturing finished in 20 secs, took 0.29 GiB
-INFO 08-08 02:14:48 [llm_engine.py:424] init engine (profile, create kv cache, warmup model) took 30.79 seconds
-WARNING 08-08 02:14:50 [config.py:1528] Default sampling parameters have been overridden by the model's Hugging Face generation config recommended from the model creator. If this is not intended, please relaunch vLLM instance with `--generation-config vllm`.
-INFO 08-08 02:14:50 [serving_responses.py:89] Using default chat sampling params from model: {'temperature': 0.6, 'top_p': 0.95}
-INFO 08-08 02:14:50 [serving_chat.py:122] Using default chat sampling params from model: {'temperature': 0.6, 'top_p': 0.95}
-INFO 08-08 02:14:50 [serving_completion.py:77] Using default completion sampling params from model: {'temperature': 0.6, 'top_p': 0.95}
-INFO 08-08 02:14:50 [api_server.py:1818] Starting vLLM API server 0 on http://0.0.0.0:8003
-INFO 08-08 02:14:50 [launcher.py:29] Available routes are:
-INFO 08-08 02:14:50 [launcher.py:37] Route: /openapi.json, Methods: GET, HEAD
-INFO 08-08 02:14:50 [launcher.py:37] Route: /docs, Methods: GET, HEAD
-INFO 08-08 02:14:50 [launcher.py:37] Route: /docs/oauth2-redirect, Methods: GET, HEAD
-INFO 08-08 02:14:50 [launcher.py:37] Route: /redoc, Methods: GET, HEAD
-INFO 08-08 02:14:50 [launcher.py:37] Route: /health, Methods: GET
-INFO 08-08 02:14:50 [launcher.py:37] Route: /load, Methods: GET
-INFO 08-08 02:14:50 [launcher.py:37] Route: /ping, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /ping, Methods: GET
-INFO 08-08 02:14:50 [launcher.py:37] Route: /tokenize, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /detokenize, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /v1/models, Methods: GET
-INFO 08-08 02:14:50 [launcher.py:37] Route: /version, Methods: GET
-INFO 08-08 02:14:50 [launcher.py:37] Route: /v1/responses, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /v1/responses/{response_id}, Methods: GET
-INFO 08-08 02:14:50 [launcher.py:37] Route: /v1/responses/{response_id}/cancel, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /v1/chat/completions, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /v1/completions, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /v1/embeddings, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /pooling, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /classify, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /score, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /v1/score, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /v1/audio/transcriptions, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /v1/audio/translations, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /rerank, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /v1/rerank, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /v2/rerank, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /scale_elastic_ep, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /is_scaling_elastic_ep, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /invocations, Methods: POST
-INFO 08-08 02:14:50 [launcher.py:37] Route: /metrics, Methods: GET
-INFO:     Started server process [360954]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     127.0.0.1:55318 - "GET /v1/models HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55324 - "GET /health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:55330 - "GET /health HTTP/1.1" 200 OK
-INFO 08-08 02:15:01 [chat_utils.py:473] Detected the chat template content format to be 'string'. You can set `--chat-template-content-format` to override this.
-INFO 08-08 02:15:01 [logger.py:41] Received request chatcmpl-1e2a3930275b448a8386fe9416fade59: prompt: '<｜begin▁of▁sentence｜><｜User｜>Solve this problem. \n\nPROBLEM:\nUsing all numbers from [19, 60, 89, 32], create an equation that equals 20.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n\n\nHere are summaries of your previous solution attempts:\n\n\nATTEMPT 0 SUMMARY:\nThe equation that uses all the numbers 19, 60, 89, and 32 exactly once and equals 20 is:\n\n<answer> (60 / (89 - 32)) + 19 </answer>\n\nBased on your previous solution attempts, evaluate whether the most recent approach and answer are correct. If not, consider a different approach.\n<｜Assistant｜><think>\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.6, top_p=0.95, top_k=0, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=25000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None, extra_args=None), prompt_token_ids: None, prompt_embeds shape: None, lora_request: None.
-INFO 08-08 02:15:01 [logger.py:41] Received request chatcmpl-5469b273b1ea4cc2be3840e587891086: prompt: '<｜begin▁of▁sentence｜><｜User｜>Solve this problem. \n\nPROBLEM:\nUsing all numbers from [49, 1, 96, 72], create an equation that equals 36.\n\nRules:\n- You must use every single number in your answer and each number can only be used once (i.e. if input numbers are [1, 2, 3, 4], then your answer must be composed of 1,2,3,4 where each number only appears once.)\n- Available operations: addition (+), subtraction (-), multiplication (*), division (/)\n- Use parentheses to control order of operations\n\n- For each list of input numbers, and a given target number, you are guaranteed that there exists a valid solution using the given rules.\n\nReturn your final equation in <answer> </answer> tags, for example if your answer is (1 + 2) * 3 - 4, then return <answer> (1 + 2) * 3 - 4 </answer>.\n\n\n\nHere are summaries of your previous solution attempts:\n\n\nATTEMPT 0 SUMMARY:\nThe equation is created by first subtracting 1 from 49 to get 48, then dividing 96 by 48 to get 2, and finally dividing 72 by 2 to reach 36.\n\n<answer> 72 / (96 / (49 - 1)) </answer>\n\nBased on your previous solution attempts, evaluate whether the most recent approach and answer are correct. If not, consider a different approach.\n<｜Assistant｜><think>\n', params: SamplingParams(n=1, presence_penalty=0.0, frequency_penalty=0.0, repetition_penalty=1.0, temperature=0.6, top_p=0.95, top_k=0, min_p=0.0, seed=None, stop=[], stop_token_ids=[], bad_words=[], include_stop_str_in_output=False, ignore_eos=False, max_tokens=25000, min_tokens=0, logprobs=None, prompt_logprobs=None, skip_special_tokens=True, spaces_between_special_tokens=True, truncate_prompt_tokens=None, guided_decoding=None, extra_args=None), prompt_token_ids: None, prompt_embeds shape: None, lora_request: None.
-INFO 08-08 02:15:01 [engine.py:315] Added request chatcmpl-1e2a3930275b448a8386fe9416fade59.
-INFO 08-08 02:15:01 [engine.py:315] Added request chatcmpl-5469b273b1ea4cc2be3840e587891086.

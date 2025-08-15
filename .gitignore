@@ -80,3 +80,4 @@ v0
 
 # Large datasets that exceed GitHub limits
 data/countdown.csv
+*.log
