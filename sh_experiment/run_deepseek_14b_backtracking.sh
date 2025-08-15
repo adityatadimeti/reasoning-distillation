@@ -2,7 +2,7 @@
 #SBATCH --job-name=ds_14b_backtracking
 #SBATCH --account=cocoflops
 #SBATCH --partition=cocoflops
-#SBATCH --nodelist=cocoflops1
+#SBATCH --nodelist=cocoflops2
 #SBATCH --output=slurm-output/serve_ds_14b_backtracking.log
 #SBATCH --error=slurm-output/serve_ds_14b_backtracking.err
 #SBATCH --nodes=1

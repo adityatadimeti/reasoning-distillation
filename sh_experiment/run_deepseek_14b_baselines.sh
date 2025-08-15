@@ -2,7 +2,7 @@
 #SBATCH --job-name=ds_14b_baselines
 #SBATCH --account=cocoflops
 #SBATCH --partition=cocoflops
-#SBATCH --nodelist=cocoflops1
+#SBATCH --nodelist=cocoflops2
 #SBATCH --output=slurm-output/serve_deepseek_14b_baselines.log
 #SBATCH --error=slurm-output/serve_deepseek_14b_baselines.err
 #SBATCH --nodes=1
