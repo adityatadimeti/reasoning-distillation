@@ -1,14 +1,14 @@
 #!/bin/zsh
-#SBATCH --job-name=q3_14b_backtracking
+#SBATCH --job-name=ds_14b_baselines
 #SBATCH --account=cocoflops
 #SBATCH --partition=cocoflops
-#SBATCH --nodelist=cocoflops2
-#SBATCH --output=slurm-output/serve_q3_14b_backtracking.log
-#SBATCH --error=slurm-output/serve_q3_14b_backtracking.err
+#SBATCH --nodelist=cocoflops1
+#SBATCH --output=slurm-output/serve_deepseek_14b_baselines.log
+#SBATCH --error=slurm-output/serve_deepseek_14b_baselines.err
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=16
-#SBATCH --gres=gpu:2
+#SBATCH --gres=gpu:1
 #SBATCH --time=96:00:00
 
 # Activate your conda or virtual environment
@@ -34,47 +34,30 @@ export TORCH_COMPILE_CACHE=/scr/jshen3/torch_compile_cache
 # Launch Qwen3-14B for reasoning on GPU 0
 # -----------------------------------
 CUDA_VISIBLE_DEVICES=0 nohup python -m vllm.entrypoints.openai.api_server \
-  --model Qwen/Qwen3-14B \
+  --model deepseek-ai/DeepSeek-R1-Distill-Qwen-14B \
   --host 0.0.0.0 \
-  --port 8004 \
+  --port 8019 \
   --max-model-len 32768 \
   --dtype bfloat16 \
   --gpu-memory-utilization 0.85 \
-  --reasoning-parser qwen3 \
-  > qwen3_reasoning.log 2>&1 &
+  > deepseek_14b_baselines_reasoning.log 2>&1 &
 
-# -----------------------------------
-# Launch Qwen3-14B for summarization on GPU 1
-# -----------------------------------
-CUDA_VISIBLE_DEVICES=1 nohup python -m vllm.entrypoints.openai.api_server \
-  --model Qwen/Qwen3-14B \
-  --host 0.0.0.0 \
-  --port 8005 \
-  --max-model-len 32768 \
-  --dtype bfloat16 \
-  --gpu-memory-utilization 0.85 \
-  --reasoning-parser qwen3 \
-  > qwen3_summarization.log 2>&1 &
 
 # -----------------------------------
 # Wait for both servers to be ready
 # -----------------------------------
-echo "Waiting for Qwen3 model servers to become available..."
+echo "Waiting for DeepSeek-R1-Distill-Qwen-14B model servers to become available..."
 
-until curl -s http://localhost:8004/v1/models &>/dev/null; do
-  echo "Waiting for Qwen3 reasoning server on port 8004..."
+until curl -s http://localhost:8019/v1/models &>/dev/null; do
+  echo "Waiting for DeepSeek-R1-Distill-Qwen-14B reasoning server on port 8019..."
   sleep 5
 done
 
-until curl -s http://localhost:8005/v1/models &>/dev/null; do
-  echo "Waiting for Qwen3 summarization server on port 8005..."
-  sleep 5
-done
 
-echo "Both Qwen3 models are now available!"
+echo "DeepSeek-R1-Distill-Qwen-14B model is now available!"
 
 # -----------------------------------
 # Run experimental script (optional)
 # -----------------------------------
-echo "Running Qwen3 countdown experiment..."
-python run_experiment.py countdown_qwen3_14b_vllm --parallel --concurrency 2 > qwen3_14b_experiment.log 2>&1
+echo "Running DeepSeek-R1-Distill-Qwen-14B baselines experiment..."
+python run_experiment.py countdown_deepseek_rl_vllm_baselines --parallel --concurrency 2 > deepseek_14b_baselines_experiment.log 2>&1

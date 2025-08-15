@@ -1,7 +1,7 @@
 # Experiment configuration for Countdown puzzles using DeepSeek-RL reasoning with Qwen2.5 summarization via vLLM
-experiment_name: "countdown_deepseek_rl_qwen2_5_vllm"
-results_dir: "./results/countdown_deepseek_rl_qwen2_5_vllm"
-data_path: "./data/countdown_custom_2.csv"
+experiment_name: "countdown_deepseek_rl_qwen2_5"
+results_dir: "./results/countdown_deepseek_rl_qwen2_5"
+data_path: "./data/countdown_final.csv"
 save_intermediate: true
 experiment_type: "summarize"
 
@@ -21,17 +21,17 @@ summarizer_model_provider: "vllm"
 # vLLM server configuration for reasoning model (DeepSeek on GPU 1)
 vllm_config:
   host: "localhost"
-  port: 8004
+  port: 8015
   max_model_len: 32768
 
 # vLLM server configuration for summarizer model (Qwen on GPU 0)
 summarizer_vllm_config:
   host: "localhost"
-  port: 8005
+  port: 8016
   max_model_len: 32768
 
 # Generation parameters for reasoning
-max_tokens: 25000  # Extended reasoning trace
+max_tokens: 27000  # Extended reasoning trace
 temperature: 0.6
 top_p: 0.95
 top_k: 40
@@ -40,7 +40,7 @@ frequency_penalty: 0.0
 
 # Continuation parameters for long reasoning traces
 enable_continuation: false  # Disable to avoid context accumulation bug
-max_total_tokens: 25000
+max_total_tokens: 27000
 max_continuations: 1  # Set to 1 to avoid "maximum continuation limit (0)" error
 
 
@@ -53,7 +53,7 @@ enable_summarization: true
 enable_final_summarization: true
 allow_fallback: true
 extract_post_think_summary: false
-summary_max_tokens: 5000  # Concise summary
+summary_max_tokens: 1000  # Concise summary
 summary_temperature: 0.6
 summary_top_p: 0.95
 summary_top_k: 40
@@ -61,7 +61,7 @@ summary_presence_penalty: 0.0
 summary_frequency_penalty: 0.0
 
 # Summary continuation parameters
-summary_max_total_tokens: 5000
+summary_max_total_tokens: 1000
 summary_max_continuations: 1  # Set to 1 to avoid "maximum continuation limit (0)" error
 
 

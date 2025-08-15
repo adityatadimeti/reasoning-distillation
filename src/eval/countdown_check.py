@@ -21,30 +21,54 @@ def extract_solution(solution_str):
 
     import re
     
-    # Try to find answer content with various tag patterns
-    # This regex looks for content between any combination of answer tags
-    # It handles: <answer>content</answer>, </answer>content</answer>, 
-    # <answer>content<answer>, </answer>content<answer>, etc.
-    
-    # Collect all answers from all patterns to find the last one
+    # Find all possible answer patterns and collect them with their positions
     all_answers = []
     
-    # Standard pattern
-    standard_pattern = r'<answer>(.*?)</answer>'
-    standard_matches = re.findall(standard_pattern, solution_str, re.DOTALL)
-    all_answers.extend([(m.start(), match.strip()) for m, match in zip(re.finditer(standard_pattern, solution_str, re.DOTALL), standard_matches) if match.strip()])
+    # Strategy: Find all answer tag boundaries first, then match valid pairs
+    # This avoids the issue of accidentally matching across unrelated tags
     
-    # Alternative patterns for malformed tags
-    alternative_patterns = [
-        r'</answer>(.*?)</answer>',  # </answer>content</answer>
-        r'<answer>(.*?)<answer>',     # <answer>content<answer>
-        r'</answer>(.*?)<answer>',    # </answer>content<answer>
-    ]
+    # Find all answer tag positions
+    open_tags = list(re.finditer(r'<answer(?:\s[^>]*)?>(?:<answer(?:\s[^>]*)?>\s*)?', solution_str, re.IGNORECASE))
+    close_tags = list(re.finditer(r'(?:</answer>\s*)?</answer>', solution_str, re.IGNORECASE))
     
-    for pattern in alternative_patterns:
-        matches = re.findall(pattern, solution_str, re.DOTALL)
-        positions = [(m.start(), match.strip()) for m, match in zip(re.finditer(pattern, solution_str, re.DOTALL), matches) if match.strip()]
-        all_answers.extend(positions)
+    # Also find simpler patterns
+    simple_open_tags = list(re.finditer(r'<answer>', solution_str, re.IGNORECASE))
+    simple_close_tags = list(re.finditer(r'</answer>', solution_str, re.IGNORECASE))
+    
+    # Combine and deduplicate
+    all_open_positions = set()
+    all_close_positions = set()
+    
+    for match in open_tags + simple_open_tags:
+        all_open_positions.add((match.end(), match.group()))
+    
+    for match in close_tags + simple_close_tags:
+        all_close_positions.add((match.start(), match.group()))
+    
+    # Sort positions
+    open_positions = sorted(all_open_positions)
+    close_positions = sorted(all_close_positions)
+    
+    # Find valid answer pairs by matching opens with closes
+    for close_pos, _ in close_positions:
+        # Find the closest preceding open tag
+        for open_pos, _ in reversed(open_positions):
+            if open_pos < close_pos:
+                # Extract content between this open and close
+                content = solution_str[open_pos:close_pos].strip()
+                if content and len(content) < 200:  # Reasonable length for an equation
+                    # Additional validation: should look like a math expression
+                    if re.search(r'[\d+\-*/().\s]+', content) and not re.search(r'\b(the|answer|should|be|equation|that|is|correct)\b', content.lower()):
+                        all_answers.append((close_pos, content))
+                break
+    
+    # Fallback: look for well-formed standard patterns
+    if not all_answers:
+        standard_pattern = r'<answer>\s*([^<>]*?)\s*</answer>'
+        for match in re.finditer(standard_pattern, solution_str, re.DOTALL | re.IGNORECASE):
+            content = match.group(1).strip()
+            if content and len(content) < 200:
+                all_answers.append((match.start(), content))
     
     if all_answers:
         # Sort by position and take the last one
